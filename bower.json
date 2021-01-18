@@ -1,0 +1,17 @@
+{
+  "name": "purescript-graphql-client",
+  "homepage": "https://github.com/OxfordAbstracts/purescript-graphql-client",
+  "authors": [
+    "roryc89 <roryc89@googlemail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
