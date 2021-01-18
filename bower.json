@@ -1,0 +1,36 @@
+{
+    "name": "purescript-graphql-client",
+    "license": [
+        "MIT"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/OxfordAbstracts/purescript-graphql-client"
+    },
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "output"
+    ],
+    "dependencies": {
+        "purescript-aff": "^v5.1.2",
+        "purescript-affjax": "^v11.0.0",
+        "purescript-argonaut-codecs": "^v7.0.0",
+        "purescript-argonaut-core": "^v5.1.0",
+        "purescript-console": "^v4.4.0",
+        "purescript-effect": "^v2.0.1",
+        "purescript-foreign-generic": "^v10.0.0",
+        "purescript-foreign-object": "^v2.0.3",
+        "purescript-heterogeneous": "^v0.4.1",
+        "purescript-parsing": "^v5.1.0",
+        "purescript-psci-support": "^v4.0.0",
+        "purescript-record": "^v2.0.2",
+        "purescript-spec": "^v4.0.1",
+        "purescript-spec-discovery": "^v5.0.0",
+        "purescript-strings-extra": "^v2.2.1",
+        "purescript-typelevel": "^v6.0.0",
+        "purescript-variant": "^v6.0.1",
+        "purescript-graphql-parser": "meeshkan/purescript-graphql-parser#0.0.11"
+    }
+}
