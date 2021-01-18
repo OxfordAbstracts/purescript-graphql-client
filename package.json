@@ -1,0 +1,22 @@
+{
+  "name": "purescript-graphql-client",
+  "version": "1.0.0",
+  "description": "A typesafe graphql client for purescript.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OxfordAbstracts/purescript-graphql-client.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OxfordAbstracts/purescript-graphql-client/issues"
+  },
+  "homepage": "https://github.com/OxfordAbstracts/purescript-graphql-client#readme"
+}
