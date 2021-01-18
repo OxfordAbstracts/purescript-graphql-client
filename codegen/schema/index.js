@@ -1,5 +1,4 @@
 require('env2')('../../.env');
-const { gqlRoles } = require('./gql-roles');
 const {writePursSchema} = require('./write-purs-schema');
 const {getSymbolCode} = require('./get-symbol-code');
 const fs = require('fs');
@@ -9,15 +8,14 @@ const { getEnumBody } = require('./get-enum-body');
 const { uniqBy } = require('lodash');
 const write = promisify(fs.writeFile);
 
-const go = async () => {
+exports.generateSchema = async ({gqlUrls}) => {
   try {
-    console.log(`generating schema for gql url: ${process.env.GQL_URL}`);
     
-    const schemas = await Promise.all(gqlRoles.map(getGqlSchema));
+    const schemas = await Promise.all(gqlUrls.map(getGqlSchema));
 
     console.log('got schemas', schemas.length);
 
-    const results = await Promise.all(schemas.map(s => writePursSchema(s.app, s.gql)));
+    const results = await Promise.all(schemas.map(s => writePursSchema(s.moduleName, s.gql)));
 
     console.log('got results', results.length);
 
@@ -34,5 +32,3 @@ const go = async () => {
     process.exit(1);
   }
 };
-
-go();

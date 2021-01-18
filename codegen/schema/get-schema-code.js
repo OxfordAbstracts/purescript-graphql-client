@@ -1,6 +1,6 @@
 const getEnumImports = enums => enums.map(e => `import GeneratedGql.${e.name} (${e.name})`).join('\n');
 
-exports.getSchemaCode = (app, mainSchemaCode, enums) => `module GeneratedGql.${app}.Schema where
+exports.getSchemaCode = (moduleName, mainSchemaCode, enums) => `module GeneratedGql.${moduleName}.Schema where
 
 import Data.Argonaut.Core (Json)
 import Data.Date (Date)

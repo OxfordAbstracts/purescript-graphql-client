@@ -1,4 +1,4 @@
-const { schemaFromGqlToPursJsHasura } = require('../schema-code-gen-purs-output');
+const { schemaFromGqlToPursJsHasura } = require('../output/GraphQL.Client.CodeGen.Hasura');
 const fs = require('fs');
 const { promisify } = require('util');
 const write = promisify(fs.writeFile);
@@ -29,8 +29,8 @@ const globWithoutPrefix = async (prefix, pattern) => {
   return paths.map(p => p.slice(prefix.length));
 };
 
-exports.writePursSchema = async (app, gqlInput) => {
-  console.log('writePursSchema', app);
+exports.writePursSchema = async (moduleName, gqlInput) => {
+  console.log('writePursSchema', moduleName);
   console.log('gqlInput.length', gqlInput.length);
 
   const schemaTypes = (await globWithoutPrefix('../src/', 'Schema/Types/**/*.purs'));
@@ -45,10 +45,10 @@ exports.writePursSchema = async (app, gqlInput) => {
   let result;
 
   if(cachedResult){
-    console.log('cache hit', app);
+    console.log('cache hit', moduleName);
     result = cachedResult;
   }else{
-    console.log('cache miss', app);
+    console.log('cache miss', moduleName);
 
     const { result: newResult, parseError } =
       schemaFromGqlToPursJsHasura({ outsideScalarTypes, outsideColumnTypes })(gqlInput);
@@ -64,16 +64,16 @@ exports.writePursSchema = async (app, gqlInput) => {
 
   await rm('../src/generated/GeneratedGql');
   await mkdirp('../src/generated/GeneratedGql/Enum');
-  await mkdirp(`../src/generated/GeneratedGql/${app}`);
+  await mkdirp(`../src/generated/GeneratedGql/${moduleName}`);
 
-  const schema = getSchemaCode(app, mainSchemaCode, enums);
+  const schema = getSchemaCode(moduleName, mainSchemaCode, enums);
 
-  await write(`../src/generated/GeneratedGql/${app}/Schema.purs`, schema);
+  await write(`../src/generated/GeneratedGql/${moduleName}/Schema.purs`, schema);
 
-  const queryCode = getQueryCode(app);
+  const queryCode = getQueryCode(moduleName);
 
-  await write(`../src/generated/GeneratedGql/${app}/Query.purs`, queryCode.purs);
-  await write(`../src/generated/GeneratedGql/${app}/Query.js`, queryCode.js);
+  await write(`../src/generated/GeneratedGql/${moduleName}/Query.purs`, queryCode.purs);
+  await write(`../src/generated/GeneratedGql/${moduleName}/Query.js`, queryCode.js);
 
   return {symbols, enums};
 

@@ -45,7 +45,7 @@ getSymbols doc = unwrap doc >>= definitionToSymbols # nub # sort
     AST.TypeDefinition_InterfaceTypeDefinition interfaceTypeDefinition -> mempty
     AST.TypeDefinition_UnionTypeDefinition unionTypeDefinition -> mempty
     AST.TypeDefinition_EnumTypeDefinition enumTypeDefinition -> mempty
-    AST.TypeDefinition_InputObjectTypeDefinition inputObjectTypeDefinition -> mempty -- inputObjectTypeDefinitionToSymbols inputObjectTypeDefinition
+    AST.TypeDefinition_InputObjectTypeDefinition inputObjectTypeDefinition -> mempty
 
   objectTypeDefinitionToSymbols :: AST.ObjectTypeDefinition -> List String
   objectTypeDefinitionToSymbols ( AST.ObjectTypeDefinition

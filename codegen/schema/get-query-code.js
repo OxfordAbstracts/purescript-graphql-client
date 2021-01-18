@@ -1,28 +1,28 @@
-exports.getQueryCode = (app) => {
+exports.getQueryCode = (moduleName) => {
 
-  const js = `exports.runGql${app} = function(x) { return x(); };`;
-  const purs = `module GeneratedGql.${app}.Query where
+  const js = `exports.runGql${moduleName} = function(x) { return x(); };`;
+  const purs = `module GeneratedGql.${moduleName}.Query where
 
 import Affjax.RequestHeader (RequestHeader(..))
 import Control.Alt ((<|>))
 import GraphQL.Hasura.Decode (class DecodeHasura, decodeHasura)
 import Effect.Aff (Aff)
-import GeneratedGql.${app}.Schema (QueryRoot)
+import GeneratedGql.${moduleName}.Schema (QueryRoot)
 import GraphQL.Client.Query (class GqlQuery)
 import GraphQL.Client.Query as GQL
 import Type.Proxy (Proxy(..))
 
-class Gql${app}
+class Gql${moduleName}
 
-foreign import runGql${app} :: forall a. (Gql${app} => a) -> (a)
+foreign import runGql${moduleName} :: forall a. (Gql${moduleName} => a) -> (a)
 
-gqlQuery${app} ::
+gqlQuery${moduleName} ::
   forall returns query.
-  Gql${app} =>
+  Gql${moduleName} =>
   GqlQuery QueryRoot query returns =>
   DecodeHasura returns =>
   String -> query -> Aff returns
-gqlQuery${app} name query = queryRegular <|> queryProxy
+gqlQuery${moduleName} name query = queryRegular <|> queryProxy
   where 
     queryRegular = 
       mkQuery
@@ -42,7 +42,7 @@ gqlQuery${app} name query = queryRegular <|> queryProxy
         query
 
     headers = 
-      [ RequestHeader "X-Hasura-Role" "${app}"
+      [ RequestHeader "X-Hasura-Role" "${moduleName}"
       ]
   
 `;
