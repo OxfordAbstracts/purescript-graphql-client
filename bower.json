@@ -4,6 +4,10 @@
   "authors": [
     "roryc89 <roryc89@googlemail.com>"
   ],
+  "repository": {                                                            
+    "type": "git",                                                           
+    "url": "https://github.com/OxfordAbstracts/purescript-graphql-client.git"
+  },
   "description": "",
   "main": "",
   "license": "MIT",
