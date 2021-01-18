@@ -17,5 +17,8 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "purescript-graphql-parser": "meeshkan/purescript-graphql-parser#0.0.11"
+  }
 }
