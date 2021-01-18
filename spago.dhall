@@ -18,6 +18,7 @@ You can edit this file as you like.
   , "psci-support"
   , "record"
   , "spec"
+  , "spec-discovery"
   , "strings-extra"
   , "typelevel"
   , "variant"

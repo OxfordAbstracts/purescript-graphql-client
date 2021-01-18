@@ -95,7 +95,7 @@ queryFromGqlToPurs gql = runParser gql document <#> toPurs
     AST.Value_BooleanValue val -> show $ unwrap val 
     AST.Value_NullValue val -> "NullValue variable not yet implemented"
     AST.Value_EnumValue val -> unwrap val 
-    AST.Value_ListValue val -> "ListValue variable not yet implemented"
+    AST.Value_ListValue val -> listValueToPurs val
     AST.Value_ObjectValue val -> objectValueToPurs val 
 
 
@@ -105,6 +105,13 @@ queryFromGqlToPurs gql = runParser gql document <#> toPurs
       $ "\n{ "
       <> intercalate "\n, " (map argumentToPurs args)
       <> "\n}"
+
+  listValueToPurs :: AST.ListValue -> String
+  listValueToPurs (AST.ListValue args) = 
+      indent
+      $ "( "
+      <> intercalate " ++ " (map valueToPurs args)
+      <> " )"
 
 lowerCaseFirst :: String -> String
 lowerCaseFirst =
