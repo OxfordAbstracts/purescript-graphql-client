@@ -8,3 +8,6 @@
 /.purs*
 /.psa*
 /.spago
+/.vscode
+
+/codegen/schema/cache
