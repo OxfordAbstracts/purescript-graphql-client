@@ -14,6 +14,7 @@ You can edit this file as you like.
   , "effect"
   , "foreign-generic"
   , "foreign-object"
+  , "graphql-parser"
   , "heterogeneous"
   , "parsing"
   , "psci-support"
