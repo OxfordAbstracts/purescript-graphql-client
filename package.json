@@ -4,6 +4,7 @@
   "description": "A typesafe graphql client for purescript.",
   "main": "index.js",
   "directories": {
+    "main": "./codegen/schema/index.js",
     "test": "test"
   },
   "scripts": {
