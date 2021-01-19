@@ -1,13 +1,16 @@
-const JWT = require('jsonwebtoken');
-const execSh = require('exec-sh').promise;
+const execSh = require('exec-sh').promise
 
-exports.getGqlSchema = async ({ session }) => {
-  
-  const cmd = `gq ${process.env.GQL_URL} \\
-      --introspect \\
-      -H 'Authorization: Bearer ${session}'`;
+exports.getGqlSchema = async ({ moduleName, url, token }) => {
+  try {
+    const cmd = `gq ${url} \\
+    --introspect \\
+    ${token ? `-H 'Authorization: Bearer ${token}'` : ''}`
 
-  const {stdout: gql} = await execSh(cmd, { stdio: 'pipe' });
+    const { stdout: gql } = await execSh(cmd, { stdio: 'pipe' })
 
-  return { app, gql };
-};
+    return { moduleName, gql }
+  } catch (err) {
+    console.error('failed to get gql schema', err)
+    throw (err)
+  }
+}

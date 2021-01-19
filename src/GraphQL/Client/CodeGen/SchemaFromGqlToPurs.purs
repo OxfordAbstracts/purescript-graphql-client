@@ -1,11 +1,22 @@
-module GraphQL.Client.CodeGen.SchemaFromGqlToPurs (InputOptions, InputOptionsJs, PursGql, GqlEnum, schemaFromGqlToPurs, schemaFromGqlToPursJs, indent) where
+module GraphQL.Client.CodeGen.SchemaFromGqlToPurs
+  ( InputOptions
+  , InputOptionsJs
+  , PursGql
+  , GqlEnum
+  , GqlInput
+  , FileToWrite
+  , FilesToWrite
+  , schemasFromGqlToPursJs
+  , indent
+  ) where
 
 import Prelude hiding (between)
 
-import Data.Array (elem, fold, nub)
+import Data.Array (elem, fold, nub, nubBy)
 import Data.Array as Array
 import Data.Either (Either, either)
 import Data.Foldable (foldMap, intercalate)
+import Data.Function (on)
 import Data.GraphQL.AST as AST
 import Data.GraphQL.Parser (document)
 import Data.List (List, mapMaybe)
@@ -19,38 +30,53 @@ import Data.String.Extra (pascalCase)
 import Data.String.Regex (split)
 import Data.String.Regex.Flags (global)
 import Data.String.Regex.Unsafe (unsafeRegex)
+import Data.Traversable (traverse)
 import Foreign.Object (Object)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
+import Grapql.Client.CodeGen.Enum as GqlEnum
+import Grapql.Client.CodeGen.Schema as Schema
 import Text.Parsing.Parser (ParseError, parseErrorMessage, runParser)
 
 type InputOptions
-  = { outsideScalarTypes ::
+  = { externalTypes ::
         Map String
           { moduleName :: String
           , typeName :: String
           }
-    , outsideColumnTypes ::
-        Map String ( Map String
-          { moduleName :: String
-          , typeName :: String
-          })
+    , fieldTypeOverrides ::
+        Map String
+          ( Map String
+              { moduleName :: String
+              , typeName :: String
+              }
+          )
+    , dir :: String
     }
 
 type InputOptionsJs
-  = { outsideScalarTypes ::
+  = { externalTypes ::
         Object
           { moduleName :: String
           , typeName :: String
           }
-    , outsideColumnTypes ::
-        Object ( Object
-          { moduleName :: String
-          , typeName :: String
-          })
+    , fieldTypeOverrides ::
+        Object
+          ( Object
+              { moduleName :: String
+              , typeName :: String
+              }
+          )
+    , dir :: String
+    }
+
+type GqlInput
+  = { gql :: String
+    , moduleName :: String
     }
 
 type PursGql
-  = { mainSchemaCode :: String
+  = { moduleName :: String
+    , mainSchemaCode :: String
     , symbolsCode :: String
     , symbols :: Array String
     , enums :: Array GqlEnum
@@ -59,14 +85,26 @@ type PursGql
 type GqlEnum
   = { name :: String, values :: Array String }
 
-schemaFromGqlToPursJs :: InputOptionsJs -> String -> { parseError :: String, result :: PursGql }
-schemaFromGqlToPursJs optsJs =
-  schemaFromGqlToPurs opts
+type FilesToWrite
+  = { schemas :: Array FileToWrite
+    , enums :: Array FileToWrite
+    , symbols :: FileToWrite
+    }
+
+type FileToWrite
+  = { path :: String
+    , code :: String
+    }
+
+schemasFromGqlToPursJs :: InputOptionsJs -> Array GqlInput -> { parseError :: String, result :: FilesToWrite }
+schemasFromGqlToPursJs optsJs =
+  schemasFromGqlToPurs opts
     >>> either getError \result -> { result, parseError: "" }
   where
   opts =
-    { outsideScalarTypes: Map.fromFoldableWithIndex optsJs.outsideScalarTypes
-    , outsideColumnTypes: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex optsJs.outsideColumnTypes
+    { externalTypes: Map.fromFoldableWithIndex optsJs.externalTypes
+    , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex optsJs.fieldTypeOverrides
+    , dir: optsJs.dir
     }
 
   getError err =
@@ -74,19 +112,50 @@ schemaFromGqlToPursJs optsJs =
     , result: mempty
     }
 
+schemasFromGqlToPurs :: InputOptions -> Array GqlInput -> Either ParseError FilesToWrite
+schemasFromGqlToPurs opts = traverse (schemaFromGqlToPurs opts) >>> map collectSchemas
+  where
+  collectSchemas :: Array PursGql -> FilesToWrite
+  collectSchemas pursGqls =
+    { schemas:
+        pursGqls
+          <#> \pg ->
+              { code: Schema.template 
+                { name: pg.moduleName 
+                , mainSchemaCode: pg.mainSchemaCode
+                , enums: map _.name pg.enums
+                }
+              , path: opts.dir <> "/Schema/" <> pg.moduleName <> ".purs"
+              }
+    , enums:
+        nubBy (compare `on` _.path)
+          $ pursGqls
+          >>= \pg ->
+              pg.enums
+                <#> \e ->
+                    { code: GqlEnum.template e
+                    , path: opts.dir <> "/Enum/" <> e.name <> ".purs"
+                    }
+    , symbols:
+        pursGqls >>= _.symbols
+          # \syms ->
+              { path: opts.dir <> "/Symbols.purs", code: symbolsToCode syms }
+    }
+
 -- | Given a gql doc this will create the equivalent purs gql schema
-schemaFromGqlToPurs :: InputOptions -> String -> Either ParseError PursGql
-schemaFromGqlToPurs opts gql =
+schemaFromGqlToPurs :: InputOptions -> GqlInput -> Either ParseError PursGql
+schemaFromGqlToPurs opts { gql, moduleName } =
   runParser gql document
     <#> \ast ->
-      let
-        symbols = Array.fromFoldable $ getSymbols ast
-      in
-        { mainSchemaCode: gqlToPursMainSchemaCode opts ast
-        , enums: gqlToPursEnums ast
-        , symbolsCode: symbolsToCode symbols
-        , symbols
-        }
+        let
+          symbols = Array.fromFoldable $ getSymbols ast
+        in
+          { mainSchemaCode: gqlToPursMainSchemaCode opts ast
+          , enums: gqlToPursEnums ast
+          , symbolsCode: symbolsToCode symbols
+          , symbols
+          , moduleName
+          }
 
 toImport ::
   forall r.
@@ -107,7 +176,7 @@ toImport mainCode =
     )
 
 gqlToPursMainSchemaCode :: InputOptions -> AST.Document -> String
-gqlToPursMainSchemaCode { outsideScalarTypes, outsideColumnTypes } doc =
+gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides } doc =
   imports
     <> guard (imports /= "") "\n"
     <> "\n"
@@ -115,8 +184,8 @@ gqlToPursMainSchemaCode { outsideScalarTypes, outsideColumnTypes } doc =
   where
   imports =
     fold $ nub
-      $ toImport mainCode (Array.fromFoldable outsideScalarTypes)
-      <> toImport mainCode (Array.fromFoldable $ fold outsideColumnTypes )
+      $ toImport mainCode (Array.fromFoldable externalTypes)
+      <> toImport mainCode (Array.fromFoldable $ fold fieldTypeOverrides)
 
   mainCode = unwrap doc # mapMaybe definitionToPurs # intercalate "\n\n"
 
@@ -157,9 +226,9 @@ gqlToPursMainSchemaCode { outsideScalarTypes, outsideColumnTypes } doc =
     AST.TypeDefinition_InputObjectTypeDefinition inputObjectTypeDefinition -> Just $ inputObjectTypeDefinitionToPurs inputObjectTypeDefinition
 
   scalarTypeDefinitionToPurs :: AST.ScalarTypeDefinition -> String
-  scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) = case lookup tName outsideScalarTypes of
+  scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) = case lookup tName externalTypes of
     Nothing ->
-      guard (not builtIn)
+      guard (not $ isExternalType tName)
         ( descriptionToDocComment description
             <> "newtype "
             <> tName
@@ -178,19 +247,12 @@ gqlToPursMainSchemaCode { outsideScalarTypes, outsideColumnTypes } doc =
     where
     tName = typeName name
 
-    builtIn =
-      elem tName
-        [ "Int"
-        , "Number"
-        , "Date"
-        , "DateTime"
-        , "String"
-        , "Json"
-        , "Time"
-        ]
-
     inside = case tName of
       _ -> "UNKNOWN!!!!"
+
+  isExternalType tName = elem tName externalTypesArr
+
+  externalTypesArr = Map.keys externalTypes # Array.fromFoldable
 
   objectTypeDefinitionToPurs :: AST.ObjectTypeDefinition -> String
   objectTypeDefinitionToPurs ( AST.ObjectTypeDefinition
@@ -241,7 +303,7 @@ gqlToPursMainSchemaCode { outsideScalarTypes, outsideColumnTypes } doc =
       <> name
       <> " :: "
       <> foldMap argumentsDefinitionToPurs argumentsDefinition
-      <> case lookup objectName outsideColumnTypes >>= lookup name  of
+      <> case lookup objectName fieldTypeOverrides >>= lookup name of
           Nothing -> typeToPurs tipe
           Just out -> out.moduleName <> "." <> out.typeName
 
@@ -328,7 +390,8 @@ gqlToPursMainSchemaCode { outsideScalarTypes, outsideColumnTypes } doc =
       <> name
       <> " :: "
       -- <> foldMap argumentsDefinitionToPurs argumentsDefinition
-      <> case lookup objectName outsideColumnTypes >>= lookup name  of
+      
+      <> case lookup objectName fieldTypeOverrides >>= lookup name of
           Nothing -> argTypeToPurs tipe
           Just out -> out.moduleName <> "." <> out.typeName
 

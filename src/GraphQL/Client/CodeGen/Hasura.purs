@@ -5,13 +5,13 @@ import Prelude
 import Data.FunctorWithIndex (mapWithIndex)
 import Data.Tuple (Tuple(..))
 import Foreign.Object as Object
-import GraphQL.Client.CodeGen.SchemaFromGqlToPurs (InputOptionsJs, PursGql, schemaFromGqlToPursJs)
+import GraphQL.Client.CodeGen.SchemaFromGqlToPurs (FilesToWrite, GqlInput, InputOptionsJs, schemasFromGqlToPursJs)
 
-schemaFromGqlToPursJsHasura :: InputOptionsJs -> String -> { parseError :: String, result :: PursGql }
+schemaFromGqlToPursJsHasura :: InputOptionsJs -> Array GqlInput -> { parseError :: String, result :: FilesToWrite }
 schemaFromGqlToPursJsHasura opts =
-  schemaFromGqlToPursJs
+  schemasFromGqlToPursJs
     opts
-      { outsideColumnTypes = Object.unions $ opts.outsideColumnTypes # mapWithIndex \gqlObjectName obj -> 
+      { fieldTypeOverrides = Object.unions $ opts.fieldTypeOverrides # mapWithIndex \gqlObjectName obj -> 
           Object.fromFoldable 
             [ Tuple gqlObjectName obj
             , Tuple (gqlObjectName <> "InsertInput") obj

@@ -22,6 +22,7 @@ You can edit this file as you like.
   , "spec"
   , "spec-discovery"
   , "strings-extra"
+  , "substitute"
   , "typelevel"
   , "variant"
   ]

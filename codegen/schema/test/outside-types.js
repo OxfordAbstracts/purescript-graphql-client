@@ -2,7 +2,7 @@
 const idType = typeName => ({
   moduleName: `Data.Id.${typeName}`,
   typeName
-});
+})
 
 const newCols = {
   event_id: idType('EventId'),
@@ -10,7 +10,7 @@ const newCols = {
   client_id: idType('ClientId'),
   submission_id: idType('SubmissionId'),
   program_session_id: idType('ProgramSessionId')
-};
+}
 
 module.exports =
   {
@@ -23,4 +23,4 @@ module.exports =
     },
     ProgramSessions: newCols
 
-  };
+  }
