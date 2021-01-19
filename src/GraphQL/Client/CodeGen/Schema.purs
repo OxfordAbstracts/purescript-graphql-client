@@ -1,4 +1,4 @@
-module Grapql.Client.CodeGen.Schema where
+module GraphQL.Client.CodeGen.Schema where
 
 import Prelude
 import Substitute (substitute)

@@ -34,8 +34,8 @@ import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.Traversable (traverse)
 import Foreign.Object (Object)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
-import Grapql.Client.CodeGen.Enum as GqlEnum
-import Grapql.Client.CodeGen.Schema as Schema
+import GraphQL.Client.CodeGen.Enum as GqlEnum
+import GraphQL.Client.CodeGen.Schema as Schema
 import Text.Parsing.Parser (ParseError, parseErrorMessage, runParser)
 
 type InputOptions

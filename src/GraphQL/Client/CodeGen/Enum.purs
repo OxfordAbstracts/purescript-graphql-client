@@ -1,4 +1,4 @@
-module Grapql.Client.CodeGen.Enum where
+module GraphQL.Client.CodeGen.Enum where
 
 import Prelude
 import Substitute (substitute)
