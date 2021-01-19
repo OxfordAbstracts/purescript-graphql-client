@@ -1,7 +1,7 @@
 const { writePursSchemas } = require('./write-purs-schema')
 const { getGqlSchema } = require('./get-gql-schema')
 
-exports.generateSchemas = async (opts, gqlEndpoints) => {
+module.exports = async (opts, gqlEndpoints) => {
   if (!Array.isArray(gqlEndpoints)) {
     gqlEndpoints = [gqlEndpoints]
   }
