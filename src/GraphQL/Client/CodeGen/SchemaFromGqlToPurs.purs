@@ -7,6 +7,7 @@ module GraphQL.Client.CodeGen.SchemaFromGqlToPurs
   , FileToWrite
   , FilesToWrite
   , schemasFromGqlToPursJs
+  , schemaFromGqlToPurs
   , indent
   ) where
 
