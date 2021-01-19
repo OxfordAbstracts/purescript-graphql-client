@@ -32,6 +32,6 @@
         "purescript-typelevel": "^v6.0.0",
         "purescript-variant": "^v6.0.1",
         "purescript-graphql-parser": "meeshkan/purescript-graphql-parser#0.0.11",
-        "purescript-substitute": "meeshkan/purescript-substitute#0.1.1"
+        "purescript-substitute": "ursi/purescript-substitute#0.1.1"
     }
 }
