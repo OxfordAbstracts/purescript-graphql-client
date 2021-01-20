@@ -10,8 +10,8 @@ const getToken = app => JWT.sign(
 module.exports = [
   {
     url: 'http://localhost:8080/v1/graphql',
-    moduleName: 'ProgramPublic',
-    token: getToken('ProgramPublic'),
+    moduleName: 'ClientAdmin',
+    token: getToken('ClientAdmin'),
     cache: { get, set }
   }
 ]

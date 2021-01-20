@@ -2,6 +2,7 @@ module GraphQL.Client.CodeGen.GetSymbols where
 
 import Prelude
 
+import Data.Array as Array
 import Data.Foldable (class Foldable)
 import Data.GraphQL.AST as AST
 import Data.List (List, foldMap, nub, sort, (:))
@@ -18,8 +19,10 @@ import Data.Symbol (SProxy(..))
     <> symbolsString
   where
   symbolsString =
-    symbols
-      # foldMap (\s -> "\n" <> s <> " :: SProxy " <> show s <> "\n" <> s <> " = SProxy")
+     symbols
+        # Array.fromFoldable
+        # Array.nub
+        # foldMap (\s -> "\n" <> s <> " :: SProxy " <> show s <> "\n" <> s <> " = SProxy")
 
 getSymbols :: AST.Document -> List String
 getSymbols doc = unwrap doc >>= definitionToSymbols # nub # sort

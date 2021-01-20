@@ -29,13 +29,15 @@ import Data.Function (on)
 import Data.GraphQL.AST as AST
 import Data.GraphQL.Parser (document)
 import Data.List (List, mapMaybe)
+import Data.List as List
 import Data.Map (Map, lookup)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe)
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
 import Data.Nullable (Nullable, toMaybe)
-import Data.String (Pattern(..), contains, joinWith)
+import Data.String (Pattern(..), codePointFromChar, contains, joinWith)
+import Data.String.CodePoints (takeWhile)
 import Data.String.Extra (pascalCase)
 import Data.String.Regex (split)
 import Data.String.Regex.Flags (global)
@@ -276,7 +278,12 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides } doc =
       $ toImport mainCode (Array.fromFoldable externalTypes)
       <> toImport mainCode (Array.fromFoldable $ fold fieldTypeOverrides)
 
-  mainCode = unwrap doc # mapMaybe definitionToPurs # intercalate "\n\n"
+  mainCode = unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
+
+  removeDuplicateDefinitions = Array.fromFoldable >>> nubBy (compare `on` getDefinitionTypeName) >>> List.fromFoldable
+
+  getDefinitionTypeName :: String -> String 
+  getDefinitionTypeName = takeWhile (notEq (codePointFromChar '='))
 
   definitionToPurs :: AST.Definition -> Maybe String
   definitionToPurs = case _ of
@@ -341,7 +348,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides } doc =
         inside = case tName of
           _ -> "UNKNOWN!!!!"
 
-  builtInTypes = [ "Int", "Number", "String"]
+  builtInTypes = [ "Int", "Number", "String" ]
 
   isExternalType tName = elem tName externalTypesArr
 
