@@ -16857,7 +16857,7 @@ var PS = {};
           name: v.name,
           modulePrefix: v.modulePrefix,
           enumImports: Data_Foldable.intercalate(Data_Foldable.foldableArray)(Data_Monoid.monoidString)("\x0a")(Data_Functor.mapFlipped(Data_Functor.functorArray)(v.enums)(function (v1) {
-              return Substitute.substitute()("import ${modulePrefix}Enums.${v} (${v})")({
+              return Substitute.substitute()("import ${modulePrefix}Enum.${v} (${v})")({
                   v: v1,
                   modulePrefix: v.modulePrefix
               });
