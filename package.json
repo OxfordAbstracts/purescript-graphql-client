@@ -7,7 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "spago bundle-module -m GraphQL.Client.CodeGen.Hasura -t 'gen-schema-bundled.js'",
+    "patch": "npm run bundle && gcam 'update bundle' && npm version patch && npm publish && pulp publish"
   },
   "repository": {
     "type": "git",
