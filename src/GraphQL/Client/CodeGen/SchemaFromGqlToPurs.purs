@@ -66,10 +66,6 @@ type InputOptions
           )
     , dir :: String
     , modulePath :: Array String
-    -- , cache :: Maybe 
-    --   { get :: String -> Aff String
-    --   , set :: String -> String -> Aff Unit
-    --   }
     }
 
 type InputOptionsJs
@@ -87,6 +83,7 @@ type InputOptionsJs
           )
     , dir :: String
     , modulePath :: Array String
+    , isHasura :: Boolean
     }
 
 type GqlInputForeign

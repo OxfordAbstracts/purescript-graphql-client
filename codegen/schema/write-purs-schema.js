@@ -1,14 +1,11 @@
-const { schemaFromGqlToPursForeignHasura } = require('../../output/GraphQL.Client.CodeGen.Hasura')
-const { schemasFromGqlToPursForeign } = require('../../output/GraphQL.Client.CodeGen.SchemaFromGqlToPurs')
+const { schemaFromGqlToPursForeignHasura } = require('../../gen-schema-bundled.js')
 const fs = require('fs')
 const { promisify } = require('util')
 const write = promisify(fs.writeFile)
 
 exports.writePursSchemas = async (opts, gqlSchemas) => {
   const { argsTypeError, parseError, result } =
-    await (opts.isHasura
-      ? schemaFromGqlToPursForeignHasura
-      : schemasFromGqlToPursForeign)(opts)(gqlSchemas)()
+    await schemaFromGqlToPursForeignHasura(opts)(gqlSchemas)()
 
   if (argsTypeError) {
     throw new Error(argsTypeError)

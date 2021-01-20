@@ -14,7 +14,7 @@ schemaFromGqlToPursForeignHasura = decodeSchemasFromGqlToArgs schemaFromGqlToPur
 schemaFromGqlToPursJsHasura :: InputOptionsJs -> Array GqlInput -> JsResult
 schemaFromGqlToPursJsHasura opts =
   schemasFromGqlToPursJs
-    opts
+    if not opts.isHasura then opts else opts
       { fieldTypeOverrides =
         Object.unions $ opts.fieldTypeOverrides
           # mapWithIndex \gqlObjectName obj ->
