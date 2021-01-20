@@ -9,9 +9,9 @@ import Data.Maybe (maybe)
 import Data.Newtype (unwrap)
 
 
-symbolsToCode :: forall f. Foldable f => f String -> String
-symbolsToCode symbols =
-  """module GeneratedGql.Symbols where
+symbolsToCode :: forall f. Foldable f => String -> f String -> String
+symbolsToCode modulePrefix symbols =
+  """module """ <> modulePrefix <> """Symbols where
 
 import Data.Symbol (SProxy(..))
 """

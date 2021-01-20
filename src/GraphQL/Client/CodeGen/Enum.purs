@@ -5,13 +5,14 @@ import Substitute (substitute)
 import Data.Foldable (intercalate)
 
 template ::
+  String ->
   { name :: String
   , values :: Array String
   } ->
   String
-template { name, values } =
+template modulePrefix { name, values } =
   substitute
-    """module GeneratedGql.Enum.${name} where
+    """module ${modulePrefix}Enum.${name} where
 
 import Prelude
 
@@ -49,6 +50,7 @@ instance show${name} :: Show ${name} where
   where
   substVals =
     { name
+    , modulePrefix
     , enumCtrs: intercalate "\n  | " values
     , decodeMember:
         values

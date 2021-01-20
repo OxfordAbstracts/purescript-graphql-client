@@ -14,7 +14,6 @@ module GraphQL.Client.CodeGen.SchemaFromGqlToPurs
   ) where
 
 import Prelude hiding (between)
-
 import Control.Monad.Except (runExcept)
 import Data.Array (elem, fold, nub, nubBy)
 import Data.Array as Array
@@ -57,6 +56,7 @@ type InputOptions
               }
           )
     , dir :: String
+    , modulePath :: Array String
     }
 
 type InputOptionsJs
@@ -73,6 +73,7 @@ type InputOptionsJs
               }
           )
     , dir :: String
+    , modulePath :: Array String
     }
 
 type GqlInput
@@ -83,7 +84,6 @@ type GqlInput
 type PursGql
   = { moduleName :: String
     , mainSchemaCode :: String
-    , symbolsCode :: String
     , symbols :: Array String
     , enums :: Array GqlEnum
     }
@@ -97,28 +97,28 @@ type FilesToWrite
     , symbols :: FileToWrite
     }
 
-type JsResult = 
-  { argsTypeError :: String
-  , parseError :: String
-  , result :: FilesToWrite
-  }
+type JsResult
+  = { argsTypeError :: String
+    , parseError :: String
+    , result :: FilesToWrite
+    }
 
 type FileToWrite
   = { path :: String
     , code :: String
     }
 
-decodeSchemasFromGqlToArgs :: forall a.
-  (InputOptionsJs -> a -> JsResult) 
-  -> Foreign -> a -> JsResult
-decodeSchemasFromGqlToArgs fn f = case runExcept $ decode f of 
+decodeSchemasFromGqlToArgs ::
+  forall a.
+  (InputOptionsJs -> a -> JsResult) ->
+  Foreign -> a -> JsResult
+decodeSchemasFromGqlToArgs fn f = case runExcept $ decode f of
   Left err -> \_ ->
-      { parseError: mempty
-      , argsTypeError: show err
-      , result: mempty
-      }
-  Right optsJs -> 
-    fn optsJs
+    { parseError: mempty
+    , argsTypeError: show err
+    , result: mempty
+    }
+  Right optsJs -> fn optsJs
 
 schemasFromGqlToPursForeign :: Foreign -> Array GqlInput -> JsResult
 schemasFromGqlToPursForeign = decodeSchemasFromGqlToArgs schemasFromGqlToPursJs
@@ -126,12 +126,13 @@ schemasFromGqlToPursForeign = decodeSchemasFromGqlToArgs schemasFromGqlToPursJs
 schemasFromGqlToPursJs :: InputOptionsJs -> Array GqlInput -> JsResult
 schemasFromGqlToPursJs optsJs =
   schemasFromGqlToPurs opts
-    >>> either getError  { result: _, parseError: "", argsTypeError: "" }
+    >>> either getError { result: _, parseError: "", argsTypeError: "" }
   where
   opts =
     { externalTypes: Map.fromFoldableWithIndex optsJs.externalTypes
     , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex optsJs.fieldTypeOverrides
     , dir: optsJs.dir
+    , modulePath: optsJs.modulePath
     }
 
   getError err =
@@ -143,16 +144,19 @@ schemasFromGqlToPursJs optsJs =
 schemasFromGqlToPurs :: InputOptions -> Array GqlInput -> Either ParseError FilesToWrite
 schemasFromGqlToPurs opts = traverse (schemaFromGqlToPurs opts) >>> map collectSchemas
   where
+  modulePrefix = foldMap (_ <> ".") opts.modulePath
+
   collectSchemas :: Array PursGql -> FilesToWrite
   collectSchemas pursGqls =
     { schemas:
         pursGqls
           <#> \pg ->
-              { code: Schema.template 
-                { name: pg.moduleName 
-                , mainSchemaCode: pg.mainSchemaCode
-                , enums: map _.name pg.enums
-                }
+              { code:
+                  Schema.template
+                    { name: modulePrefix <> pg.moduleName
+                    , mainSchemaCode: pg.mainSchemaCode
+                    , enums: map _.name pg.enums
+                    }
               , path: opts.dir <> "/Schema/" <> pg.moduleName <> ".purs"
               }
     , enums:
@@ -161,13 +165,13 @@ schemasFromGqlToPurs opts = traverse (schemaFromGqlToPurs opts) >>> map collectS
           >>= \pg ->
               pg.enums
                 <#> \e ->
-                    { code: GqlEnum.template e
+                    { code: GqlEnum.template modulePrefix e
                     , path: opts.dir <> "/Enum/" <> e.name <> ".purs"
                     }
     , symbols:
         pursGqls >>= _.symbols
           # \syms ->
-              { path: opts.dir <> "/Symbols.purs", code: symbolsToCode syms }
+              { path: opts.dir <> "/Symbols.purs", code: symbolsToCode modulePrefix syms }
     }
 
 -- | Given a gql doc this will create the equivalent purs gql schema
@@ -180,10 +184,10 @@ schemaFromGqlToPurs opts { gql, moduleName } =
         in
           { mainSchemaCode: gqlToPursMainSchemaCode opts ast
           , enums: gqlToPursEnums ast
-          , symbolsCode: symbolsToCode symbols
           , symbols
           , moduleName
           }
+          
 
 toImport ::
   forall r.

@@ -204,12 +204,6 @@ enum my_enum {
             { mainSchemaCode
             , moduleName: "Test"
             , symbols: ["prop"]
-            , symbolsCode: """module GeneratedGql.Symbols where
-
-import Data.Symbol (SProxy(..))
-
-prop :: SProxy "prop"
-prop = SProxy"""
             , enums:
                 [ { name: "MyEnum"
                   , values: [ "EnumVal1", "EnumVal2" ]
@@ -219,11 +213,11 @@ prop = SProxy"""
   where
   shouldParseTo gql r = 
     let 
-      purs = schemaFromGqlToPurs {dir: "", fieldTypeOverrides: mempty, externalTypes: mempty} {gql, moduleName: ""}
+      purs = schemaFromGqlToPurs {dir: "", modulePath:[], fieldTypeOverrides: mempty, externalTypes: mempty} {gql, moduleName: ""}
     in
     map _.mainSchemaCode purs `shouldEqual` Right r
 
-  shouldParseToAll gql r = schemaFromGqlToPurs {dir: "", fieldTypeOverrides: mempty, externalTypes: mempty} {gql, moduleName: "Test"} `shouldEqual` Right r
+  shouldParseToAll gql r = schemaFromGqlToPurs {dir: "", modulePath:[], fieldTypeOverrides: mempty, externalTypes: mempty} {gql, moduleName: "Test"} `shouldEqual` Right r
 
 queryOnlySchemaGql :: String -> String
 queryOnlySchemaGql queryRoot =
