@@ -33,8 +33,7 @@ instance queriable ::
 
 query ::
   forall returns query schema.
-  QueryReturns schema query returns =>
-  GqlQueryString query =>
+  GqlQuery schema query returns =>
   DecodeJson returns =>
   Proxy schema -> URL -> Array RequestHeader -> String -> query -> Aff returns
 query = queryWithDecoder decodeJson
@@ -85,7 +84,6 @@ queryWithDecoder decodeFn _ url headers queryName q =
 queryPostForeign ::
   forall schema query returns.
   GqlQuery schema query returns =>
-  GqlQueryString query =>
   URL -> Proxy schema -> Proxy returns -> Array RequestHeader -> String -> query -> Aff (Either Error (Response Json))
 queryPostForeign url schema _ headers operationName q =
   request

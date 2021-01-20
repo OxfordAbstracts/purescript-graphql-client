@@ -1,13 +1,14 @@
 module GraphQL.Client.CodeGen.Hasura (schemaFromGqlToPursForeignHasura) where
 
 import Prelude
+
 import Data.FunctorWithIndex (mapWithIndex)
 import Data.Tuple (Tuple(..))
 import Foreign (Foreign)
 import Foreign.Object as Object
-import GraphQL.Client.CodeGen.SchemaFromGqlToPurs (GqlInput, InputOptionsJs, JsResult, decodeSchemasFromGqlToArgs, schemasFromGqlToPursJs)
+import GraphQL.Client.CodeGen.SchemaFromGqlToPurs (GqlInputForeign, InputOptionsJs, JsResult, GqlInput, decodeSchemasFromGqlToArgs, schemasFromGqlToPursJs)
 
-schemaFromGqlToPursForeignHasura :: Foreign -> Array GqlInput -> JsResult
+schemaFromGqlToPursForeignHasura :: Foreign -> Array GqlInputForeign -> JsResult
 schemaFromGqlToPursForeignHasura = decodeSchemasFromGqlToArgs schemaFromGqlToPursJsHasura
 
 schemaFromGqlToPursJsHasura :: InputOptionsJs -> Array GqlInput -> JsResult

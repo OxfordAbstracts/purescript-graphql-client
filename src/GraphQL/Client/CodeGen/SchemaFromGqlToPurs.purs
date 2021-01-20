@@ -4,6 +4,7 @@ module GraphQL.Client.CodeGen.SchemaFromGqlToPurs
   , PursGql
   , GqlEnum
   , GqlInput
+  , GqlInputForeign
   , FileToWrite
   , FilesToWrite
   , JsResult
@@ -14,10 +15,15 @@ module GraphQL.Client.CodeGen.SchemaFromGqlToPurs
   ) where
 
 import Prelude hiding (between)
+
 import Control.Monad.Except (runExcept)
+import Control.Promise (Promise, fromAff, toAff)
+import Data.Argonaut.Core (Json)
+import Data.Argonaut.Decode (decodeJson)
+import Data.Argonaut.Encode (encodeJson)
 import Data.Array (elem, fold, nub, nubBy)
 import Data.Array as Array
-import Data.Either (Either(..), either)
+import Data.Either (Either(..), either, hush)
 import Data.Foldable (foldMap, intercalate)
 import Data.Function (on)
 import Data.GraphQL.AST as AST
@@ -28,12 +34,15 @@ import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe)
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
+import Data.Nullable (Nullable, toMaybe)
 import Data.String (Pattern(..), contains, joinWith)
 import Data.String.Extra (pascalCase)
 import Data.String.Regex (split)
 import Data.String.Regex.Flags (global)
 import Data.String.Regex.Unsafe (unsafeRegex)
-import Data.Traversable (traverse)
+import Data.Traversable (sequence, traverse)
+import Effect (Effect)
+import Effect.Aff (Aff)
 import Foreign (Foreign)
 import Foreign.Generic (decode)
 import Foreign.Object (Object)
@@ -57,6 +66,10 @@ type InputOptions
           )
     , dir :: String
     , modulePath :: Array String
+    -- , cache :: Maybe 
+    --   { get :: String -> Aff String
+    --   , set :: String -> String -> Aff Unit
+    --   }
     }
 
 type InputOptionsJs
@@ -76,9 +89,24 @@ type InputOptionsJs
     , modulePath :: Array String
     }
 
+type GqlInputForeign
+  = { gql :: String
+    , moduleName :: String
+    , cache ::
+        Nullable
+          { get :: String -> Promise (Nullable Json)
+          , set :: { key :: String, val :: Json } -> Promise Unit
+          }
+    }
+
 type GqlInput
   = { gql :: String
     , moduleName :: String
+    , cache ::
+        Maybe
+          { get :: String -> Aff (Maybe Json)
+          , set :: { key :: String, val :: Json } -> Aff Unit
+          }
     }
 
 type PursGql
@@ -98,10 +126,13 @@ type FilesToWrite
     }
 
 type JsResult
-  = { argsTypeError :: String
-    , parseError :: String
-    , result :: FilesToWrite
-    }
+  = Effect
+      ( Promise
+          { argsTypeError :: String
+          , parseError :: String
+          , result :: FilesToWrite
+          }
+      )
 
 type FileToWrite
   = { path :: String
@@ -109,24 +140,38 @@ type FileToWrite
     }
 
 decodeSchemasFromGqlToArgs ::
-  forall a.
-  (InputOptionsJs -> a -> JsResult) ->
-  Foreign -> a -> JsResult
-decodeSchemasFromGqlToArgs fn f = case runExcept $ decode f of
-  Left err -> \_ ->
-    { parseError: mempty
-    , argsTypeError: show err
-    , result: mempty
+  (InputOptionsJs -> Array GqlInput -> JsResult) ->
+  Foreign -> Array GqlInputForeign -> JsResult
+decodeSchemasFromGqlToArgs fn f gqlInput = case runExcept $ decode f of
+  Left err ->
+    fromAff
+      $ pure
+          { parseError: ""
+          , argsTypeError: show err
+          , result: mempty
+          }
+  Right optsJs -> fn optsJs $ map gqlInputFromForeign gqlInput
+  where
+  gqlInputFromForeign { gql
+  , moduleName
+  , cache
+  } =
+    { gql
+    , moduleName
+    , cache: toMaybe cache <#> \{ get, set } -> 
+        { get: map (toAff >>> map toMaybe) get
+        , set: map toAff set 
+        }
     }
-  Right optsJs -> fn optsJs
 
-schemasFromGqlToPursForeign :: Foreign -> Array GqlInput -> JsResult
+schemasFromGqlToPursForeign :: Foreign -> Array GqlInputForeign -> JsResult
 schemasFromGqlToPursForeign = decodeSchemasFromGqlToArgs schemasFromGqlToPursJs
 
 schemasFromGqlToPursJs :: InputOptionsJs -> Array GqlInput -> JsResult
 schemasFromGqlToPursJs optsJs =
   schemasFromGqlToPurs opts
-    >>> either getError { result: _, parseError: "", argsTypeError: "" }
+    >>> map (either getError ({ result: _, parseError: "", argsTypeError: "" }))
+    >>> fromAff
   where
   opts =
     { externalTypes: Map.fromFoldableWithIndex optsJs.externalTypes
@@ -141,8 +186,8 @@ schemasFromGqlToPursJs optsJs =
     , result: mempty
     }
 
-schemasFromGqlToPurs :: InputOptions -> Array GqlInput -> Either ParseError FilesToWrite
-schemasFromGqlToPurs opts = traverse (schemaFromGqlToPurs opts) >>> map collectSchemas
+schemasFromGqlToPurs :: InputOptions -> Array GqlInput -> Aff (Either ParseError FilesToWrite)
+schemasFromGqlToPurs opts = traverse (schemaFromGqlToPursWithCache opts) >>> map sequence >>> map (map collectSchemas) --  (?d collectSchemas)
   where
   modulePrefix = foldMap (_ <> ".") opts.modulePath
 
@@ -176,7 +221,22 @@ schemasFromGqlToPurs opts = traverse (schemaFromGqlToPurs opts) >>> map collectS
     }
 
 -- | Given a gql doc this will create the equivalent purs gql schema
-schemaFromGqlToPurs :: InputOptions -> GqlInput -> Either ParseError PursGql
+schemaFromGqlToPursWithCache :: InputOptions -> GqlInput -> Aff (Either ParseError PursGql)
+schemaFromGqlToPursWithCache opts { gql, moduleName, cache } = go cache
+  where
+  go Nothing = pure $ schemaFromGqlToPurs opts { gql, moduleName }
+
+  go (Just { get, set }) = do
+    jsonMay <- get gql
+    eVal <- case jsonMay >>= decodeJson >>> hush of
+      Nothing -> go Nothing
+      Just res -> pure $ Right res
+    case eVal of
+      Right val -> set { key: gql, val: encodeJson val }
+      _ -> pure unit
+    pure $ eVal
+
+schemaFromGqlToPurs :: InputOptions -> { gql :: String, moduleName :: String } -> Either ParseError PursGql
 schemaFromGqlToPurs opts { gql, moduleName } =
   runParser gql document
     <#> \ast ->
@@ -188,7 +248,6 @@ schemaFromGqlToPurs opts { gql, moduleName } =
           , symbols
           , moduleName
           }
-          
 
 toImport ::
   forall r.

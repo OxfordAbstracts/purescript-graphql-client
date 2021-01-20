@@ -7,6 +7,7 @@ You can edit this file as you like.
 , license = "MIT"
 , dependencies =
   [ "aff"
+  , "aff-promise"
   , "affjax"
   , "argonaut-codecs"
   , "argonaut-core"

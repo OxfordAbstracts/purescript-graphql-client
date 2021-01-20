@@ -1,4 +1,5 @@
 const JWT = require('jsonwebtoken')
+const { get, set } = require('./cache')
 
 const getToken = app => JWT.sign(
   {
@@ -10,6 +11,7 @@ module.exports = [
   {
     url: 'http://localhost:8080/v1/graphql',
     moduleName: 'ProgramPublic',
-    token: getToken('ProgramPublic')
+    token: getToken('ProgramPublic'),
+    cache: { get, set }
   }
 ]
