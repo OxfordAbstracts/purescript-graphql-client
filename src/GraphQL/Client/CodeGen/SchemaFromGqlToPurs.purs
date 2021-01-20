@@ -21,7 +21,7 @@ import Control.Promise (Promise, fromAff, toAff)
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
-import Data.Array (elem, fold, nub, nubBy)
+import Data.Array (elem, fold, notElem, nub, nubBy)
 import Data.Array as Array
 import Data.Either (Either(..), either, hush)
 import Data.Foldable (foldMap, intercalate)
@@ -315,29 +315,33 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides } doc =
     AST.TypeDefinition_InputObjectTypeDefinition inputObjectTypeDefinition -> Just $ inputObjectTypeDefinitionToPurs inputObjectTypeDefinition
 
   scalarTypeDefinitionToPurs :: AST.ScalarTypeDefinition -> String
-  scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) = case lookup tName externalTypes of
-    Nothing ->
-      guard (not $ isExternalType tName)
-        ( descriptionToDocComment description
-            <> "newtype "
+  scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) = 
+    guard (notElem tName builtInTypes)
+      case lookup tName externalTypes of
+        Nothing ->
+          guard (not $ isExternalType tName)
+            ( descriptionToDocComment description
+                <> "newtype "
+                <> tName
+                <> " = "
+                <> tName
+                <> inside
+            )
+        Just external ->
+          descriptionToDocComment description
+            <> "type "
             <> tName
             <> " = "
-            <> tName
-            <> inside
-        )
-    Just outside ->
-      descriptionToDocComment description
-        <> "type "
-        <> tName
-        <> " = "
-        <> outside.moduleName
-        <> "."
-        <> outside.typeName
-    where
-    tName = typeName name
+            <> external.moduleName
+            <> "."
+            <> external.typeName
+        where
+        tName = typeName name
 
-    inside = case tName of
-      _ -> "UNKNOWN!!!!"
+        inside = case tName of
+          _ -> "UNKNOWN!!!!"
+
+  builtInTypes = [ "Int", "Number", "String"]
 
   isExternalType tName = elem tName externalTypesArr
 
