@@ -29,7 +29,7 @@ ${mainSchemaCode}
     , modulePrefix
     , enumImports:
         enums 
-          <#> (\v -> substitute "import ${modulePrefix}Enums.${v} (${v})" { v, modulePrefix })
+          <#> (\v -> substitute "import ${modulePrefix}Enum.${v} (${v})" { v, modulePrefix })
           # intercalate "\n"
     , mainSchemaCode
     }
