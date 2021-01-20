@@ -20,7 +20,7 @@ const go = async () => {
       dir,
       externalTypes: {},
       fieldTypeOverrides: require('./outside-types'),
-      modulePrefix: ['Generated', 'Gql'],
+      modulePath: ['Generated', 'Gql'],
       isHasura: true
     }, require('./gql-endpoints'))
     console.log('test done')

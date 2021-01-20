@@ -8,11 +8,12 @@ template ::
   { name :: String
   , enums :: Array String
   , mainSchemaCode :: String
+  , modulePrefix :: String 
   } ->
   String
-template { name, enums, mainSchemaCode } =
+template { name, enums, mainSchemaCode, modulePrefix } =
   substitute
-    """module GeneratedGql.Schema.${name} where
+    """module ${modulePrefix}Schema.${name} where
 
 import Data.Argonaut.Core (Json)
 import Data.Date (Date)
@@ -29,6 +30,7 @@ ${mainSchemaCode}
   where
   substVals =
     { name
+    , modulePrefix
     , enumImports:
         enums 
           <#> (\v -> substitute "import GeneratedGql.Enums.${v} (${v})" { v })

@@ -153,9 +153,10 @@ schemasFromGqlToPurs opts = traverse (schemaFromGqlToPurs opts) >>> map collectS
           <#> \pg ->
               { code:
                   Schema.template
-                    { name: modulePrefix <> pg.moduleName
+                    { name: pg.moduleName
                     , mainSchemaCode: pg.mainSchemaCode
                     , enums: map _.name pg.enums
+                    , modulePrefix
                     }
               , path: opts.dir <> "/Schema/" <> pg.moduleName <> ".purs"
               }
