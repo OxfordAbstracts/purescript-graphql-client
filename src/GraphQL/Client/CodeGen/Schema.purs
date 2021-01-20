@@ -33,7 +33,7 @@ ${mainSchemaCode}
     , modulePrefix
     , enumImports:
         enums 
-          <#> (\v -> substitute "import GeneratedGql.Enums.${v} (${v})" { v })
+          <#> (\v -> substitute "import ${modulePrefix}Enums.${v} (${v})" { v, modulePrefix })
           # intercalate "\n"
     , mainSchemaCode
     }
