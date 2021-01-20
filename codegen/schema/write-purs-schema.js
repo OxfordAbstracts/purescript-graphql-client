@@ -1,14 +1,18 @@
-const { schemaFromGqlToPursJsHasura } = require('../../output/GraphQL.Client.CodeGen.Hasura')
-const { schemasFromGqlToPursJs } = require('../../output/GraphQL.Client.CodeGen.SchemaFromGqlToPurs')
+const { schemaFromGqlToPursForeignHasura } = require('../../output/GraphQL.Client.CodeGen.Hasura')
+const { schemasFromGqlToPursForeign } = require('../../output/GraphQL.Client.CodeGen.SchemaFromGqlToPurs')
 const fs = require('fs')
 const { promisify } = require('util')
 const write = promisify(fs.writeFile)
 
 exports.writePursSchemas = (opts, gqlSchemas) => {
-  const { parseError, result } =
+  const { argsTypeError, parseError, result } =
     opts.isHasura
-      ? schemaFromGqlToPursJsHasura(opts)(gqlSchemas)
-      : schemasFromGqlToPursJs(opts)(gqlSchemas)
+      ? schemaFromGqlToPursForeignHasura(opts)(gqlSchemas)
+      : schemasFromGqlToPursForeign(opts)(gqlSchemas)
+
+  if (argsTypeError) {
+    throw new Error(argsTypeError)
+  }
 
   if (parseError) {
     throw new Error(parseError)

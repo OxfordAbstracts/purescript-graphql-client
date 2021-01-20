@@ -9,14 +9,17 @@ const dir = 'src/test-output'
 
 const go = async () => {
   try {
+    console.log('removing dirs')
     await rm(dir)
+    console.log('makings dirs')
     await mkdirp(dir)
     await mkdirp(dir + '/Schema')
     await mkdirp(dir + '/Enum')
+    console.log('generating schema')
     await generateSchemas({
       dir,
-      outsideTypes: require('./outside-types'),
-      fieldTypeOverrides: {},
+      externalTypes: {},
+      fieldTypeOverrides: require('./outside-types'),
       isHasura: true
     }, require('./gql-endpoints'))
     console.log('test done')

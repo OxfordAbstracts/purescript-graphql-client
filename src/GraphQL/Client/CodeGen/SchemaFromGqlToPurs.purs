@@ -6,6 +6,8 @@ module GraphQL.Client.CodeGen.SchemaFromGqlToPurs
   , GqlInput
   , FileToWrite
   , FilesToWrite
+  , JsResult
+  , decodeSchemasFromGqlToArgs
   , schemasFromGqlToPursJs
   , schemaFromGqlToPurs
   , indent
@@ -13,9 +15,10 @@ module GraphQL.Client.CodeGen.SchemaFromGqlToPurs
 
 import Prelude hiding (between)
 
+import Control.Monad.Except (runExcept)
 import Data.Array (elem, fold, nub, nubBy)
 import Data.Array as Array
-import Data.Either (Either, either)
+import Data.Either (Either(..), either)
 import Data.Foldable (foldMap, intercalate)
 import Data.Function (on)
 import Data.GraphQL.AST as AST
@@ -32,9 +35,11 @@ import Data.String.Regex (split)
 import Data.String.Regex.Flags (global)
 import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.Traversable (traverse)
+import Foreign (Foreign)
+import Foreign.Generic (decode)
 import Foreign.Object (Object)
-import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
 import GraphQL.Client.CodeGen.Enum as GqlEnum
+import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
 import GraphQL.Client.CodeGen.Schema as Schema
 import Text.Parsing.Parser (ParseError, parseErrorMessage, runParser)
 
@@ -92,15 +97,36 @@ type FilesToWrite
     , symbols :: FileToWrite
     }
 
+type JsResult = 
+  { argsTypeError :: String
+  , parseError :: String
+  , result :: FilesToWrite
+  }
+
 type FileToWrite
   = { path :: String
     , code :: String
     }
 
-schemasFromGqlToPursJs :: InputOptionsJs -> Array GqlInput -> { parseError :: String, result :: FilesToWrite }
+decodeSchemasFromGqlToArgs :: forall a.
+  (InputOptionsJs -> a -> JsResult) 
+  -> Foreign -> a -> JsResult
+decodeSchemasFromGqlToArgs fn f = case runExcept $ decode f of 
+  Left err -> \_ ->
+      { parseError: mempty
+      , argsTypeError: show err
+      , result: mempty
+      }
+  Right optsJs -> 
+    fn optsJs
+
+schemasFromGqlToPursForeign :: Foreign -> Array GqlInput -> JsResult
+schemasFromGqlToPursForeign = decodeSchemasFromGqlToArgs schemasFromGqlToPursJs
+
+schemasFromGqlToPursJs :: InputOptionsJs -> Array GqlInput -> JsResult
 schemasFromGqlToPursJs optsJs =
   schemasFromGqlToPurs opts
-    >>> either getError \result -> { result, parseError: "" }
+    >>> either getError  { result: _, parseError: "", argsTypeError: "" }
   where
   opts =
     { externalTypes: Map.fromFoldableWithIndex optsJs.externalTypes
@@ -110,6 +136,7 @@ schemasFromGqlToPursJs optsJs =
 
   getError err =
     { parseError: parseErrorMessage err
+    , argsTypeError: mempty
     , result: mempty
     }
 

@@ -1,23 +1,28 @@
-module GraphQL.Client.CodeGen.Hasura where
+module GraphQL.Client.CodeGen.Hasura (schemaFromGqlToPursForeignHasura) where
 
 import Prelude
-
 import Data.FunctorWithIndex (mapWithIndex)
 import Data.Tuple (Tuple(..))
+import Foreign (Foreign)
 import Foreign.Object as Object
-import GraphQL.Client.CodeGen.SchemaFromGqlToPurs (FilesToWrite, GqlInput, InputOptionsJs, schemasFromGqlToPursJs)
+import GraphQL.Client.CodeGen.SchemaFromGqlToPurs (GqlInput, InputOptionsJs, JsResult, decodeSchemasFromGqlToArgs, schemasFromGqlToPursJs)
 
-schemaFromGqlToPursJsHasura :: InputOptionsJs -> Array GqlInput -> { parseError :: String, result :: FilesToWrite }
+schemaFromGqlToPursForeignHasura :: Foreign -> Array GqlInput -> JsResult
+schemaFromGqlToPursForeignHasura = decodeSchemasFromGqlToArgs schemaFromGqlToPursJsHasura
+
+schemaFromGqlToPursJsHasura :: InputOptionsJs -> Array GqlInput -> JsResult
 schemaFromGqlToPursJsHasura opts =
   schemasFromGqlToPursJs
     opts
-      { fieldTypeOverrides = Object.unions $ opts.fieldTypeOverrides # mapWithIndex \gqlObjectName obj -> 
-          Object.fromFoldable 
-            [ Tuple gqlObjectName obj
-            , Tuple (gqlObjectName <> "InsertInput") obj
-            , Tuple (gqlObjectName <> "MinFields") obj
-            , Tuple (gqlObjectName <> "MaxFields") obj
-            , Tuple (gqlObjectName <> "SetInput") obj
-            , Tuple (gqlObjectName <> "BoolExp") $ map (\o -> o { typeName = o.typeName <> "ComparisonExp"}) obj
-            ]
+      { fieldTypeOverrides =
+        Object.unions $ opts.fieldTypeOverrides
+          # mapWithIndex \gqlObjectName obj ->
+              Object.fromFoldable
+                [ Tuple gqlObjectName obj
+                , Tuple (gqlObjectName <> "InsertInput") obj
+                , Tuple (gqlObjectName <> "MinFields") obj
+                , Tuple (gqlObjectName <> "MaxFields") obj
+                , Tuple (gqlObjectName <> "SetInput") obj
+                , Tuple (gqlObjectName <> "BoolExp") $ map (\o -> o { typeName = o.typeName <> "ComparisonExp" }) obj
+                ]
       }
