@@ -5,7 +5,7 @@ import Data.Argonaut.Decode (class DecodeJson)
 import Data.Symbol (SProxy(..))
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
-import Effect.Class.Console (log, logShow)
+import Effect.Class.Console (logShow)
 import GraphQL.Client.Args (type (==>), (=>>))
 import GraphQL.Client.Query (class GqlQuery, query)
 import Type.Proxy (Proxy(..))
@@ -13,8 +13,6 @@ import Type.Proxy (Proxy(..))
 main :: Effect Unit
 main =
   launchAff_ do
-    simpleResult <- queryGql "Get gql prop" { prop }
-    log $ simpleResult.prop
     { widgets } <-
       queryGql "Widget names with id 1"
         { widgets: { id: 1 } =>> { name } }
