@@ -1,20 +1,3 @@
-# purescript-graphql-client
-
-<a href="https://pursuit.purescript.org/packages/purescript-graphql-client">
-  <img src="https://pursuit.purescript.org/packages/purescript-graphql-client/badge"
-       alt="purescript-graphql-client on Pursuit">
-  </img>
-</a>
-
-A typesafe graphql client for purescript. 
-
-This library will allow you to make graphql queries with type checking for the query, arguments and return value. 
-
-## Example
-
-Here is a complete application using purescript-graphql-client, that makes 2 graphQL queries and logs the results.
-
-```purescript
 module Main where
 
 import Prelude
@@ -62,8 +45,3 @@ prop = SProxy
 
 name :: SProxy "name"
 name = SProxy
-```
-
-You can see this full example with graphQL server in the example directory.
-
-To keep schemas in sync, this library includes codegen functionality that introspects a graphql server and generates the code for the purescript schema type.

@@ -1,10 +1,9 @@
 module GraphQL.Client.Query (class GqlQuery, query, queryWithDecoder) where
 
 import Prelude
-
 import Affjax (Error, Response, URL, defaultRequest, printError, request)
 import Affjax.RequestBody as RequestBody
-import Affjax.RequestHeader (RequestHeader)
+import Affjax.RequestHeader (RequestHeader(..))
 import Affjax.ResponseFormat as ResponseFormat
 import Control.Monad.Except (catchError)
 import Data.Argonaut.Core (Json)
@@ -13,12 +12,13 @@ import Data.Array (intercalate)
 import Data.Either (Either(..))
 import Data.HTTP.Method as Method
 import Data.Maybe (Maybe(..))
+import Data.MediaType.Common (applicationJSON)
 import Effect.Aff (Aff, error, message, throwError)
 import Foreign.NullOrUndefined (undefined)
-import Global.Unsafe (unsafeStringify)
 import GraphQL.Client.QueryReturns (class QueryReturns)
 import GraphQL.Client.ToGqlString (class GqlQueryString, toGqlQueryString, toGqlQueryStringFormatted)
 import Type.Proxy (Proxy(..))
+import Unsafe.Coerce (unsafeCoerce)
 
 class
   ( QueryReturns schema query returns
@@ -51,11 +51,10 @@ queryWithDecoder decodeFn _ url headers queryName q =
           $ error
           $ "Response failed to decode to JSON: "
           <> printError err
-      Right {body} -> case decodeData body of
+      Right { body } -> case decodeData body of
         Left err ->
           throwError
-            $ error
-            case decodeJson body of
+            $ error case decodeJson body of
                 Right ({ errors } :: { errors :: Array { message :: String } }) -> intercalate ", \n" $ map _.message errors
                 _ ->
                   " Response failed to decode from JSON: "
@@ -85,7 +84,7 @@ queryPostForeign ::
   forall schema query returns.
   GqlQuery schema query returns =>
   URL -> Proxy schema -> Proxy returns -> Array RequestHeader -> String -> query -> Aff (Either Error (Response Json))
-queryPostForeign url schema _ headers operationName q =
+queryPostForeign url schema _ headers _ q =
   request
     defaultRequest
       { withCredentials = true
@@ -93,10 +92,20 @@ queryPostForeign url schema _ headers operationName q =
       , method = Left Method.POST
       , responseFormat = ResponseFormat.json
       , content =
-        Just $ RequestBody.String $ unsafeStringify
-          $ { query: toGqlQueryString q
-            , variables: {}
-            , operationName: undefined
-            }
-      , headers = headers
+        Just
+          $ RequestBody.Json
+          $ toJson
+              { query: toGqlQueryString q
+              , variables: {}
+              , operationName: undefined
+              }
+      , headers = headers <> [ ContentType applicationJSON ]
       }
+  where
+  toJson ::
+    { operationName :: _
+    , query :: String
+    , variables :: {}
+    } ->
+    Json
+  toJson = unsafeCoerce
