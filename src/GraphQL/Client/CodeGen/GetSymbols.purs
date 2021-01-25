@@ -2,26 +2,27 @@ module GraphQL.Client.CodeGen.GetSymbols where
 
 import Prelude
 
+import Data.Array as Array
 import Data.Foldable (class Foldable)
 import Data.GraphQL.AST as AST
 import Data.List (List, foldMap, nub, sort, (:))
 import Data.Maybe (maybe)
 import Data.Newtype (unwrap)
 
-getSymbolsCode :: AST.Document -> String
-getSymbolsCode = getSymbols >>> symbolsToCode
 
-symbolsToCode :: forall f. Foldable f => f String -> String
-symbolsToCode symbols =
-  """module GeneratedGql.Symbols where
+symbolsToCode :: forall f. Foldable f => String -> f String -> String
+symbolsToCode modulePrefix symbols =
+  """module """ <> modulePrefix <> """Symbols where
 
 import Data.Symbol (SProxy(..))
 """
     <> symbolsString
   where
   symbolsString =
-    symbols
-      # foldMap (\s -> "\n" <> s <> " :: SProxy " <> show s <> "\n" <> s <> " = SProxy")
+     symbols
+        # Array.fromFoldable
+        # Array.nub
+        # foldMap (\s -> "\n" <> s <> " :: SProxy " <> show s <> "\n" <> s <> " = SProxy")
 
 getSymbols :: AST.Document -> List String
 getSymbols doc = unwrap doc >>= definitionToSymbols # nub # sort

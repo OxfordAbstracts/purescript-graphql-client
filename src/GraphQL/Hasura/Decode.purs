@@ -6,16 +6,17 @@ import Control.Alt ((<|>))
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (JsonDecodeError(..), decodeJson)
 import Data.Argonaut.Decode.Decoders (decodeJArray)
+import Data.Array (head, (!!))
 import Data.Bifunctor (lmap)
 import Data.Date (Date, canonicalDate)
 import Data.DateTime (DateTime(DateTime), Time(..))
 import Data.Either (Either(..), note)
 import Data.Enum (class BoundedEnum, toEnum)
 import Data.Int (fromString)
-import Data.Maybe (Maybe)
-import Data.String (Pattern(..), split)
+import Data.Maybe (Maybe, fromMaybe)
+import Data.String (Pattern(..), split, take)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
-import Data.Traversable (traverse)
+import Data.Traversable (fold, traverse)
 import Data.Variant (Variant, inj)
 import Foreign.Object (Object)
 import Foreign.Object as Object
@@ -91,19 +92,33 @@ decodeDateStr string = case split (Pattern "-") string of
 
 decodeTimeStr :: String -> Either JsonDecodeError Time
 decodeTimeStr string = case split (Pattern ":") string of
-  [ hour, minute, second ] -> decodeTimeParts hour minute second
+  [ hour, minute, secondsAndMs ] ->
+    let
+      sAndMsArr = split (Pattern ".") secondsAndMs
+    in
+      decodeTimeParts hour minute (fold $ head sAndMsArr) (fromMaybe "0" $ sAndMsArr !! 1)
   _ -> notDecoded "Time" string
 
 decodeDateParts :: String -> String -> String -> Err Date
-decodeDateParts year month day = canonicalDate <$> strToEnum year <*> strToEnum month <*> strToEnum day
+decodeDateParts year month day =
+  canonicalDate
+    <$> strToEnum "year" year
+    <*> strToEnum "month" month
+    <*> strToEnum "day" day
 
-decodeTimeParts :: String -> String -> String -> Err Time
-decodeTimeParts hour minute second = Time <$> strToEnum hour <*> strToEnum minute <*> strToEnum second <*> pure bottom
+decodeTimeParts :: String -> String -> String -> String -> Err Time
+decodeTimeParts hour minute second ms =
+  Time
+    <$> strToEnum "hour" hour
+    <*> strToEnum "minute" minute
+    <*> strToEnum "second" second
+    <*> strToEnum "millisecond" (take 3 ms)
 
-strToEnum :: forall a. Bounded a => BoundedEnum a => String -> Err a
-strToEnum a =
-  fromString a >>= toEnum
-    # note (TypeMismatch $ "could not convert string to enum: " <> a)
+strToEnum :: forall a. Bounded a => BoundedEnum a => String -> String -> Err a
+strToEnum label a =
+  fromString a 
+    >>= toEnum
+    # note (TypeMismatch $ "could not convert string to " <> label <> ": " <> a)
 
 notDecoded :: forall a. String -> String -> Either JsonDecodeError a
 notDecoded typeName input = Left $ TypeMismatch $ "Could not decode " <> typeName <> " from: " <> input

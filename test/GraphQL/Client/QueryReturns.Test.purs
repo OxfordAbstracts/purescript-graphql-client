@@ -214,12 +214,6 @@ instance queryReturnsTypeChecks ::
   QueryReturnsTypeChecks schema query True where
   typeChecks _ _ = undefined
 
--- else 
--- instance queryReturnsDoesntTypeChecks ::
---   ( TypeEquals bool False
---   ) =>
---   QueryReturnsTypeChecks schema query bool where
---   typeChecks _ _ = undefined
 passing1 :: True
 passing1 =
   typeChecks testSchemaProxy
@@ -233,19 +227,6 @@ passing2 =
     }
 
 
-
--- failing1 :: forall b. TypeEquals b False => b
--- failing1 =
---   typeChecks testNotNullParamsSchemaProxy
---     { users: { id }
---     }
--- failing2 :: False
--- failing2 =
---   typeChecks testNotNullParamsSchemaProxy
---     { users:
---         {}
---           =>> { id, name, other_names }
---     }
 type TestNestedParamsSchema
   = { users ::
         { online :: NotNull Boolean

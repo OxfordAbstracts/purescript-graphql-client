@@ -1,57 +1,116 @@
-module GraphQL.Client.CodeGen.SchemaFromGqlToPurs (InputOptions, InputOptionsJs, PursGql, GqlEnum, schemaFromGqlToPurs, schemaFromGqlToPursJs, indent) where
+module GraphQL.Client.CodeGen.SchemaFromGqlToPurs
+  ( InputOptions
+  , InputOptionsJs
+  , PursGql
+  , GqlEnum
+  , GqlInput
+  , GqlInputForeign
+  , FileToWrite
+  , FilesToWrite
+  , JsResult
+  , decodeSchemasFromGqlToArgs
+  , schemasFromGqlToPursJs
+  , schemaFromGqlToPurs
+  , indent
+  ) where
 
 import Prelude hiding (between)
 
-import Data.Array (elem, fold, nub)
+import Control.Monad.Except (runExcept)
+import Control.Promise (Promise, fromAff, toAff)
+import Data.Argonaut.Core (Json)
+import Data.Argonaut.Decode (decodeJson)
+import Data.Argonaut.Encode (encodeJson)
+import Data.Array (elem, fold, notElem, nub, nubBy)
 import Data.Array as Array
-import Data.Either (Either, either)
+import Data.Either (Either(..), either, hush)
 import Data.Foldable (foldMap, intercalate)
+import Data.Function (on)
 import Data.GraphQL.AST as AST
 import Data.GraphQL.Parser (document)
 import Data.List (List, mapMaybe)
+import Data.List as List
 import Data.Map (Map, lookup)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe)
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
-import Data.String (Pattern(..), contains, joinWith)
+import Data.Nullable (Nullable, toMaybe)
+import Data.String (Pattern(..), codePointFromChar, contains, joinWith)
+import Data.String.CodePoints (takeWhile)
 import Data.String.Extra (pascalCase)
 import Data.String.Regex (split)
 import Data.String.Regex.Flags (global)
 import Data.String.Regex.Unsafe (unsafeRegex)
+import Data.Traversable (sequence, traverse)
+import Effect (Effect)
+import Effect.Aff (Aff)
+import Foreign (Foreign)
+import Foreign.Generic (decode)
 import Foreign.Object (Object)
+import GraphQL.Client.CodeGen.Enum as GqlEnum
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
+import GraphQL.Client.CodeGen.Schema as Schema
 import Text.Parsing.Parser (ParseError, parseErrorMessage, runParser)
 
 type InputOptions
-  = { outsideScalarTypes ::
+  = { externalTypes ::
         Map String
           { moduleName :: String
           , typeName :: String
           }
-    , outsideColumnTypes ::
-        Map String ( Map String
-          { moduleName :: String
-          , typeName :: String
-          })
+    , fieldTypeOverrides ::
+        Map String
+          ( Map String
+              { moduleName :: String
+              , typeName :: String
+              }
+          )
+    , dir :: String
+    , modulePath :: Array String
     }
 
 type InputOptionsJs
-  = { outsideScalarTypes ::
+  = { externalTypes ::
         Object
           { moduleName :: String
           , typeName :: String
           }
-    , outsideColumnTypes ::
-        Object ( Object
-          { moduleName :: String
-          , typeName :: String
-          })
+    , fieldTypeOverrides ::
+        Object
+          ( Object
+              { moduleName :: String
+              , typeName :: String
+              }
+          )
+    , dir :: String
+    , modulePath :: Array String
+    , isHasura :: Boolean
+    }
+
+type GqlInputForeign
+  = { gql :: String
+    , moduleName :: String
+    , cache ::
+        Nullable
+          { get :: String -> Promise (Nullable Json)
+          , set :: { key :: String, val :: Json } -> Promise Unit
+          }
+    }
+
+type GqlInput
+  = { gql :: String
+    , moduleName :: String
+    , cache ::
+        Maybe
+          { get :: String -> Aff (Maybe Json)
+          , set :: { key :: String, val :: Json } -> Aff Unit
+          }
     }
 
 type PursGql
-  = { mainSchemaCode :: String
-    , symbolsCode :: String
+  = { moduleName :: String
+    , mainSchemaCode :: String
     , symbols :: Array String
     , enums :: Array GqlEnum
     }
@@ -59,34 +118,135 @@ type PursGql
 type GqlEnum
   = { name :: String, values :: Array String }
 
-schemaFromGqlToPursJs :: InputOptionsJs -> String -> { parseError :: String, result :: PursGql }
-schemaFromGqlToPursJs optsJs =
-  schemaFromGqlToPurs opts
-    >>> either getError \result -> { result, parseError: "" }
+type FilesToWrite
+  = { schemas :: Array FileToWrite
+    , enums :: Array FileToWrite
+    , symbols :: FileToWrite
+    }
+
+type JsResult
+  = Effect
+      ( Promise
+          { argsTypeError :: String
+          , parseError :: String
+          , result :: FilesToWrite
+          }
+      )
+
+type FileToWrite
+  = { path :: String
+    , code :: String
+    }
+
+decodeSchemasFromGqlToArgs ::
+  (InputOptionsJs -> Array GqlInput -> JsResult) ->
+  Foreign -> Array GqlInputForeign -> JsResult
+decodeSchemasFromGqlToArgs fn f gqlInput = case runExcept $ decode f of
+  Left err ->
+    fromAff
+      $ pure
+          { parseError: ""
+          , argsTypeError: show err
+          , result: mempty
+          }
+  Right optsJs -> fn optsJs $ map gqlInputFromForeign gqlInput
+  where
+  gqlInputFromForeign { gql
+  , moduleName
+  , cache
+  } =
+    { gql
+    , moduleName
+    , cache: toMaybe cache <#> \{ get, set } -> 
+        { get: map (toAff >>> map toMaybe) get
+        , set: map toAff set 
+        }
+    }
+
+schemasFromGqlToPursForeign :: Foreign -> Array GqlInputForeign -> JsResult
+schemasFromGqlToPursForeign = decodeSchemasFromGqlToArgs schemasFromGqlToPursJs
+
+schemasFromGqlToPursJs :: InputOptionsJs -> Array GqlInput -> JsResult
+schemasFromGqlToPursJs optsJs =
+  schemasFromGqlToPurs opts
+    >>> map (either getError ({ result: _, parseError: "", argsTypeError: "" }))
+    >>> fromAff
   where
   opts =
-    { outsideScalarTypes: Map.fromFoldableWithIndex optsJs.outsideScalarTypes
-    , outsideColumnTypes: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex optsJs.outsideColumnTypes
+    { externalTypes: Map.fromFoldableWithIndex optsJs.externalTypes
+    , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex optsJs.fieldTypeOverrides
+    , dir: optsJs.dir
+    , modulePath: optsJs.modulePath
     }
 
   getError err =
     { parseError: parseErrorMessage err
+    , argsTypeError: mempty
     , result: mempty
     }
 
+schemasFromGqlToPurs :: InputOptions -> Array GqlInput -> Aff (Either ParseError FilesToWrite)
+schemasFromGqlToPurs opts = traverse (schemaFromGqlToPursWithCache opts) >>> map sequence >>> map (map collectSchemas) --  (?d collectSchemas)
+  where
+  modulePrefix = foldMap (_ <> ".") opts.modulePath
+
+  collectSchemas :: Array PursGql -> FilesToWrite
+  collectSchemas pursGqls =
+    { schemas:
+        pursGqls
+          <#> \pg ->
+              { code:
+                  Schema.template
+                    { name: pg.moduleName
+                    , mainSchemaCode: pg.mainSchemaCode
+                    , enums: map _.name pg.enums
+                    , modulePrefix
+                    }
+              , path: opts.dir <> "/Schema/" <> pg.moduleName <> ".purs"
+              }
+    , enums:
+        nubBy (compare `on` _.path)
+          $ pursGqls
+          >>= \pg ->
+              pg.enums
+                <#> \e ->
+                    { code: GqlEnum.template modulePrefix e
+                    , path: opts.dir <> "/Enum/" <> e.name <> ".purs"
+                    }
+    , symbols:
+        pursGqls >>= _.symbols
+          # \syms ->
+              { path: opts.dir <> "/Symbols.purs", code: symbolsToCode modulePrefix syms }
+    }
+
 -- | Given a gql doc this will create the equivalent purs gql schema
-schemaFromGqlToPurs :: InputOptions -> String -> Either ParseError PursGql
-schemaFromGqlToPurs opts gql =
+schemaFromGqlToPursWithCache :: InputOptions -> GqlInput -> Aff (Either ParseError PursGql)
+schemaFromGqlToPursWithCache opts { gql, moduleName, cache } = go cache
+  where
+  go Nothing = pure $ schemaFromGqlToPurs opts { gql, moduleName }
+
+  go (Just { get, set }) = do
+    jsonMay <- get gql
+    eVal <- case jsonMay >>= decodeJson >>> hush of
+      Nothing -> go Nothing
+      Just res -> pure $ Right res
+    case eVal of
+      Right val -> set { key: gql, val: encodeJson val }
+      _ -> pure unit
+    pure $ eVal
+
+schemaFromGqlToPurs :: InputOptions -> { gql :: String, moduleName :: String } -> Either ParseError PursGql
+schemaFromGqlToPurs opts { gql, moduleName } =
   runParser gql document
     <#> \ast ->
-      let
-        symbols = Array.fromFoldable $ getSymbols ast
-      in
-        { mainSchemaCode: gqlToPursMainSchemaCode opts ast
-        , enums: gqlToPursEnums ast
-        , symbolsCode: symbolsToCode symbols
-        , symbols
-        }
+        let
+          symbols = Array.fromFoldable $ getSymbols ast
+        in
+          { mainSchemaCode: gqlToPursMainSchemaCode opts ast
+          , enums: gqlToPursEnums ast
+          , symbols
+          , moduleName
+          }
 
 toImport ::
   forall r.
@@ -107,7 +267,7 @@ toImport mainCode =
     )
 
 gqlToPursMainSchemaCode :: InputOptions -> AST.Document -> String
-gqlToPursMainSchemaCode { outsideScalarTypes, outsideColumnTypes } doc =
+gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides } doc =
   imports
     <> guard (imports /= "") "\n"
     <> "\n"
@@ -115,10 +275,15 @@ gqlToPursMainSchemaCode { outsideScalarTypes, outsideColumnTypes } doc =
   where
   imports =
     fold $ nub
-      $ toImport mainCode (Array.fromFoldable outsideScalarTypes)
-      <> toImport mainCode (Array.fromFoldable $ fold outsideColumnTypes )
+      $ toImport mainCode (Array.fromFoldable externalTypes)
+      <> toImport mainCode (Array.fromFoldable $ fold fieldTypeOverrides)
 
-  mainCode = unwrap doc # mapMaybe definitionToPurs # intercalate "\n\n"
+  mainCode = unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
+
+  removeDuplicateDefinitions = Array.fromFoldable >>> nubBy (compare `on` getDefinitionTypeName) >>> List.fromFoldable
+
+  getDefinitionTypeName :: String -> String 
+  getDefinitionTypeName = takeWhile (notEq (codePointFromChar '='))
 
   definitionToPurs :: AST.Definition -> Maybe String
   definitionToPurs = case _ of
@@ -157,40 +322,37 @@ gqlToPursMainSchemaCode { outsideScalarTypes, outsideColumnTypes } doc =
     AST.TypeDefinition_InputObjectTypeDefinition inputObjectTypeDefinition -> Just $ inputObjectTypeDefinitionToPurs inputObjectTypeDefinition
 
   scalarTypeDefinitionToPurs :: AST.ScalarTypeDefinition -> String
-  scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) = case lookup tName outsideScalarTypes of
-    Nothing ->
-      guard (not builtIn)
-        ( descriptionToDocComment description
-            <> "newtype "
+  scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) = 
+    guard (notElem tName builtInTypes)
+      case lookup tName externalTypes of
+        Nothing ->
+          guard (not $ isExternalType tName)
+            ( descriptionToDocComment description
+                <> "newtype "
+                <> tName
+                <> " = "
+                <> tName
+                <> inside
+            )
+        Just external ->
+          descriptionToDocComment description
+            <> "type "
             <> tName
             <> " = "
-            <> tName
-            <> inside
-        )
-    Just outside ->
-      descriptionToDocComment description
-        <> "type "
-        <> tName
-        <> " = "
-        <> outside.moduleName
-        <> "."
-        <> outside.typeName
-    where
-    tName = typeName name
+            <> external.moduleName
+            <> "."
+            <> external.typeName
+        where
+        tName = typeName name
 
-    builtIn =
-      elem tName
-        [ "Int"
-        , "Number"
-        , "Date"
-        , "DateTime"
-        , "String"
-        , "Json"
-        , "Time"
-        ]
+        inside = case tName of
+          _ -> "UNKNOWN!!!!"
 
-    inside = case tName of
-      _ -> "UNKNOWN!!!!"
+  builtInTypes = [ "Int", "Number", "String" ]
+
+  isExternalType tName = elem tName externalTypesArr
+
+  externalTypesArr = Map.keys externalTypes # Array.fromFoldable
 
   objectTypeDefinitionToPurs :: AST.ObjectTypeDefinition -> String
   objectTypeDefinitionToPurs ( AST.ObjectTypeDefinition
@@ -241,7 +403,7 @@ gqlToPursMainSchemaCode { outsideScalarTypes, outsideColumnTypes } doc =
       <> name
       <> " :: "
       <> foldMap argumentsDefinitionToPurs argumentsDefinition
-      <> case lookup objectName outsideColumnTypes >>= lookup name  of
+      <> case lookup objectName fieldTypeOverrides >>= lookup name of
           Nothing -> typeToPurs tipe
           Just out -> out.moduleName <> "." <> out.typeName
 
@@ -328,7 +490,8 @@ gqlToPursMainSchemaCode { outsideScalarTypes, outsideColumnTypes } doc =
       <> name
       <> " :: "
       -- <> foldMap argumentsDefinitionToPurs argumentsDefinition
-      <> case lookup objectName outsideColumnTypes >>= lookup name  of
+      
+      <> case lookup objectName fieldTypeOverrides >>= lookup name of
           Nothing -> argTypeToPurs tipe
           Just out -> out.moduleName <> "." <> out.typeName
 

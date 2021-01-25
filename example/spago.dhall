@@ -2,10 +2,8 @@
 Welcome to a Spago project!
 You can edit this file as you like.
 -}
-{ name = "graphql-client"
-, repository = "https://github.com/OxfordAbstracts/purescript-graphql-client"
-, license = "MIT"
-, dependencies =
+{ name = "my-project"
+, dependencies = 
   [ "aff"
   , "aff-promise"
   , "affjax"
@@ -29,5 +27,5 @@ You can edit this file as you like.
   , "variant"
   ]
 , packages = ./packages.dhall
-, sources = [ "src/**/*.purs", "test/**/*.purs" ]
+, sources = [ "src/**/*.purs", "test/**/*.purs", "../src/**/*.purs" ]
 }
