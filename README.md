@@ -10,6 +10,8 @@ A typesafe graphql client for purescript.
 
 This library will allow you to make graphql queries with type checking for the query, arguments and return value. 
 
+This library is unstable and is likely to have breaking changes introduced.
+
 ## Example
 
 Here is a complete application using purescript-graphql-client, that makes a graphQL query and logs the result.
