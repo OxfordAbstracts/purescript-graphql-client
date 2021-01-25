@@ -65,6 +65,8 @@ name :: SProxy "name"
 name = SProxy
 ```
 
-You can see this full example with graphQL server in the example directory.
+You can see this full example with graphQL server in the examples/simple directory.
 
 To keep schemas in sync, this library includes codegen functionality that introspects a graphql server and generates the code for the purescript schema type. You have schema and query codegen tools at this site: https://gql-query-to-purs.herokuapp.com/
+
+API documentation at https://pursuit.purescript.org/packages/purescript-graphql-client
