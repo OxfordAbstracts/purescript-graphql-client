@@ -11,9 +11,8 @@ const go = async () => {
 
     const packages = getDirectories('./examples');
 
-    console.log(packages)
-
     for(let package of packages){
+        console.log(`Testing ${package}`);
         await exec(`cd "./examples/${package}" && npm t`)
     }
 }
