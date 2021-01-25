@@ -1,7 +1,7 @@
-module GraphQL.Client.CodeGen.Schema where
+module GraphQL.Client.CodeGen.Template.Schema where
 
 import Prelude
-import Substitute (substitute)
+
 import Data.Foldable (intercalate)
 
 template ::
@@ -12,24 +12,22 @@ template ::
   } ->
   String
 template { name, enums, mainSchemaCode, modulePrefix } =
-  substitute
-    """module ${modulePrefix}Schema.${name} where
+    """module """ <> vals.modulePrefix <> """Schema.""" <> vals.name <> """ where
 
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import GraphQL.Client.Args (class ArgGql, class RecordArg, type (==>), NotNull)
-${enumImports}
+"""<> vals.enumImports <> """
 
-${mainSchemaCode}
+""" <> vals.mainSchemaCode <> """
 """
-    substVals
   where
-  substVals =
+  vals =
     { name
     , modulePrefix
     , enumImports:
         enums 
-          <#> (\v -> substitute "import ${modulePrefix}Enum.${v} (${v})" { v, modulePrefix })
+          <#> (\v -> "import " <> vals.modulePrefix <> "Enum."<> v <> " ("<> v <> ")")
           # intercalate "\n"
     , mainSchemaCode
     }

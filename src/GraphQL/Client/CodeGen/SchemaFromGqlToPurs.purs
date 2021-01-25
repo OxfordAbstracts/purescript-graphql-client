@@ -48,9 +48,9 @@ import Effect.Aff (Aff)
 import Foreign (Foreign)
 import Foreign.Generic (decode)
 import Foreign.Object (Object)
-import GraphQL.Client.CodeGen.Enum as GqlEnum
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
-import GraphQL.Client.CodeGen.Schema as Schema
+import GraphQL.Client.CodeGen.Template.Enum as GqlEnum
+import GraphQL.Client.CodeGen.Template.Schema as Schema
 import Text.Parsing.Parser (ParseError, parseErrorMessage, runParser)
 
 type InputOptions
