@@ -1,6 +1,7 @@
 module GraphQL.Hasura.Decode (class DecodeHasura, class DecodeHasuraFields, getFields, decodeHasura) where
 
 import Prelude
+
 import Control.Alt ((<|>))
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (JsonDecodeError(..), decodeJson)
@@ -13,7 +14,7 @@ import Data.Either (Either(..), note)
 import Data.Enum (class BoundedEnum, toEnum)
 import Data.Int (fromString)
 import Data.Maybe (Maybe, fromMaybe)
-import Data.String (Pattern(..), split)
+import Data.String (Pattern(..), split, take)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Data.Traversable (fold, traverse)
 import Data.Variant (Variant, inj)
@@ -111,11 +112,12 @@ decodeTimeParts hour minute second ms =
     <$> strToEnum "hour" hour
     <*> strToEnum "minute" minute
     <*> strToEnum "second" second
-    <*> strToEnum "millisecond" ms
+    <*> strToEnum "millisecond" (take 3 ms)
 
 strToEnum :: forall a. Bounded a => BoundedEnum a => String -> String -> Err a
 strToEnum label a =
-  fromString a >>= toEnum
+  fromString a 
+    >>= toEnum
     # note (TypeMismatch $ "could not convert string to " <> label <> ": " <> a)
 
 notDecoded :: forall a. String -> String -> Either JsonDecodeError a
