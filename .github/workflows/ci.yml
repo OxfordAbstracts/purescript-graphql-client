@@ -23,7 +23,8 @@ jobs:
           path: |
             .spago
             output
-
+            examples/1-simple/.spago
+            examples/1-simple/output
       - run: spago build
 
       - run: spago test --no-install
