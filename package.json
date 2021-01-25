@@ -22,18 +22,8 @@
     "url": "https://github.com/OxfordAbstracts/purescript-graphql-client/issues"
   },
   "homepage": "https://github.com/OxfordAbstracts/purescript-graphql-client#readme",
-  "dependencies": {
-    "exec-sh": "^0.3.4"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "env2": "^2.2.2",
-    "express": "^4.17.1",
-    "express-graphql": "^0.12.0",
-    "graphql": "^15.4.0",
-    "graphqurl": "^0.3.3",
-    "jsonwebtoken": "^8.5.1",
-    "mkdirp": "^1.0.4",
-    "rimraf": "^3.0.2",
-    "xhr2": "^0.2.0"
+    "exec-sh": "^0.3.4"
   }
 }
