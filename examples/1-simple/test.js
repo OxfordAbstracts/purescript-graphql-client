@@ -1,14 +1,15 @@
 const { deepStrictEqual } = require('assert')
-const logs = [];
+const logs = []
 
 console.log = (log) => {
-    logs.push(log);
-};
+  console.info(log)
+  logs.push(log)
+}
 
 require('./server-fn')(require('./output/Main').main)
 
 setTimeout(() => {
-    deepStrictEqual(logs, ['["one"]'])
-    console.info('tests passed')
-    process.exit(0)
+  deepStrictEqual(logs, ['["one"]'])
+  console.info('tests passed')
+  process.exit(0)
 }, 250)

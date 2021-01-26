@@ -3,6 +3,7 @@ const exec = require('exec-sh').promise
 const logs = []
 
 console.log = (log) => {
+  console.info(log)
   logs.push(log)
 }
 
