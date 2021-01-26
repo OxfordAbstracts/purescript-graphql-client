@@ -2,8 +2,11 @@ module GraphQL.Client.Args where
 
 import Prelude
 
+import Data.Date (Date)
+import Data.DateTime (DateTime)
 import Data.Maybe (Maybe)
 import Data.Symbol (class IsSymbol, SProxy)
+import Data.Time (Time)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex)
 import Heterogeneous.Mapping (class HMapWithIndex, class MappingWithIndex)
 import Prim.Row as Row
@@ -39,6 +42,9 @@ instance argToGqlInt :: ArgGql Int Int
 instance argToGqlNumber :: ArgGql Number Number
 instance argToGqlString :: ArgGql String String
 instance argToGqlBoolean :: ArgGql Boolean Boolean
+instance argToGqlDate :: ArgGql Date Date
+instance argToGqlTime :: ArgGql Time Time
+instance argToGqlDateTime :: ArgGql DateTime DateTime
 instance argToGqlRecord :: RecordArg p a u => ArgGql { | p } { | a }
 
 class HMapWithIndex (ArgPropToGql p) { | a } u <= RecordArg p a u

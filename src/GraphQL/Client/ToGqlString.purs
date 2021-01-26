@@ -1,14 +1,21 @@
 module GraphQL.Client.ToGqlString where
 
 import Prelude
-import Data.Array (intercalate, length, mapWithIndex)
+import Data.Array (fold, intercalate, length, mapWithIndex)
+import Data.Array as Array
+import Data.Date (Date)
+import Data.DateTime (DateTime(..), Millisecond)
+import Data.DateTime as DT
+import Data.Enum (class BoundedEnum, fromEnum)
 import Data.Maybe (Maybe(..), isJust, maybe)
 import Data.Monoid (guard, power)
-import Data.String (joinWith)
+import Data.String (codePointFromChar, fromCodePointArray, joinWith, toCodePointArray)
+import Data.String.CodeUnits as String
 import Data.String.Regex (split)
 import Data.String.Regex.Flags (global)
 import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
+import Data.Time (Time)
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Args (AndArg(..), Args(..))
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
@@ -120,17 +127,69 @@ else instance gqlArgStringNumber :: GqlArgString Number where
   toGqlArgStringImpl = show
 else instance gqlArgStringBoolean :: GqlArgString Boolean where
   toGqlArgStringImpl = show
+else instance gqlArgStringDate :: GqlArgString Date where
+  toGqlArgStringImpl date =
+    fold
+      [ showInt $ DT.year date
+      , "-"
+      , padl 2 '0' $ showInt $ DT.month date
+      , "-"
+      , padl 2 '0' $ showInt $ DT.day date
+      ]
+else instance gqlArgStringTime :: GqlArgString Time where
+  toGqlArgStringImpl time =
+    fold
+      [ padl 2 '0' $ showInt $ DT.hour time
+      , ":"
+      , padl 2 '0' $ showInt $ DT.minute time
+      , ":"
+      , padl 2 '0' $ showInt $ DT.second time
+      , "."
+      , removeTrailingZeros $ padMilli $ DT.millisecond time
+      , "Z"
+      ]
+else instance gqlArgStringDateTime :: GqlArgString DateTime where
+  toGqlArgStringImpl (DateTime d t) = toGqlArgStringImpl d <> "T" <> toGqlArgStringImpl t
 else instance gqlArgStringMaybe :: GqlArgString a => GqlArgString (Maybe a) where
   toGqlArgStringImpl = maybe "" toGqlArgStringImpl
 else instance gqlArgStringArray :: GqlArgString a => GqlArgString (Array a) where
   toGqlArgStringImpl = map toGqlArgStringImpl >>> \as -> "[" <> intercalate ", " as <> "]"
 else instance gqlArgStringAndArg ::
   ( GqlAndArgString (AndArg a1 a2)
-  ) =>
+    ) =>
   GqlArgString (AndArg a1 a2) where
   toGqlArgStringImpl andArg = "[" <> toGqlAndArgStringImpl andArg <> "]"
 else instance gqlArgStringRecord_ :: HFoldlWithIndex PropToGqlArg String (Record r) String => GqlArgString (Record r) where
   toGqlArgStringImpl r = gqlArgStringRecord r
+
+showInt :: forall a. BoundedEnum a => a -> String
+showInt = show <<< fromEnum
+
+padl :: Int -> Char -> String -> String
+padl n chr str =
+  String.fromCharArray
+    $ padl' (n - String.length str) chr (String.toCharArray str)
+
+padl' :: Int -> Char -> Array Char -> Array Char
+padl' n chr chrs
+  | n <= 0 = chrs
+  | otherwise = padl' (n - 1) chr (chr `Array.cons` chrs)
+
+-- | Remove trailing zeros from a millisecond value.
+removeTrailingZeros :: String -> String
+removeTrailingZeros "000" = "0"
+
+removeTrailingZeros s =
+  fromCodePointArray
+    <<< Array.reverse
+    <<< Array.dropWhile (_ == codePointFromChar '0')
+    <<< Array.reverse
+    $ toCodePointArray s
+
+-- | Pad an integer from a millisecond value with enough zeros so it is three
+-- digits.
+padMilli :: Millisecond -> String
+padMilli = padl 3 '0' <<< show <<< fromEnum
 
 class GqlAndArgString q where
   toGqlAndArgStringImpl :: q -> String
@@ -146,7 +205,7 @@ else instance gqlArgStringAndArgEnd ::
   , GqlArgString a2
   ) =>
   GqlAndArgString (AndArg a1 a2) where
-  toGqlAndArgStringImpl (AndArg a1 a2) = toGqlArgStringImpl a1 <> ", " <> toGqlArgStringImpl a2 
+  toGqlAndArgStringImpl (AndArg a1 a2) = toGqlArgStringImpl a1 <> ", " <> toGqlArgStringImpl a2
 
 data PropToGqlArg
   = PropToGqlArg
