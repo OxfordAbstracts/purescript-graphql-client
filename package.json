@@ -10,7 +10,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "bundle": "spago bundle-module -m GraphQL.Client.CodeGen.Js -t 'gen-schema-bundled.js'",
-    "patch": "npm run bundle && gcam 'update bundle' && npm version patch && npm publish && pulp version patch && pulp publish"
+    "patch": "npm run bundle && gcam 'update bundle' --allow-empty && npm version patch && npm publish && pulp version patch && pulp publish"
   },
   "repository": {
     "type": "git",
@@ -23,9 +23,9 @@
   },
   "homepage": "https://github.com/OxfordAbstracts/purescript-graphql-client#readme",
   "dependencies": {
-    "graphqurl": "^0.3.3"
-  },
-  "devDependencies": {
-    "exec-sh": "^0.3.4"
+    "exec-sh": "^0.3.4",
+    "graphqurl": "^0.3.3",
+    "mkdirp": "^1.0.4",
+    "rimraf": "^3.0.2"
   }
 }
