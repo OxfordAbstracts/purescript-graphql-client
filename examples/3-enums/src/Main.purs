@@ -1,23 +1,27 @@
 module Main where
 
 import Prelude
+
 import Data.Argonaut.Decode (class DecodeJson)
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
+import Generated.Gql.Enum.Colour (Colour(..))
+import Generated.Gql.Schema.Admin (Query)
+import Generated.Gql.Symbols (colour)
 import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.Query (class GqlQuery, query)
 import Type.Proxy (Proxy(..))
-import Generated.Gql.Symbols (name)
-import Generated.Gql.Schema.Admin (Query)
 
 main :: Effect Unit
 main =
   launchAff_ do
     { widgets } <-
-      queryGql "Widget names with id 1"
-        { widgets: { id: 1 } =>> { name } }
-    logShow $ map _.name widgets
+      queryGql "Widget colours with id 1"
+        { widgets: { colour: RED } =>> { colour } }
+        
+    -- Will log ["RED"]
+    logShow $ map _.colour widgets
 
 -- Run gql query
 queryGql ::

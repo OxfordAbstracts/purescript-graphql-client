@@ -15,10 +15,11 @@ template modulePrefix { name, values } =
 
 import Prelude
 
-import Foreign.Generic.Class (class Decode, decode)
+import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError(..), decodeJson)
+import Data.Argonaut.Encode (class EncodeJson, encodeJson)
+import Data.Either (Either(..))
 import Data.Function (on)
 import Data.String.Extra (snakeCase)
-import Foreign (ForeignError(..), fail)
 import GraphQL.Client.Args (class ArgGql)
 import GraphQL.Client.ToGqlString (class GqlArgString)
 
@@ -34,12 +35,15 @@ instance ord""" <> name <> """ :: Ord """ <> name <> """ where
 instance argToGql""" <> name <> """ :: ArgGql """ <> name <> """ """ <> name <> """
 
 instance gqlArgString""" <> name <> """ :: GqlArgString """ <> name <> """ where
-  toGqlArgStringImpl a = snakeCase (show a)
+  toGqlArgStringImpl = show
 
-instance decode""" <> name <> """ :: Decode """ <> name <> """ where
-  decode a = decode a >>= case _ of 
+instance decodeJson""" <> name <> """ :: DecodeJson """ <> name <> """ where
+  decodeJson = decodeJson >=> case _ of 
 """ <> decodeMember <> """
-    s -> fail $ ForeignError $ "Not a """ <> name <> """: " <> s
+    s -> Left $ TypeMismatch $ "Not a """ <> name <> """: " <> s
+
+instance encodeJsonColour :: EncodeJson Colour where 
+  encodeJson = show >>> encodeJson
 
 instance show""" <> name <> """ :: Show """ <> name <> """ where
   show a = case a of 

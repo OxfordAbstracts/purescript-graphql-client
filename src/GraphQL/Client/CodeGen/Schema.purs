@@ -34,7 +34,7 @@ import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
-import GraphQL.Client.CodeGen.Template.Enum as GqlEnum
+import GraphQL.Client.CodeGen.Template.Enum as Enum
 import GraphQL.Client.CodeGen.Template.Schema as Schema
 import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptions, PursGql)
 import Text.Parsing.Parser (ParseError, runParser)
@@ -79,7 +79,7 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
           >>= \pg ->
               pg.enums
                 <#> \e ->
-                    { code: GqlEnum.template modulePrefix e
+                    { code: Enum.template modulePrefix e
                     , path: opts.dir <> "/Enum/" <> e.name <> ".purs"
                     }
     , symbols:
@@ -442,10 +442,10 @@ gqlToPursEnums = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
     Array.fromFoldable $ unwrap def
       <#> \(AST.EnumValueDefinition { description, enumValue }) ->
           descriptionToDocComment description
-            <> enumValueToPurs enumValue
+            <> unwrap enumValue
 
-  enumValueToPurs :: AST.EnumValue -> String
-  enumValueToPurs = unwrap >>> typeName
+  -- enumValueToPurs :: AST.EnumValue -> String
+  -- enumValueToPurs = unwrap >>> typeName
 
 namedTypeToPurs :: AST.NamedType -> String
 namedTypeToPurs (AST.NamedType str) = typeName str

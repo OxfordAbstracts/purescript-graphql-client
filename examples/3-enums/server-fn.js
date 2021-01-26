@@ -3,27 +3,17 @@ module.exports = (onListening) => {
   const express = require('express')
   const { graphqlHTTP } = require('express-graphql')
   const { buildSchema } = require('graphql')
-  // const schema = buildSchema(`
-  //   type Query {
-  //       prop: String
-  //       widgets(id: Int): [Widget!]!
-  //   }
-    
-  //   type Widget { 
-  //       id: Int
-  //       name: String!
-  //   }
-  //   `)
+
   const schema = buildSchema(`
     type Query {
         prop: String
-        widgets(id: Int): [Widget!]!
+        widgets(colour: Colour): [Widget!]!
     }
 
     type Widget {
         id: Int
         name: String!
-        colour: Colour
+        colour: Colour!
     }
 
     enum Colour {
@@ -38,14 +28,14 @@ module.exports = (onListening) => {
     prop: () => {
       return 'Hello world!'
     },
-    widgets: ({ id }) =>
-      widgets.filter(w => !id || id === w.id)
+    widgets: ({ colour }) =>
+      widgets.filter(w => !colour || colour === w.colour)
 
   }
 
   const widgets = [
-    { id: 1, name: 'one' },
-    { id: 2, name: 'two' }
+    { id: 1, name: 'one', colour: 'RED' },
+    { id: 2, name: 'two', colour: 'GREEN' }
   ]
 
   const app = express()

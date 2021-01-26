@@ -15824,7 +15824,7 @@ var PS = {};
           var decodeMember = Data_Foldable.intercalate(Data_Foldable.foldableArray)(Data_Monoid.monoidString)("\x0a")(Data_Functor.mapFlipped(Data_Functor.functorArray)(v.values)(function (v1) {
               return "    \"" + (v1 + ("\" -> pure " + (v1 + "")));
           }));
-          return "module " + (modulePrefix + ("Enum." + (v.name + (" where\x0a\x0aimport Prelude\x0a\x0aimport Foreign.Generic.Class (class Decode, decode)\x0aimport Data.Function (on)\x0aimport Data.String.Extra (snakeCase)\x0aimport Foreign (ForeignError(..), fail)\x0aimport GraphQL.Client.Args (class ArgGql)\x0aimport GraphQL.Client.ToGqlString (class GqlArgString)\x0a\x0adata " + (v.name + (" \x0a  = " + (enumCtrs + ("\x0a\x0ainstance eq" + (v.name + (" :: Eq " + (v.name + (" where \x0a  eq = eq `on` show\x0a\x0ainstance ord" + (v.name + (" :: Ord " + (v.name + (" where\x0a  compare = compare `on` show\x0a\x0ainstance argToGql" + (v.name + (" :: ArgGql " + (v.name + (" " + (v.name + ("\x0a\x0ainstance gqlArgString" + (v.name + (" :: GqlArgString " + (v.name + (" where\x0a  toGqlArgStringImpl a = snakeCase (show a)\x0a\x0ainstance decode" + (v.name + (" :: Decode " + (v.name + (" where\x0a  decode a = decode a >>= case _ of \x0a" + (decodeMember + ("\x0a    s -> fail $ ForeignError $ \"Not a " + (v.name + (": \" <> s\x0a\x0ainstance show" + (v.name + (" :: Show " + (v.name + (" where\x0a  show a = case a of \x0a" + (showMember + "\x0a")))))))))))))))))))))))))))))))))))))));
+          return "module " + (modulePrefix + ("Enum." + (v.name + (" where\x0a\x0aimport Prelude\x0a\x0aimport Data.Argonaut.Decode (class DecodeJson, JsonDecodeError(..), decodeJson)\x0aimport Data.Argonaut.Encode (class EncodeJson, encodeJson)\x0aimport Data.Either (Either(..))\x0aimport Data.Function (on)\x0aimport Data.String.Extra (snakeCase)\x0aimport GraphQL.Client.Args (class ArgGql)\x0aimport GraphQL.Client.ToGqlString (class GqlArgString)\x0a\x0adata " + (v.name + (" \x0a  = " + (enumCtrs + ("\x0a\x0ainstance eq" + (v.name + (" :: Eq " + (v.name + (" where \x0a  eq = eq `on` show\x0a\x0ainstance ord" + (v.name + (" :: Ord " + (v.name + (" where\x0a  compare = compare `on` show\x0a\x0ainstance argToGql" + (v.name + (" :: ArgGql " + (v.name + (" " + (v.name + ("\x0a\x0ainstance gqlArgString" + (v.name + (" :: GqlArgString " + (v.name + (" where\x0a  toGqlArgStringImpl = show\x0a\x0ainstance decodeJson" + (v.name + (" :: DecodeJson " + (v.name + (" where\x0a  decodeJson = decodeJson >=> case _ of \x0a" + (decodeMember + ("\x0a    s -> Left $ TypeMismatch $ \"Not a " + (v.name + (": \" <> s\x0a\x0ainstance encodeJsonColour :: EncodeJson Colour where \x0a  encodeJson = show >>> encodeJson\x0a\x0ainstance show" + (v.name + (" :: Show " + (v.name + (" where\x0a  show a = case a of \x0a" + (showMember + "\x0a")))))))))))))))))))))))))))))))))))))));
       };
   };
   exports["template"] = template;
@@ -15945,15 +15945,9 @@ var PS = {};
       return "\x0a" + (prependLines(" -- | ")(str) + "\x0a");
   });
   var gqlToPursEnums = (function () {
-      var enumValueToPurs = (function () {
-          var $170 = Data_Newtype.unwrap(Data_GraphQL_AST.enumValueNewtype);
-          return function ($171) {
-              return typeName($170($171));
-          };
-      })();
       var enumValuesDefinitionToPurs = function (def) {
           return Data_Array.fromFoldable(Data_List_Types.foldableList)(Data_Functor.mapFlipped(Data_List_Types.functorList)(Data_Newtype.unwrap(Data_GraphQL_AST.enumValuesDefinitionNewtype)(def))(function (v) {
-              return descriptionToDocComment(v.description) + enumValueToPurs(v.enumValue);
+              return descriptionToDocComment(v.description) + Data_Newtype.unwrap(Data_GraphQL_AST.enumValueNewtype)(v.enumValue);
           }));
       };
       var typeDefinitionToPurs = function (v) {
@@ -15989,11 +15983,11 @@ var PS = {};
           };
           return Data_Maybe.Nothing.value;
       };
-      var $172 = Data_Array.fromFoldable(Data_List_Types.foldableList);
-      var $173 = Data_List.mapMaybe(definitionToEnum);
-      var $174 = Data_Newtype.unwrap(Data_GraphQL_AST.documentNewtype);
-      return function ($175) {
-          return $172($173($174($175)));
+      var $170 = Data_Array.fromFoldable(Data_List_Types.foldableList);
+      var $171 = Data_List.mapMaybe(definitionToEnum);
+      var $172 = Data_Newtype.unwrap(Data_GraphQL_AST.documentNewtype);
+      return function ($173) {
+          return $170($171($172($173)));
       };
   })();
   var gqlToPursMainSchemaCode = function (v) {
@@ -16025,8 +16019,8 @@ var PS = {};
           var schemaDefinitionToPurs = function (v1) {
               return Data_Foldable.intercalate(Data_List_Types.foldableList)(Data_Monoid.monoidString)("\x0a\x0a")(Data_Functor.map(Data_List_Types.functorList)(rootOperationTypeDefinitionToPurs)(v1.rootOperationTypeDefinition));
           };
-          var namedTypeToPursNullable = function ($176) {
-              return wrapMaybe(namedTypeToPurs($176));
+          var namedTypeToPursNullable = function ($174) {
+              return wrapMaybe(namedTypeToPurs($174));
           };
           var typeToPurs = function (v1) {
               if (v1 instanceof Data_GraphQL_AST.Type_NamedType) {
@@ -16060,11 +16054,11 @@ var PS = {};
           };
           var getDefinitionTypeName = Data_String_CodePoints.takeWhile(Data_Eq.notEq(Data_String_CodePoints.eqCodePoint)(Data_String_CodePoints.codePointFromChar("=")));
           var removeDuplicateDefinitions = (function () {
-              var $177 = Data_List.fromFoldable(Data_Foldable.foldableArray);
-              var $178 = Data_Array.nubBy(Data_Function.on(Data_Ord.compare(Data_Ord.ordString))(getDefinitionTypeName));
-              var $179 = Data_Array.fromFoldable(Data_List_Types.foldableList);
-              return function ($180) {
-                  return $177($178($179($180)));
+              var $175 = Data_List.fromFoldable(Data_Foldable.foldableArray);
+              var $176 = Data_Array.nubBy(Data_Function.on(Data_Ord.compare(Data_Ord.ordString))(getDefinitionTypeName));
+              var $177 = Data_Array.fromFoldable(Data_List_Types.foldableList);
+              return function ($178) {
+                  return $175($176($177($178)));
               };
           })();
           var externalTypesArr = Data_Array.fromFoldable(Data_Set.foldableSet)(Data_Map.keys(v.externalTypes));
@@ -16254,7 +16248,7 @@ var PS = {};
                   return Control_Bind.bind(Effect_Aff.bindAff)(v1.value0.get(v.schema))(function (jsonMay) {
                       return Control_Bind.bind(Effect_Aff.bindAff)((function () {
                           var v2 = Control_Bind.bind(Data_Maybe.bindMaybe)(jsonMay)((function () {
-                              var $181 = Data_Argonaut_Decode_Class.decodeJson(Data_Argonaut_Decode_Class.decodeRecord(Data_Argonaut_Decode_Class.gDecodeJsonCons(Data_Argonaut_Decode_Class.decodeArray(Data_Argonaut_Decode_Class.decodeRecord(Data_Argonaut_Decode_Class.gDecodeJsonCons(Data_Argonaut_Decode_Class.decodeJsonString)(Data_Argonaut_Decode_Class.gDecodeJsonCons(Data_Argonaut_Decode_Class.decodeArray(Data_Argonaut_Decode_Class.decodeJsonString))(Data_Argonaut_Decode_Class.gDecodeJsonNil)(new Data_Symbol.IsSymbol(function () {
+                              var $179 = Data_Argonaut_Decode_Class.decodeJson(Data_Argonaut_Decode_Class.decodeRecord(Data_Argonaut_Decode_Class.gDecodeJsonCons(Data_Argonaut_Decode_Class.decodeArray(Data_Argonaut_Decode_Class.decodeRecord(Data_Argonaut_Decode_Class.gDecodeJsonCons(Data_Argonaut_Decode_Class.decodeJsonString)(Data_Argonaut_Decode_Class.gDecodeJsonCons(Data_Argonaut_Decode_Class.decodeArray(Data_Argonaut_Decode_Class.decodeJsonString))(Data_Argonaut_Decode_Class.gDecodeJsonNil)(new Data_Symbol.IsSymbol(function () {
                                   return "values";
                               }))()())(new Data_Symbol.IsSymbol(function () {
                                   return "name";
@@ -16267,8 +16261,8 @@ var PS = {};
                               }))()())(new Data_Symbol.IsSymbol(function () {
                                   return "enums";
                               }))()())());
-                              return function ($182) {
-                                  return Data_Either.hush($181($182));
+                              return function ($180) {
+                                  return Data_Either.hush($179($180));
                               };
                           })());
                           if (v2 instanceof Data_Maybe.Nothing) {
@@ -16368,11 +16362,11 @@ var PS = {};
               }))
           };
       };
-      var $183 = Data_Functor.map(Effect_Aff.functorAff)(Data_Functor.map(Data_Either.functorEither)(collectSchemas));
-      var $184 = Data_Functor.map(Effect_Aff.functorAff)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Data_Either.applicativeEither));
-      var $185 = Data_Traversable.traverse(Data_Traversable.traversableArray)(Effect_Aff.applicativeAff)(schemaFromGqlToPursWithCache(opts));
-      return function ($186) {
-          return $183($184($185($186)));
+      var $181 = Data_Functor.map(Effect_Aff.functorAff)(Data_Functor.map(Data_Either.functorEither)(collectSchemas));
+      var $182 = Data_Functor.map(Effect_Aff.functorAff)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Data_Either.applicativeEither));
+      var $183 = Data_Traversable.traverse(Data_Traversable.traversableArray)(Effect_Aff.applicativeAff)(schemaFromGqlToPursWithCache(opts));
+      return function ($184) {
+          return $181($182($183($184)));
       };
   };
   exports["schemasFromGqlToPurs"] = schemasFromGqlToPurs;
