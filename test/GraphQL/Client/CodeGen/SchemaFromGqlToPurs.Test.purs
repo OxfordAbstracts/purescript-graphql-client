@@ -204,7 +204,7 @@ enum my_enum {
             , symbols: [ "prop" ]
             , enums:
                 [ { name: "MyEnum"
-                  , values: [ "EnumVal1", "EnumVal2" ]
+                  , values: [ "enum_val1", "enum_val2" ]
                   }
                 ]
             }
