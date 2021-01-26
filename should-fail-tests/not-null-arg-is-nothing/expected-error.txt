@@ -1,0 +1,4 @@
+No type class instance was found for
+
+    GraphQL.Client.Args.ArgGql Boolean
+                               (Maybe 
