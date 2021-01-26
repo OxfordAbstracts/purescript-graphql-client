@@ -39,3 +39,5 @@ jobs:
       - run: npm i 
       - run: npm run bundle
       - run: node ./run-example-tests.js
+      - run: node ./run-should-fail-tests.js
+
