@@ -25,6 +25,8 @@ jobs:
             output
             examples/1-simple/.spago
             examples/1-simple/output
+            examples/2-codegen/.spago
+            examples/2-codegen/output
       - run: spago build
 
       - run: spago test --no-install

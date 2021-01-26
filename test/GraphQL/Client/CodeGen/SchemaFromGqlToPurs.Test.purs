@@ -1,7 +1,6 @@
 module GraphQL.Client.CodeGen.Schema.Test where
 
 import Prelude
-
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import GraphQL.Client.CodeGen.Schema (schemaFromGqlToPurs)
@@ -160,7 +159,7 @@ input MyInputType {
 }"""
 
           result =
-              """
+            """
 type Query = QueryRoot
 
 newtype QueryRoot = QueryRoot 
@@ -178,9 +177,7 @@ newtype MyInputType = MyInputType
   }
 derive instance newtypeMyInputType :: Newtype MyInputType _
 instance argToGqlMyInputType :: (Newtype MyInputType {| p},  RecordArg p a u) => ArgGql MyInputType { | a }"""
-        
         gql `shouldParseTo` result
-
       it "converts enum types" do
         let
           gql =
@@ -204,7 +201,7 @@ enum my_enum {
           `shouldParseToAll`
             { mainSchemaCode
             , moduleName: "Test"
-            , symbols: ["prop"]
+            , symbols: [ "prop" ]
             , enums:
                 [ { name: "MyEnum"
                   , values: [ "EnumVal1", "EnumVal2" ]
@@ -212,13 +209,35 @@ enum my_enum {
                 ]
             }
   where
-  shouldParseTo schema r = 
-    let 
-      purs = schemaFromGqlToPurs {dir: "", cache: Nothing, isHasura: false, modulePath:[], fieldTypeOverrides: mempty, externalTypes: mempty} {schema, moduleName: ""}
+  shouldParseTo schema r =
+    let
+      purs =
+        schemaFromGqlToPurs
+          { dir: ""
+          , cache: Nothing
+          , useNewtypesForRecords: true
+          , isHasura: false
+          , modulePath: []
+          , fieldTypeOverrides: mempty
+          , externalTypes: mempty
+          }
+          { schema, moduleName: "" }
     in
-    map _.mainSchemaCode purs `shouldEqual` Right r
+      map _.mainSchemaCode purs `shouldEqual` Right r
 
-  shouldParseToAll schema r = schemaFromGqlToPurs {dir: "", cache: Nothing, isHasura: false, modulePath:[], fieldTypeOverrides: mempty, externalTypes: mempty} {schema, moduleName: "Test"} `shouldEqual` Right r
+  shouldParseToAll schema r =
+    schemaFromGqlToPurs
+      { dir: ""
+      , cache: Nothing
+      , useNewtypesForRecords: true
+      , isHasura: false
+      , modulePath: []
+      , fieldTypeOverrides: mempty
+      , externalTypes: mempty
+      }
+      { schema, moduleName: "Test" }
+      `shouldEqual`
+        Right r
 
 queryOnlySchemaGql :: String -> String
 queryOnlySchemaGql queryRoot =
@@ -281,6 +300,6 @@ derive instance newtypeMutationRoot :: Newtype MutationRoot _
 instance argToGqlMutationRoot :: (Newtype MutationRoot {| p},  RecordArg p a u) => ArgGql MutationRoot { | a }
 
 newtype SubscriptionRoot = SubscriptionRoot """
-    <> subscription 
+    <> subscription
     <> "\nderive instance newtypeSubscriptionRoot :: Newtype SubscriptionRoot _"
     <> "\ninstance argToGqlSubscriptionRoot :: (Newtype SubscriptionRoot {| p},  RecordArg p a u) => ArgGql SubscriptionRoot { | a }"

@@ -32,6 +32,7 @@ type InputOptions
           )
     , dir :: String
     , isHasura :: Boolean
+    , useNewtypesForRecords :: Boolean 
     , modulePath :: Array String
     , cache ::
         Maybe
@@ -46,6 +47,7 @@ defaultInputOptions =
   , fieldTypeOverrides: mempty
   , dir: ""
   , isHasura: false
+  , useNewtypesForRecords: true
   , modulePath: []
   , cache: Nothing
   }

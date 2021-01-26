@@ -12,22 +12,18 @@ template ::
   } ->
   String
 template { name, enums, mainSchemaCode, modulePrefix } =
-    """module """ <> vals.modulePrefix <> """Schema.""" <> vals.name <> """ where
+    """module """ <> modulePrefix <> """Schema.""" <> name <> """ where
 
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import GraphQL.Client.Args (class ArgGql, class RecordArg, type (==>), NotNull)
-"""<> vals.enumImports <> """
+"""<> enumImports <> """
 
-""" <> vals.mainSchemaCode <> """
+""" <> mainSchemaCode <> """
 """
   where
-  vals =
-    { name
-    , modulePrefix
-    , enumImports:
-        enums 
-          <#> (\v -> "import " <> vals.modulePrefix <> "Enum."<> v <> " ("<> v <> ")")
-          # intercalate "\n"
-    , mainSchemaCode
-    }
+  enumImports =
+    enums 
+      <#> (\v -> "import " <> modulePrefix <> "Enum."<> v <> " ("<> v <> ")")
+      # intercalate "\n"
+

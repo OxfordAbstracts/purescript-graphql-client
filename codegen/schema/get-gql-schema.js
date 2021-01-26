@@ -1,4 +1,4 @@
-const execSh = require('exec-sh').promise
+const exec = require('exec-sh').promise
 
 exports.getGqlSchema = async ({ moduleName, cache, url, token }) => {
   try {
@@ -6,9 +6,9 @@ exports.getGqlSchema = async ({ moduleName, cache, url, token }) => {
     --introspect \\
     ${token ? `-H 'Authorization: Bearer ${token}'` : ''}`
 
-    const { stdout: gql } = await execSh(cmd, { stdio: 'pipe' })
+    const { stdout: schema } = await exec(cmd, { stdio: 'pipe' })
 
-    return { moduleName, cache, gql }
+    return { moduleName, cache, schema }
   } catch (err) {
     console.error('failed to get gql schema', err)
     throw (err)
