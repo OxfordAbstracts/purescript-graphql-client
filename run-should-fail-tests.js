@@ -1,7 +1,7 @@
 const { readdirSync } = require('fs')
 const { promisify } = require('util')
 const exec = require('exec-sh')
-const assert = require('assert')
+const { strictEqual } = require('assert')
 const read = promisify(require('fs').readFile)
 
 const getDirectories = source =>
@@ -11,17 +11,23 @@ const getDirectories = source =>
 
 const go = async () => {
   const packages = getDirectories('./should-fail-tests')
+  let toTest = packages.length
 
   for (const p of packages) {
-    console.log(`Testing ${p}`)
     try {
-      const expectedError = (await read(`./should-fail-tests/${p}/expected-error.txt`))
+      const expectedError = (await read(`./should-fail-tests/${p}/expected-error.txt`)).toString()
       exec(`cd "./should-fail-tests/${p}" && spago build`, true,
         (_, _1, stderr) => {
           console.log(`testing: ${p}`)
-          assert.strictEqual(stderr.includes(expectedError), true)
+          strictEqual(stderr.slice(0, 300), expectedError.slice(0, 300))
           console.log(`test passed: ${p}`)
+          toTest--
+          if(toTest === 0){
+            console.log('all tests passed')
+            process.exit(0)
+          }
         })
+
     } catch (e) {
       console.log('error!', e)
       process.exit(1)

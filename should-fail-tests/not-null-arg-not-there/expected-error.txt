@@ -1,4 +1,34 @@
-No type class instance was found for
+Error found:
+in module Main
+at src/Main.purs:31:7 - 31:35 (line 31, column 7 - line 31, column 35)
 
-    GraphQL.Client.Args.ArgGql Boolean
-                               (Maybe 
+  Could not match type
+
+    ( online :: t0
+    | t1
+    )
+
+  with type
+
+    ()
+
+
+while trying to match type ( online :: t0
+                           | t1
+                           )
+  with type ()
+while solving type class constraint
+
+  Prim.Row.Cons "online"
+                t0
+                t1
+                ()
+
+while inferring the type of queryReturns testSchemaProxy
+in value declaration passing1
+
+where t0 is an unknown type
+      t1 is an unknown type
+
+See https://github.com/purescript/documentation/blob/master/errors/TypesDoNotUnify.md for more information,
+or to contribute content related to this error.

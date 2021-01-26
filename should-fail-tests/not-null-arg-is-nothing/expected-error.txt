@@ -1,4 +1,23 @@
-No type class instance was found for
+Error found:
+in module Main
+at src/Main.purs:41:3 - 41:29 (line 41, column 3 - line 41, column 29)
+
+  No type class instance was found for
 
     GraphQL.Client.Args.ArgGql Boolean
-                               (Maybe 
+                               (Maybe t2)
+
+  The instance head contains unknown type variables. Consider adding a type annotation.
+
+while applying a function typeChecks
+  of type QueryReturnsTypeChecks t0 t1 => Proxy t0 -> t1 -> Unit
+  to argument testSchemaProxy
+while inferring the type of typeChecks testSchemaProxy
+in value declaration passing1
+
+where t0 is an unknown type
+      t1 is an unknown type
+      t2 is an unknown type
+
+See https://github.com/purescript/documentation/blob/master/errors/NoInstanceFound.md for more information,
+or to contribute content related to this error.

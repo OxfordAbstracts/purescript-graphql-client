@@ -28,16 +28,12 @@ jobs:
             examples/2-codegen/.spago
             examples/2-codegen/output
       - run: spago build
-
-      - run: spago test --no-install
+      - run: npm i 
+      - run: npm run bundle
+      - run: npm t
 
       - name: Use Node.js 
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
-
-      - run: npm i 
-      - run: npm run bundle
-      - run: node ./run-example-tests.js
-      - run: node ./run-should-fail-tests.js
 
