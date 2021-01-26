@@ -1,7 +1,7 @@
 const { readdirSync } = require('fs')
 const { promisify } = require('util')
-const exec = require('exec-sh')
-const { strictEqual, ok } = require('assert')
+const exec = require('exec-sh').promise
+const { ok } = require('assert')
 const read = promisify(require('fs').readFile)
 
 const getDirectories = source =>
@@ -14,28 +14,30 @@ const go = async () => {
   let toTest = packages.length
 
   for (const p of packages) {
-    try {
-      const expectedError = (await read(`./should-fail-tests/${p}/expected-error.txt`)).toString()
-      exec(`cd "./should-fail-tests/${p}" && spago build`, true,
-        (_, _1, stderr) => {
-          console.log(`testing: ${p}`)
-          try{
-            ok(simplify(stderr, 0, 25).includes(simplify(expectedError, 4, 20)))
-          }catch(e){
-            console.log('stderr: \n', stderr)
-            throw e
-          }
-          console.log(`test passed: ${p}`)
-          toTest--
-          if (toTest === 0) {
-            console.log('all tests passed')
-            process.exit(0)
-          }
-        })
+    const expectedError = (await read(`./should-fail-tests/${p}/expected-error.txt`)).toString()
 
-    } catch (e) {
-      console.log('error!', e)
+    try {
+      console.log(`testing: ${p}`)
+
+      await exec(`cd "./should-fail-tests/${p}" && spago install`, true);
+      await exec(`cd "./should-fail-tests/${p}" && spago build --no-install`, true);
+
+      console.error(`${p} compiled. Test failed`)
       process.exit(1)
+    } catch (err) {
+      const {stderr} = err;
+      try {
+        ok(simplify(stderr, 0, 100).includes(simplify(expectedError, 4, 20)))
+      } catch (e) {
+        console.log('stderr: \n', stderr)
+        throw e
+      }
+      console.log(`test passed: ${p}`)
+      toTest--
+      if (toTest === 0) {
+        console.log('all tests passed')
+        process.exit(0)
+      }
     }
   }
 }
@@ -45,8 +47,9 @@ const simplify = (str, startLine, endLine) =>
     .trim()
     .split('\n')
     .map(l => l.trim())
-    .slice(startLine, endLine)
     .filter(l => l)
+    .filter(l => !l.includes('Compiling '))
+    .slice(startLine, endLine)
     .join('\n')
     .trim()
 
