@@ -20,6 +20,7 @@ module.exports = (onListening) => {
       RED
       GREEN
       BLUE
+      yellow
     }
 
     `)

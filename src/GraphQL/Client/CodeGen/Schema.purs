@@ -445,7 +445,7 @@ gqlToPursEnums = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
             <> unwrap enumValue
 
   -- enumValueToPurs :: AST.EnumValue -> String
-  -- enumValueToPurs = unwrap >>> typeName
+  -- enumValueToPurs = unwrap >>> \s -> toUpper (String.take 1 s) <> String.drop 1 s
 
 namedTypeToPurs :: AST.NamedType -> String
 namedTypeToPurs (AST.NamedType str) = typeName str

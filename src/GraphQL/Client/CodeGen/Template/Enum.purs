@@ -3,6 +3,8 @@ module GraphQL.Client.CodeGen.Template.Enum where
 import Prelude
 
 import Data.Foldable (intercalate)
+import Data.String (toUpper)
+import Data.String as String
 
 template ::
   String ->
@@ -49,13 +51,15 @@ instance show""" <> name <> """ :: Show """ <> name <> """ where
 """ <> showMember <> """
 """
   where
-    enumCtrs = intercalate "\n  | " values
+    enumCtrs = intercalate "\n  | " (map upper1st values)
     decodeMember =
       values
-        <#> (\v -> "    \"" <> v <> "\" -> pure " <> v <> "")
+        <#> (\v -> "    \"" <> v <> "\" -> pure " <> upper1st v <> "")
         # intercalate "\n"
     showMember =
       values
-        <#> (\v -> "    " <> v <> " -> \"" <> v <> "\"")
+        <#> (\v -> "    " <> upper1st v <> " -> \"" <> v <> "\"")
         # intercalate "\n"
     
+upper1st :: String -> String
+upper1st s = toUpper (String.take 1 s) <> String.drop 1 s
