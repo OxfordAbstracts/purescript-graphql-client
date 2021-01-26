@@ -1,4 +1,4 @@
-module GraphQL.Client.CodeGen.QueryFromGqlToPurs (queryFromGqlToPurs) where
+module GraphQL.Client.CodeGen.Query (queryFromGqlToPurs) where
 
 import Prelude
 
@@ -11,7 +11,7 @@ import Data.Maybe (Maybe(..))
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
 import Data.String.CodeUnits as SCU
-import GraphQL.Client.CodeGen.SchemaFromGqlToPurs (indent)
+import GraphQL.Client.CodeGen.Schema (indent)
 import Text.Parsing.Parser (ParseError, runParser)
 
 queryFromGqlToPurs :: String -> Either ParseError String

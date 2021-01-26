@@ -1,20 +1,18 @@
 -- | Codegen functions to get purs schema code from graphQL schemas
 
-module GraphQL.Client.CodeGen.SchemaFromGqlToPurs
-  ( schemasFromGqlToPursJs
-  , schemaFromGqlToPurs
+module GraphQL.Client.CodeGen.Schema
+  ( schemaFromGqlToPurs
   , schemasFromGqlToPurs
   , indent
   ) where
 
 import Prelude hiding (between)
 
-import Control.Promise (fromAff, toAff)
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Array (elem, fold, notElem, nub, nubBy)
 import Data.Array as Array
-import Data.Either (Either(..), either, hush)
+import Data.Either (Either(..), hush)
 import Data.Foldable (foldMap, intercalate)
 import Data.Function (on)
 import Data.GraphQL.AST as AST
@@ -23,10 +21,9 @@ import Data.List (List, mapMaybe)
 import Data.List as List
 import Data.Map (lookup)
 import Data.Map as Map
-import Data.Maybe (Maybe(..), fromMaybe, maybe)
+import Data.Maybe (Maybe(..), maybe)
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
-import Data.Nullable (Nullable, toMaybe)
 import Data.String (Pattern(..), codePointFromChar, contains, joinWith)
 import Data.String.CodePoints (takeWhile)
 import Data.String.Extra (pascalCase)
@@ -38,39 +35,11 @@ import Effect.Aff (Aff)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
 import GraphQL.Client.CodeGen.Template.Enum as GqlEnum
 import GraphQL.Client.CodeGen.Template.Schema as Schema
-import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptions, InputOptionsJs, JsResult, PursGql)
-import Text.Parsing.Parser (ParseError, parseErrorMessage, runParser)
-
-schemasFromGqlToPursJs :: InputOptionsJs -> Array GqlInput -> JsResult
-schemasFromGqlToPursJs optsJs =
-  schemasFromGqlToPurs opts
-    >>> map (either getError ({ result: _, parseError: "", argsTypeError: "" }))
-    >>> fromAff
-  where
-  opts =
-    { externalTypes: Map.fromFoldableWithIndex (defNull mempty optsJs.externalTypes)
-    , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (defNull mempty optsJs.fieldTypeOverrides)
-    , dir: defNull "" optsJs.dir
-    , modulePath: defNull [] optsJs.modulePath
-    , isHasura: defNull false optsJs.isHasura
-    , cache:
-        toMaybe optsJs.cache <#> \{ get, set } -> 
-            { get: map (toAff >>> map toMaybe) get
-            , set: map toAff set 
-            }
-    }
-
-  getError err =
-    { parseError: parseErrorMessage err
-    , argsTypeError: mempty
-    , result: mempty
-    }
-
-defNull :: forall a. a -> Nullable a -> a 
-defNull a = fromMaybe a <<< toMaybe
+import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptions, PursGql)
+import Text.Parsing.Parser (ParseError, runParser)
 
 schemasFromGqlToPurs :: InputOptions -> Array GqlInput -> Aff (Either ParseError FilesToWrite)
-schemasFromGqlToPurs opts = traverse (schemaFromGqlToPursWithCache opts) >>> map sequence >>> map (map collectSchemas) --  (?d collectSchemas)
+schemasFromGqlToPurs opts = traverse (schemaFromGqlToPursWithCache opts) >>> map sequence >>> map (map collectSchemas)
   where
   modulePrefix = foldMap (_ <> ".") opts.modulePath
 
