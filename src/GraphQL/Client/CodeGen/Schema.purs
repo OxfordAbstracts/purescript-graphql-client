@@ -15,6 +15,7 @@ import Data.Array as Array
 import Data.Either (Either(..), hush)
 import Data.Foldable (foldMap, intercalate)
 import Data.Function (on)
+import Data.FunctorWithIndex (mapWithIndex)
 import Data.GraphQL.AST as AST
 import Data.GraphQL.Parser (document)
 import Data.List (List, mapMaybe)
@@ -31,6 +32,7 @@ import Data.String.Regex (split)
 import Data.String.Regex.Flags (global)
 import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.Traversable (sequence, traverse)
+import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
 import GraphQL.Client.CodeGen.Template.Enum as GqlEnum
@@ -39,22 +41,24 @@ import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptio
 import Text.Parsing.Parser (ParseError, runParser)
 
 schemasFromGqlToPurs :: InputOptions -> Array GqlInput -> Aff (Either ParseError FilesToWrite)
-schemasFromGqlToPurs opts = traverse (schemaFromGqlToPursWithCache opts) >>> map sequence >>> map (map collectSchemas)
+schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> map sequence >>> map (map collectSchemas)
   where
   modulePrefix = foldMap (_ <> ".") opts.modulePath
 
-  -- fieldTypeOverrides =
-  --   Object.unions
-  --     $ (defNull mempty optsJs.fieldTypeOverrides)
-  --     # mapWithIndex \gqlObjectName obj ->
-  --         Object.fromFoldable
-  --           [ Tuple gqlObjectName obj
-  --           , Tuple (gqlObjectName <> "InsertInput") obj
-  --           , Tuple (gqlObjectName <> "MinFields") obj
-  --           , Tuple (gqlObjectName <> "MaxFields") obj
-  --           , Tuple (gqlObjectName <> "SetInput") obj
-  --           , Tuple (gqlObjectName <> "BoolExp") $ map (\o -> o { typeName = o.typeName <> "ComparisonExp" }) obj
-  --           ]
+  opts = opts_ { fieldTypeOverrides = fieldTypeOverrides }
+
+  fieldTypeOverrides =
+    Map.unions
+      $ opts_.fieldTypeOverrides 
+      # mapWithIndex \gqlObjectName obj ->
+          Map.fromFoldable
+            [ Tuple gqlObjectName obj
+            , Tuple (gqlObjectName <> "InsertInput") obj
+            , Tuple (gqlObjectName <> "MinFields") obj
+            , Tuple (gqlObjectName <> "MaxFields") obj
+            , Tuple (gqlObjectName <> "SetInput") obj
+            , Tuple (gqlObjectName <> "BoolExp") $ map (\o -> o { typeName = o.typeName <> "ComparisonExp" }) obj
+            ]
 
   collectSchemas :: Array PursGql -> FilesToWrite
   collectSchemas pursGqls =

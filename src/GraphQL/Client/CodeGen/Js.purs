@@ -37,19 +37,6 @@ schemasFromGqlToPursJs optsJs =
               }
     }
 
-  fieldTypeOverrides =
-    Object.unions
-      $ (defNull mempty optsJs.fieldTypeOverrides)
-      # mapWithIndex \gqlObjectName obj ->
-          Object.fromFoldable
-            [ Tuple gqlObjectName obj
-            , Tuple (gqlObjectName <> "InsertInput") obj
-            , Tuple (gqlObjectName <> "MinFields") obj
-            , Tuple (gqlObjectName <> "MaxFields") obj
-            , Tuple (gqlObjectName <> "SetInput") obj
-            , Tuple (gqlObjectName <> "BoolExp") $ map (\o -> o { typeName = o.typeName <> "ComparisonExp" }) obj
-            ]
-
   getError err =
     { parseError: parseErrorMessage err
     , argsTypeError: mempty
