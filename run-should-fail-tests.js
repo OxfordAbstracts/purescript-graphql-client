@@ -19,10 +19,10 @@ const go = async () => {
       exec(`cd "./should-fail-tests/${p}" && spago build`, true,
         (_, _1, stderr) => {
           console.log(`testing: ${p}`)
-          strictEqual(stderr.slice(0, 300), expectedError.slice(0, 300))
+          strictEqual(simplify(stderr), simplify(expectedError))
           console.log(`test passed: ${p}`)
           toTest--
-          if(toTest === 0){
+          if (toTest === 0) {
             console.log('all tests passed')
             process.exit(0)
           }
@@ -34,5 +34,14 @@ const go = async () => {
     }
   }
 }
+
+const simplify = str =>
+  str
+    .trim()
+    .split('\n')
+    .map(l => l.trim())
+    .slice(0, 20)
+    .join('\n')
+    .trim()
 
 go()
