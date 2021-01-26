@@ -10,7 +10,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "bundle": "spago bundle-module -m GraphQL.Client.CodeGen.Js -t 'gen-schema-bundled.js'",
-    "patch": "npm run bundle && gcam 'update bundle' --allow-empty && npm version patch && npm publish && pulp version patch && pulp publish"
+    "patch": "npm run bundle && gcam 'update bundle' --allow-empty && pulp version patch && npm publish && pulp publish"
   },
   "repository": {
     "type": "git",
