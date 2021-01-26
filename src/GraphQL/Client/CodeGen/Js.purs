@@ -6,13 +6,10 @@ import Prelude
 import Control.Promise (Promise, fromAff, toAff)
 import Data.Argonaut.Core (Json)
 import Data.Either (either)
-import Data.FunctorWithIndex (mapWithIndex)
 import Data.Map as Map
 import Data.Maybe (fromMaybe)
 import Data.Nullable (Nullable, toMaybe)
-import Data.Tuple (Tuple(..))
 import Foreign.Object (Object)
-import Foreign.Object as Object
 import GraphQL.Client.CodeGen.Schema (schemasFromGqlToPurs)
 import GraphQL.Client.CodeGen.Types (GqlInput, JsResult)
 import Text.Parsing.Parser (parseErrorMessage)
@@ -25,7 +22,7 @@ schemasFromGqlToPursJs optsJs =
   where
   opts =
     { externalTypes: Map.fromFoldableWithIndex (defNull mempty optsJs.externalTypes)
-    , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex fieldTypeOverrides
+    , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (defNull mempty optsJs.fieldTypeOverrides)
     , dir: defNull "" optsJs.dir
     , modulePath: defNull [] optsJs.modulePath
     , isHasura: defNull false optsJs.isHasura
