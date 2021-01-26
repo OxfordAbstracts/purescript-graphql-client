@@ -1,15 +1,15 @@
-module GraphQL.Client.CodeGen.QueryFromGqlToPurs.Test where
+module GraphQL.Client.CodeGen.Query.Test where
 
 import Prelude
 
 import Data.Either (Either(..))
-import GraphQL.Client.CodeGen.QueryFromGqlToPurs (queryFromGqlToPurs)
+import GraphQL.Client.CodeGen.Query (queryFromGqlToPurs)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
 
 spec :: Spec Unit
 spec =
-  describe "GraphQL.Client.CodeGen.QueryFromGqlToPurs" do
+  describe "GraphQL.Client.CodeGen.Query" do
     describe "toGqlQueryString mainSchemaCode" do
       it "converts a single prop query" do
         """query MyQuery {

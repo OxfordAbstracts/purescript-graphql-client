@@ -1,15 +1,16 @@
-module GraphQL.Client.CodeGen.SchemaFromGqlToPurs.Test where
+module GraphQL.Client.CodeGen.Schema.Test where
 
 import Prelude
 
 import Data.Either (Either(..))
-import GraphQL.Client.CodeGen.SchemaFromGqlToPurs (schemaFromGqlToPurs)
+import Data.Maybe (Maybe(..))
+import GraphQL.Client.CodeGen.Schema (schemaFromGqlToPurs)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
 
 spec :: Spec Unit
 spec =
-  describe "GraphQL.Client.CodeGen.SchemaFromGqlToPurs" do
+  describe "GraphQL.Client.CodeGen.Schema" do
     describe "schemaFromGqlToPurs" do
       it "converts a query only single nullable prop object schema" do
         let
@@ -211,13 +212,13 @@ enum my_enum {
                 ]
             }
   where
-  shouldParseTo gql r = 
+  shouldParseTo schema r = 
     let 
-      purs = schemaFromGqlToPurs {dir: "", modulePath:[], fieldTypeOverrides: mempty, externalTypes: mempty} {gql, moduleName: ""}
+      purs = schemaFromGqlToPurs {dir: "", cache: Nothing, isHasura: false, modulePath:[], fieldTypeOverrides: mempty, externalTypes: mempty} {schema, moduleName: ""}
     in
     map _.mainSchemaCode purs `shouldEqual` Right r
 
-  shouldParseToAll gql r = schemaFromGqlToPurs {dir: "", modulePath:[], fieldTypeOverrides: mempty, externalTypes: mempty} {gql, moduleName: "Test"} `shouldEqual` Right r
+  shouldParseToAll schema r = schemaFromGqlToPurs {dir: "", cache: Nothing, isHasura: false, modulePath:[], fieldTypeOverrides: mempty, externalTypes: mempty} {schema, moduleName: "Test"} `shouldEqual` Right r
 
 queryOnlySchemaGql :: String -> String
 queryOnlySchemaGql queryRoot =
