@@ -2,6 +2,7 @@ module GraphQL.Client.QueryReturns.Test (TestSchema) where
 
 import Prelude
 
+import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.Symbol (SProxy(..))
 import Data.Typelevel.Bool (True)
@@ -118,6 +119,7 @@ testArgs = queryReturns testSchemaProxy query
   query =
     { users:
         { online: true
+        , id: (Nothing :: Maybe Int)
         , where: { created_at: { gt: 10 } }
         }
           =>> { id, name, other_names }

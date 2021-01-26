@@ -7,6 +7,7 @@ import Data.DateTime (DateTime)
 import Data.Maybe (Maybe)
 import Data.Symbol (class IsSymbol, SProxy)
 import Data.Time (Time)
+import Data.Typelevel.Bool (False, True)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex)
 import Heterogeneous.Mapping (class HMapWithIndex, class MappingWithIndex)
 import Prim.Row as Row
@@ -32,12 +33,16 @@ infixr 6 AndArg as ++
 
 class ArgGql params arg
 
-instance argToGqlNotNull :: ArgGql param arg => ArgGql (NotNull param) arg
--- else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
+instance argToGqlNotNull :: (IsMaybe arg False, ArgGql param arg) => ArgGql (NotNull param) arg
+else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
 else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
 else instance argToGqlArrayAnd :: (ArgGql param a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArg a1 a2)
 else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
 
+class IsMaybe arg b | arg -> b 
+
+instance isMaybe :: IsMaybe (Maybe a) True 
+else instance notMaybe :: IsMaybe a False
 
 instance argToGqlInt :: ArgGql Int Int
 instance argToGqlNumber :: ArgGql Number Number

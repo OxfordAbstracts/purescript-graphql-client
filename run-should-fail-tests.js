@@ -1,7 +1,7 @@
 const { readdirSync } = require('fs')
 const { promisify } = require('util')
 const exec = require('exec-sh')
-const { strictEqual } = require('assert')
+const { strictEqual, ok } = require('assert')
 const read = promisify(require('fs').readFile)
 
 const getDirectories = source =>
@@ -19,7 +19,12 @@ const go = async () => {
       exec(`cd "./should-fail-tests/${p}" && spago build`, true,
         (_, _1, stderr) => {
           console.log(`testing: ${p}`)
-          strictEqual(simplify(stderr), simplify(expectedError))
+          try{
+            ok(simplify(stderr, 0, 25).includes(simplify(expectedError, 4, 20)))
+          }catch(e){
+            console.log('stderr: \n', stderr)
+            throw e
+          }
           console.log(`test passed: ${p}`)
           toTest--
           if (toTest === 0) {
@@ -35,12 +40,13 @@ const go = async () => {
   }
 }
 
-const simplify = str =>
+const simplify = (str, startLine, endLine) =>
   str
     .trim()
     .split('\n')
     .map(l => l.trim())
-    .slice(0, 20)
+    .slice(startLine, endLine)
+    .filter(l => l)
     .join('\n')
     .trim()
 

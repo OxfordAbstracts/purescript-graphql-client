@@ -1,6 +1,6 @@
 Error found:
 in module Main
-at src/Main.purs:31:7 - 31:35 (line 31, column 7 - line 31, column 35)
+at src/Main.purs:32:7 - 32:35 (line 32, column 7 - line 32, column 35)
 
   Could not match type
 

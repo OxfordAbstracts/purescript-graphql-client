@@ -1,23 +1,30 @@
 Error found:
 in module Main
-at src/Main.purs:41:3 - 41:29 (line 41, column 3 - line 41, column 29)
+at src/Main.purs:33:7 - 33:35 (line 33, column 7 - line 33, column 35)
 
-  No type class instance was found for
+  Could not match type
 
-    GraphQL.Client.Args.ArgGql Boolean
-                               (Maybe t2)
+    True
 
-  The instance head contains unknown type variables. Consider adding a type annotation.
+  with type
 
-while applying a function typeChecks
-  of type QueryReturnsTypeChecks t0 t1 => Proxy t0 -> t1 -> Unit
+    False
+
+
+while solving type class constraint
+
+  GraphQL.Client.Args.IsMaybe (Maybe Boolean)
+                              False
+
+while applying a function queryReturns
+  of type QueryReturns t0 t1 t2 => Proxy t0 -> t1 -> Proxy t2
   to argument testSchemaProxy
-while inferring the type of typeChecks testSchemaProxy
+while inferring the type of queryReturns testSchemaProxy
 in value declaration passing1
 
-where t0 is an unknown type
+where t2 is an unknown type
       t1 is an unknown type
-      t2 is an unknown type
+      t0 is an unknown type
 
-See https://github.com/purescript/documentation/blob/master/errors/NoInstanceFound.md for more information,
+See https://github.com/purescript/documentation/blob/master/errors/TypesDoNotUnify.md for more information,
 or to contribute content related to this error.

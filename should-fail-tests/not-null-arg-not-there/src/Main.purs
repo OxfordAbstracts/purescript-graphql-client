@@ -1,6 +1,7 @@
 module Main where
 
 import Prelude
+
 import Data.Symbol (SProxy(..))
 import Effect (Effect)
 import GraphQL.Client.Args (type (==>), NotNull, (=>>))

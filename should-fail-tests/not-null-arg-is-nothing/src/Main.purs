@@ -6,7 +6,7 @@ import Data.Maybe (Maybe(..))
 import Data.Symbol (SProxy(..))
 import Effect (Effect)
 import GraphQL.Client.Args (type (==>), NotNull, (=>>))
-import GraphQL.Client.QueryReturns (class QueryReturns)
+import GraphQL.Client.QueryReturns (queryReturns)
 import Type.Proxy (Proxy(..))
 
 main :: Effect Unit
@@ -27,17 +27,9 @@ type TestNotNullParamsSchema
 id :: SProxy "id"
 id = SProxy
 
-class QueryReturnsTypeChecks schema query | schema -> query where
-  typeChecks :: Proxy schema -> query -> Unit
-
-instance queryReturnsTypeChecks ::
-  ( QueryReturns schema query returns
-  ) =>
-  QueryReturnsTypeChecks schema query where
-  typeChecks _ _ = unit
-
 passing1 :: Unit
 passing1 =
-  typeChecks testSchemaProxy
-    { users: { online: Nothing } =>> { id }
-    }
+  const unit
+    $ queryReturns testSchemaProxy
+        { users: { online: (Nothing :: Maybe Boolean) } =>> { id }
+        }
