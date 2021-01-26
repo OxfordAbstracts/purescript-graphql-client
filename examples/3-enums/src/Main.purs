@@ -20,7 +20,7 @@ main =
       queryGql "Widget colours with id 1"
         { widgets: { colour: RED } =>> { colour } }
         
-    -- Will log ["RED"]
+    -- Will log [ RED ] as there is one red widget
     logShow $ map _.colour widgets
 
 -- Run gql query

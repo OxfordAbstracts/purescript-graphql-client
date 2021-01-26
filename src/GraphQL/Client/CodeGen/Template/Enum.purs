@@ -42,7 +42,7 @@ instance decodeJson""" <> name <> """ :: DecodeJson """ <> name <> """ where
 """ <> decodeMember <> """
     s -> Left $ TypeMismatch $ "Not a """ <> name <> """: " <> s
 
-instance encodeJsonColour :: EncodeJson Colour where 
+instance encodeJson""" <> name <> """ :: EncodeJson """ <> name <> """ where 
   encodeJson = show >>> encodeJson
 
 instance show""" <> name <> """ :: Show """ <> name <> """ where
