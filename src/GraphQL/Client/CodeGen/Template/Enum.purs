@@ -53,9 +53,9 @@ instance show""" <> vals.name <> """ :: Show """ <> vals.name <> """ where
     , decodeMember:
         values
           <#> (\v -> "\"" <> v <> "\" -> pure " <> v <> "")
-          # intercalate "\n"
+          # intercalate "\n    "
     , showMember:
         values
           <#> (\v -> "" <> v <> " -> \"" <> v <> "\"")
-          # intercalate "\n"
+          # intercalate "\n    "
     }
