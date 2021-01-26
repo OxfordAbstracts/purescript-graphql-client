@@ -19,7 +19,6 @@ import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError(..), decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Either (Either(..))
 import Data.Function (on)
-import Data.String.Extra (snakeCase)
 import GraphQL.Client.Args (class ArgGql)
 import GraphQL.Client.ToGqlString (class GqlArgString)
 
