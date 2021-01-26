@@ -1,5 +1,4 @@
 -- | Codegen functions to get purs schema code from graphQL schemas
-
 module GraphQL.Client.CodeGen.Schema
   ( schemaFromGqlToPurs
   , schemasFromGqlToPurs
@@ -49,7 +48,7 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
 
   fieldTypeOverrides =
     Map.unions
-      $ opts_.fieldTypeOverrides 
+      $ opts_.fieldTypeOverrides
       # mapWithIndex \gqlObjectName obj ->
           Map.fromFoldable
             [ Tuple gqlObjectName obj
@@ -137,7 +136,7 @@ toImport mainCode =
     )
 
 gqlToPursMainSchemaCode :: InputOptions -> AST.Document -> String
-gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides } doc =
+gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecords } doc =
   imports
     <> guard (imports /= "") "\n"
     <> "\n"
@@ -152,7 +151,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides } doc =
 
   removeDuplicateDefinitions = Array.fromFoldable >>> nubBy (compare `on` getDefinitionTypeName) >>> List.fromFoldable
 
-  getDefinitionTypeName :: String -> String 
+  getDefinitionTypeName :: String -> String
   getDefinitionTypeName = takeWhile (notEq (codePointFromChar '='))
 
   definitionToPurs :: AST.Definition -> Maybe String
@@ -192,31 +191,30 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides } doc =
     AST.TypeDefinition_InputObjectTypeDefinition inputObjectTypeDefinition -> Just $ inputObjectTypeDefinitionToPurs inputObjectTypeDefinition
 
   scalarTypeDefinitionToPurs :: AST.ScalarTypeDefinition -> String
-  scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) = 
-    guard (notElem tName builtInTypes)
-      case lookup tName externalTypes of
-        Nothing ->
-          guard (not $ isExternalType tName)
-            ( descriptionToDocComment description
-                <> "newtype "
-                <> tName
-                <> " = "
-                <> tName
-                <> inside
-            )
-        Just external ->
-          descriptionToDocComment description
-            <> "type "
-            <> tName
-            <> " = "
-            <> external.moduleName
-            <> "."
-            <> external.typeName
-        where
-        tName = typeName name
+  scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) =
+    guard (notElem tName builtInTypes) case lookup tName externalTypes of
+      Nothing ->
+        guard (not $ isExternalType tName)
+          ( descriptionToDocComment description
+              <> "newtype "
+              <> tName
+              <> " = "
+              <> tName
+              <> inside
+          )
+      Just external ->
+        descriptionToDocComment description
+          <> "type "
+          <> tName
+          <> " = "
+          <> external.moduleName
+          <> "."
+          <> external.typeName
+    where
+    tName = typeName name
 
-        inside = case tName of
-          _ -> "UNKNOWN!!!!"
+    inside = case tName of
+      _ -> "UNKNOWN!!!!"
 
   builtInTypes = [ "Int", "Number", "String", "Boolean" ]
 
@@ -237,21 +235,26 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides } doc =
       tName = typeName name
     in
       descriptionToDocComment description
-        <> "newtype "
-        <> typeName name
-        <> (fieldsDefinition # foldMap \fd -> " = " <> typeName name <> " " <> fieldsDefinitionToPurs tName fd)
-        <> "\nderive instance newtype"
-        <> tName
-        <> " :: Newtype "
-        <> tName
-        <> " _"
-        <> "\ninstance argToGql"
-        <> tName
-        <> " :: (Newtype "
-        <> tName
-        <> " {| p},  RecordArg p a u) => ArgGql "
-        <> tName
-        <> " { | a }"
+        <> if useNewtypesForRecords then
+            "newtype "
+              <> typeName name
+              <> (fieldsDefinition # foldMap \fd -> " = " <> typeName name <> " " <> fieldsDefinitionToPurs tName fd)
+              <> "\nderive instance newtype"
+              <> tName
+              <> " :: Newtype "
+              <> tName
+              <> " _"
+              <> "\ninstance argToGql"
+              <> tName
+              <> " :: (Newtype "
+              <> tName
+              <> " {| p},  RecordArg p a u) => ArgGql "
+              <> tName
+              <> " { | a }"
+          else
+            "type "
+              <> typeName name
+              <> (fieldsDefinition # foldMap \fd -> " = " <> fieldsDefinitionToPurs tName fd)
 
   fieldsDefinitionToPurs :: String -> AST.FieldsDefinition -> String
   fieldsDefinitionToPurs objectName (AST.FieldsDefinition fieldsDefinition) =

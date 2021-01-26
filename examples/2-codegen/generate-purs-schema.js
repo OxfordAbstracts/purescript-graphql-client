@@ -6,7 +6,7 @@ module.exports = () =>
   generateSchemas({
     dir: './src/generated',
     modulePath: ['Generated', 'Gql'],
-    useRecordNewtypes: false
+    useNewtypesForRecords: false
   }, [
     {
       url: 'http://localhost:4000/graphql',

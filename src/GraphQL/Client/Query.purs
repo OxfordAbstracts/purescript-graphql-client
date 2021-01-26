@@ -18,7 +18,7 @@ import Effect.Aff (Aff, error, message, throwError)
 import Foreign.NullOrUndefined (undefined)
 import GraphQL.Client.QueryReturns (class QueryReturns)
 import GraphQL.Client.ToGqlString (class GqlQueryString, toGqlQueryString, toGqlQueryStringFormatted)
-import Type.Proxy (Proxy(..))
+import Type.Proxy (Proxy)
 import Unsafe.Coerce (unsafeCoerce)
 
 class
@@ -45,7 +45,7 @@ queryWithDecoder ::
   (Json -> Either JsonDecodeError returns) -> Proxy schema -> URL -> Array RequestHeader -> String -> query -> Aff returns
 queryWithDecoder decodeFn _ url headers queryName q =
   addErrorInfo do
-    res <- queryPostForeign url (Proxy :: Proxy schema) (Proxy :: Proxy returns) headers queryName q
+    res <- queryPostForeign url headers queryName $ toGqlQueryString q
     case res of
       Left err ->
         throwError
@@ -82,10 +82,8 @@ queryWithDecoder decodeFn _ url headers queryName q =
     decodeFn data_
 
 queryPostForeign ::
-  forall schema query returns.
-  GqlQuery schema query returns =>
-  URL -> Proxy schema -> Proxy returns -> Array RequestHeader -> String -> query -> Aff (Either Error (Response Json))
-queryPostForeign url schema _ headers _ q =
+  URL -> Array RequestHeader -> String -> String -> Aff (Either Error (Response Json))
+queryPostForeign url headers _ q =
   request
     defaultRequest
       { withCredentials = true
@@ -96,7 +94,7 @@ queryPostForeign url schema _ headers _ q =
         Just
           $ RequestBody.Json
           $ toJson
-              { query: toGqlQueryString q
+              { query: q
               , variables: {}
               , operationName: undefined
               }
