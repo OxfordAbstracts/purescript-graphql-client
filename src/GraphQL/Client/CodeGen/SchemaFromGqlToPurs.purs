@@ -1,24 +1,15 @@
+-- | Codegen functions to get purs schema code from graphQL schemas
+
 module GraphQL.Client.CodeGen.SchemaFromGqlToPurs
-  ( InputOptions
-  , InputOptionsJs
-  , PursGql
-  , GqlEnum
-  , GqlInput
-  , GqlInputForeign
-  , FileToWrite
-  , FilesToWrite
-  , JsResult
-  , decodeSchemasFromGqlToArgs
-  , schemasFromGqlToPursJs
+  ( schemasFromGqlToPursJs
   , schemaFromGqlToPurs
+  , schemasFromGqlToPurs
   , indent
   ) where
 
 import Prelude hiding (between)
 
-import Control.Monad.Except (runExcept)
-import Control.Promise (Promise, fromAff, toAff)
-import Data.Argonaut.Core (Json)
+import Control.Promise (fromAff, toAff)
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Array (elem, fold, notElem, nub, nubBy)
@@ -30,9 +21,9 @@ import Data.GraphQL.AST as AST
 import Data.GraphQL.Parser (document)
 import Data.List (List, mapMaybe)
 import Data.List as List
-import Data.Map (Map, lookup)
+import Data.Map (lookup)
 import Data.Map as Map
-import Data.Maybe (Maybe(..), maybe)
+import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
 import Data.Nullable (Nullable, toMaybe)
@@ -43,128 +34,12 @@ import Data.String.Regex (split)
 import Data.String.Regex.Flags (global)
 import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.Traversable (sequence, traverse)
-import Effect (Effect)
 import Effect.Aff (Aff)
-import Foreign (Foreign)
-import Foreign.Generic (decode)
-import Foreign.Object (Object)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
 import GraphQL.Client.CodeGen.Template.Enum as GqlEnum
 import GraphQL.Client.CodeGen.Template.Schema as Schema
+import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptions, InputOptionsJs, JsResult, PursGql)
 import Text.Parsing.Parser (ParseError, parseErrorMessage, runParser)
-
-type InputOptions
-  = { externalTypes ::
-        Map String
-          { moduleName :: String
-          , typeName :: String
-          }
-    , fieldTypeOverrides ::
-        Map String
-          ( Map String
-              { moduleName :: String
-              , typeName :: String
-              }
-          )
-    , dir :: String
-    , modulePath :: Array String
-    }
-
-type InputOptionsJs
-  = { externalTypes ::
-        Object
-          { moduleName :: String
-          , typeName :: String
-          }
-    , fieldTypeOverrides ::
-        Object
-          ( Object
-              { moduleName :: String
-              , typeName :: String
-              }
-          )
-    , dir :: String
-    , modulePath :: Array String
-    , isHasura :: Boolean
-    }
-
-type GqlInputForeign
-  = { gql :: String
-    , moduleName :: String
-    , cache ::
-        Nullable
-          { get :: String -> Promise (Nullable Json)
-          , set :: { key :: String, val :: Json } -> Promise Unit
-          }
-    }
-
-type GqlInput
-  = { gql :: String
-    , moduleName :: String
-    , cache ::
-        Maybe
-          { get :: String -> Aff (Maybe Json)
-          , set :: { key :: String, val :: Json } -> Aff Unit
-          }
-    }
-
-type PursGql
-  = { moduleName :: String
-    , mainSchemaCode :: String
-    , symbols :: Array String
-    , enums :: Array GqlEnum
-    }
-
-type GqlEnum
-  = { name :: String, values :: Array String }
-
-type FilesToWrite
-  = { schemas :: Array FileToWrite
-    , enums :: Array FileToWrite
-    , symbols :: FileToWrite
-    }
-
-type JsResult
-  = Effect
-      ( Promise
-          { argsTypeError :: String
-          , parseError :: String
-          , result :: FilesToWrite
-          }
-      )
-
-type FileToWrite
-  = { path :: String
-    , code :: String
-    }
-
-decodeSchemasFromGqlToArgs ::
-  (InputOptionsJs -> Array GqlInput -> JsResult) ->
-  Foreign -> Array GqlInputForeign -> JsResult
-decodeSchemasFromGqlToArgs fn f gqlInput = case runExcept $ decode f of
-  Left err ->
-    fromAff
-      $ pure
-          { parseError: ""
-          , argsTypeError: show err
-          , result: mempty
-          }
-  Right optsJs -> fn optsJs $ map gqlInputFromForeign gqlInput
-  where
-  gqlInputFromForeign { gql
-  , moduleName
-  , cache
-  } =
-    { gql
-    , moduleName
-    , cache: toMaybe cache <#> \{ get, set } -> 
-        { get: map (toAff >>> map toMaybe) get
-        , set: map toAff set 
-        }
-    }
-
-schemasFromGqlToPursForeign :: Foreign -> Array GqlInputForeign -> JsResult
-schemasFromGqlToPursForeign = decodeSchemasFromGqlToArgs schemasFromGqlToPursJs
 
 schemasFromGqlToPursJs :: InputOptionsJs -> Array GqlInput -> JsResult
 schemasFromGqlToPursJs optsJs =
@@ -173,10 +48,16 @@ schemasFromGqlToPursJs optsJs =
     >>> fromAff
   where
   opts =
-    { externalTypes: Map.fromFoldableWithIndex optsJs.externalTypes
-    , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex optsJs.fieldTypeOverrides
-    , dir: optsJs.dir
-    , modulePath: optsJs.modulePath
+    { externalTypes: Map.fromFoldableWithIndex (defNull mempty optsJs.externalTypes)
+    , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (defNull mempty optsJs.fieldTypeOverrides)
+    , dir: defNull "" optsJs.dir
+    , modulePath: defNull [] optsJs.modulePath
+    , isHasura: defNull false optsJs.isHasura
+    , cache:
+        toMaybe optsJs.cache <#> \{ get, set } -> 
+            { get: map (toAff >>> map toMaybe) get
+            , set: map toAff set 
+            }
     }
 
   getError err =
@@ -184,6 +65,9 @@ schemasFromGqlToPursJs optsJs =
     , argsTypeError: mempty
     , result: mempty
     }
+
+defNull :: forall a. a -> Nullable a -> a 
+defNull a = fromMaybe a <<< toMaybe
 
 schemasFromGqlToPurs :: InputOptions -> Array GqlInput -> Aff (Either ParseError FilesToWrite)
 schemasFromGqlToPurs opts = traverse (schemaFromGqlToPursWithCache opts) >>> map sequence >>> map (map collectSchemas) --  (?d collectSchemas)
@@ -221,23 +105,23 @@ schemasFromGqlToPurs opts = traverse (schemaFromGqlToPursWithCache opts) >>> map
 
 -- | Given a gql doc this will create the equivalent purs gql schema
 schemaFromGqlToPursWithCache :: InputOptions -> GqlInput -> Aff (Either ParseError PursGql)
-schemaFromGqlToPursWithCache opts { gql, moduleName, cache } = go cache
+schemaFromGqlToPursWithCache opts { schema, moduleName } = go opts.cache
   where
-  go Nothing = pure $ schemaFromGqlToPurs opts { gql, moduleName }
+  go Nothing = pure $ schemaFromGqlToPurs opts { schema, moduleName }
 
   go (Just { get, set }) = do
-    jsonMay <- get gql
+    jsonMay <- get schema
     eVal <- case jsonMay >>= decodeJson >>> hush of
       Nothing -> go Nothing
       Just res -> pure $ Right res
     case eVal of
-      Right val -> set { key: gql, val: encodeJson val }
+      Right val -> set { key: schema, val: encodeJson val }
       _ -> pure unit
     pure $ eVal
 
-schemaFromGqlToPurs :: InputOptions -> { gql :: String, moduleName :: String } -> Either ParseError PursGql
-schemaFromGqlToPurs opts { gql, moduleName } =
-  runParser gql document
+schemaFromGqlToPurs :: InputOptions -> GqlInput -> Either ParseError PursGql
+schemaFromGqlToPurs opts { schema, moduleName } =
+  runParser schema document
     <#> \ast ->
         let
           symbols = Array.fromFoldable $ getSymbols ast
@@ -348,7 +232,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides } doc =
         inside = case tName of
           _ -> "UNKNOWN!!!!"
 
-  builtInTypes = [ "Int", "Number", "String" ]
+  builtInTypes = [ "Int", "Number", "String", "Boolean" ]
 
   isExternalType tName = elem tName externalTypesArr
 

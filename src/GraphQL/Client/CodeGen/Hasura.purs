@@ -6,7 +6,8 @@ import Data.FunctorWithIndex (mapWithIndex)
 import Data.Tuple (Tuple(..))
 import Foreign (Foreign)
 import Foreign.Object as Object
-import GraphQL.Client.CodeGen.SchemaFromGqlToPurs (GqlInputForeign, InputOptionsJs, JsResult, GqlInput, decodeSchemasFromGqlToArgs, schemasFromGqlToPursJs)
+import GraphQL.Client.CodeGen.SchemaFromGqlToPurs (decodeSchemasFromGqlToArgs, schemasFromGqlToPursJs)
+import GraphQL.Client.CodeGen.Types (GqlInput, GqlInputForeign, InputOptionsJs, JsResult)
 
 schemaFromGqlToPursForeignHasura :: Foreign -> Array GqlInputForeign -> JsResult
 schemaFromGqlToPursForeignHasura = decodeSchemasFromGqlToArgs schemaFromGqlToPursJsHasura

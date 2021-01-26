@@ -1,6 +1,7 @@
 module GraphQL.Client.Query (class GqlQuery, query, queryWithDecoder) where
 
 import Prelude
+
 import Affjax (Error, Response, URL, defaultRequest, printError, request)
 import Affjax.RequestBody as RequestBody
 import Affjax.RequestHeader (RequestHeader(..))
