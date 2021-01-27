@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/OxfordAbstracts/purescript-graphql-client#readme",
   "dependencies": {
-    "exec-sh": "^0.3.4",
-    "graphqurl": "^0.3.3",
+    "exec-sh": "0.3.4",
+    "graphqurl": "0.3.3",
     "mkdirp": "1.0.4",
     "rimraf": "3.0.2"
   }
