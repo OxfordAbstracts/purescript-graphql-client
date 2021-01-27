@@ -107,12 +107,8 @@ runOperation ::
   Operation -> (Json -> Either JsonDecodeError returns) -> Proxy schema -> URL -> Array RequestHeader -> String -> query -> Aff returns
 runOperation operation decodeFn _ url headers queryNameUnsafe q =
   addErrorInfo do
-    info "START runOperation"
     client <- liftEffect $ createClient { headers, url, websocketUrl: Nothing }
-    info "GOT CLIENT"
-    json <- query_ client $ toGqlQueryString q
-    info "JSON: "
-    info $ unsafeStringify json
+    json <- query_ client operation queryName $ toGqlQueryString q
     case decodeData json of
       Left err ->
         throwError
@@ -221,7 +217,14 @@ foreign import createClientImpl ::
   } ->
   Effect GraphQlClient
 
-query_ :: GraphQlClient -> String -> Aff Json
-query_ client str = fromEffectFnAff $ queryImpl client str
+query_ :: GraphQlClient -> Operation -> String -> String -> Aff Json
+query_ client op name q_ = fromEffectFnAff $ queryImpl client opStr q
+  where
+  opStr = case op of
+    Query -> "query"
+    Mutation -> "mutation"
+    Subscription -> "subscription"
 
-foreign import queryImpl :: GraphQlClient -> String -> EffectFnAff Json
+  q = opStr <> " " <> name <> " " <> q_ 
+
+foreign import queryImpl :: GraphQlClient -> String -> String -> EffectFnAff Json

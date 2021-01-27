@@ -1,15 +1,17 @@
 module Main where
 
 import Prelude
+
 import Data.Argonaut.Decode (class DecodeJson)
+import Data.Symbol (SProxy(..))
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
-import GraphQL.Client.Args ((=>>))
+import Generated.Gql.Schema.Admin (Query)
+import Generated.Gql.Symbols (name)
+import GraphQL.Client.Args (type (==>), (=>>))
 import GraphQL.Client.Query (class GqlQuery, query)
 import Type.Proxy (Proxy(..))
-import Generated.Gql.Symbols (name)
-import Generated.Gql.Schema.Admin (Query)
 
 main :: Effect Unit
 main =

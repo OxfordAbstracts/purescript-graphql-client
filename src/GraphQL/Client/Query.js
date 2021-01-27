@@ -21,7 +21,7 @@ exports.createClientImpl = function (opts) {
       fetchOptions: { headers: opts.headers },
       exchanges: defaultExchanges.concat(opts.websocketUrl ? [
         subscriptionExchange({
-          forwardSubscription (operation) {
+          forwardSubscription(operation) {
             return {
               subscribe: sink => {
                 const dispose = wsClient.subscribe(operation, sink)
@@ -39,20 +39,31 @@ exports.createClientImpl = function (opts) {
 }
 
 exports.queryImpl = function (client) {
-  return function (query) {
-    return function (onError, onSuccess) {
-      try {
-        client
-          // .query(gql(query))
-          .query(query)
-          .toPromise()
-          .then(onSuccess)
-          .catch(onError)
-      } catch (err) {
-        onError(err)
-      }
-      return function (cancelError, onCancelerError, onCancelerSuccess) {
-        onCancelerSuccess()
+  return function (op) {
+    return function (query) {
+      return function (onError, onSuccess) {
+        try {
+          let res; 
+          
+          if(op === "query"){
+            res = client.query(query)
+          }else if(op === "mutation"){
+            res = client.mutation(query)
+          }
+          // else if(op === "subscription"){
+          //   res = client.subscription(query)
+          // }
+
+          res
+            .toPromise()
+            .then(onSuccess)
+            .catch(onError)
+        } catch (err) {
+          onError(err)
+        }
+        return function (cancelError, onCancelerError, onCancelerSuccess) {
+          onCancelerSuccess()
+        }
       }
     }
   }
