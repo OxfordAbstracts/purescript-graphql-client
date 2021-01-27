@@ -140,7 +140,7 @@ else instance gqlArgStringTime :: GqlArgString Time where
 else instance gqlArgStringDateTime :: GqlArgString DateTime where
   toGqlArgStringImpl (DateTime d t) = show $ dateString d <> "T" <> timeString t
 else instance gqlArgStringMaybe :: GqlArgString a => GqlArgString (Maybe a) where
-  toGqlArgStringImpl = maybe "" toGqlArgStringImpl
+  toGqlArgStringImpl = maybe "null" toGqlArgStringImpl
 else instance gqlArgStringArray :: GqlArgString a => GqlArgString (Array a) where
   toGqlArgStringImpl = map toGqlArgStringImpl >>> \as -> "[" <> intercalate ", " as <> "]"
 else instance gqlArgStringAndArg ::
