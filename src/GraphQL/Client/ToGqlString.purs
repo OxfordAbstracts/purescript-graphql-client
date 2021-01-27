@@ -45,6 +45,12 @@ instance gqlQueryStringUnit :: GqlQueryString Unit where
   toGqlQueryStringImpl _ _ = ""
 else instance gqlQueryStringSymbol :: IsSymbol s => GqlQueryString (SProxy s) where
   toGqlQueryStringImpl _ _ = ": " <> reflectSymbol (SProxy :: SProxy s)
+else instance gqlQueryStringArgsScalar ::
+  ( HFoldlWithIndex PropToGqlArg String (Record args) String
+  ) =>
+  GqlQueryString (Args { | args } Unit) where
+  toGqlQueryStringImpl opts (Args args _) =
+    gqlArgStringRecordTopLevel args
 else instance gqlQueryStringArgs ::
   ( HFoldlWithIndex PropToGqlArg String (Record args) String
   , GqlQueryString (Record body)

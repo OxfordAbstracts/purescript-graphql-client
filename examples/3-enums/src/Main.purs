@@ -17,7 +17,7 @@ main :: Effect Unit
 main =
   launchAff_ do
     { widgets } <-
-      queryGql "Widget colours with id 1"
+      queryGql "WidgetColoursWithId1"
         { widgets: { colour: RED } =>> { colour } }
         
     -- Will log [ RED ] as there is one red widget

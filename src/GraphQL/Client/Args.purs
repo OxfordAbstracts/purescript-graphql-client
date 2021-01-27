@@ -31,6 +31,9 @@ data AndArg a1 a2 = AndArg a1 a2
 
 infixr 6 AndArg as ++
 
+onlyArgs :: forall a. a -> Args a Unit
+onlyArgs a = Args a unit
+
 class ArgGql params arg
 
 instance argToGqlNotNull :: (IsMaybe arg False, ArgGql param arg) => ArgGql (NotNull param) arg
