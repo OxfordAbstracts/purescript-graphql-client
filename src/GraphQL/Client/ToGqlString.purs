@@ -128,28 +128,11 @@ else instance gqlArgStringNumber :: GqlArgString Number where
 else instance gqlArgStringBoolean :: GqlArgString Boolean where
   toGqlArgStringImpl = show
 else instance gqlArgStringDate :: GqlArgString Date where
-  toGqlArgStringImpl date =
-    fold
-      [ showInt $ DT.year date
-      , "-"
-      , padl 2 '0' $ showInt $ DT.month date
-      , "-"
-      , padl 2 '0' $ showInt $ DT.day date
-      ]
+  toGqlArgStringImpl = show <<< dateString
 else instance gqlArgStringTime :: GqlArgString Time where
-  toGqlArgStringImpl time =
-    fold
-      [ padl 2 '0' $ showInt $ DT.hour time
-      , ":"
-      , padl 2 '0' $ showInt $ DT.minute time
-      , ":"
-      , padl 2 '0' $ showInt $ DT.second time
-      , "."
-      , removeTrailingZeros $ padMilli $ DT.millisecond time
-      , "Z"
-      ]
+  toGqlArgStringImpl = show <<< timeString
 else instance gqlArgStringDateTime :: GqlArgString DateTime where
-  toGqlArgStringImpl (DateTime d t) = toGqlArgStringImpl d <> "T" <> toGqlArgStringImpl t
+  toGqlArgStringImpl (DateTime d t) = show $ dateString d <> "T" <> timeString t
 else instance gqlArgStringMaybe :: GqlArgString a => GqlArgString (Maybe a) where
   toGqlArgStringImpl = maybe "" toGqlArgStringImpl
 else instance gqlArgStringArray :: GqlArgString a => GqlArgString (Array a) where
@@ -161,6 +144,29 @@ else instance gqlArgStringAndArg ::
   toGqlArgStringImpl andArg = "[" <> toGqlAndArgStringImpl andArg <> "]"
 else instance gqlArgStringRecord_ :: HFoldlWithIndex PropToGqlArg String (Record r) String => GqlArgString (Record r) where
   toGqlArgStringImpl r = gqlArgStringRecord r
+
+dateString :: Date -> String
+dateString date =
+  fold
+    [ showInt $ DT.year date
+    , "-"
+    , padl 2 '0' $ showInt $ DT.month date
+    , "-"
+    , padl 2 '0' $ showInt $ DT.day date
+    ]
+
+timeString :: Time -> String
+timeString time =
+  fold
+    [ padl 2 '0' $ showInt $ DT.hour time
+    , ":"
+    , padl 2 '0' $ showInt $ DT.minute time
+    , ":"
+    , padl 2 '0' $ showInt $ DT.second time
+    , "."
+    , removeTrailingZeros $ padMilli $ DT.millisecond time
+    , "Z"
+    ]
 
 showInt :: forall a. BoundedEnum a => a -> String
 showInt = show <<< fromEnum
