@@ -10,7 +10,7 @@ import Generated.Gql.Enum.Colour (Colour(..))
 import Generated.Gql.Schema.Admin (Query, Mutation)
 import Generated.Gql.Symbols (colour)
 import GraphQL.Client.Args (onlyArgs, (=>>))
-import GraphQL.Client.Query (class GqlQuery, mutation, query)
+import GraphQL.Client.Query (class GqlQuery, mutation_, query_)
 import Type.Proxy (Proxy(..))
 
 main :: Effect Unit
@@ -40,7 +40,7 @@ queryGql ::
   GqlQuery Query query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
-queryGql = query (Proxy :: Proxy Query) "http://localhost:4000/graphql" []
+queryGql = query_ "http://localhost:4000/graphql"  (Proxy :: Proxy Query)
 
 -- Run gql query
 mutationGql ::
@@ -48,4 +48,4 @@ mutationGql ::
   GqlQuery Mutation query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
-mutationGql = mutation (Proxy :: Proxy Mutation) "http://localhost:4000/graphql" []
+mutationGql = mutation_ "http://localhost:4000/graphql" (Proxy :: Proxy Mutation) 

@@ -8,7 +8,7 @@ import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (infoShow, logShow)
 import GraphQL.Client.Args (type (==>), (=>>))
-import GraphQL.Client.Query (class GqlQuery, query)
+import GraphQL.Client.Query (class GqlQuery, query_)
 import Type.Proxy (Proxy(..))
 
 main :: Effect Unit
@@ -27,7 +27,7 @@ queryGql ::
   GqlQuery Schema query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
-queryGql = query (Proxy :: Proxy Schema) "http://localhost:4000/graphql" []
+queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Schema) 
 
 -- Schema
 type Schema

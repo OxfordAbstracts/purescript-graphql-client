@@ -4,31 +4,19 @@ module GraphQL.Client.Query where
 
 import Prelude
 
-import Affjax (Error, Response, URL, defaultRequest, printError, request)
-import Affjax.RequestBody as RequestBody
-import Affjax.RequestHeader (RequestHeader(..), name, value)
-import Affjax.ResponseFormat as ResponseFormat
+import Affjax (URL)
 import Control.Monad.Except (catchError)
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError, decodeJson, getField, printJsonDecodeError)
 import Data.Array (filter, intercalate)
 import Data.Char.Unicode (isAlphaNum)
 import Data.Either (Either(..))
-import Data.HTTP.Method as Method
-import Data.Maybe (Maybe(..))
-import Data.MediaType.Common (applicationJSON)
-import Data.Nullable (Nullable, toNullable)
 import Data.String.CodeUnits (fromCharArray, toCharArray)
-import Data.Tuple (Tuple(..))
-import Effect (Effect)
 import Effect.Aff (Aff, error, message, throwError)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
 import Effect.Class (liftEffect)
-import Effect.Class.Console (info, infoShow, log, logShow)
 import Foreign (Foreign)
-import Foreign.Object (Object)
-import Foreign.Object as Object
-import Global.Unsafe (unsafeStringify)
+import GraphQL.Client.Create (ClientTyped(..), GraphQlClient, GraphQlSubscriptionClient, createGlobalClientUnsafe)
 import GraphQL.Client.QueryReturns (class QueryReturns)
 import GraphQL.Client.ToGqlString (class GqlQueryString, toGqlQueryString, toGqlQueryStringFormatted)
 import Type.Proxy (Proxy(..))
@@ -45,70 +33,97 @@ instance queriable ::
   ) =>
   GqlQuery schema query returns
 
-type Options schema returns
-  = { url :: URL
-    , headers :: Array RequestHeader
-    , decode :: Json -> Either JsonDecodeError returns
-    , schema :: Proxy schema
-    , clientId :: String
-    }
-
-defaultOptions ::
-  forall schema returns.
-  DecodeJson returns => Options schema returns
-defaultOptions =
-  { url: ""
-  , headers: []
-  , decode: decodeJson
-  , schema: Proxy
-  , clientId: ""
-  }
-
 data Operation
   = Query
   | Mutation
-  | Subscription
 
--- query ::
---   forall returns query schema.
---   GqlQuery schema query returns =>
---   Options schema returns -> String -> query -> Aff returns
--- query opts queryName q = do
---   runOperation Query opts.decode (Proxy :: Proxy schema) opts.url opts.headers queryName q
+opToString :: Operation -> String
+opToString = case _ of
+  Query -> "query"
+  Mutation -> "mutation"
+
+-- | Run a graphQL query with a custom decoder
+queryWithDecoder ::
+  forall client schema query returns a b.
+  QueryClient client =>
+  GqlQuery schema query returns =>
+  (Json -> Either JsonDecodeError returns) ->
+  (ClientTyped client schema a b) -> 
+  String -> 
+  query -> 
+  Aff returns
+queryWithDecoder d (ClientTyped c) = runOperation Query d c (Proxy :: Proxy schema)
+
+-- | Run a graphQL query
 query ::
-  forall returns query schema.
+  forall client schema query returns a b.
+  QueryClient client =>
   GqlQuery schema query returns =>
   DecodeJson returns =>
-  Proxy schema -> URL -> Array RequestHeader -> String -> query -> Aff returns
+  (ClientTyped client schema a b) -> String -> query -> Aff returns
 query = queryWithDecoder decodeJson
 
-queryWithDecoder ::
+-- | A create client and query shortcut that creates a global client and caches it for future calls. 
+-- | `query` is a safer option for production environments and should generally be used
+query_ ::
   forall schema query returns.
-  GqlQuery schema query returns =>
-  (Json -> Either JsonDecodeError returns) -> Proxy schema -> URL -> Array RequestHeader -> String -> query -> Aff returns
-queryWithDecoder = runOperation Query
-
-mutation ::
-  forall returns query schema.
   GqlQuery schema query returns =>
   DecodeJson returns =>
-  Proxy schema -> URL -> Array RequestHeader -> String -> query -> Aff returns
-mutation = mutationWithDecoder decodeJson
+  URL -> Proxy schema -> String -> query -> Aff returns
+query_ url schema name q = do
+  client <-
+    liftEffect
+      $ createGlobalClientUnsafe
+          { url
+          , headers: []
+          }
+  query (client :: ClientTyped GraphQlClient schema _ _) name q
 
 mutationWithDecoder ::
-  forall schema query returns.
+  forall client schema query returns a b.
+  QueryClient client =>
   GqlQuery schema query returns =>
-  (Json -> Either JsonDecodeError returns) -> Proxy schema -> URL -> Array RequestHeader -> String -> query -> Aff returns
-mutationWithDecoder = runOperation Mutation
+  (Json -> Either JsonDecodeError returns) ->
+  (ClientTyped client a schema b) -> 
+  String -> 
+  query -> 
+  Aff returns
+mutationWithDecoder d (ClientTyped c) = runOperation Mutation d c (Proxy :: Proxy schema)
+
+mutation ::
+  forall client schema mutation returns a b.
+  QueryClient client =>
+  GqlQuery schema mutation returns =>
+  DecodeJson returns =>
+  (ClientTyped client a schema b) -> String -> mutation -> Aff returns
+mutation = mutationWithDecoder decodeJson
+
+mutation_ ::
+  forall schema mutation returns.
+  GqlQuery schema mutation returns =>
+  DecodeJson returns =>
+  URL -> Proxy schema -> String -> mutation -> Aff returns
+mutation_ url schema name q = do
+  client <-
+    liftEffect
+      $ createGlobalClientUnsafe
+          { url
+          , headers: []
+          }
+  mutation (client :: ClientTyped GraphQlClient _ schema _) name q
 
 runOperation ::
-  forall schema query returns.
+  forall client schema query returns.
+  QueryClient client =>
   GqlQuery schema query returns =>
-  Operation -> (Json -> Either JsonDecodeError returns) -> Proxy schema -> URL -> Array RequestHeader -> String -> query -> Aff returns
-runOperation operation decodeFn _ url headers queryNameUnsafe q =
+  Operation -> (Json -> Either JsonDecodeError returns) -> client -> Proxy schema -> String -> query -> Aff returns
+runOperation operation decodeFn client _ queryNameUnsafe q =
   addErrorInfo do
-    client <- liftEffect $ createClient { headers, url, websocketUrl: Nothing }
-    json <- query_ client operation queryName $ toGqlQueryString q
+    let
+      fn = case operation of
+        Query -> clientQuery
+        Mutation -> clientMutation
+    json <- fn client queryName $ toGqlQueryString q
     case decodeData json of
       Left err ->
         throwError
@@ -118,22 +133,6 @@ runOperation operation decodeFn _ url headers queryNameUnsafe q =
                 " Response failed to decode from JSON: "
                   <> printJsonDecodeError err
       Right result -> pure result
-  -- res <- queryPostForeign operation url headers queryName $ toGqlQueryString q
-  -- case res of
-  --   Left err ->
-  --     throwError
-  --       $ error
-  --       $ "Response failed to decode to JSON: "
-  --       <> printError err
-  --   Right { body } -> case decodeData body of
-  --     Left err ->
-  --       throwError
-  --         $ error case decodeJson body of
-  --             Right ({ errors } :: { errors :: Array { message :: String } }) -> intercalate ", \n" $ map _.message errors
-  --             _ ->
-  --               " Response failed to decode from JSON: "
-  --                 <> printJsonDecodeError err
-  --     Right result -> pure result
   where
   queryName =
     queryNameUnsafe
@@ -147,13 +146,13 @@ runOperation operation decodeFn _ url headers queryNameUnsafe q =
     flip catchError \err -> do
       throwError
         $ error
-        $ " GraphQL "
-        <> show url
-        <> ". \nname: "
+        $ "GraphQL "
+        <> opToString operation
+        <> ".\nname: "
         <> show queryName
-        <> ". \nerror: "
+        <> ".\nerror: "
         <> message err
-        <> ". \nquery: "
+        <> ".\nquery: "
         <> toGqlQueryStringFormatted q
 
   decodeData :: Json -> Either JsonDecodeError returns
@@ -162,69 +161,31 @@ runOperation operation decodeFn _ url headers queryNameUnsafe q =
     data_ <- getField jsonObj "data"
     decodeFn data_
 
--- queryPostForeign ::
---   Operation -> URL -> Array RequestHeader -> String -> String -> Aff (Either Error (Response Json))
--- queryPostForeign operation url headers queryName q =
---   request
---     defaultRequest
---       { withCredentials = true
---       , url = url
---       , method = Left Method.POST
---       , responseFormat = ResponseFormat.json
---       , content =
---         Just
---           $ RequestBody.Json
---           $ toJson
---               { query: opStr <> " " <> queryName <> " " <> q
---               , variables: {}
---               , operationName: queryName
---               }
---       , headers = headers <> [ ContentType applicationJSON ]
---       }
---   where
---   opStr = case operation of
---     Query -> "query"
---     Mutation -> "mutation"
---     Subscription -> "subscription"
+-- | A type class for making the graphql request. 
+-- | If you wish to use a different underlying client, 
+-- | you can create your own client, 
+-- | make it an instance of `QueryClient`
+-- | and pass it to query
+class QueryClient c where
+  clientQuery :: c -> String -> String -> Aff Json
+  clientMutation :: c -> String -> String -> Aff Json
 
---   toJson ::
---     { operationName :: String
---     , query :: String
---     , variables :: {}
---     } ->
---     Json
---   toJson = unsafeCoerce
+instance queryClient :: QueryClient GraphQlClient where
+  clientQuery c = queryForeign Query c
+  clientMutation c = queryForeign Mutation c
 
-foreign import data GraphQlClient :: Type
+instance queryClientSubscription :: QueryClient GraphQlSubscriptionClient where
+  clientQuery c = queryForeign Query c
+  clientMutation c = queryForeign Mutation c
 
-createClient ::
-  { url :: URL
-  , websocketUrl :: Maybe String
-  , headers :: Array RequestHeader
-  } ->
-  Effect GraphQlClient
-createClient opts = createClientImpl opts 
-  { headers = Object.fromFoldable $ map toTup opts.headers 
-  , websocketUrl = toNullable opts.websocketUrl
-  }
+queryForeign ::
+  forall client.
+  QueryClient client =>
+  Operation -> client -> String -> String -> Aff Json
+queryForeign op client name q_ = fromEffectFnAff $ queryImpl (unsafeCoerce client) opStr q
   where
-  toTup header = Tuple (name header) (value header)
+  opStr = opToString op
 
-foreign import createClientImpl ::
-  { url :: URL
-  , websocketUrl :: Nullable String
-  , headers :: Object String
-  } ->
-  Effect GraphQlClient
+  q = opStr <> " " <> name <> " " <> q_
 
-query_ :: GraphQlClient -> Operation -> String -> String -> Aff Json
-query_ client op name q_ = fromEffectFnAff $ queryImpl client opStr q
-  where
-  opStr = case op of
-    Query -> "query"
-    Mutation -> "mutation"
-    Subscription -> "subscription"
-
-  q = opStr <> " " <> name <> " " <> q_ 
-
-foreign import queryImpl :: GraphQlClient -> String -> String -> EffectFnAff Json
+foreign import queryImpl :: Foreign -> String -> String -> EffectFnAff Json

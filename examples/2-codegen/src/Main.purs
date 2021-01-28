@@ -3,14 +3,13 @@ module Main where
 import Prelude
 
 import Data.Argonaut.Decode (class DecodeJson)
-import Data.Symbol (SProxy(..))
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
 import Generated.Gql.Schema.Admin (Query)
 import Generated.Gql.Symbols (name)
-import GraphQL.Client.Args (type (==>), (=>>))
-import GraphQL.Client.Query (class GqlQuery, query)
+import GraphQL.Client.Args ((=>>))
+import GraphQL.Client.Query (class GqlQuery, query_)
 import Type.Proxy (Proxy(..))
 
 main :: Effect Unit
@@ -27,4 +26,4 @@ queryGql ::
   GqlQuery Query query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
-queryGql = query (Proxy :: Proxy Query) "http://localhost:4000/graphql" []
+queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Query) 
