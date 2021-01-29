@@ -10,7 +10,8 @@ import Generated.Gql.Enum.Colour (Colour(..))
 import Generated.Gql.Schema.Admin (Query)
 import Generated.Gql.Symbols (colour)
 import GraphQL.Client.Args ((=>>))
-import GraphQL.Client.Query (class GqlQuery, query, query_)
+import GraphQL.Client.Types (class GqlQuery)
+import GraphQL.Client.Query (query_)
 import Type.Proxy (Proxy(..))
 
 main :: Effect Unit

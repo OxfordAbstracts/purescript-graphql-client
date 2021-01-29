@@ -8,7 +8,8 @@ import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
 import GraphQL.Client.Args (type (==>), (=>>))
-import GraphQL.Client.Query (class GqlQuery, query_)
+import GraphQL.Client.Query (query_)
+import GraphQL.Client.Types (class GqlQuery)
 import Type.Proxy (Proxy(..))
 
 main :: Effect Unit

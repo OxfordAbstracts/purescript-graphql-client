@@ -1,5 +1,5 @@
 {
-  "name": "4-mutation",
+  "name": "5-subscription",
   "version": "1.0.0",
   "description": "Handle enums in with code gen.",
   "main": "server.js",
@@ -14,6 +14,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@apollo/client": "^3.3.7",
+    "apollo-server": "^2.19.2",
     "exec-sh": "0.3.4",
     "express": "4.17.1",
     "express-graphql": "0.12.0",

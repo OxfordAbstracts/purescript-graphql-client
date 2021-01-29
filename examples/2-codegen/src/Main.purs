@@ -9,7 +9,8 @@ import Effect.Class.Console (logShow)
 import Generated.Gql.Schema.Admin (Query)
 import Generated.Gql.Symbols (name)
 import GraphQL.Client.Args ((=>>))
-import GraphQL.Client.Query (class GqlQuery, query_)
+import GraphQL.Client.Types (class GqlQuery)
+import GraphQL.Client.Query (query_)
 import Type.Proxy (Proxy(..))
 
 main :: Effect Unit
