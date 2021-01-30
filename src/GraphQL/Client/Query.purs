@@ -1,13 +1,15 @@
 module GraphQL.Client.Query
-  -- ( query
-  -- , queryWithDecoder
-  -- , query_
-  -- , mutation
-  -- , mutationWithDecoder
-  -- , mutation_
-  -- , sanitizeQueryName
-  -- , decodeGqlRes
-  -- ) 
+  ( query
+  , queryWithDecoder
+  , queryOptsWithDecoder
+  , queryOpts
+  , query_
+  , mutation
+  , mutationWithDecoder
+  , mutation_
+  , sanitizeQueryName
+  , decodeGqlRes
+  ) 
   where
 
 import Prelude
@@ -24,9 +26,39 @@ import Data.String.CodeUnits (fromCharArray, toCharArray)
 import Effect.Aff (Aff, Error, error, message, throwError)
 import Effect.Class (liftEffect)
 import GraphQL.Client.BaseClients.Urql (UrqlClient, createGlobalClientUnsafe)
-import GraphQL.Client.Types (class GqlQuery, class QueryClient, Client(..), clientMutation, clientQuery)
 import GraphQL.Client.ToGqlString (class GqlQueryString, toGqlQueryString, toGqlQueryStringFormatted)
+import GraphQL.Client.Types (class GqlQuery, class QueryClient, Client(..), clientMutation, clientQuery, defMutationOpts, defQueryOpts)
 import Type.Proxy (Proxy(..))
+
+-- | Run a graphQL query with a custom decoder and custom options
+queryOptsWithDecoder ::
+  forall client schema query returns a b queryOpts mutationOpts.
+  QueryClient client queryOpts mutationOpts =>
+  GqlQuery schema query returns =>
+  (Json -> Either JsonDecodeError returns) ->
+  (queryOpts -> queryOpts) ->
+  (Client client schema a b) ->
+  String ->
+  query ->
+  Aff returns
+queryOptsWithDecoder d optsF (Client c) = runQuery d opts c (Proxy :: Proxy schema)
+  where 
+
+  opts = optsF (defQueryOpts c)
+
+
+-- | Run a graphQL query with custom options
+queryOpts ::
+  forall client schema query returns a b queryOpts mutationOpts.
+  QueryClient client queryOpts mutationOpts =>
+  GqlQuery schema query returns =>
+  DecodeJson returns =>
+  (queryOpts -> queryOpts) ->
+  (Client client schema a b) ->
+  String ->
+  query ->
+  Aff returns
+queryOpts = queryOptsWithDecoder decodeJson
 
 
 -- | Run a graphQL query with a custom decoder
@@ -35,12 +67,11 @@ queryWithDecoder ::
   QueryClient client queryOpts mutationOpts =>
   GqlQuery schema query returns =>
   (Json -> Either JsonDecodeError returns) ->
-  queryOpts ->
-  (Client client a schema b) ->
+  (Client client schema a b) ->
   String ->
   query ->
   Aff returns
-queryWithDecoder d queryOpts (Client c) = runQuery d queryOpts c (Proxy :: Proxy schema)
+queryWithDecoder d (Client c) = runQuery d (defQueryOpts c) c (Proxy :: Proxy schema)
 
 -- | Run a graphQL query
 query ::
@@ -48,8 +79,7 @@ query ::
   QueryClient client queryOpts mutationOpts =>
   GqlQuery schema query returns =>
   DecodeJson returns =>
-  queryOpts ->
-  (Client client a schema b) ->
+  (Client client schema a b) ->
   String ->
   query ->
   Aff returns
@@ -69,7 +99,7 @@ query_ url schema name q = do
           { url
           , headers: []
           }
-  query unit (client :: Client UrqlClient _ schema _) name q
+  query (client :: Client UrqlClient schema _ _) name q
 
 
 mutationWithDecoder ::
@@ -77,24 +107,50 @@ mutationWithDecoder ::
   QueryClient client queryOpts mutationOpts =>
   GqlQuery schema mutation returns =>
   (Json -> Either JsonDecodeError returns) ->
-  mutationOpts ->
   (Client client a schema b) ->
   String ->
   mutation ->
   Aff returns
-mutationWithDecoder d mutationOpts (Client c) = runMutation d mutationOpts c (Proxy :: Proxy schema)
+mutationWithDecoder d (Client c) = runMutation d (defMutationOpts c) c (Proxy :: Proxy schema)
 
 mutation ::
   forall client schema mutation returns a b queryOpts mutationOpts.
   QueryClient client queryOpts mutationOpts =>
   GqlQuery schema mutation returns =>
   DecodeJson returns =>
-  mutationOpts ->
   (Client client a schema b) ->
   String ->
   mutation ->
   Aff returns
 mutation = mutationWithDecoder decodeJson
+
+-- | Run a graphQL query with a custom decoder and custom options
+mutationOptsWithDecoder ::
+  forall client schema query returns a b queryOpts mutationOpts.
+  QueryClient client queryOpts mutationOpts =>
+  GqlQuery schema query returns =>
+  (Json -> Either JsonDecodeError returns) ->
+  (mutationOpts -> mutationOpts) ->
+  (Client client a schema b) ->
+  String ->
+  query ->
+  Aff returns
+mutationOptsWithDecoder d optsF (Client c) = runMutation d opts c (Proxy :: Proxy schema)
+  where 
+  opts = optsF (defMutationOpts c)
+
+-- | Run a graphQL query with a custom decoder and custom options
+mutationOpts ::
+  forall client schema query returns a b queryOpts mutationOpts.
+  QueryClient client queryOpts mutationOpts =>
+  GqlQuery schema query returns =>
+  DecodeJson returns =>
+  (mutationOpts -> mutationOpts) ->
+  (Client client a schema b) ->
+  String ->
+  query ->
+  Aff returns
+mutationOpts = mutationOptsWithDecoder decodeJson
 
 mutation_ ::
   forall schema mutation returns.
@@ -108,7 +164,7 @@ mutation_ url schema name q = do
           { url
           , headers: []
           }
-  mutation unit (client :: Client UrqlClient _ schema _) name q
+  mutation (client :: Client UrqlClient _ schema _) name q
 
 runQuery :: 
   forall client schema query returns qOpts mOpts.

@@ -9,11 +9,8 @@ console.log = (log) => {
 
 require('./server-fn')(async () => {
   try {
-    console.info('start')
-    // await require('./generate-purs-schema')()
-    console.info('building purs')
+    await require('./generate-purs-schema')()
     await exec('npm run build', { stdio: 'pipe', stderr: 'pipe' })
-    console.info('running main')
     require('./output/Main').main()
     setTimeout(() => {
       deepStrictEqual(logs, ['[RED]', '1', '[GREEN]'])

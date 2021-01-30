@@ -97,10 +97,14 @@ foreign import createSubscriptionClientImpl :: UrqlSubUrqlClientOptionsForeign -
 instance queryClient :: QueryClient UrqlClient Unit Unit where
   clientQuery _ c = queryForeign false c
   clientMutation _ c = queryForeign true c
+  defQueryOpts = const unit
+  defMutationOpts = const unit
 
 instance queryClientSubscription :: QueryClient UrqlSubClient Unit Unit where
   clientQuery _ c = queryForeign false c
   clientMutation _ c = queryForeign true c
+  defQueryOpts = const unit
+  defMutationOpts = const unit
 
 queryForeign ::
   forall client o.

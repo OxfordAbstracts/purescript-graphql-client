@@ -4,7 +4,6 @@ module GraphQL.Client.BaseClients.Apollo
   , ApolloSubClientOptions
   , ApolloClient
   , ApolloSubClient
-  , FetchPolicy(..)
   , createClient
   , createSubscriptionClient
   ) where
@@ -13,12 +12,15 @@ import Prelude
 
 import Affjax (URL)
 import Data.Argonaut.Core (Json)
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe(..))
 import Data.Nullable (Nullable, toNullable)
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
 import Foreign (Foreign)
+import Foreign.Generic (encode)
+import GraphQL.Client.BaseClients.Apollo.ErrorPolicy (ErrorPolicy(..))
+import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy)
 import GraphQL.Client.Types (class QueryClient, Client(..))
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -77,20 +79,57 @@ type ApolloSubApolloClientOptionsForeign
     , authToken :: Nullable String
     }
 
-instance queryClient :: QueryClient ApolloClient {fetchPolicy :: Maybe FetchPolicy} {fetchPolicy :: Maybe FetchPolicy} where
-  clientQuery c = queryForeign false c
-  clientMutation c = queryForeign true c
+instance queryClient ::
+  QueryClient
+    ApolloClient
+    { fetchPolicy :: Maybe FetchPolicy
+    , errorPolicy :: ErrorPolicy
+    }
+    { errorPolicy :: ErrorPolicy
+    } where
+  clientQuery opts = queryForeign false (encode opts)
+  clientMutation opts = queryForeign true (encode opts)
+  defQueryOpts = const defQueryOpts
+  defMutationOpts = const defMutationOpts
 
-instance queryClientSubscription :: QueryClient ApolloSubClient {fetchPolicy :: Maybe FetchPolicy} {fetchPolicy :: Maybe FetchPolicy} where
-  clientQuery c = queryForeign false c
-  clientMutation c = queryForeign true c
+instance queryClientSubscription ::
+  QueryClient
+    ApolloSubClient
+    { fetchPolicy :: Maybe FetchPolicy
+    , errorPolicy :: ErrorPolicy
+    }
+    { errorPolicy :: ErrorPolicy
+    } where
+  clientQuery opts = queryForeign false (encode opts)
+  clientMutation opts = queryForeign true (encode opts)
+  defQueryOpts = const defQueryOpts
+  defMutationOpts = const defMutationOpts
+
+type QueryOpts
+  = { fetchPolicy :: Maybe FetchPolicy
+    , errorPolicy :: ErrorPolicy
+    }
+
+defQueryOpts :: QueryOpts
+defQueryOpts =
+  { fetchPolicy: Nothing
+  , errorPolicy: All
+  }
+
+type MutationOpts
+  = { errorPolicy :: ErrorPolicy
+    }
+
+defMutationOpts :: MutationOpts
+defMutationOpts =
+  { errorPolicy: All
+  }
 
 queryForeign ::
-  forall opts client.
-  QueryClient client opts opts =>
-  Boolean -> {fetchPolicy :: Maybe FetchPolicy} -> client -> String -> String -> Aff Json
-queryForeign isMutation opts client name q_ = 
-  fromEffectFnAff $ fn (unsafeCoerce opts) (unsafeCoerce client) q
+  forall q m client.
+  QueryClient client q m =>
+  Boolean -> Foreign -> client -> String -> String -> Aff Json
+queryForeign isMutation opts client name q_ = fromEffectFnAff $ fn opts (unsafeCoerce client) q
   -- fromEffectFnAff $ fn (apolloOptionsToForeign opts) (unsafeCoerce client) q
   where
   fn = if isMutation then mutationImpl else queryImpl
@@ -103,15 +142,6 @@ foreign import createClientImpl :: ApolloClientOptionsForeign -> Effect ApolloCl
 
 foreign import createSubscriptionClientImpl :: ApolloSubApolloClientOptionsForeign -> Effect ApolloSubClient
 
-foreign import queryImpl :: ApolloQueryOptionsForeign -> Foreign -> String -> EffectFnAff Json
+foreign import queryImpl :: Foreign -> Foreign -> String -> EffectFnAff Json
 
-foreign import mutationImpl :: ApolloQueryOptionsForeign -> Foreign -> String -> EffectFnAff Json
-
-apolloOptionsToForeign :: { fetchPolicy :: Maybe FetchPolicy } -> ApolloQueryOptionsForeign
-apolloOptionsToForeign  o =
-  { fetchPolicy: toNullable $ map fetchPolicyToForeign o.fetchPolicy
-  }
-
-type ApolloQueryOptionsForeign
-  = { fetchPolicy :: Nullable String
-    }
+foreign import mutationImpl :: Foreign -> Foreign -> String -> EffectFnAff Json

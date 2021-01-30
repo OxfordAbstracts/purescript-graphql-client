@@ -39,9 +39,6 @@ module.exports = (onListening) => {
     widgets: ({ id }) =>
       widgets.filter(w => !id || id === w.id),
     set_widget_colour: ({ id, colour }) => {
-      console.info('on server')
-      console.info('id', id)
-      console.info('colour', colour)
       let count = 0
       widgets.forEach((w) => {
         if (w.id === id) {

@@ -10,8 +10,9 @@ import Generated.Gql.Enum.Colour (Colour(..))
 import Generated.Gql.Schema.Admin (Query, Mutation)
 import Generated.Gql.Symbols (colour)
 import GraphQL.Client.Args (onlyArgs, (=>>))
-import GraphQL.Client.BaseClients.Apollo (createClient)
-import GraphQL.Client.Query (mutation, query)
+import GraphQL.Client.BaseClients.Apollo (ApolloClient, createClient)
+import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy(..))
+import GraphQL.Client.Query (mutation, query, queryOpts)
 import GraphQL.Client.Types (Client)
 
 main :: Effect Unit
@@ -23,7 +24,8 @@ main = do
       }
   launchAff_ do
     { widgets } <-
-      query { fetchPolicy: Just NoCache } client "Widget_1_colour"
+      query client "Widget_1_colour"
+      -- queryOpts (_ { fetchPolicy = Just NoCache }) client "Widget_1_colour"
         { widgets: { id: 1 } =>> { colour } }
 
     -- Will log [ RED ]
@@ -38,8 +40,10 @@ main = do
     logShow affectedCount
 
     { widgets: updatedWidgets } <-
-      query client "Widget_1_colour_updated"
+      queryOpts (_ { fetchPolicy = Just NoCache }) client "Widget_1_colour_updated"
         { widgets: { id: 1 } =>> { colour } }
 
     -- Will now log [ GREEN ]
     logShow $ map _.colour updatedWidgets
+
+  

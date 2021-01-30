@@ -12,7 +12,6 @@ module.exports = (onListening) => {
       greetings: String
     }
   `)
-    console.info('server 1')
     // The roots provide resolvers for each GraphQL operation
     const roots = {
       query: {
@@ -31,7 +30,6 @@ module.exports = (onListening) => {
     const ws = require('ws')
     const { useServer } = require('graphql-ws/lib/use/ws')
     const { execute, subscribe } = require('graphql')
-    console.info('server 2')
   
     const server = https.createServer(function weServeSocketsOnly (_, res) {
       res.writeHead(404)
@@ -52,7 +50,6 @@ module.exports = (onListening) => {
       },
       wsServer
     )
-    console.info('server 3')
   
     server.listen(4000, onListening)
   

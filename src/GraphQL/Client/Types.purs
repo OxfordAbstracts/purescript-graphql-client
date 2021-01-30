@@ -31,6 +31,8 @@ newtype Client baseClient querySchema mutationSchema subscriptionSchema
 class QueryClient baseClient queryOpts mutationOpts | baseClient -> queryOpts mutationOpts where
   clientQuery :: queryOpts -> baseClient -> String -> String -> Aff Json
   clientMutation :: mutationOpts -> baseClient -> String -> String -> Aff Json
+  defQueryOpts :: baseClient -> queryOpts
+  defMutationOpts :: baseClient -> mutationOpts
 
 -- | A type class for making the graphql subscription. 
 -- | If you wish to use a different underlying client, 
