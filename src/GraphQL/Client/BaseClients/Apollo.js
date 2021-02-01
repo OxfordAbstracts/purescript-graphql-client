@@ -37,6 +37,7 @@ const createClientWithWebsockets = function (opts) {
   const { getMainDefinition } = require('@apollo/client/utilities')
   const { setContext } = require('@apollo/client/link/context')
   const ws = require('isomorphic-ws')
+  const { SubscriptionClient } = require('subscriptions-transport-ws')
 
   const httpLink = new HttpLink({
     uri: opts.url,
@@ -46,14 +47,17 @@ const createClientWithWebsockets = function (opts) {
     }
   })
 
-  const wsLink = new WebSocketLink({
-    uri: opts.websocketUrl,
-    webSocketImpl: ws,
-    options: {
-      authToken: opts.authToken,
-      reconnect: true
-    }
-  })
+  const wsLink = new WebSocketLink(
+    new SubscriptionClient(opts.websocketUrl, {
+      reconnect: true,
+      timeout: 30000,
+      connectionParams: {
+        headers: {
+          Authorization: 'Bearer ' + opts.authToken
+        }
+      }
+    }, ws)
+  )
 
   const link = split(
     ({ query }) => {
@@ -67,7 +71,6 @@ const createClientWithWebsockets = function (opts) {
     httpLink
   )
   const authLink = setContext(function (_, { headers }) {
-    // get the authentication token from local storage if it exists
     // return the headers to the context so httpLink can read them
     return {
       headers: Object.assign(
