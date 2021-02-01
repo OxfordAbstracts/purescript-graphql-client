@@ -17,6 +17,7 @@ const createClientWithWebsockets = function (opts) {
   const { WebSocketLink } = require('@apollo/client/link/ws')
   const { split, HttpLink, InMemoryCache, ApolloClient } = require('@apollo/client/core')
   const { getMainDefinition } = require('@apollo/client/utilities')
+  const ws = require('isomorphic-ws');
 
   const httpLink = new HttpLink({
     uri: opts.url,
@@ -28,6 +29,7 @@ const createClientWithWebsockets = function (opts) {
 
   const wsLink = new WebSocketLink({
     uri: opts.websocketUrl,
+    webSocketImpl: ws,
     options: {
       authToken: opts.authToken,
       reconnect: true
@@ -39,7 +41,7 @@ const createClientWithWebsockets = function (opts) {
       const definition = getMainDefinition(query)
       return (
         definition.kind === 'OperationDefinition' &&
-                definition.operation === 'subscription'
+        definition.operation === 'subscription'
       )
     },
     wsLink,
@@ -72,7 +74,11 @@ exports.queryImpl = function (opts) {
       return function (onError, onSuccess) {
         try {
           client
-            .query({ query: gql(query), fetchPolicy: opts.fetchPolicy })
+            .query({
+              query: gql(query),
+              errorPolicy: opts.errorPolicy,
+              fetchPolicy: opts.fetchPolicy
+            })
             .then(onSuccess)
             .catch(onError)
         } catch (err) {
@@ -87,14 +93,18 @@ exports.queryImpl = function (opts) {
 }
 
 exports.mutationImpl = function (opts) {
-  const { gql } = require('@apollo/client/core')
 
   return function (client) {
     return function (mutation) {
       return function (onError, onSuccess) {
+        const { gql } = require('@apollo/client/core')
+
         try {
           client
-            .mutate({ mutation: gql(mutation), fetchPolicy: opts.fetchPolicy })
+            .mutate({
+              mutation: gql(mutation),
+              errorPolicy: opts.errorPolicy
+            })
             .then(onSuccess)
             .catch(onError)
         } catch (err) {
@@ -102,6 +112,37 @@ exports.mutationImpl = function (opts) {
         }
         return function (cancelError, onCancelerError, onCancelerSuccess) {
           onCancelerSuccess()
+        }
+      }
+    }
+  }
+}
+
+
+exports.subscriptionImpl = function (opts) {
+  return function (client) {
+    return function (query) {
+      return function (onData) {
+        console.info('onData', onData);
+
+        return function () {
+          console.info('onData 2', onData);
+
+          const { gql } = require('@apollo/client/core')
+
+          const subscription =
+            client
+              .subscribe({
+                query: gql(query),
+                errorPolicy: opts.errorPolicy,
+                fetchPolicy: opts.fetchPolicy
+              })
+              .subscribe(function (d) { 
+                console.info('d', d);
+                onData(d) 
+              })
+
+          return function () { subscription.unsubscribe() }
         }
       }
     }

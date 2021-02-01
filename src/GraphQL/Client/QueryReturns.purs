@@ -37,7 +37,7 @@ else instance queryReturnsParamsArgs ::
   queryReturnsImpl _ (Args args q) = queryReturnsImpl (undefined :: t) q
 else instance queryReturnsParams ::
   ( QueryReturns t (Record q) result
-  , SatisifyNotNullParam {|params} (Record ())
+  , SatisifyNotNullParam {|params} ({})
   ) =>
   QueryReturns (Params  {|params} t) (Record q) result where
   queryReturnsImpl _ q = queryReturnsImpl (undefined :: t) q

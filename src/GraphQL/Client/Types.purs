@@ -46,6 +46,10 @@ class SubscriptionClient baseClient opts | baseClient -> opts where
     String ->
     (Json -> Effect Unit) ->
     Effect (Effect Unit)
+  defSubOpts :: baseClient -> opts
 
-subscriptionEvent :: forall o c. SubscriptionClient c o => o -> c -> String -> Event Json
-subscriptionEvent opts client query = makeEvent (clientSubscription opts client query)
+subscriptionEventOpts :: forall opts c. SubscriptionClient c opts => (opts -> opts) -> c -> String -> Event Json
+subscriptionEventOpts optsF client query = makeEvent (clientSubscription (optsF (defSubOpts client)) client query)
+
+subscriptionEvent :: forall opts c. SubscriptionClient c opts => c -> String -> Event Json
+subscriptionEvent = subscriptionEventOpts identity

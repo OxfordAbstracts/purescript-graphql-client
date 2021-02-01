@@ -1,7 +1,4 @@
-require('./server-fn')((listener) => {
-  // console.log('listener.route()', listener.route())
-  console.log('listener', listener)
-  console.log('listener.address()', listener.address())
-
-  console.info(`Running a GraphQL API server at http://localhost:${listener.address().port}/graphql`)
+require('./server-fn')((listener, server, PORT) => {
+  console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`)
+  console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${server.subscriptionsPath}`)
 })

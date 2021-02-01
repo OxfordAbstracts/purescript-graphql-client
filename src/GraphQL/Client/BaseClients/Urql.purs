@@ -124,7 +124,7 @@ foreign import mutationImpl :: Foreign -> String -> EffectFnAff Json
 
 instance subcriptionClient :: SubscriptionClient UrqlSubClient Unit where
   clientSubscription _ = subscriptionImpl
-
+  defSubOpts _ = unit
 foreign import subscriptionImpl ::
   UrqlSubClient ->
   String ->

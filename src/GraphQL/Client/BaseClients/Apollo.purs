@@ -21,7 +21,7 @@ import Foreign (Foreign)
 import Foreign.Generic (encode)
 import GraphQL.Client.BaseClients.Apollo.ErrorPolicy (ErrorPolicy(..))
 import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy)
-import GraphQL.Client.Types (class QueryClient, Client(..))
+import GraphQL.Client.Types (class QueryClient, class SubscriptionClient, Client(..))
 import Unsafe.Coerce (unsafeCoerce)
 
 type ApolloClientOptions
@@ -105,6 +105,16 @@ instance queryClientSubscription ::
   defQueryOpts = const defQueryOpts
   defMutationOpts = const defMutationOpts
 
+instance subClientSubscription ::
+  SubscriptionClient
+    ApolloSubClient
+    { fetchPolicy :: Maybe FetchPolicy
+    , errorPolicy :: ErrorPolicy
+    }
+    where
+  clientSubscription opts = subscriptionImpl (encode opts)
+  defSubOpts = const defQueryOpts
+
 type QueryOpts
   = { fetchPolicy :: Maybe FetchPolicy
     , errorPolicy :: ErrorPolicy
@@ -145,3 +155,10 @@ foreign import createSubscriptionClientImpl :: ApolloSubApolloClientOptionsForei
 foreign import queryImpl :: Foreign -> Foreign -> String -> EffectFnAff Json
 
 foreign import mutationImpl :: Foreign -> Foreign -> String -> EffectFnAff Json
+
+foreign import subscriptionImpl  ::     
+    Foreign -> 
+    ApolloSubClient ->
+    String ->
+    (Json -> Effect Unit) ->
+    Effect (Effect Unit)

@@ -3,13 +3,25 @@ module.exports = (onListening) => {
   const { buildSchema } = require('graphql')
   //   // Construct a schema, using GraphQL schema language
   const schema = buildSchema(`
-  type Query {
-    hello: String
-  }
   type Subscription {
-    greetings: String
+    postAdded: Post
+  }
+
+  type Query {
+    posts: [Post]
+  }
+
+  type Mutation {
+    addPost(author: String, comment: String): Post
+  }
+
+  type Post {
+    author: String
+    comment: String
   }
 `)
+
+
   const express = require('express')
   const bodyParser = require('body-parser')
   const { ApolloServer, gql } = require('apollo-server-express')
@@ -30,16 +42,38 @@ module.exports = (onListening) => {
   const pubsub = new PubSub()
   const server = createServer(app)
 
+  const POST_ADDED = 'POST_ADDED';
+  const resolvers = {
+    Subscription: {
+      postAdded: {
+        // Additional event labels can be passed to asyncIterator creation
+        subscribe: () => pubsub.asyncIterator([POST_ADDED]),
+      },
+    },
+    Query: {
+      posts(root, args, context) {
+        return postController.posts();
+      },
+    },
+    Mutation: {
+      addPost(root, args, context) {
+        pubsub.publish(POST_ADDED, { postAdded: args });
+        return postController.addPost(args);
+      },
+    },
+  };
+
   server.listen(PORT, () => {
     new SubscriptionServer({
       execute,
       subscribe,
-      schema
+      schema,
+      resolvers
     }, {
       server: server,
       path: '/subscriptions'
     })
 
-    setTimeout(onListening, 500)
+    setTimeout(() => onListening(server, apolloServer, PORT), 500)
   })
 }
