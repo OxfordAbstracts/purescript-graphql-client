@@ -17,7 +17,6 @@ derive instance eqFetchPolicy :: Eq FetchPolicy
 instance encodeFetchPolicy :: Encode FetchPolicy where 
   encode = fetchPolicyToForeign >>> encode
 
-
 fetchPolicyToForeign :: FetchPolicy -> String
 fetchPolicyToForeign = case _ of
   First -> "first"

@@ -123,24 +123,19 @@ exports.subscriptionImpl = function (opts) {
   return function (client) {
     return function (query) {
       return function (onData) {
-        console.info('onData', onData);
-
         return function () {
-          console.info('onData 2', onData);
 
           const { gql } = require('@apollo/client/core')
 
-          const subscription =
-            client
-              .subscribe({
-                query: gql(query),
-                errorPolicy: opts.errorPolicy,
-                fetchPolicy: opts.fetchPolicy
-              })
-              .subscribe(function (d) { 
-                console.info('d', d);
-                onData(d) 
-              })
+          const subscription = client
+            .subscribe({
+              query: gql(query),
+              errorPolicy: opts.errorPolicy,
+              fetchPolicy: opts.fetchPolicy
+            })
+            .subscribe(
+              x => onData(x)()
+            );          
 
           return function () { subscription.unsubscribe() }
         }

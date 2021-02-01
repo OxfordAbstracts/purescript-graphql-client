@@ -1,72 +1,40 @@
 module Main where
 
 import Prelude
-
-import Data.Either (either)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Aff (Milliseconds(..), delay, launchAff_)
-import Effect.Class.Console (info, infoShow, log, logShow)
-import FRP.Event (subscribe)
+import Effect.Class.Console (log, logShow)
 import FRP.Event as FRP
-import Generated.Gql.Schema.Admin (Query, Subscription)
-import Global.Unsafe (unsafeStringify)
-import GraphQL.Client.Args (onlyArgs, (=>>))
+import Generated.Gql.Schema.Admin (Query, Subscription, Mutation)
+import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.BaseClients.Apollo (createSubscriptionClient)
-import GraphQL.Client.Query (mutation, query)
-import GraphQL.Client.Subscription (subscription)
+import GraphQL.Client.Query (mutation)
+import GraphQL.Client.Subscription (subscription, ignoreErrors)
 import GraphQL.Client.Types (Client)
 
 main :: Effect Unit
 main = do
-  info "start sub main"
-  client :: Client _ Query Void Subscription <-
+  client :: Client _ Query Mutation Subscription <-
     createSubscriptionClient
       { url: "http://localhost:4000/graphql"
       , authToken: Nothing
-      -- , websocketUrl: "http://localhost:4000/subscription"
       , websocketUrl: "ws://localhost:4000/subscriptions"
       }
+  let
+    event = ignoreErrors $ subscription client "get_props" { postAdded: { author: unit, comment: unit } }
 
-  let event = subscription client "get props" { postAdded: {author: unit, comment: unit} }
-
-  cancel <- FRP.subscribe event \e -> do 
-    info "Event"
-    infoShow e
-    logShow e
-    -- info $ either unsafeStringify unsafeStringify e
-    
-  -- info cancel
-
+  cancel <-
+    FRP.subscribe event \e -> do
+      log "Event recieved"
+      logShow e
   launchAff_ do
-    delay $ Milliseconds 3000.0
-    -- { widgets } <-
-    --   query client "Widget_1_colour"
-    --     { widgets: { id: 1 } =>> { colour: unit } }
-
-    -- -- Will log [ RED ]
-    -- logShow $ map _.colour widgets
-    info "end sub main"
-  -- subscribe (subscription client )
-  -- launchAff_ do
-  --   { widgets } <-
-  --     query client "Widget_1_colour"
-  --       { widgets: { id: 1 } =>> { colour } }
-
-  --   -- Will log [ RED ]
-  --   logShow $ map _.colour widgets
-
-  --   { set_widget_colour: affectedCount } <-
-  --     mutation client "Update_widget_colour"
-  --       { set_widget_colour: onlyArgs { id: 1, colour: GREEN }
-  --       }
-
-  --   -- Will log 1
-  --   logShow affectedCount
-
-  --   { widgets: updatedWidgets } <-
-  --     query client "Widget_1_colour_updated"
-  --       { widgets: { id: 1 } =>> { colour } }
-
-  --   -- Will now log [ GREEN ]
-  --   logShow $ map _.colour updatedWidgets
+    delay $ Milliseconds 25.0
+    void
+      $ mutation client "make_post"
+          { addPost: { author: "joe bloggs", comment: "great" } =>> { author: unit }
+          }
+    void
+      $ mutation client "make_post"
+          { addPost: { author: "joe bloggs", comment: "bad" } =>> { author: unit }
+          }
