@@ -62,5 +62,5 @@ subscriptionWithDecoder decodeFn (Client client) queryNameUnsafe q =
 
   query = "subscription " <> queryName <> " " <> toGqlQueryString q
 
-ignoreErrors :: forall returns. Event (Either JsonDecodeError returns) -> Event returns
+ignoreErrors :: forall err returns. Event (Either err returns) -> Event returns
 ignoreErrors = filterMap hush
