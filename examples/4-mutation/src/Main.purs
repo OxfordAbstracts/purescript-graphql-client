@@ -10,7 +10,7 @@ import Generated.Gql.Enum.Colour (Colour(..))
 import Generated.Gql.Schema.Admin (Query, Mutation)
 import Generated.Gql.Symbols (colour)
 import GraphQL.Client.Args (onlyArgs, (=>>))
-import GraphQL.Client.BaseClients.Apollo (ApolloClient, createClient)
+import GraphQL.Client.BaseClients.Apollo (createClient)
 import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy(..))
 import GraphQL.Client.Query (mutation, query, queryOpts)
 import GraphQL.Client.Types (Client)
@@ -21,6 +21,7 @@ main = do
     createClient
       { url: "http://localhost:4000/graphql"
       , authToken: Nothing
+      , headers: []
       }
   launchAff_ do
     { widgets } <-
