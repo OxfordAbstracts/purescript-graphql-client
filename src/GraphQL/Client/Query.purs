@@ -6,6 +6,8 @@ module GraphQL.Client.Query
   , query_
   , mutation
   , mutationWithDecoder
+  , mutationOptsWithDecoder
+  , mutationOpts
   , mutation_
   , sanitizeQueryName
   , decodeGqlRes
