@@ -1,10 +1,28 @@
 require('isomorphic-unfetch')
 
 const createClientWithoutWebsockets = function (opts) {
-  const { ApolloClient, InMemoryCache } = require('@apollo/client/core')
+  const { ApolloClient, InMemoryCache, createHttpLink } = require('@apollo/client/core')
+  const { setContext } = require('@apollo/client/link/context')
+
+  const authLink = setContext(function (_, { headers }) {
+    // get the authentication token from local storage if it exists
+    // return the headers to the context so httpLink can read them
+    return {
+      headers: Object.assign(
+        {},
+        headers,
+        opts.headers,
+        { authorization: opts.authToken ? `Bearer ${opts.authToken}` : '' }
+      )
+    }
+  })
+
+  const httpLink = createHttpLink({
+    uri: opts.url
+  })
 
   return new ApolloClient({
-    uri: opts.url,
+    link: authLink.concat(httpLink),
     cache: new InMemoryCache(),
     options: {
       authToken: opts.authToken,
@@ -17,7 +35,8 @@ const createClientWithWebsockets = function (opts) {
   const { WebSocketLink } = require('@apollo/client/link/ws')
   const { split, HttpLink, InMemoryCache, ApolloClient } = require('@apollo/client/core')
   const { getMainDefinition } = require('@apollo/client/utilities')
-  const ws = require('isomorphic-ws');
+  const { setContext } = require('@apollo/client/link/context')
+  const ws = require('isomorphic-ws')
 
   const httpLink = new HttpLink({
     uri: opts.url,
@@ -47,10 +66,22 @@ const createClientWithWebsockets = function (opts) {
     wsLink,
     httpLink
   )
+  const authLink = setContext(function (_, { headers }) {
+    // get the authentication token from local storage if it exists
+    // return the headers to the context so httpLink can read them
+    return {
+      headers: Object.assign(
+        {},
+        headers,
+        opts.headers,
+        { authorization: opts.authToken ? `Bearer ${opts.authToken}` : '' }
+      )
+    }
+  })
 
   return new ApolloClient({
     cache: new InMemoryCache(),
-    link: link
+    link: authLink.concat(link)
   })
 }
 
@@ -93,7 +124,6 @@ exports.queryImpl = function (opts) {
 }
 
 exports.mutationImpl = function (opts) {
-
   return function (client) {
     return function (mutation) {
       return function (onError, onSuccess) {
@@ -118,13 +148,11 @@ exports.mutationImpl = function (opts) {
   }
 }
 
-
 exports.subscriptionImpl = function (opts) {
   return function (client) {
     return function (query) {
       return function (onData) {
         return function () {
-
           const { gql } = require('@apollo/client/core')
 
           const subscription = client
@@ -134,8 +162,8 @@ exports.subscriptionImpl = function (opts) {
               fetchPolicy: opts.fetchPolicy
             })
             .subscribe(
-              x => onData(x)()
-            );          
+              function (x) { onData(x)() }
+            )
 
           return function () { subscription.unsubscribe() }
         }

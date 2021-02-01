@@ -19,6 +19,7 @@ main = do
     createSubscriptionClient
       { url: "http://localhost:4000/graphql"
       , authToken: Nothing
+      , headers: []
       , websocketUrl: "ws://localhost:4000/subscriptions"
       }
   let

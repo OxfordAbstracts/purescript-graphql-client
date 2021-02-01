@@ -11,14 +11,18 @@ module GraphQL.Client.BaseClients.Apollo
 import Prelude
 
 import Affjax (URL)
+import Affjax.RequestHeader (RequestHeader, name, value)
 import Data.Argonaut.Core (Json)
 import Data.Maybe (Maybe(..))
 import Data.Nullable (Nullable, toNullable)
+import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
 import Foreign (Foreign)
 import Foreign.Generic (encode)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import GraphQL.Client.BaseClients.Apollo.ErrorPolicy (ErrorPolicy(..))
 import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy)
 import GraphQL.Client.Types (class QueryClient, class SubscriptionClient, Client(..))
@@ -27,12 +31,14 @@ import Unsafe.Coerce (unsafeCoerce)
 type ApolloClientOptions
   = { url :: URL
     , authToken :: Maybe String
+    , headers :: Array RequestHeader
     }
 
 type ApolloSubClientOptions
   = { url :: URL
     , websocketUrl :: URL
     , authToken :: Maybe String
+    , headers :: Array RequestHeader
     }
 
 -- | Apollo client to make graphQL queries and mutations. 
@@ -58,25 +64,30 @@ createSubscriptionClient = clientOptsToForeign >>> createSubscriptionClientImpl 
 clientOptsToForeign ::
   forall r.
   { authToken :: Maybe String
+  , headers :: Array RequestHeader
   | r
   } ->
   { authToken :: Nullable String
+  , headers :: Object String 
   | r
   }
 clientOptsToForeign opts =
   opts
     { authToken = toNullable opts.authToken
+    , headers = Object.fromFoldable $ opts.headers <#> \h -> Tuple (name h) (value h)
     }
 
 type ApolloClientOptionsForeign
   = { url :: URL
     , authToken :: Nullable String
+    , headers :: Object String 
     }
 
 type ApolloSubApolloClientOptionsForeign
   = { url :: URL
     , websocketUrl :: URL
     , authToken :: Nullable String
+    , headers :: Object String 
     }
 
 instance queryClient ::
