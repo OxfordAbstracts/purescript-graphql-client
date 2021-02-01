@@ -1,4 +1,9 @@
 
+const widgets = [
+  { id: 1, name: 'one', colour: 'RED' },
+  { id: 2, name: 'two', colour: 'GREEN' }
+]
+
 module.exports = (onListening) => {
   const express = require('express')
   const { graphqlHTTP } = require('express-graphql')
@@ -29,30 +34,21 @@ module.exports = (onListening) => {
 
     `)
 
-  let widgets = [
-    { id: 1, name: 'one', colour: 'RED' },
-    { id: 2, name: 'two', colour: 'GREEN' }
-  ]
-
   const root = {
-    prop: () => {
-      return 'Hello world!'
-    },
+    prop: () => 'Hello world!',
     widgets: ({ id }) =>
       widgets.filter(w => !id || id === w.id),
-    set_widget_colour: (({id, colour}) => {
+    set_widget_colour: ({ id, colour }) => {
       let count = 0
       widgets.forEach((w) => {
-        if(w.id == id){
+        if (w.id === id) {
           w.colour = colour
           count++
         }
       })
       return count
-    })
+    }
   }
-
-
 
   const app = express()
 

@@ -20,6 +20,7 @@
         "purescript-argonaut-core": "^v5.1.0",
         "purescript-console": "^v4.4.0",
         "purescript-effect": "^v2.0.1",
+        "purescript-event": "^v1.2.4",
         "purescript-foreign-generic": "^v10.0.0",
         "purescript-foreign-object": "^v2.0.3",
         "purescript-heterogeneous": "^v0.4.1",

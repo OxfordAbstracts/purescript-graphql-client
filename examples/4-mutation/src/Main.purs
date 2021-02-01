@@ -2,50 +2,49 @@ module Main where
 
 import Prelude
 
-import Data.Argonaut.Decode (class DecodeJson)
+import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Effect.Aff (Aff, launchAff_)
+import Effect.Aff (launchAff_)
 import Effect.Class.Console (logShow)
 import Generated.Gql.Enum.Colour (Colour(..))
 import Generated.Gql.Schema.Admin (Query, Mutation)
 import Generated.Gql.Symbols (colour)
 import GraphQL.Client.Args (onlyArgs, (=>>))
-import GraphQL.Client.Query (class GqlQuery, mutation, query)
-import Type.Proxy (Proxy(..))
+import GraphQL.Client.BaseClients.Apollo (createClient)
+import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy(..))
+import GraphQL.Client.Query (mutation, query, queryOpts)
+import GraphQL.Client.Types (Client)
 
 main :: Effect Unit
-main =
+main = do
+  client :: Client _ Query Mutation Void <-
+    createClient
+      { url: "http://localhost:4000/graphql"
+      , authToken: Nothing
+      , headers: []
+      }
   launchAff_ do
     { widgets } <-
-      queryGql "Widget_1_colour"
+      query client "Widget_1_colour"
+      -- queryOpts (_ { fetchPolicy = Just NoCache }) client "Widget_1_colour"
         { widgets: { id: 1 } =>> { colour } }
+
     -- Will log [ RED ]
     logShow $ map _.colour widgets
 
-    {set_widget_colour: affectedCount } <- mutationGql "Update_widget_colour"
-      { set_widget_colour: onlyArgs { id: 1, colour: GREEN }
-      }
+    { set_widget_colour: affectedCount } <-
+      mutation client "Update_widget_colour"
+        { set_widget_colour: onlyArgs { id: 1, colour: GREEN }
+        }
 
+    -- Will log 1
     logShow affectedCount
 
     { widgets: updatedWidgets } <-
-      queryGql "Widget_1_colour_updated"
+      queryOpts (_ { fetchPolicy = Just NoCache }) client "Widget_1_colour_updated"
         { widgets: { id: 1 } =>> { colour } }
+
     -- Will now log [ GREEN ]
     logShow $ map _.colour updatedWidgets
 
--- Run gql query
-queryGql ::
-  forall query returns.
-  GqlQuery Query query returns =>
-  DecodeJson returns =>
-  String -> query -> Aff returns
-queryGql = query (Proxy :: Proxy Query) "http://localhost:4000/graphql" []
-
--- Run gql query
-mutationGql ::
-  forall query returns.
-  GqlQuery Mutation query returns =>
-  DecodeJson returns =>
-  String -> query -> Aff returns
-mutationGql = mutation (Proxy :: Proxy Mutation) "http://localhost:4000/graphql" []
+  

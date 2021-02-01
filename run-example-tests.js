@@ -12,7 +12,12 @@ const go = async () => {
 
   for (const p of packages) {
     console.log(`Testing ${p}`)
-    await exec(`cd "./examples/${p}" && npm t`)
+    try {
+      await exec(`cd "./examples/${p}" && npm t`)
+    } catch (err) {
+      console.error(`Test threw error: ${p}`)
+      process.exit(1)
+    }
   }
 }
 

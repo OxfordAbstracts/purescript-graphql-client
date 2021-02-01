@@ -10,13 +10,18 @@ console.log = (log) => {
 require('./server-fn')(async () => {
   try {
     await require('./generate-purs-schema')()
-    await exec('npm run build', { stdio: 'pipe' })
+    await exec('npm run build', { stdio: 'pipe', stderr: 'pipe' })
     require('./output/Main').main()
     setTimeout(() => {
-      deepStrictEqual(logs, ['["one"]'])
+      deepStrictEqual(logs, [
+        'Event recieved',
+        '{ postAdded: { author: "joe bloggs", comment: "great" } }',
+        'Event recieved',
+        '{ postAdded: { author: "joe bloggs", comment: "bad" } }'
+      ])
       console.info('tests passed')
       process.exit(0)
-    }, 500)
+    }, 250)
   } catch (err) {
     console.error('test error', err)
     process.exit(1)

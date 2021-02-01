@@ -1,6 +1,6 @@
 {
   "name": "purescript-graphql-client",
-  "version": "1.7.26",
+  "version": "2.0.0",
   "description": "A typesafe graphql client for purescript.",
   "main": "codegen/schema/index.js",
   "directories": {
@@ -24,9 +24,16 @@
   },
   "homepage": "https://github.com/OxfordAbstracts/purescript-graphql-client#readme",
   "dependencies": {
+    "@urql/core": "^1.16.2",
     "exec-sh": "0.3.4",
+    "graphql-ws": "^4.1.2",
     "graphqurl": "0.3.3",
+    "isomorphic-unfetch": "^3.1.0",
     "mkdirp": "1.0.4",
     "rimraf": "3.0.2"
+  },
+  "devDependencies": {
+    "@apollo/client": "^3.3.7",
+    "wonka": "^4.0.15"
   }
 }

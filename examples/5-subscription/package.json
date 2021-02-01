@@ -1,5 +1,5 @@
 {
-  "name": "3-enums",
+  "name": "5-subscription",
   "version": "1.0.0",
   "description": "Handle enums in with code gen.",
   "main": "server.js",
@@ -14,11 +14,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@apollo/client": "^3.3.7",
+    "apollo-server": "^2.19.2",
     "exec-sh": "0.3.4",
     "express": "4.17.1",
     "express-graphql": "0.12.0",
     "graphql": "15.4.0",
     "graphqurl": "0.3.3",
+    "isomorphic-ws": "^4.0.1",
     "mkdirp": "1.0.4",
     "rimraf": "3.0.2",
     "xhr2": "0.2.0"
