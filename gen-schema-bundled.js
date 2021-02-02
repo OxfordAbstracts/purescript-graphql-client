@@ -15916,6 +15916,21 @@ var PS = {};
       if (v === "Smallint") {
           return "Int";
       };
+      if (v === "Integer") {
+          return "Int";
+      };
+      if (v === "Int") {
+          return "Int";
+      };
+      if (v === "Int2") {
+          return "Int";
+      };
+      if (v === "Int4") {
+          return "Int";
+      };
+      if (v === "Int8") {
+          return "Int";
+      };
       if (v === "Text") {
           return "String";
       };
@@ -15987,7 +16002,7 @@ var PS = {};
           if (v instanceof Data_GraphQL_AST.Definition_TypeSystemExtension) {
               return Data_Maybe.Nothing.value;
           };
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 421, column 22 - line 424, column 54): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 419, column 22 - line 422, column 54): " + [ v.constructor.name ]);
       };
       var definitionToEnum = function (v) {
           if (v instanceof Data_GraphQL_AST.Definition_TypeSystemDefinition) {
@@ -16044,7 +16059,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.Type_NonNullType) {
                   return notNullTypeToPurs(v1.value0);
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 391, column 16 - line 394, column 72): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 389, column 16 - line 392, column 72): " + [ v1.constructor.name ]);
           };
           var notNullTypeToPurs = function (v1) {
               if (v1 instanceof Data_GraphQL_AST.NonNullType_NamedType) {
@@ -16053,7 +16068,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.NonNullType_ListType) {
                   return listTypeToPurs(v1.value0);
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 405, column 23 - line 407, column 51): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 403, column 23 - line 405, column 51): " + [ v1.constructor.name ]);
           };
           var listTypeToPursNullable = function (t) {
               return wrapMaybe(listTypeToPurs(t));
@@ -16107,7 +16122,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.Type_NonNullType) {
                   return wrapNotNull(argNotNullTypeToPurs(v1.value0));
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 375, column 19 - line 378, column 89): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 373, column 19 - line 376, column 89): " + [ v1.constructor.name ]);
           };
           var argNotNullTypeToPurs = function (v1) {
               if (v1 instanceof Data_GraphQL_AST.NonNullType_NamedType) {
@@ -16116,7 +16131,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.NonNullType_ListType) {
                   return argListTypeToPurs(v1.value0);
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 381, column 26 - line 383, column 54): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 379, column 26 - line 381, column 54): " + [ v1.constructor.name ]);
           };
           var argListTypeToPurs = function (v1) {
               return "(Array " + (argTypeToPurs(v1) + ")");
@@ -16131,7 +16146,7 @@ var PS = {};
                       if (v2 instanceof Data_Maybe.Just) {
                           return v2.value0.moduleName + ("." + v2.value0.typeName);
                       };
-                      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 367, column 10 - line 369, column 60): " + [ v2.constructor.name ]);
+                      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 365, column 10 - line 367, column 60): " + [ v2.constructor.name ]);
                   })()));
               };
           };
