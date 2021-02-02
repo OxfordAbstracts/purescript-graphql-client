@@ -444,9 +444,6 @@ gqlToPursEnums = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
           descriptionToDocComment description
             <> unwrap enumValue
 
-  -- enumValueToPurs :: AST.EnumValue -> String
-  -- enumValueToPurs = unwrap >>> \s -> toUpper (String.take 1 s) <> String.drop 1 s
-
 namedTypeToPurs :: AST.NamedType -> String
 namedTypeToPurs (AST.NamedType str) = typeName str
 
@@ -474,6 +471,11 @@ typeName str = case pascalCase str of
   "Numeric" -> "Number"
   "Bigint" -> "Int"
   "Smallint" -> "Int"
+  "Integer" -> "Int"
+  "Int" -> "Int"
+  "Int2" -> "Int"
+  "Int4" -> "Int"
+  "Int8" -> "Int"
   "Text" -> "String"
   "Citext" -> "String"
   "Jsonb" -> "Json"

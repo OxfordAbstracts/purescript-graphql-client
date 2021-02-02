@@ -27,6 +27,7 @@ import Data.Either (Either(..))
 import Data.String.CodeUnits (fromCharArray, toCharArray)
 import Effect.Aff (Aff, Error, error, message, throwError)
 import Effect.Class (liftEffect)
+import Global.Unsafe (unsafeStringify)
 import GraphQL.Client.BaseClients.Urql (UrqlClient, createGlobalClientUnsafe)
 import GraphQL.Client.ToGqlString (class GqlQueryString, toGqlQueryString, toGqlQueryStringFormatted)
 import GraphQL.Client.Types (class GqlQuery, class QueryClient, Client(..), clientMutation, clientQuery, defMutationOpts, defQueryOpts)
@@ -201,6 +202,8 @@ decodeJsonData decodeFn json = case decodeGqlRes decodeFn json of
           _ ->
             " Response failed to decode from JSON: "
               <> printJsonDecodeError err
+              <> "\n Full response: "
+              <> unsafeStringify json
   Right result -> pure result
 
 decodeGqlRes :: forall a. (Json -> Either JsonDecodeError a) -> Json -> Either JsonDecodeError a

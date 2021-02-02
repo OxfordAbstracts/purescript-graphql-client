@@ -35,11 +35,11 @@ else instance queryReturnsParamsArgs ::
   ) =>
   QueryReturns (Params  {|params} t) (Args {|args} q) result where
   queryReturnsImpl _ (Args args q) = queryReturnsImpl (undefined :: t) q
-else instance queryReturnsParams ::
-  ( QueryReturns t (Record q) result
-  , SatisifyNotNullParam {|params} ({})
+else instance queryReturnsParamsNoArgs ::
+  ( QueryReturns t q result
+  , SatisifyNotNullParam {|params} {}
   ) =>
-  QueryReturns (Params  {|params} t) (Record q) result where
+  QueryReturns (Params  {|params} t) q result where
   queryReturnsImpl _ q = queryReturnsImpl (undefined :: t) q
 else instance queryReturnsRecord ::
   HMapWithIndex (PropToSchemaType schema) query returns =>
