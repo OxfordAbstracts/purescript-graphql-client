@@ -362,8 +362,6 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     descriptionToDocComment description
       <> name
       <> " :: "
-      -- <> foldMap argumentsDefinitionToPurs argumentsDefinition
-      
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
           Nothing -> argTypeToPurs tipe
           Just out -> out.moduleName <> "." <> out.typeName
