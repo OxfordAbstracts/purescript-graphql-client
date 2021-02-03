@@ -15,6 +15,7 @@
     ],
     "dependencies": {
         "purescript-aff": "^v5.1.2",
+        "purescript-aff-promise": "^v2.0.1",
         "purescript-affjax": "^v11.0.0",
         "purescript-argonaut-codecs": "^v7.0.0",
         "purescript-argonaut-core": "^v5.1.0",
