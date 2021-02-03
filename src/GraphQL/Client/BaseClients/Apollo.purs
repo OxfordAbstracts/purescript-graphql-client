@@ -1,4 +1,4 @@
--- | Creates GraphQL clients
+-- | Creates GraphQL Apollo clients
 module GraphQL.Client.BaseClients.Apollo
   ( ApolloClientOptions
   , ApolloSubClientOptions

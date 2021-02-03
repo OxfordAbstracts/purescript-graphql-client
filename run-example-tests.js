@@ -8,9 +8,21 @@ const getDirectories = source =>
     .map(dirent => dirent.name)
 
 const go = async () => {
-  const packages = getDirectories('./examples')
+  const e2e = getDirectories('./e2e')
 
-  for (const p of packages) {
+  for (const p of e2e) {
+    console.log(`Testing ${p}`)
+    try {
+      await exec(`cd "./e2e/${p}" && npm t`)
+    } catch (err) {
+      console.error(`Test threw error: ${p}`)
+      process.exit(1)
+    }
+  }
+
+  const examples = getDirectories('./examples')
+
+  for (const p of examples) {
     console.log(`Testing ${p}`)
     try {
       await exec(`cd "./examples/${p}" && npm t`)
