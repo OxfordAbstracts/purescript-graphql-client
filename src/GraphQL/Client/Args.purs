@@ -31,6 +31,10 @@ data AndArg a1 a2 = AndArg a1 a2
 
 infixr 6 AndArg as ++
 
+data OrArg argL argR 
+  = ArgL argL 
+  | ArgR argR
+
 onlyArgs :: forall a. a -> Args a Unit
 onlyArgs a = Args a unit
 
@@ -41,6 +45,7 @@ else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
 else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
 else instance argToGqlArrayAnd :: (ArgGql param a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArg a1 a2)
 else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
+else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql param (OrArg argL argR)
 
 class IsMaybe arg b | arg -> b 
 

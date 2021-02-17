@@ -17,7 +17,7 @@ import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Data.Time (Time)
 import GraphQL.Client.Alias (Alias(..))
-import GraphQL.Client.Args (AndArg(..), Args(..))
+import GraphQL.Client.Args (AndArg(..), Args(..), OrArg(..))
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
 
 -- | Generate a GraphQL query from its purs representation
@@ -47,10 +47,9 @@ else instance gqlQueryStringSymbol :: IsSymbol s => GqlQueryString (SProxy s) wh
   toGqlQueryStringImpl _ _ = ": " <> reflectSymbol (SProxy :: SProxy s)
 else instance gqlQueryStringArgsScalar ::
   ( HFoldlWithIndex PropToGqlArg String (Record args) String
-  ) =>
+    ) =>
   GqlQueryString (Args { | args } Unit) where
-  toGqlQueryStringImpl opts (Args args _) =
-    gqlArgStringRecordTopLevel args
+  toGqlQueryStringImpl opts (Args args _) = gqlArgStringRecordTopLevel args
 else instance gqlQueryStringArgs ::
   ( HFoldlWithIndex PropToGqlArg String (Record args) String
   , GqlQueryString (Record body)
@@ -143,6 +142,12 @@ else instance gqlArgStringMaybe :: GqlArgString a => GqlArgString (Maybe a) wher
   toGqlArgStringImpl = maybe "null" toGqlArgStringImpl
 else instance gqlArgStringArray :: GqlArgString a => GqlArgString (Array a) where
   toGqlArgStringImpl = map toGqlArgStringImpl >>> \as -> "[" <> intercalate ", " as <> "]"
+else instance gqlArgStringOrArg ::
+  (GqlArgString argL, GqlArgString argR) =>
+  GqlArgString (OrArg argL argR) where
+  toGqlArgStringImpl = case _ of
+    ArgL a -> toGqlArgStringImpl a
+    ArgR a -> toGqlArgStringImpl a
 else instance gqlArgStringAndArg ::
   ( GqlAndArgString (AndArg a1 a2)
     ) =>
