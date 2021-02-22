@@ -2,6 +2,7 @@ module GraphQL.Client.Args where
 
 import Prelude
 
+import Data.Bifunctor (class Bifunctor)
 import Data.Date (Date)
 import Data.DateTime (DateTime)
 import Data.Maybe (Maybe)
@@ -35,6 +36,22 @@ data OrArg argL argR
   = ArgL argL 
   | ArgR argR
 
+derive instance functorOrArg :: Functor (OrArg argL)
+
+instance bifunctorOrArg :: Bifunctor OrArg where 
+  bimap lf rf = map rf >>> case _ of 
+    ArgL l -> ArgL $ lf l
+    ArgR r -> ArgR r
+
+data IgnoreArg = IgnoreArg
+
+guardArg :: forall a. Boolean -> a -> OrArg IgnoreArg a
+guardArg b args =
+  if b then
+    ArgR args
+  else
+    ArgL IgnoreArg
+
 onlyArgs :: forall a. a -> Args a Unit
 onlyArgs a = Args a unit
 
@@ -46,6 +63,7 @@ else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array a
 else instance argToGqlArrayAnd :: (ArgGql param a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArg a1 a2)
 else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
 else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql param (OrArg argL argR)
+else instance argToGqlIgnore :: ArgGql param IgnoreArg
 
 class IsMaybe arg b | arg -> b 
 

@@ -1,6 +1,7 @@
 module GraphQL.Client.ToGqlString where
 
 import Prelude
+
 import Data.Array (fold, intercalate, length, mapWithIndex)
 import Data.Array as Array
 import Data.Date (Date)
@@ -17,7 +18,7 @@ import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Data.Time (Time)
 import GraphQL.Client.Alias (Alias(..))
-import GraphQL.Client.Args (AndArg(..), Args(..), OrArg(..))
+import GraphQL.Client.Args (AndArg(..), Args(..), IgnoreArg, OrArg(..))
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
 
 -- | Generate a GraphQL query from its purs representation
@@ -124,7 +125,9 @@ toGqlArgString = toGqlArgStringImpl
 class GqlArgString q where
   toGqlArgStringImpl :: q -> String
 
-instance gqlArgStringString :: GqlArgString String where
+instance gqlArgStringIgnoreArg :: GqlArgString IgnoreArg where
+  toGqlArgStringImpl _ = ""
+else instance gqlArgStringString :: GqlArgString String where
   toGqlArgStringImpl = show
 else instance gqlArgStringInt :: GqlArgString Int where
   toGqlArgStringImpl = show
@@ -230,9 +233,14 @@ data PropToGqlArg
 instance propToGqlArg ::
   ( GqlArgString a
   , IsSymbol sym
+  , IsIgnoreArg a
   ) =>
   FoldingWithIndex PropToGqlArg (SProxy sym) String a String where
-  foldingWithIndex PropToGqlArg prop str a = pre <> reflectSymbol prop <> ": " <> toGqlArgStringImpl a
+  foldingWithIndex PropToGqlArg prop str a = 
+    if isIgnoreArg a then 
+      pre
+    else 
+      pre <> reflectSymbol prop <> ": " <> toGqlArgStringImpl a
     where
     pre = if str == "" then "" else str <> ", "
 
@@ -249,3 +257,15 @@ gqlArgStringRecordTopLevel ::
   { | r } ->
   String
 gqlArgStringRecordTopLevel r = "(" <> hfoldlWithIndex PropToGqlArg "" r <> ")"
+
+class IsIgnoreArg a where 
+  isIgnoreArg :: a -> Boolean
+
+instance isIgnoreArgIgnoreArg :: IsIgnoreArg IgnoreArg where
+  isIgnoreArg _ = true
+else instance isIgnoreArgOrArg :: (IsIgnoreArg l, IsIgnoreArg r) => IsIgnoreArg (OrArg l r) where
+  isIgnoreArg = case _ of 
+    ArgL l -> isIgnoreArg l
+    ArgR r -> isIgnoreArg r
+else instance isIgnoreArgOther :: IsIgnoreArg a where
+  isIgnoreArg _ = false
