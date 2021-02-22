@@ -112,7 +112,7 @@ gqlQueryStringRecord opts r = indent $ " {" <> hfoldlWithIndex (PropToGqlString 
         lines = toLines str
       in
         lines
-          # mapWithIndex (\i l -> if i == 0 || i == (length lines - 1) then l else (power " " indentation) <> l)
+          # mapWithIndex (\i l -> if i == 0 || i == length lines - 1 then l else power " " indentation <> l)
           # joinWith nl
     _ -> str
 
