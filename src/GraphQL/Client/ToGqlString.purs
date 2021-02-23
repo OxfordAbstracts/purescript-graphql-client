@@ -238,7 +238,7 @@ instance propToGqlArg ::
   FoldingWithIndex PropToGqlArg (SProxy sym) String a String where
   foldingWithIndex PropToGqlArg prop str a = 
     if isIgnoreArg a then 
-      pre
+      str
     else 
       pre <> reflectSymbol prop <> ": " <> toGqlArgStringImpl a
     where

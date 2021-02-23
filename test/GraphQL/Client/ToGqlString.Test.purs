@@ -4,7 +4,7 @@ import Prelude
 
 import Data.Symbol (SProxy(..))
 import GraphQL.Client.Alias ((:))
-import GraphQL.Client.Args ((++), (=>>))
+import GraphQL.Client.Args (IgnoreArg(..), (++), (=>>))
 import GraphQL.Client.ToGqlString (toGqlQueryString, toGqlQueryStringFormatted)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
@@ -112,6 +112,25 @@ spec =
             `shouldEqual`
               """ {
   a(a: [1, 2, 3], b: [1, 2, 3, 4]) {
+    nested
+  }
+  b
+}"""
+      it "ignores Ignore args"
+        $ toGqlQueryStringFormatted
+            { a:
+                { i: IgnoreArg
+                , a: [1, 2, 3]
+                , b: IgnoreArg
+                , c: "X"
+                , d: IgnoreArg
+                }
+                  =>> { nested: unit }
+            , b: unit
+            }
+            `shouldEqual`
+              """ {
+  a(a: [1, 2, 3], c: "X") {
     nested
   }
   b
