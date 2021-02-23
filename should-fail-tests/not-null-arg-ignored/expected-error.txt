@@ -1,6 +1,6 @@
 Error found:
 in module Main
-at src/Main.purs:33:7 - 33:35 (line 33, column 7 - line 33, column 35)
+at src/Main.purs:32:7 - 32:35 (line 32, column 7 - line 32, column 35)
 
   Could not match type
 
@@ -13,8 +13,9 @@ at src/Main.purs:33:7 - 33:35 (line 33, column 7 - line 33, column 35)
 
 while solving type class constraint
 
-  GraphQL.Client.Args.IsMaybeOrIgnored (Maybe Boolean)
-                                       False
+  Data.Typelevel.Bool.Or t3
+                         t4
+                         False
 
 while applying a function queryReturns
   of type QueryReturns t0 t1 t2 => Proxy t0 -> t1 -> Proxy t2
@@ -25,6 +26,8 @@ in value declaration passing1
 where t2 is an unknown type
       t1 is an unknown type
       t0 is an unknown type
+      t3 is an unknown type
+      t4 is an unknown type
 
 See https://github.com/purescript/documentation/blob/master/errors/TypesDoNotUnify.md for more information,
 or to contribute content related to this error.

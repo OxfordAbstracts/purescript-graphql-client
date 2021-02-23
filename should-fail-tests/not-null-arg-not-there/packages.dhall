@@ -82,28 +82,21 @@ let upstream = --
 in  upstream
   with benchotron =
       { dependencies =
-        [ "aff"
-        , "aff-promise"
-        , "affjax"
-        , "argonaut-codecs"
-        , "argonaut-core"
-        , "console"
-        , "effect"
-        , "foreign-generic"
-        , "foreign-object"
-        , "graphql-parser"
-        , "heterogeneous"
-        , "parsing"
-        , "psci-support"
-        , "record"
-        , "spec"
-        , "spec-discovery"
-        , "strings"
-        , "strings-extra"
-        , "substitute"
-        , "typelevel"
-        , "variant"
-        ]
+          [ "arrays"
+          , "exists"
+          , "profunctor"
+          , "strings"
+          , "quickcheck"
+          , "lcg"
+          , "transformers"
+          , "foldable-traversable"
+          , "exceptions"
+          , "node-fs"
+          , "node-buffer"
+          , "node-readline"
+          , "datetime"
+          , "now"
+          ]
       , repo =
           "https://github.com/hdgarrood/purescript-benchotron.git"
       , version =
@@ -112,6 +105,20 @@ in  upstream
 -------------------------------
 -}
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.13.8-20210118/packages.dhall sha256:a59c5c93a68d5d066f3815a89f398bcf00e130a51cb185b2da29b20e2d8ae115
+      https://github.com/purescript/package-sets/releases/download/psc-0.13.8-20210114/packages.dhall sha256:6c7e247826373fc2b63fbf0a28fa84d8ff4981fbac0aa087985413716cb4b286
 
 in  upstream
+  with graphql-parser =
+      { dependencies =
+          [ "effect"
+          , "console"
+          , "parsing"
+          , "generics-rep"
+          , "numbers"
+          , "psci-support"
+          ]
+      , repo =
+          "https://github.com/meeshkan/purescript-graphql-parser.git"
+      , version =
+          "v0.0.11"
+      }

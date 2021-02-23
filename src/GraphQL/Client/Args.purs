@@ -8,7 +8,7 @@ import Data.DateTime (DateTime)
 import Data.Maybe (Maybe)
 import Data.Symbol (class IsSymbol, SProxy)
 import Data.Time (Time)
-import Data.Typelevel.Bool (False, True)
+import Data.Typelevel.Bool (class Or, False, True)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex)
 import Heterogeneous.Mapping (class HMapWithIndex, class MappingWithIndex)
 import Prim.Row as Row
@@ -57,7 +57,7 @@ onlyArgs a = Args a unit
 
 class ArgGql params arg
 
-instance argToGqlNotNull :: (IsMaybe arg False, ArgGql param arg) => ArgGql (NotNull param) arg
+instance argToGqlNotNull :: (IsMaybeOrIgnored arg False, ArgGql param arg) => ArgGql (NotNull param) arg
 else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
 else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
 else instance argToGqlArrayAnd :: (ArgGql param a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArg a1 a2)
@@ -65,10 +65,17 @@ else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
 else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql param (OrArg argL argR)
 else instance argToGqlIgnore :: ArgGql param IgnoreArg
 
-class IsMaybe arg b | arg -> b 
+class IsMaybeOrIgnored arg b | arg -> b 
 
-instance isMaybe :: IsMaybe (Maybe a) True 
-else instance notMaybe :: IsMaybe a False
+instance isMaybe :: IsMaybeOrIgnored (Maybe a) True 
+else instance isIgnored :: IsMaybeOrIgnored IgnoreArg True
+else instance isMaybeOrIgnoredOrArg ::
+  ( IsMaybeOrIgnored l lb
+  , IsMaybeOrIgnored r rb
+  , Or lb rb b
+  ) =>
+   IsMaybeOrIgnored (OrArg l r) b
+else instance notMaybe :: IsMaybeOrIgnored a False
 
 instance argToGqlInt :: ArgGql Int Int
 instance argToGqlNumber :: ArgGql Number Number
