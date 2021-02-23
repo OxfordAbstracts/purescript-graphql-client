@@ -5,7 +5,7 @@ import Prelude
 import Foreign.Generic (class Encode, encode)
 
 data FetchPolicy
-  = First
+  = CacheFirst
   | CacheOnly
   | CacheAndNetwork
   | NetworkOnly
@@ -19,7 +19,7 @@ instance encodeFetchPolicy :: Encode FetchPolicy where
 
 fetchPolicyToForeign :: FetchPolicy -> String
 fetchPolicyToForeign = case _ of
-  First -> "first"
+  CacheFirst -> "cache-first"
   CacheOnly -> "cache-only"
   CacheAndNetwork -> "cache-and-network"
   NetworkOnly -> "network-only"

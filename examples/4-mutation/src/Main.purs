@@ -8,11 +8,11 @@ import Effect.Aff (launchAff_)
 import Effect.Class.Console (logShow)
 import Generated.Gql.Enum.Colour (Colour(..))
 import Generated.Gql.Schema.Admin (Query, Mutation)
-import Generated.Gql.Symbols (colour)
+import Generated.Gql.Symbols (colour, id)
 import GraphQL.Client.Args (onlyArgs, (=>>))
-import GraphQL.Client.BaseClients.Apollo (createClient)
+import GraphQL.Client.BaseClients.Apollo (createClient, updateCacheJson)
 import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy(..))
-import GraphQL.Client.Query (mutation, query, queryOpts)
+import GraphQL.Client.Query (mutationOpts, query, queryOpts)
 import GraphQL.Client.Types (Client)
 
 main :: Effect Unit
@@ -24,16 +24,19 @@ main = do
       , headers: []
       }
   launchAff_ do
+    let getWidgets = { widgets: { id: 1 } =>> { colour, id } }
     { widgets } <-
       query client "Widget_1_colour"
-      -- queryOpts (_ { fetchPolicy = Just NoCache }) client "Widget_1_colour"
-        { widgets: { id: 1 } =>> { colour } }
+        getWidgets
 
     -- Will log [ RED ]
     logShow $ map _.colour widgets
 
     { set_widget_colour: affectedCount } <-
-      mutation client "Update_widget_colour"
+      mutationOpts 
+        _ { update = Just $ cacheUpdate client getWidgets } 
+        client 
+        "Update_widget_colour"
         { set_widget_colour: onlyArgs { id: 1, colour: GREEN }
         }
 
@@ -41,10 +44,21 @@ main = do
     logShow affectedCount
 
     { widgets: updatedWidgets } <-
-      queryOpts (_ { fetchPolicy = Just NoCache }) client "Widget_1_colour_updated"
-        { widgets: { id: 1 } =>> { colour } }
+      query client "Widget_1_colour_updated" getWidgets
 
     -- Will now log [ GREEN ]
     logShow $ map _.colour updatedWidgets
+
+    { widgets: updatedWidgetsWithoutCache } <-
+      queryOpts _ {fetchPolicy = Just NoCache } client "Widget_1_colour_no_cache" getWidgets
+
+    -- Will also log [ GREEN ]
+    logShow $ map _.colour updatedWidgetsWithoutCache
+
+    where 
+    cacheUpdate client =
+      updateCacheJson client \{ widgets } ->
+        { widgets: widgets <#>  \w -> w { colour = if w.id == Just 1 then GREEN else w.colour }
+        }
 
   

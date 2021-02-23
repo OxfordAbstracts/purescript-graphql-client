@@ -136,7 +136,11 @@ exports.mutationImpl = function (opts) {
           client
             .mutate({
               mutation: gql(mutation),
-              errorPolicy: opts.errorPolicy
+              errorPolicy: opts.errorPolicy,
+              refetchQueries: opts.refetchQueries,
+              update: () => {
+                if (opts.update) opts.update()
+              }
             })
             .then(onSuccess)
             .catch(onError)
@@ -170,6 +174,31 @@ exports.subscriptionImpl = function (opts) {
 
           return function () { subscription.unsubscribe() }
         }
+      }
+    }
+  }
+}
+
+exports.readQueryImpl = function (client) {
+  return function (query) {
+    const { gql } = require('@apollo/client/core')
+    return function () {
+      return client.readQuery({ query: gql(query) })
+    }
+  }
+}
+
+exports.writeQueryImpl = function (client) {
+  return function (query) {
+    return function (data) {
+      const { gql } = require('@apollo/client/core')
+      return function () {
+        client.writeQuery({
+          query: gql(query),
+          data: data
+        })
+
+        return {}
       }
     }
   }
