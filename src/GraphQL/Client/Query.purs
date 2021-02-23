@@ -9,7 +9,6 @@ module GraphQL.Client.Query
   , mutationOptsWithDecoder
   , mutationOpts
   , mutation_
-  , sanitizeQueryName
   , decodeGqlRes
   ) 
   where
@@ -21,14 +20,13 @@ import Control.Monad.Error.Class (class MonadThrow)
 import Control.Monad.Except (class MonadError, catchError)
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError, decodeJson, getField, printJsonDecodeError)
-import Data.Array (filter, intercalate)
-import Data.Char.Unicode (isAlphaNum)
+import Data.Array (intercalate)
 import Data.Either (Either(..))
-import Data.String.CodeUnits (fromCharArray, toCharArray)
 import Effect.Aff (Aff, Error, error, message, throwError)
 import Effect.Class (liftEffect)
 import Global.Unsafe (unsafeStringify)
 import GraphQL.Client.BaseClients.Urql (UrqlClient, createGlobalClientUnsafe)
+import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (class GqlQueryString, toGqlQueryString, toGqlQueryStringFormatted)
 import GraphQL.Client.Types (class GqlQuery, class QueryClient, Client(..), clientMutation, clientQuery, defMutationOpts, defQueryOpts)
 import Type.Proxy (Proxy(..))
@@ -179,7 +177,7 @@ runQuery decodeFn opts client _ queryNameUnsafe q =
     json <- clientQuery opts client queryName $ toGqlQueryString q
     decodeJsonData decodeFn json
   where
-  queryName = sanitizeQueryName queryNameUnsafe
+  queryName = safeQueryName queryNameUnsafe
 
 runMutation :: 
   forall client schema query returns qOpts mOpts.
@@ -191,7 +189,7 @@ runMutation  decodeFn opts client _ queryNameUnsafe q =
     json <- clientMutation opts client queryName $ toGqlQueryString q
     decodeJsonData decodeFn json
   where
-  queryName = sanitizeQueryName queryNameUnsafe
+  queryName = safeQueryName queryNameUnsafe
 
 decodeJsonData :: forall m a. MonadThrow Error m => (Json -> Either JsonDecodeError a) -> Json -> m a
 decodeJsonData decodeFn json = case decodeGqlRes decodeFn json of
@@ -229,11 +227,3 @@ addErrorInfo queryName q =
       <> ".\nquery: "
       <> toGqlQueryStringFormatted q
 
-sanitizeQueryName :: String -> String
-sanitizeQueryName name =
-  name
-    # toCharArray
-    <#> (\ch -> if ch == ' ' then '_' else ch)
-    # filter (isAlphaNum || eq '_')
-    # fromCharArray
-    # \s -> if s == "" then "unnamed_query" else s

@@ -6,7 +6,8 @@ import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError, decodeJson)
 import Data.Either (Either, hush)
 import FRP.Event (Event, filterMap)
-import GraphQL.Client.Query (decodeGqlRes, sanitizeQueryName)
+import GraphQL.Client.Query (decodeGqlRes)
+import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
 import GraphQL.Client.Types (class GqlQuery, class SubscriptionClient, Client(..), subscriptionEvent, subscriptionEventOpts)
 
@@ -32,7 +33,7 @@ subscriptionOptsWithDecoder decodeFn optsF (Client client) queryNameUnsafe q =
   subscriptionEventOpts optsF client query
     <#> decodeGqlRes decodeFn
   where
-  queryName = sanitizeQueryName queryNameUnsafe
+  queryName = safeQueryName queryNameUnsafe
 
   query = "subscription " <> queryName <> " " <> toGqlQueryString q
 
@@ -58,7 +59,7 @@ subscriptionWithDecoder decodeFn (Client client) queryNameUnsafe q =
   subscriptionEvent client query
     <#> decodeGqlRes decodeFn
   where
-  queryName = sanitizeQueryName queryNameUnsafe
+  queryName = safeQueryName queryNameUnsafe
 
   query = "subscription " <> queryName <> " " <> toGqlQueryString q
 

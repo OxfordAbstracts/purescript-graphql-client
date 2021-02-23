@@ -179,6 +179,31 @@ exports.subscriptionImpl = function (opts) {
   }
 }
 
+exports.watchQueryImpl = function (opts) {
+  return function (client) {
+    return function (query) {
+      return function (onData) {
+        return function () {
+          const { gql } = require('@apollo/client/core')
+
+          const subscription = client
+            .watchQuery({
+              query: gql(query),
+              fetchPolicy: opts.fetchPolicy
+            })
+            .subscribe(
+              function (x) {
+                onData(x.data)() 
+              }
+            )
+
+          return function () { subscription.unsubscribe() }
+        }
+      }
+    }
+  }
+}
+
 exports.readQueryImpl = function (client) {
   return function (query) {
     const { gql } = require('@apollo/client/core')

@@ -1,0 +1,30 @@
+{
+  "name": "6-watch-query",
+  "version": "1.0.0",
+  "description": "Use a live query that watches for cache updates.",
+  "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "npm i && spago install && node ./test.js",
+    "build": "spago build",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@apollo/client": "^3.3.7",
+    "apollo-server": "^2.19.2",
+    "exec-sh": "0.3.4",
+    "express": "4.17.1",
+    "express-graphql": "0.12.0",
+    "graphql": "15.4.0",
+    "graphqurl": "0.3.3",
+    "isomorphic-ws": "^4.0.1",
+    "mkdirp": "1.0.4",
+    "rimraf": "3.0.2",
+    "xhr2": "0.2.0"
+  },
+  "devDependencies": {}
+}
