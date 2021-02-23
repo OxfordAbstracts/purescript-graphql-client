@@ -34,7 +34,10 @@ main = do
 
     { set_widget_colour: affectedCount } <-
       mutationOpts 
-        _ { update = Just $ cacheUpdate client getWidgets } 
+        _ { update = Just $ updateCacheJson client getWidgets \{ widgets: cacheWidgets } ->
+            { widgets: cacheWidgets <#>  \w -> w { colour = if w.id == Just 1 then GREEN else w.colour }
+            }
+         } 
         client 
         "Update_widget_colour"
         { set_widget_colour: onlyArgs { id: 1, colour: GREEN }
@@ -55,10 +58,5 @@ main = do
     -- Will also log [ GREEN ]
     logShow $ map _.colour updatedWidgetsWithoutCache
 
-    where 
-    cacheUpdate client =
-      updateCacheJson client \{ widgets } ->
-        { widgets: widgets <#>  \w -> w { colour = if w.id == Just 1 then GREEN else w.colour }
-        }
 
   
