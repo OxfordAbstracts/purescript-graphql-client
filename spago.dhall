@@ -22,6 +22,7 @@ You can edit this file as you like.
   , "heterogeneous"
   , "parsing"
   , "psci-support"
+  , "quickcheck"
   , "record"
   , "spec"
   , "spec-discovery"
