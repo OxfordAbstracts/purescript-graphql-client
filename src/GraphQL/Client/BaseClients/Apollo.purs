@@ -18,6 +18,7 @@ module GraphQL.Client.BaseClients.Apollo
   ) where
 
 import Prelude
+
 import Affjax (URL)
 import Affjax.RequestHeader (RequestHeader, name, value)
 import Data.Argonaut.Core (Json)
@@ -40,7 +41,7 @@ import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy)
 import GraphQL.Client.QueryReturns (class QueryReturns)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (class GqlQueryString, toGqlQueryString)
-import GraphQL.Client.Types (class QueryClient, class SubscriptionClient, Client(..))
+import GraphQL.Client.Types (class GqlQuery, class QueryClient, class SubscriptionClient, Client(..))
 import Unsafe.Coerce (unsafeCoerce)
 
 type ApolloClientOptions
@@ -205,8 +206,7 @@ instance isApolloSubClient :: IsApollo ApolloSubClient
 updateCacheJson ::
   forall s m q qSchema c res.
   IsApollo c =>
-  GqlQueryString q =>
-  QueryReturns qSchema q res =>
+  GqlQuery qSchema q res =>
   EncodeJson res =>
   DecodeJson res =>
   Client c qSchema m s -> q -> (res -> res) -> Effect Unit
@@ -216,8 +216,7 @@ updateCacheJson = updateCache encodeJson decodeJson
 updateCache ::
   forall c qschema q m s returns.
   IsApollo c =>
-  GqlQueryString q =>
-  QueryReturns qschema q returns =>
+  GqlQuery qschema q returns =>
   (returns -> Json) ->
   (Json -> Either JsonDecodeError returns) ->
   (Client c qschema m s) ->
@@ -234,8 +233,7 @@ updateCache encoder decoder client query f = do
 readQuery ::
   forall c qschema q m s returns.
   IsApollo c =>
-  GqlQueryString q =>
-  QueryReturns qschema q returns =>
+  GqlQuery qschema q returns =>
   (Json -> Either JsonDecodeError returns) -> (Client c qschema m s) -> q -> Effect (Maybe returns)
 readQuery decoder client query = do
   json <- toMaybe <$> readQueryImpl (unsafeToForeign client) (toGqlQueryString query)
@@ -248,8 +246,7 @@ readQuery decoder client query = do
 writeQuery ::
   forall c qschema q m s returns.
   IsApollo c =>
-  GqlQueryString q =>
-  QueryReturns qschema q returns =>
+  GqlQuery qschema q returns =>
   (returns -> Json) -> (Client c qschema m s) -> q -> returns -> Effect Unit
 writeQuery encoder client query newData = do
   writeQueryImpl (unsafeToForeign client) (toGqlQueryString query) (encoder newData)
