@@ -15943,6 +15943,9 @@ var PS = {};
       if (v === "Timestamp") {
           return "DateTime";
       };
+      if (v === "Timestamptz") {
+          return "DateTime";
+      };
       return v;
   };
   var toLines = Data_String_Regex.split(Data_String_Regex_Unsafe.unsafeRegex("\\n")(Data_String_Regex_Flags.global));
