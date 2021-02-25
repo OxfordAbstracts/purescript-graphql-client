@@ -23,7 +23,8 @@ instance queriable ::
 newtype Client baseClient querySchema mutationSchema subscriptionSchema
   = Client baseClient
 
--- | A type class for making the graphql request. 
+-- | A type class for making a graphql request client.
+-- | Apollo, urql and xhr2/Affjax baseClients are provided.
 -- | If you wish to use a different base client, 
 -- | you can create your own client, 
 -- | make it an instance of `QueryClient`
@@ -34,7 +35,7 @@ class QueryClient baseClient queryOpts mutationOpts | baseClient -> queryOpts mu
   defQueryOpts :: baseClient -> queryOpts
   defMutationOpts :: baseClient -> mutationOpts
 
--- | A type class for making the graphql subscription. 
+-- | A type class for making graphql subscriptions. 
 -- | If you wish to use a different underlying client, 
 -- | you can create your own client, 
 -- | make it an instance of `SubscriptionClient`
@@ -53,3 +54,23 @@ subscriptionEventOpts optsF client query = makeEvent (clientSubscription (optsF 
 
 subscriptionEvent :: forall opts c. SubscriptionClient c opts => c -> String -> Event Json
 subscriptionEvent = subscriptionEventOpts identity
+
+-- | A type class for making graphql watch queries (observable queries). 
+-- | If you wish to use a different underlying client, 
+-- | you can create your own client, 
+-- | make it an instance of `WatchQueryClient`
+-- | and pass it to `watchQuery`
+class WatchQueryClient baseClient opts | baseClient -> opts where
+  clientWatchQuery ::
+    opts -> 
+    baseClient ->
+    String ->
+    (Json -> Effect Unit) ->
+    Effect (Effect Unit)
+  defWatchOpts :: baseClient -> opts
+
+watchQueryEventOpts :: forall opts c. WatchQueryClient c opts => (opts -> opts) -> c -> String -> Event Json
+watchQueryEventOpts optsF client query = makeEvent (clientWatchQuery (optsF (defWatchOpts client)) client query)
+
+watchQueryEvent :: forall opts c. WatchQueryClient c opts => c -> String -> Event Json
+watchQueryEvent = watchQueryEventOpts identity

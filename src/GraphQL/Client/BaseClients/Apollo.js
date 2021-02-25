@@ -189,11 +189,12 @@ exports.watchQueryImpl = function (opts) {
           const subscription = client
             .watchQuery({
               query: gql(query),
+              errorPolicy: opts.errorPolicy,
               fetchPolicy: opts.fetchPolicy
             })
             .subscribe(
               function (x) {
-                onData(x.data)() 
+                onData(x)()
               }
             )
 

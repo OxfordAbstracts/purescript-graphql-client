@@ -9,10 +9,11 @@ import Effect.Class.Console (log, logShow)
 import FRP.Event as FRP
 import Generated.Gql.Schema.Admin (Query, Subscription, Mutation)
 import GraphQL.Client.Args ((=>>))
-import GraphQL.Client.BaseClients.Apollo (createSubscriptionClient, updateCacheJson, watchQueryEvent)
+import GraphQL.Client.BaseClients.Apollo (createSubscriptionClient, updateCacheJson)
 import GraphQL.Client.Query (mutationOpts)
 import GraphQL.Client.Subscription (ignoreErrors)
 import GraphQL.Client.Types (Client)
+import GraphQL.Client.WatchQuery (watchQuery)
 
 main :: Effect Unit
 main = do
@@ -25,7 +26,7 @@ main = do
       }
   let
     myQuery = { posts: { author: unit, comment: unit } }
-    event = ignoreErrors $ watchQueryEvent client "get_props" myQuery
+    event = ignoreErrors $ watchQuery client "get_props" myQuery
 
   cancel <-
     FRP.subscribe event \e -> do
