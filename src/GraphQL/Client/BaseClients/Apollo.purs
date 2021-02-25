@@ -1,21 +1,17 @@
 -- | Creates GraphQL Apollo clients
 module GraphQL.Client.BaseClients.Apollo
-  -- ( ApolloClientOptions
-  -- , ApolloSubClientOptions
-  -- , ApolloClient
-  -- , ApolloSubClient
-  -- , createClient
-  -- , createSubscriptionClient
-  -- , class IsApollo
-  -- , updateCacheJson
-  -- , updateCache
-  -- , readQuery
-  -- , writeQuery
-  -- , watchQuery_
-  -- , watchQueryOpts
-  -- , watchQueryEvent
-  -- , watchQueryEventOpts
-  -- )
+  ( ApolloClientOptions
+  , ApolloSubClientOptions
+  , ApolloClient
+  , ApolloSubClient
+  , createClient
+  , createSubscriptionClient
+  , class IsApollo
+  , updateCacheJson
+  , updateCache
+  , readQuery
+  , writeQuery
+  )
    where
 
 import Prelude
@@ -249,28 +245,6 @@ writeQuery ::
 writeQuery encoder client query newData = do
   writeQueryImpl (unsafeToForeign client) (toGqlQueryString query) (encoder newData)
 
--- instance queryClientWatchQuery ::
---   QueryClient
---     ApolloSubClient
---     { fetchPolicy :: Maybe FetchPolicy
---     , errorPolicy :: ErrorPolicy
---     }
---     { errorPolicy :: ErrorPolicy
---     , refetchQueries :: Array String
---     , update :: Maybe (Effect Unit)
---     } where
---   clientQuery opts = queryForeign false (encode opts)
---   clientMutation opts =
---     queryForeign true
---       ( unsafeToForeign
---           { errorPolicy: encode opts.errorPolicy
---           , refetchQueries: encode opts.refetchQueries
---           , update: toNullable opts.update
---           }
---       )
---   defQueryOpts = const defQueryOpts
---   defMutationOpts = const defMutationOpts
-
 instance clientWatchQuery ::
   WatchQueryClient
     ApolloClient
@@ -288,50 +262,6 @@ instance subClientWatchQuery ::
     } where
   clientWatchQuery opts c = watchQueryImpl (encode opts) (unsafeToForeign c)
   defWatchOpts = const defQueryOpts
-
-
--- watchQueryOpts ::
---   forall c qSchema q m s res.
---   IsApollo c =>
---   GqlQuery qSchema q res =>
---   (Json -> Either JsonDecodeError res) ->
---   { fetchPolicy :: Maybe FetchPolicy } ->
---   (Client c qSchema m s) ->
---   String ->
---   q ->
---   (Either JsonDecodeError res -> Effect Unit) ->
---   Effect (Effect Unit)
--- watchQueryOpts decoder opts client name query onData =
---   watchQueryImpl
---     (encode opts)
---     (unsafeToForeign client)
---     ("query " <> safeQueryName name <> " " <> toGqlQueryString query)
---     (decoder >>> onData)
-
--- watchQuery_ ::
---   forall res s m q qSchema c.
---   IsApollo c =>
---   GqlQuery qSchema q res =>
---   DecodeJson res =>
---   Client c qSchema m s -> String -> q -> (Either JsonDecodeError res -> Effect Unit) -> Effect (Effect Unit)
--- watchQuery_ = watchQueryOpts decodeJson { fetchPolicy: Nothing }
-
--- watchQueryEventOpts ::
---   forall c qSchema m s q res.
---   IsApollo c =>
---   GqlQuery qSchema q res =>
---   (Json -> Either JsonDecodeError res) ->
---   { fetchPolicy :: Maybe FetchPolicy } ->
---   Client c qSchema m s -> String -> q -> Event (Either JsonDecodeError res)
--- watchQueryEventOpts decoder opts client name query = makeEvent (watchQueryOpts decoder opts client name query)
-
--- watchQueryEvent ::
---   forall c qSchema m s q res.
---   IsApollo c =>
---   GqlQuery qSchema q res =>
---   DecodeJson res =>
---   Client c qSchema m s -> String -> q -> Event (Either JsonDecodeError res)
--- watchQueryEvent client name query = makeEvent (watchQuery_ client name query)
 
 foreign import createClientImpl :: ApolloClientOptionsForeign -> Effect ApolloClient
 
