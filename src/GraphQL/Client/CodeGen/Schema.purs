@@ -478,4 +478,5 @@ typeName str = case pascalCase str of
   "Citext" -> "String"
   "Jsonb" -> "Json"
   "Timestamp" -> "DateTime"
+  "Timestamptz" -> "DateTime"
   s -> s
