@@ -38,9 +38,8 @@ import Foreign.Object (Object)
 import Foreign.Object as Object
 import GraphQL.Client.BaseClients.Apollo.ErrorPolicy (ErrorPolicy(..))
 import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy)
-import GraphQL.Client.QueryReturns (class QueryReturns)
 import GraphQL.Client.SafeQueryName (safeQueryName)
-import GraphQL.Client.ToGqlString (class GqlQueryString, toGqlQueryString)
+import GraphQL.Client.ToGqlString (toGqlQueryString)
 import GraphQL.Client.Types (class GqlQuery, class QueryClient, class SubscriptionClient, Client(..))
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -214,14 +213,14 @@ updateCacheJson = updateCache encodeJson decodeJson
 
 -- Update the query results in the cache
 updateCache ::
-  forall c qschema q m s returns.
+  forall c qSchema q m s res.
   IsApollo c =>
-  GqlQuery qschema q returns =>
-  (returns -> Json) ->
-  (Json -> Either JsonDecodeError returns) ->
-  (Client c qschema m s) ->
+  GqlQuery qSchema q res =>
+  (res -> Json) ->
+  (Json -> Either JsonDecodeError res) ->
+  (Client c qSchema m s) ->
   q ->
-  (returns -> returns) ->
+  (res -> res) ->
   Effect Unit
 updateCache encoder decoder client query f = do
   may <- readQuery decoder client query
@@ -231,10 +230,10 @@ updateCache encoder decoder client query f = do
 
 -- | read a query result from the cache
 readQuery ::
-  forall c qschema q m s returns.
+  forall c qSchema q m s res.
   IsApollo c =>
-  GqlQuery qschema q returns =>
-  (Json -> Either JsonDecodeError returns) -> (Client c qschema m s) -> q -> Effect (Maybe returns)
+  GqlQuery qSchema q res =>
+  (Json -> Either JsonDecodeError res) -> (Client c qSchema m s) -> q -> Effect (Maybe res)
 readQuery decoder client query = do
   json <- toMaybe <$> readQueryImpl (unsafeToForeign client) (toGqlQueryString query)
   case map decoder json of
@@ -244,24 +243,23 @@ readQuery decoder client query = do
 
 -- | write a query result to the cache
 writeQuery ::
-  forall c qschema q m s returns.
+  forall c qSchema q m s res.
   IsApollo c =>
-  GqlQuery qschema q returns =>
-  (returns -> Json) -> (Client c qschema m s) -> q -> returns -> Effect Unit
+  GqlQuery qSchema q res =>
+  (res -> Json) -> (Client c qSchema m s) -> q -> res -> Effect Unit
 writeQuery encoder client query newData = do
   writeQueryImpl (unsafeToForeign client) (toGqlQueryString query) (encoder newData)
 
 watchQueryOpts ::
-  forall c qschema q m s returns.
+  forall c qSchema q m s res.
   IsApollo c =>
-  GqlQueryString q =>
-  QueryReturns qschema q returns =>
-  (Json -> Either JsonDecodeError returns) ->
+  GqlQuery qSchema q res =>
+  (Json -> Either JsonDecodeError res) ->
   { fetchPolicy :: Maybe FetchPolicy } ->
-  (Client c qschema m s) ->
+  (Client c qSchema m s) ->
   String ->
   q ->
-  (Either JsonDecodeError returns -> Effect Unit) ->
+  (Either JsonDecodeError res -> Effect Unit) ->
   Effect (Effect Unit)
 watchQueryOpts decoder opts client name query onData =
   watchQueryImpl
@@ -273,8 +271,7 @@ watchQueryOpts decoder opts client name query onData =
 watchQuery_ ::
   forall res s m q qSchema c.
   IsApollo c =>
-  GqlQueryString q =>
-  QueryReturns qSchema q res =>
+  GqlQuery qSchema q res =>
   DecodeJson res =>
   Client c qSchema m s -> String -> q -> (Either JsonDecodeError res -> Effect Unit) -> Effect (Effect Unit)
 watchQuery_ = watchQueryOpts decodeJson { fetchPolicy: Nothing }
@@ -282,8 +279,7 @@ watchQuery_ = watchQueryOpts decodeJson { fetchPolicy: Nothing }
 watchQueryEventOpts ::
   forall c qSchema m s q res.
   IsApollo c =>
-  GqlQueryString q =>
-  QueryReturns qSchema q res =>
+  GqlQuery qSchema q res =>
   (Json -> Either JsonDecodeError res) ->
   { fetchPolicy :: Maybe FetchPolicy } ->
   Client c qSchema m s -> String -> q -> Event (Either JsonDecodeError res)
@@ -292,8 +288,7 @@ watchQueryEventOpts decoder opts client name query = makeEvent (watchQueryOpts d
 watchQueryEvent ::
   forall c qSchema m s q res.
   IsApollo c =>
-  GqlQueryString q =>
-  QueryReturns qSchema q res =>
+  GqlQuery qSchema q res =>
   DecodeJson res =>
   Client c qSchema m s -> String -> q -> Event (Either JsonDecodeError res)
 watchQueryEvent client name query = makeEvent (watchQuery_ client name query)
