@@ -9,7 +9,7 @@ import Prelude hiding (between)
 
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
-import Data.Array (elem, fold, notElem, nub, nubBy)
+import Data.Array (fold, notElem, nub, nubBy)
 import Data.Array as Array
 import Data.Either (Either(..), hush)
 import Data.Foldable (foldMap, intercalate)
@@ -194,13 +194,8 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
   scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) =
     guard (notElem tName builtInTypes) case lookup tName externalTypes of
       Nothing ->
-          ( descriptionToDocComment description
-              <> "newtype "
-              <> tName
-              <> " = "
-              <> tName
-              <> inside
-          )
+        unknownDebugMarker tName
+          
       Just external ->
         descriptionToDocComment description
           <> "type "
@@ -212,8 +207,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     where
     tName = typeName name
 
-    inside = case tName of
-      _ -> "UNKNOWN!!!!"
+    unknownDebugMarker tn =  "unknown type: " <> show tn
 
   builtInTypes = [ "Int", "Number", "String", "Boolean" ]
 
