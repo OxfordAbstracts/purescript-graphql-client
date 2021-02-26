@@ -194,7 +194,6 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
   scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) =
     guard (notElem tName builtInTypes) case lookup tName externalTypes of
       Nothing ->
-        guard (not $ isExternalType tName)
           ( descriptionToDocComment description
               <> "newtype "
               <> tName
@@ -217,10 +216,6 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
       _ -> "UNKNOWN!!!!"
 
   builtInTypes = [ "Int", "Number", "String", "Boolean" ]
-
-  isExternalType tName = elem tName externalTypesArr
-
-  externalTypesArr = Map.keys externalTypes # Array.fromFoldable
 
   objectTypeDefinitionToPurs :: AST.ObjectTypeDefinition -> String
   objectTypeDefinitionToPurs ( AST.ObjectTypeDefinition
