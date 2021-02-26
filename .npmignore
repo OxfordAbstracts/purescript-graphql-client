@@ -10,6 +10,10 @@
 /.spago
 /.vscode
 /src/test-output/
+/src/
 .env
 /cache/
-/example/
+/codegen/
+/e2e/
+/examples/
+/should-fail-tests/
