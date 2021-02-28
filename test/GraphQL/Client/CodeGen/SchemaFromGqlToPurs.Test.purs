@@ -1,8 +1,12 @@
 module GraphQL.Client.CodeGen.Schema.Test where
 
 import Prelude
+
 import Data.Either (Either(..))
+import Data.Map (Map)
+import Data.Map as Map
 import Data.Maybe (Maybe(..))
+import Data.Tuple (Tuple(..))
 import GraphQL.Client.CodeGen.Schema (schemaFromGqlToPurs)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
@@ -208,22 +212,80 @@ enum my_enum {
                   }
                 ]
             }
+      it "handles type overrides " do
+        let
+          gql =
+            """
+schema {
+  query: Query
+}
+
+type Query {
+  int: Int
+  my_type_a: SomethingUnknown!
+  my_type_b: SomethingElseUnknown
+  my_type_c: [AlsoUnkown]
+}
+          """
+
+          result = """
+import MyModule as MyModule
+
+type Query = Query
+
+newtype Query = Query 
+  { int :: (Maybe Int)
+  , my_type_a :: MyModule.MyTypeA
+  , my_type_b :: (Maybe MyModule.MyTypeB)
+  , my_type_c :: (Array MyModule.MyTypeC)
+  }
+derive instance newtypeQuery :: Newtype Query _
+instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }"""
+
+        gql
+          ` ( shouldParseToOpts
+              { dir: ""
+              , cache: Nothing
+              , useNewtypesForRecords: true
+              , isHasura: false
+              , modulePath: []
+              , fieldTypeOverrides:
+              mkMap
+                  [ Tuple "Query" 
+                    [ Tuple "my_type_a" { moduleName: "MyModule", typeName: "MyTypeA" }
+                    , Tuple "my_type_b" { moduleName: "MyModule", typeName: "MyTypeB" }
+                    , Tuple "my_type_c" { moduleName: "MyModule", typeName: "MyTypeC" }
+                    ]
+                  ]
+              , externalTypes: mempty
+              }
+          )
+            `
+            result
   where
-  shouldParseTo schema r =
+  mkMap :: forall v. Array (Tuple String (Array (Tuple String v))) -> Map String (Map String v)
+  mkMap = Map.fromFoldable >>> map Map.fromFoldable
+
+
+  shouldParseToOpts opts schema r =
     let
       purs =
         schemaFromGqlToPurs
-          { dir: ""
-          , cache: Nothing
-          , useNewtypesForRecords: true
-          , isHasura: false
-          , modulePath: []
-          , fieldTypeOverrides: mempty
-          , externalTypes: mempty
-          }
+          opts
           { schema, moduleName: "" }
     in
       map _.mainSchemaCode purs `shouldEqual` Right r
+
+  shouldParseTo =
+    shouldParseToOpts
+      { dir: ""
+      , cache: Nothing
+      , useNewtypesForRecords: true
+      , isHasura: false
+      , modulePath: []
+      , fieldTypeOverrides: mempty
+      , externalTypes: mempty
+      }
 
   shouldParseToAll schema r =
     schemaFromGqlToPurs
