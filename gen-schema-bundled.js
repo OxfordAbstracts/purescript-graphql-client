@@ -15896,15 +15896,15 @@ var PS = {};
   };
   var fromLines = Data_String_Common.joinWith("\x0a");
   var prependLines = function (pre) {
-      var $168 = Data_Functor.map(Data_Functor.functorArray)(function (l) {
+      var $172 = Data_Functor.map(Data_Functor.functorArray)(function (l) {
           var $46 = l === "";
           if ($46) {
               return l;
           };
           return pre + l;
       });
-      return function ($169) {
-          return fromLines($168(toLines($169)));
+      return function ($173) {
+          return fromLines($172(toLines($173)));
       };
   };
   var indent = prependLines("  ");
@@ -15942,7 +15942,7 @@ var PS = {};
           if (v instanceof Data_GraphQL_AST.Definition_TypeSystemExtension) {
               return Data_Maybe.Nothing.value;
           };
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 408, column 22 - line 411, column 54): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 409, column 22 - line 412, column 54): " + [ v.constructor.name ]);
       };
       var definitionToEnum = function (v) {
           if (v instanceof Data_GraphQL_AST.Definition_TypeSystemDefinition) {
@@ -15950,11 +15950,11 @@ var PS = {};
           };
           return Data_Maybe.Nothing.value;
       };
-      var $170 = Data_Array.fromFoldable(Data_List_Types.foldableList);
-      var $171 = Data_List.mapMaybe(definitionToEnum);
-      var $172 = Data_Newtype.unwrap(Data_GraphQL_AST.documentNewtype);
-      return function ($173) {
-          return $170($171($172($173)));
+      var $174 = Data_Array.fromFoldable(Data_List_Types.foldableList);
+      var $175 = Data_List.mapMaybe(definitionToEnum);
+      var $176 = Data_Newtype.unwrap(Data_GraphQL_AST.documentNewtype);
+      return function ($177) {
+          return $174($175($176($177)));
       };
   })();
   var gqlToPursMainSchemaCode = function (v) {
@@ -15979,15 +15979,15 @@ var PS = {};
                   if (v1.operationType instanceof Data_GraphQL_AST.Subscription) {
                       return "Subscription";
                   };
-                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 179, column 13 - line 182, column 41): " + [ v1.operationType.constructor.name ]);
+                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 178, column 13 - line 181, column 41): " + [ v1.operationType.constructor.name ]);
               })();
               return "type " + (opStr + (" = " + typeName(namedTypeToPurs(v1.namedType))));
           };
           var schemaDefinitionToPurs = function (v1) {
               return Data_Foldable.intercalate(Data_List_Types.foldableList)(Data_Monoid.monoidString)("\x0a\x0a")(Data_Functor.map(Data_List_Types.functorList)(rootOperationTypeDefinitionToPurs)(v1.rootOperationTypeDefinition));
           };
-          var namedTypeToPursNullable = function ($174) {
-              return wrapMaybe(namedTypeToPurs($174));
+          var namedTypeToPursNullable = function ($178) {
+              return wrapMaybe(namedTypeToPurs($178));
           };
           var typeToPurs = function (v1) {
               if (v1 instanceof Data_GraphQL_AST.Type_NamedType) {
@@ -15999,7 +15999,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.Type_NonNullType) {
                   return notNullTypeToPurs(v1.value0);
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 378, column 16 - line 381, column 72): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 379, column 16 - line 382, column 72): " + [ v1.constructor.name ]);
           };
           var notNullTypeToPurs = function (v1) {
               if (v1 instanceof Data_GraphQL_AST.NonNullType_NamedType) {
@@ -16008,7 +16008,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.NonNullType_ListType) {
                   return listTypeToPurs(v1.value0);
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 392, column 23 - line 394, column 51): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 393, column 23 - line 395, column 51): " + [ v1.constructor.name ]);
           };
           var listTypeToPursNullable = function (t) {
               return wrapMaybe(listTypeToPurs(t));
@@ -16021,11 +16021,11 @@ var PS = {};
           };
           var getDefinitionTypeName = Data_String_CodePoints.takeWhile(Data_Eq.notEq(Data_String_CodePoints.eqCodePoint)(Data_String_CodePoints.codePointFromChar("=")));
           var removeDuplicateDefinitions = (function () {
-              var $175 = Data_List.fromFoldable(Data_Foldable.foldableArray);
-              var $176 = Data_Array.nubBy(Data_Function.on(Data_Ord.compare(Data_Ord.ordString))(getDefinitionTypeName));
-              var $177 = Data_Array.fromFoldable(Data_List_Types.foldableList);
-              return function ($178) {
-                  return $175($176($177($178)));
+              var $179 = Data_List.fromFoldable(Data_Foldable.foldableArray);
+              var $180 = Data_Array.nubBy(Data_Function.on(Data_Ord.compare(Data_Ord.ordString))(getDefinitionTypeName));
+              var $181 = Data_Array.fromFoldable(Data_List_Types.foldableList);
+              return function ($182) {
+                  return $179($180($181($182)));
               };
           })();
           var enumTypeDefinitionToPurs = function (v1) {
@@ -16048,7 +16048,7 @@ var PS = {};
                   if (v2 instanceof Data_Maybe.Just) {
                       return descriptionToDocComment(v1.description) + ("type " + (tName + (" = " + (v2.value0.moduleName + ("." + v2.value0.typeName)))));
                   };
-                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 195, column 40 - line 206, column 31): " + [ v2.constructor.name ]);
+                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 194, column 40 - line 203, column 31): " + [ v2.constructor.name ]);
               })());
           };
           var argTypeToPurs = function (v1) {
@@ -16061,7 +16061,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.Type_NonNullType) {
                   return wrapNotNull(argNotNullTypeToPurs(v1.value0));
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 362, column 19 - line 365, column 89): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 363, column 19 - line 366, column 89): " + [ v1.constructor.name ]);
           };
           var argNotNullTypeToPurs = function (v1) {
               if (v1 instanceof Data_GraphQL_AST.NonNullType_NamedType) {
@@ -16070,7 +16070,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.NonNullType_ListType) {
                   return argListTypeToPurs(v1.value0);
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 368, column 26 - line 370, column 54): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 369, column 26 - line 371, column 54): " + [ v1.constructor.name ]);
           };
           var argListTypeToPurs = function (v1) {
               return "(Array " + (argTypeToPurs(v1) + ")");
@@ -16083,9 +16083,12 @@ var PS = {};
                           return argTypeToPurs(v1.type);
                       };
                       if (v2 instanceof Data_Maybe.Just) {
+                          if (v1.type instanceof Data_GraphQL_AST.Type_NonNullType) {
+                              return wrapNotNull(v2.value0.moduleName + ("." + v2.value0.typeName));
+                          };
                           return v2.value0.moduleName + ("." + v2.value0.typeName);
                       };
-                      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 354, column 10 - line 356, column 60): " + [ v2.constructor.name ]);
+                      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 353, column 10 - line 357, column 55): " + [ v2.constructor.name ]);
                   })()));
               };
           };
@@ -16114,9 +16117,12 @@ var PS = {};
                           return typeToPurs(v1.type);
                       };
                       if (v2 instanceof Data_Maybe.Just) {
-                          return v2.value0.moduleName + ("." + v2.value0.typeName);
+                          if (v1.type instanceof Data_GraphQL_AST.Type_NonNullType) {
+                              return v2.value0.moduleName + ("." + v2.value0.typeName);
+                          };
+                          return wrapMaybe(v2.value0.moduleName + ("." + v2.value0.typeName));
                       };
-                      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 268, column 10 - line 270, column 60): " + [ v2.constructor.name ]);
+                      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 265, column 10 - line 269, column 67): " + [ v2.constructor.name ]);
                   })())));
               };
           };
@@ -16157,7 +16163,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.TypeDefinition_InputObjectTypeDefinition) {
                   return Data_Maybe.Just.create(inputObjectTypeDefinitionToPurs(v1.value0));
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 185, column 26 - line 191, column 143): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 184, column 26 - line 190, column 143): " + [ v1.constructor.name ]);
           };
           var typeSystemDefinitionToPurs = function (v1) {
               if (v1 instanceof Data_GraphQL_AST.TypeSystemDefinition_SchemaDefinition) {
@@ -16169,7 +16175,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.TypeSystemDefinition_DirectiveDefinition) {
                   return directiveDefinitionToPurs(v1.value0);
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 164, column 32 - line 167, column 118): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 163, column 32 - line 166, column 118): " + [ v1.constructor.name ]);
           };
           var definitionToPurs = function (v1) {
               if (v1 instanceof Data_GraphQL_AST.Definition_ExecutableDefinition) {
@@ -16181,7 +16187,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.Definition_TypeSystemExtension) {
                   return Data_Maybe.Nothing.value;
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 158, column 22 - line 161, column 54): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 157, column 22 - line 160, column 54): " + [ v1.constructor.name ]);
           };
           var mainCode = Data_Foldable.intercalate(Data_List_Types.foldableList)(Data_Monoid.monoidString)("\x0a\x0a")(removeDuplicateDefinitions(Data_List.mapMaybe(definitionToPurs)(Data_Newtype.unwrap(Data_GraphQL_AST.documentNewtype)(doc))));
           var imports = Data_Foldable.fold(Data_Foldable.foldableArray)(Data_Monoid.monoidString)(Data_Array.nub(Data_Ord.ordString)(Data_Semigroup.append(Data_Semigroup.semigroupArray)(toImport(mainCode)(Data_Array.fromFoldable(Data_Map_Internal.foldableMap)(v.externalTypes)))(toImport(mainCode)(Data_Array.fromFoldable(Data_Map_Internal.foldableMap)(Data_Foldable.fold(Data_Map_Internal.foldableMap)(Data_Map_Internal.monoidMap(Data_Ord.ordString))(v.fieldTypeOverrides))))));
@@ -16216,7 +16222,7 @@ var PS = {};
                   return Control_Bind.bind(Effect_Aff.bindAff)(v1.value0.get(v.schema))(function (jsonMay) {
                       return Control_Bind.bind(Effect_Aff.bindAff)((function () {
                           var v2 = Control_Bind.bind(Data_Maybe.bindMaybe)(jsonMay)((function () {
-                              var $179 = Data_Argonaut_Decode_Class.decodeJson(Data_Argonaut_Decode_Class.decodeRecord(Data_Argonaut_Decode_Class.gDecodeJsonCons(Data_Argonaut_Decode_Class.decodeArray(Data_Argonaut_Decode_Class.decodeRecord(Data_Argonaut_Decode_Class.gDecodeJsonCons(Data_Argonaut_Decode_Class.decodeJsonString)(Data_Argonaut_Decode_Class.gDecodeJsonCons(Data_Argonaut_Decode_Class.decodeArray(Data_Argonaut_Decode_Class.decodeJsonString))(Data_Argonaut_Decode_Class.gDecodeJsonNil)(new Data_Symbol.IsSymbol(function () {
+                              var $183 = Data_Argonaut_Decode_Class.decodeJson(Data_Argonaut_Decode_Class.decodeRecord(Data_Argonaut_Decode_Class.gDecodeJsonCons(Data_Argonaut_Decode_Class.decodeArray(Data_Argonaut_Decode_Class.decodeRecord(Data_Argonaut_Decode_Class.gDecodeJsonCons(Data_Argonaut_Decode_Class.decodeJsonString)(Data_Argonaut_Decode_Class.gDecodeJsonCons(Data_Argonaut_Decode_Class.decodeArray(Data_Argonaut_Decode_Class.decodeJsonString))(Data_Argonaut_Decode_Class.gDecodeJsonNil)(new Data_Symbol.IsSymbol(function () {
                                   return "values";
                               }))()())(new Data_Symbol.IsSymbol(function () {
                                   return "name";
@@ -16229,8 +16235,8 @@ var PS = {};
                               }))()())(new Data_Symbol.IsSymbol(function () {
                                   return "enums";
                               }))()())());
-                              return function ($180) {
-                                  return Data_Either.hush($179($180));
+                              return function ($184) {
+                                  return Data_Either.hush($183($184));
                               };
                           })());
                           if (v2 instanceof Data_Maybe.Nothing) {
@@ -16239,7 +16245,7 @@ var PS = {};
                           if (v2 instanceof Data_Maybe.Just) {
                               return Control_Applicative.pure(Effect_Aff.applicativeAff)(new Data_Either.Right(v2.value0));
                           };
-                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 99, column 13 - line 101, column 35): " + [ v2.constructor.name ]);
+                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 98, column 13 - line 100, column 35): " + [ v2.constructor.name ]);
                       })())(function (eVal) {
                           return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)((function () {
                               if (eVal instanceof Data_Either.Right) {
@@ -16267,7 +16273,7 @@ var PS = {};
                       });
                   });
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 95, column 3 - line 95, column 70): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 94, column 3 - line 94, column 70): " + [ v1.constructor.name ]);
           };
           return go(opts.cache);
       };
@@ -16330,11 +16336,11 @@ var PS = {};
               }))
           };
       };
-      var $181 = Data_Functor.map(Effect_Aff.functorAff)(Data_Functor.map(Data_Either.functorEither)(collectSchemas));
-      var $182 = Data_Functor.map(Effect_Aff.functorAff)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Data_Either.applicativeEither));
-      var $183 = Data_Traversable.traverse(Data_Traversable.traversableArray)(Effect_Aff.applicativeAff)(schemaFromGqlToPursWithCache(opts));
-      return function ($184) {
-          return $181($182($183($184)));
+      var $185 = Data_Functor.map(Effect_Aff.functorAff)(Data_Functor.map(Data_Either.functorEither)(collectSchemas));
+      var $186 = Data_Functor.map(Effect_Aff.functorAff)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Data_Either.applicativeEither));
+      var $187 = Data_Traversable.traverse(Data_Traversable.traversableArray)(Effect_Aff.applicativeAff)(schemaFromGqlToPursWithCache(opts));
+      return function ($188) {
+          return $185($186($187($188)));
       };
   };
   exports["schemasFromGqlToPurs"] = schemasFromGqlToPurs;

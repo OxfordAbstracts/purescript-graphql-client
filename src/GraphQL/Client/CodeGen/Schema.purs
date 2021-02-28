@@ -6,7 +6,6 @@ module GraphQL.Client.CodeGen.Schema
   ) where
 
 import Prelude hiding (between)
-
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Array (fold, notElem, nub, nubBy)
@@ -193,9 +192,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
   scalarTypeDefinitionToPurs :: AST.ScalarTypeDefinition -> String
   scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) =
     guard (notElem tName builtInTypes) case lookup tName externalTypes of
-      Nothing ->
-        unknownDebugMarker tName
-          
+      Nothing -> unknownDebugMarker tName
       Just external ->
         descriptionToDocComment description
           <> "type "
@@ -207,7 +204,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     where
     tName = typeName name
 
-    unknownDebugMarker tn =  "unknown type: " <> show tn
+    unknownDebugMarker tn = "unknown type: " <> show tn
 
   builtInTypes = [ "Int", "Number", "String", "Boolean" ]
 
@@ -267,7 +264,9 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
       <> foldMap argumentsDefinitionToPurs argumentsDefinition
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
           Nothing -> typeToPurs tipe
-          Just out -> out.moduleName <> "." <> out.typeName
+          Just out -> case tipe of
+            AST.Type_NonNullType _ -> out.moduleName <> "." <> out.typeName
+            _ -> wrapMaybe $ out.moduleName <> "." <> out.typeName
 
   argumentsDefinitionToPurs :: AST.ArgumentsDefinition -> String
   argumentsDefinitionToPurs (AST.ArgumentsDefinition inputValueDefinitions) =
@@ -353,7 +352,9 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
       <> " :: "
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
           Nothing -> argTypeToPurs tipe
-          Just out -> out.moduleName <> "." <> out.typeName
+          Just out -> case tipe of
+            AST.Type_NonNullType _ -> wrapNotNull $ out.moduleName <> "." <> out.typeName
+            _ -> out.moduleName <> "." <> out.typeName
 
   directiveDefinitionToPurs :: AST.DirectiveDefinition -> Maybe String
   directiveDefinitionToPurs directiveDefinition = Nothing
