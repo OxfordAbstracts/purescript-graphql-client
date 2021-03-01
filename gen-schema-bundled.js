@@ -16087,14 +16087,14 @@ var PS = {};
                       };
                       if (v2 instanceof Data_Maybe.Just) {
                           if (v1.type instanceof Data_GraphQL_AST.Type_NonNullType) {
-                              return v2.value0.moduleName + ("." + v2.value0.typeName);
+                              return wrapNotNull(v2.value0.moduleName + ("." + v2.value0.typeName));
                           };
                           if (v1.type instanceof Data_GraphQL_AST.Type_ListType) {
                               return wrapArray(v2.value0.moduleName + ("." + v2.value0.typeName));
                           };
-                          return wrapMaybe(v2.value0.moduleName + ("." + v2.value0.typeName));
+                          return v2.value0.moduleName + ("." + v2.value0.typeName);
                       };
-                      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 354, column 10 - line 359, column 67): " + [ v2.constructor.name ]);
+                      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 354, column 10 - line 359, column 55): " + [ v2.constructor.name ]);
                   })()));
               };
           };

@@ -354,9 +354,9 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
           Nothing -> argTypeToPurs tipe
           Just out -> case tipe of
-            AST.Type_NonNullType _ -> out.moduleName <> "." <> out.typeName
+            AST.Type_NonNullType _ -> wrapNotNull $ out.moduleName <> "." <> out.typeName
             AST.Type_ListType _ -> wrapArray $ out.moduleName <> "." <> out.typeName
-            _ -> wrapMaybe $ out.moduleName <> "." <> out.typeName
+            _ -> out.moduleName <> "." <> out.typeName
 
   directiveDefinitionToPurs :: AST.DirectiveDefinition -> Maybe String
   directiveDefinitionToPurs directiveDefinition = Nothing
