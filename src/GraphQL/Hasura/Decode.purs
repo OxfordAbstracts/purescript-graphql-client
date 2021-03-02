@@ -7,6 +7,7 @@ import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (JsonDecodeError(..), decodeJson)
 import Data.Argonaut.Decode.Decoders (decodeJArray)
 import Data.Array (head, (!!))
+import Data.Array as Array
 import Data.Bifunctor (lmap)
 import Data.Date (Date, canonicalDate)
 import Data.DateTime (DateTime(DateTime), Time(..))
@@ -91,7 +92,7 @@ decodeDateStr string = case split (Pattern "-") string of
   _ -> notDecoded "Date" string
 
 decodeTimeStr :: String -> Either JsonDecodeError Time
-decodeTimeStr string = case split (Pattern ":") string of
+decodeTimeStr string = case Array.take 3 $ split (Pattern ":") string of -- TODO: handle postgres timezone offsets
   [ hour, minute, secondsAndMs ] ->
     let
       sAndMsArr = split (Pattern ".") secondsAndMs
