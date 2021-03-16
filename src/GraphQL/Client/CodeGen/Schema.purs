@@ -20,7 +20,7 @@ import Data.List (List, mapMaybe)
 import Data.List as List
 import Data.Map (lookup)
 import Data.Map as Map
-import Data.Maybe (Maybe(..), maybe)
+import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
 import Data.String (Pattern(..), codePointFromChar, contains, joinWith)
@@ -191,20 +191,23 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
 
   scalarTypeDefinitionToPurs :: AST.ScalarTypeDefinition -> String
   scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) =
-    guard (notElem tName builtInTypes) case lookup tName externalTypes of
-      Nothing -> unknownDebugMarker tName
-      Just external ->
-        descriptionToDocComment description
-          <> "type "
-          <> tName
-          <> " = "
-          <> external.moduleName
-          <> "."
-          <> external.typeName
+    guard (notElem tName builtInTypes)
+      $ descriptionToDocComment description
+      <> "type "
+      <> tName
+      <> " = "
+      <> typeAndModule.moduleName
+      <> "."
+      <> typeAndModule.typeName
     where
     tName = typeName name
 
-    unknownDebugMarker tn = "unknown type: " <> show tn
+    typeAndModule =
+      lookup tName externalTypes
+        # fromMaybe
+            { moduleName: "Data.Foreign"
+            , typeName: "Foreign -- Unknown scalar type. Add " <> tName <> " to externalTypes in codegen options override this behaviour"
+            }
 
   builtInTypes = [ "Int", "Number", "String", "Boolean" ]
 

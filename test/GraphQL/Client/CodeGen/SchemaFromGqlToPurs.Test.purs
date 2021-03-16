@@ -262,6 +262,45 @@ instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Quer
           )
             `
             result
+      it "handles unknown scalar types" do
+        let
+          gql =
+            """
+schema {
+  query: Query
+}
+
+type Query {
+  int: Int
+  my_type_a: SomethingUnknown!
+  my_type_b: SomethingElseUnknown
+  my_type_c: [AlsoUnkown!]!
+}
+
+scalar SomethingUnknown
+scalar SomethingElseUnknown
+scalar AlsoUnkown
+          """
+
+          result = """
+type Query = Query
+
+newtype Query = Query 
+  { int :: (Maybe Int)
+  , my_type_a :: SomethingUnknown
+  , my_type_b :: (Maybe SomethingElseUnknown)
+  , my_type_c :: (Array AlsoUnkown)
+  }
+derive instance newtypeQuery :: Newtype Query _
+instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
+
+type SomethingUnknown = Data.Foreign.Foreign -- Unknown scalar type. Add SomethingUnknown to externalTypes in codegen options override this behaviour
+
+type SomethingElseUnknown = Data.Foreign.Foreign -- Unknown scalar type. Add SomethingElseUnknown to externalTypes in codegen options override this behaviour
+
+type AlsoUnkown = Data.Foreign.Foreign -- Unknown scalar type. Add AlsoUnkown to externalTypes in codegen options override this behaviour"""
+
+        gql `shouldParseTo` result
   where
   mkMap :: forall v. Array (Tuple String (Array (Tuple String v))) -> Map String (Map String v)
   mkMap = Map.fromFoldable >>> map Map.fromFoldable
