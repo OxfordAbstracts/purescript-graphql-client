@@ -9,7 +9,7 @@ import FRP.Event (Event, filterMap)
 import GraphQL.Client.Query (decodeGqlRes)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
-import GraphQL.Client.Types (class GqlQuery, class SubscriptionClient, Client(..), subscriptionEvent, subscriptionEventOpts)
+import GraphQL.Client.Types (class GqlQuery, class SubscriptionClient, Client(..), subscriptionEventOpts)
 
 subscriptionOpts ::
   forall b a returns query schema client opts.
@@ -55,13 +55,8 @@ subscriptionWithDecoder ::
   String ->
   query ->
   Event (Either JsonDecodeError returns)
-subscriptionWithDecoder decodeFn (Client client) queryNameUnsafe q =
-  subscriptionEvent client query
-    <#> decodeGqlRes decodeFn
-  where
-  queryName = safeQueryName queryNameUnsafe
-
-  query = "subscription " <> queryName <> " " <> toGqlQueryString q
+subscriptionWithDecoder decodeFn =
+  subscriptionOptsWithDecoder decodeFn identity
 
 ignoreErrors :: forall err returns. Event (Either err returns) -> Event returns
 ignoreErrors = filterMap hush
