@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: purescript-contrib/setup-purescript@1.1
+      - uses: purescript-contrib/setup-purescript@v1.1
 
       - name: Cache PureScript dependencies
         uses: actions/cache@v2
