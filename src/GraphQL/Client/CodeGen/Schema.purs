@@ -145,6 +145,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     fold $ nub
       $ toImport mainCode (Array.fromFoldable externalTypes)
       <> toImport mainCode (Array.fromFoldable $ fold fieldTypeOverrides)
+      <> toImport mainCode [ {moduleName: "Data.Argonaut.Core"} ]
 
   mainCode = unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
 

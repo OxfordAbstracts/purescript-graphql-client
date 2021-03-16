@@ -283,6 +283,8 @@ scalar AlsoUnkown
           """
 
           result = """
+import Data.Argonaut.Core as Data.Argonaut.Core
+
 type Query = Query
 
 newtype Query = Query 
