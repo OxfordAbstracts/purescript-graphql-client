@@ -3,13 +3,11 @@ module GraphQL.Client.Query
   , queryWithDecoder
   , queryOptsWithDecoder
   , queryOpts
-  , queryWithErrors
   , query_
   , mutation
   , mutationWithDecoder
   , mutationOptsWithDecoder
   , mutationOpts
-  , mutationWithErrors
   , mutation_
   , decodeGqlRes
   ) 
@@ -24,7 +22,6 @@ import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError, decodeJson, getField, printJsonDecodeError)
 import Data.Array (intercalate)
 import Data.Either (Either(..))
-import Data.Maybe (Maybe(..))
 import Effect.Aff (Aff, Error, error, message, throwError)
 import Effect.Class (liftEffect)
 import Global.Unsafe (unsafeStringify)
@@ -128,9 +125,7 @@ mutation ::
   Aff returns
 mutation = mutationWithDecoder decodeJson
 
-
-
--- | Run a graphQL mutation with a custom decoder and custom options
+-- | Run a graphQL query with a custom decoder and custom options
 mutationOptsWithDecoder ::
   forall client schema query returns a b queryOpts mutationOpts.
   QueryClient client queryOpts mutationOpts =>
@@ -145,7 +140,7 @@ mutationOptsWithDecoder d optsF (Client c) = runMutation d opts c (Proxy :: Prox
   where 
   opts = optsF (defMutationOpts c)
 
--- | Run a graphQL mutation with a custom decoder and custom options
+-- | Run a graphQL query with a custom decoder and custom options
 mutationOpts ::
   forall client schema query returns a b queryOpts mutationOpts.
   QueryClient client queryOpts mutationOpts =>
@@ -184,29 +179,6 @@ runQuery decodeFn opts client _ queryNameUnsafe q =
   where
   queryName = safeQueryName queryNameUnsafe
 
--- | Run a graphQL query, tracking all errors, even if data is returned and decoded
-queryWithErrors ::
-  forall client schema query returns a b queryOpts mutationOpts.
-  QueryClient client queryOpts mutationOpts =>
-  GqlQuery schema query returns =>
-  DecodeJson returns =>
-  (Json -> Either JsonDecodeError returns) -> 
-  (queryOpts -> queryOpts) ->
-  (Client client a schema b) ->
-  String ->
-  query ->
-  Aff { data_ :: returns, errors :: Maybe (Array Json) }
-queryWithErrors decodeFn optsF (Client client) queryNameUnsafe q =
-  addErrorInfo queryName q do
-    json <- clientQuery opts client queryName $ toGqlQueryString q
-    data_ <- decodeJsonData decodeFn json
-    let errors = getErrors json
-    pure {data_, errors}
-  where
-  opts = optsF (defQueryOpts client)
-  queryName = safeQueryName queryNameUnsafe
-
-
 runMutation :: 
   forall client schema query returns qOpts mOpts.
   QueryClient client qOpts mOpts =>
@@ -218,29 +190,6 @@ runMutation  decodeFn opts client _ queryNameUnsafe q =
     decodeJsonData decodeFn json
   where
   queryName = safeQueryName queryNameUnsafe
-
--- | Run a graphQL mutation, tracking all errors, even if data is returned and decoded
-mutationWithErrors ::
-  forall client schema mutation returns a b queryOpts mutationOpts.
-  QueryClient client queryOpts mutationOpts =>
-  GqlQuery schema mutation returns =>
-  DecodeJson returns =>
-  (Json -> Either JsonDecodeError returns) -> 
-  (mutationOpts -> mutationOpts) ->
-  (Client client a schema b) ->
-  String ->
-  mutation ->
-  Aff { data_ :: returns, errors :: Maybe (Array Json) }
-mutationWithErrors decodeFn optsF (Client client) queryNameUnsafe q =
-  addErrorInfo queryName q do
-    json <- clientMutation opts client queryName $ toGqlQueryString q
-    data_ <- decodeJsonData decodeFn json
-    let errors = getErrors json
-    pure {data_, errors}
-  where
-  opts = optsF (defMutationOpts client)
-  queryName = safeQueryName queryNameUnsafe
-
 
 decodeJsonData :: forall m a. MonadThrow Error m => (Json -> Either JsonDecodeError a) -> Json -> m a
 decodeJsonData decodeFn json = case decodeGqlRes decodeFn json of
@@ -254,11 +203,6 @@ decodeJsonData decodeFn json = case decodeGqlRes decodeFn json of
               <> "\n Full response: "
               <> unsafeStringify json
   Right result -> pure result
-
-getErrors :: Json -> Maybe (Array Json)
-getErrors json = case decodeJson json of 
-  Right ({ errors } :: { errors :: Array Json }) -> Just errors 
-  _ -> Nothing
 
 decodeGqlRes :: forall a. (Json -> Either JsonDecodeError a) -> Json -> Either JsonDecodeError a
 decodeGqlRes decodeFn json = do
