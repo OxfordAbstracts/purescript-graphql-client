@@ -25,11 +25,12 @@ import Data.Either (Either(..))
 import Data.Function (on)
 import GraphQL.Client.Args (class ArgGql)
 import GraphQL.Client.ToGqlString (class GqlArgString)
+import GraphQL.Hasura.Decode (class DecodeHasura)
+import GraphQL.Hasura.Encode (class EncodeHasura)
 """ <> intercalate "\n" imports <> """
 
 data """ <> name <> """ 
   = """ <> enumCtrs <> """
-
 """ <> customCode {name, values} <> """
 
 instance eq""" <> name <> """ :: Eq """ <> name <> """ where 
@@ -50,6 +51,12 @@ instance decodeJson""" <> name <> """ :: DecodeJson """ <> name <> """ where
 
 instance encodeJson""" <> name <> """ :: EncodeJson """ <> name <> """ where 
   encodeJson = show >>> encodeJson
+
+instance decdoeHasura""" <> name <> """ :: DecodeHasura """ <> name <> """ where 
+  decodeHasura = decodeJson
+
+instance encodeHasura""" <> name <> """ :: EncodeHasura """ <> name <> """ where 
+  encodeHasura = encodeJson
 
 instance show""" <> name <> """ :: Show """ <> name <> """ where
   show a = case a of 
