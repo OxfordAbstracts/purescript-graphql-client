@@ -21,7 +21,7 @@ require('./server-fn')(async () => {
       ])
       console.info('tests passed')
       process.exit(0)
-    }, 250)
+    }, 500)
   } catch (err) {
     console.error('test error', err)
     process.exit(1)

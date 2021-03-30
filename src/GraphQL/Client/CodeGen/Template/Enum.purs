@@ -10,9 +10,11 @@ template ::
   String ->
   { name :: String
   , values :: Array String
+  , imports :: Array String
+  , customCode :: {name :: String, values :: Array String} ->  String 
   } ->
   String
-template modulePrefix { name, values } =
+template modulePrefix { name, values, imports, customCode } =
     """module """ <> modulePrefix <> """Enum.""" <> name <> """ where
 
 import Prelude
@@ -23,9 +25,12 @@ import Data.Either (Either(..))
 import Data.Function (on)
 import GraphQL.Client.Args (class ArgGql)
 import GraphQL.Client.ToGqlString (class GqlArgString)
+""" <> intercalate "\n" imports <> """
 
 data """ <> name <> """ 
   = """ <> enumCtrs <> """
+
+""" <> customCode {name, values} <> """
 
 instance eq""" <> name <> """ :: Eq """ <> name <> """ where 
   eq = eq `on` show

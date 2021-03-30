@@ -31,6 +31,8 @@ schemasFromGqlToPursJs = mkFn2 go
       , modulePath: defNull [] optsJs.modulePath
       , isHasura: defNull false optsJs.isHasura
       , useNewtypesForRecords: defNull true optsJs.useNewtypesForRecords
+      , enumImports: defNull [] optsJs.enumImports
+      , customEnumCode: defNull (const "") optsJs.customEnumCode
       , cache:
           toMaybe optsJs.cache
             <#> \{ get, set } ->
@@ -69,6 +71,8 @@ type InputOptionsJs
     , modulePath :: Nullable (Array String)
     , isHasura :: Nullable Boolean
     , useNewtypesForRecords :: Nullable Boolean
+    , enumImports :: Nullable (Array String) 
+    , customEnumCode :: Nullable ({name :: String, values :: Array String} ->  String)
     , cache ::
         Nullable
           { get :: String -> Promise (Nullable Json)
