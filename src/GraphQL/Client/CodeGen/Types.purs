@@ -34,6 +34,8 @@ type InputOptions
     , isHasura :: Boolean
     , useNewtypesForRecords :: Boolean 
     , modulePath :: Array String
+    , enumImports :: Array String 
+    , customEnumCode :: {name :: String, values :: Array String} ->  String
     , cache ::
         Maybe
           { get :: String -> Aff (Maybe Json)
@@ -49,6 +51,8 @@ defaultInputOptions =
   , isHasura: false
   , useNewtypesForRecords: true
   , modulePath: []
+  , enumImports: []
+  , customEnumCode: const ""
   , cache: Nothing
   }
 

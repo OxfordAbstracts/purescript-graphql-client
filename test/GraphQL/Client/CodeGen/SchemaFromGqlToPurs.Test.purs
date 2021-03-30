@@ -1,7 +1,6 @@
 module GraphQL.Client.CodeGen.Schema.Test where
 
 import Prelude
-
 import Data.Either (Either(..))
 import Data.Map (Map)
 import Data.Map as Map
@@ -228,7 +227,8 @@ type Query {
 }
           """
 
-          result = """
+          result =
+            """
 import MyModule as MyModule
 
 type Query = Query
@@ -241,7 +241,6 @@ newtype Query = Query
   }
 derive instance newtypeQuery :: Newtype Query _
 instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }"""
-
         gql
           ` ( shouldParseToOpts
               { dir: ""
@@ -249,14 +248,16 @@ instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Quer
               , useNewtypesForRecords: true
               , isHasura: false
               , modulePath: []
+              , enumImports: []
+              , customEnumCode: const ""
               , fieldTypeOverrides:
-              mkMap
-                  [ Tuple "Query" 
-                    [ Tuple "my_type_a" { moduleName: "MyModule", typeName: "MyTypeA" }
-                    , Tuple "my_type_b" { moduleName: "MyModule", typeName: "MyTypeB" }
-                    , Tuple "my_type_c" { moduleName: "MyModule", typeName: "MyTypeC" }
+                  mkMap
+                    [ Tuple "Query"
+                        [ Tuple "my_type_a" { moduleName: "MyModule", typeName: "MyTypeA" }
+                        , Tuple "my_type_b" { moduleName: "MyModule", typeName: "MyTypeB" }
+                        , Tuple "my_type_c" { moduleName: "MyModule", typeName: "MyTypeC" }
+                        ]
                     ]
-                  ]
               , externalTypes: mempty
               }
           )
@@ -282,7 +283,8 @@ scalar SomethingElseUnknown
 scalar AlsoUnkown
           """
 
-          result = """
+          result =
+            """
 import Data.Argonaut.Core as Data.Argonaut.Core
 
 type Query = Query
@@ -301,12 +303,10 @@ type SomethingUnknown = Data.Argonaut.Core.Json -- Unknown scalar type. Add Some
 type SomethingElseUnknown = Data.Argonaut.Core.Json -- Unknown scalar type. Add SomethingElseUnknown to externalTypes in codegen options override this behaviour
 
 type AlsoUnkown = Data.Argonaut.Core.Json -- Unknown scalar type. Add AlsoUnkown to externalTypes in codegen options override this behaviour"""
-
         gql `shouldParseTo` result
   where
   mkMap :: forall v. Array (Tuple String (Array (Tuple String v))) -> Map String (Map String v)
   mkMap = Map.fromFoldable >>> map Map.fromFoldable
-
 
   shouldParseToOpts opts schema r =
     let
@@ -324,6 +324,8 @@ type AlsoUnkown = Data.Argonaut.Core.Json -- Unknown scalar type. Add AlsoUnkown
       , useNewtypesForRecords: true
       , isHasura: false
       , modulePath: []
+      , enumImports: []
+      , customEnumCode: const ""
       , fieldTypeOverrides: mempty
       , externalTypes: mempty
       }
@@ -335,6 +337,8 @@ type AlsoUnkown = Data.Argonaut.Core.Json -- Unknown scalar type. Add AlsoUnkown
       , useNewtypesForRecords: true
       , isHasura: false
       , modulePath: []
+      , enumImports: []
+      , customEnumCode: const ""
       , fieldTypeOverrides: mempty
       , externalTypes: mempty
       }

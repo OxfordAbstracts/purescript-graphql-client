@@ -13,10 +13,11 @@ require('./server-fn')(async () => {
     await exec('npm run build', { stdio: 'pipe', stderr: 'pipe' })
     require('./output/Main').main()
     setTimeout(() => {
+      console.info('logs', logs)
       deepStrictEqual(logs, ['[RED]', '1', '[GREEN]', '[GREEN]'])
       console.info('tests passed')
       process.exit(0)
-    }, 250)
+    }, 400)
   } catch (err) {
     console.error('test error', err)
     process.exit(1)
