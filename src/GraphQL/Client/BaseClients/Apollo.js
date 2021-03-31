@@ -138,8 +138,11 @@ exports.mutationImpl = function (opts) {
               mutation: gql(mutation),
               errorPolicy: opts.errorPolicy,
               refetchQueries: opts.refetchQueries,
-              update: () => {
-                if (opts.update) opts.update()
+              optimisticResponse: opts.optimisticResponse,
+              update: function () {
+                if (opts.update){
+                  opts.update()
+                }
               }
             })
             .then(onSuccess)

@@ -109,6 +109,7 @@ instance queryClient ::
     { errorPolicy :: ErrorPolicy
     , refetchQueries :: Array String
     , update :: Maybe (Effect Unit)
+    , optimisticResponse :: Maybe Json
     } where
   clientQuery opts = queryForeign false (encode opts)
   clientMutation opts =
@@ -117,6 +118,7 @@ instance queryClient ::
           { errorPolicy: encode opts.errorPolicy
           , refetchQueries: encode opts.refetchQueries
           , update: toNullable opts.update
+          , optimisticResponse: toNullable opts.optimisticResponse
           }
       )
   defQueryOpts = const defQueryOpts
@@ -131,6 +133,7 @@ instance queryClientSubscription ::
     { errorPolicy :: ErrorPolicy
     , refetchQueries :: Array String
     , update :: Maybe (Effect Unit)
+    , optimisticResponse :: Maybe Json
     } where
   clientQuery opts = queryForeign false (encode opts)
   clientMutation opts =
@@ -139,6 +142,7 @@ instance queryClientSubscription ::
           { errorPolicy: encode opts.errorPolicy
           , refetchQueries: encode opts.refetchQueries
           , update: toNullable opts.update
+          , optimisticResponse: toNullable opts.optimisticResponse
           }
       )
   defQueryOpts = const defQueryOpts
@@ -168,6 +172,7 @@ type MutationOpts
   = { errorPolicy :: ErrorPolicy
     , refetchQueries :: Array String
     , update :: Maybe (Effect Unit)
+    , optimisticResponse :: Maybe Json
     }
 
 defMutationOpts :: MutationOpts
@@ -175,6 +180,7 @@ defMutationOpts =
   { errorPolicy: All
   , refetchQueries: []
   , update: Nothing
+  , optimisticResponse: Nothing
   }
 
 queryForeign ::
