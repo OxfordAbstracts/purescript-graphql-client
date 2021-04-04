@@ -25,14 +25,14 @@ schemasFromGqlToPursJs = mkFn2 go
       >>> fromAff
     where
     opts =
-      { externalTypes: Map.fromFoldableWithIndex (defNull mempty optsJs.externalTypes)
-      , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (defNull mempty optsJs.fieldTypeOverrides)
-      , dir: defNull "" optsJs.dir
-      , modulePath: defNull [] optsJs.modulePath
-      , isHasura: defNull false optsJs.isHasura
-      , useNewtypesForRecords: defNull true optsJs.useNewtypesForRecords
-      , enumImports: defNull [] optsJs.enumImports
-      , customEnumCode: defNull (const "") optsJs.customEnumCode
+      { externalTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.externalTypes)
+      , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (fromNullable mempty optsJs.fieldTypeOverrides)
+      , dir: fromNullable "" optsJs.dir
+      , modulePath: fromNullable [] optsJs.modulePath
+      , isHasura: fromNullable false optsJs.isHasura
+      , useNewtypesForRecords: fromNullable true optsJs.useNewtypesForRecords
+      , enumImports: fromNullable [] optsJs.enumImports
+      , customEnumCode: fromNullable (const "") optsJs.customEnumCode
       , cache:
           toMaybe optsJs.cache
             <#> \{ get, set } ->
@@ -47,8 +47,8 @@ schemasFromGqlToPursJs = mkFn2 go
       , result: mempty
       }
 
-defNull :: forall a. a -> Nullable a -> a
-defNull a = fromMaybe a <<< toMaybe
+fromNullable :: forall a. a -> Nullable a -> a
+fromNullable a = fromMaybe a <<< toMaybe
 
 type InputOptionsJs
   = { externalTypes ::

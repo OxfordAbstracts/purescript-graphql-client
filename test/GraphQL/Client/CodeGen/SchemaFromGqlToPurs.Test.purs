@@ -1,6 +1,7 @@
 module GraphQL.Client.CodeGen.Schema.Test where
 
 import Prelude
+
 import Data.Either (Either(..))
 import Data.Map (Map)
 import Data.Map as Map
@@ -186,7 +187,7 @@ instance argToGqlMyInputType :: (Newtype MyInputType {| p},  RecordArg p a u) =>
           gql =
             queryOnlySchemaGql
               """{ prop(id: my_enum): Int! }
-
+"description"
 enum my_enum {
   enum_val1
   enum_val2
@@ -207,6 +208,7 @@ enum my_enum {
             , symbols: [ "prop" ]
             , enums:
                 [ { name: "MyEnum"
+                  , description: Just "description"
                   , values: [ "enum_val1", "enum_val2" ]
                   }
                 ]

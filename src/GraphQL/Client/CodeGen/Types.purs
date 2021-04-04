@@ -69,7 +69,7 @@ type PursGql
     }
 
 type GqlEnum
-  = { name :: String, values :: Array String }
+  = { name :: String, description :: Maybe String, values :: Array String }
 
 type FilesToWrite
   = { schemas :: Array FileToWrite

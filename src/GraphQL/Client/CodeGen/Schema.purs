@@ -2,10 +2,10 @@
 module GraphQL.Client.CodeGen.Schema
   ( schemaFromGqlToPurs
   , schemasFromGqlToPurs
-  , indent
   ) where
 
-import Prelude hiding (between)
+import Prelude
+
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Array (fold, notElem, nub, nubBy)
@@ -23,16 +23,14 @@ import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
-import Data.String (Pattern(..), codePointFromChar, contains, joinWith)
+import Data.String (Pattern(..), codePointFromChar, contains)
 import Data.String.CodePoints (takeWhile)
 import Data.String.Extra (pascalCase)
-import Data.String.Regex (split)
-import Data.String.Regex.Flags (global)
-import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
+import GraphQL.Client.CodeGen.Lines (docComment, indent)
 import GraphQL.Client.CodeGen.Template.Enum as Enum
 import GraphQL.Client.CodeGen.Template.Schema as Schema
 import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptions, PursGql)
@@ -77,8 +75,15 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
           $ pursGqls
           >>= \pg ->
               pg.enums
-                <#> \{name, values} ->
-                    { code: Enum.template modulePrefix {name, values, imports: opts.enumImports, customCode: opts.customEnumCode}
+                <#> \{ name, values, description } ->
+                    { code:
+                        Enum.template modulePrefix
+                          { name
+                          , values
+                          , description
+                          , imports: opts.enumImports
+                          , customCode: opts.customEnumCode
+                          }
                     , path: opts.dir <> "/Enum/" <> name <> ".purs"
                     }
     , symbols:
@@ -145,7 +150,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     fold $ nub
       $ toImport mainCode (Array.fromFoldable externalTypes)
       <> toImport mainCode (Array.fromFoldable $ fold fieldTypeOverrides)
-      <> toImport mainCode [ {moduleName: "Data.Argonaut.Core"} ]
+      <> toImport mainCode [ { moduleName: "Data.Argonaut.Core" } ]
 
   mainCode = unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
 
@@ -193,7 +198,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
   scalarTypeDefinitionToPurs :: AST.ScalarTypeDefinition -> String
   scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) =
     guard (notElem tName builtInTypes)
-      $ descriptionToDocComment description
+      $  docComment description
       <> "type "
       <> tName
       <> " = "
@@ -224,7 +229,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     let
       tName = typeName name
     in
-      descriptionToDocComment description
+      docComment description
         <> if useNewtypesForRecords then
             "newtype "
               <> typeName name
@@ -262,7 +267,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     , directives
     }
   ) =
-    descriptionToDocComment description
+    inlineComment description
       <> name
       <> " :: "
       <> foldMap argumentsDefinitionToPurs argumentsDefinition
@@ -289,7 +294,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     , directives
     }
   ) =
-    descriptionToDocComment description
+    inlineComment description
       <> name
       <> " :: "
       <> argTypeToPurs tipe
@@ -314,7 +319,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     let
       tName = typeName name
     in
-      descriptionToDocComment description
+      docComment description
         <> "newtype "
         <> tName
         <> ( inputFieldsDefinition
@@ -352,7 +357,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     , type: tipe
     }
   ) =
-    descriptionToDocComment description
+    inlineComment description
       <> name
       <> " :: "
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
@@ -429,6 +434,7 @@ gqlToPursEnums = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
     AST.TypeDefinition_EnumTypeDefinition (AST.EnumTypeDefinition enumTypeDefinition) ->
       Just
         { name: typeName enumTypeDefinition.name
+        , description: enumTypeDefinition.description
         , values: maybe [] enumValuesDefinitionToPurs enumTypeDefinition.enumValuesDefinition
         }
     _ -> Nothing
@@ -437,29 +443,14 @@ gqlToPursEnums = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
   enumValuesDefinitionToPurs def =
     Array.fromFoldable $ unwrap def
       <#> \(AST.EnumValueDefinition { description, enumValue }) ->
-          descriptionToDocComment description
+          inlineComment description
             <> unwrap enumValue
 
 namedTypeToPurs :: AST.NamedType -> String
 namedTypeToPurs (AST.NamedType str) = typeName str
 
-descriptionToDocComment :: Maybe String -> String
-descriptionToDocComment = foldMap (\str -> "\n" <> prependLines " -- | " str <> "\n")
-
-indent :: String -> String
-indent = prependLines "  "
-
-prependLines :: String -> String -> String
-prependLines pre =
-  toLines
-    >>> map (\l -> if l == "" then l else pre <> l)
-    >>> fromLines
-
-toLines :: String -> Array String
-toLines = split (unsafeRegex """\n""" global)
-
-fromLines :: Array String -> String
-fromLines = joinWith "\n"
+inlineComment :: Maybe String -> String
+inlineComment = foldMap (\str -> "\n{- " <> str <> " -}\n")
 
 typeName :: String -> String
 typeName str = case pascalCase str of
