@@ -2,14 +2,17 @@ module Main where
 
 import Prelude
 
-import Data.Argonaut.Decode (class DecodeJson)
+import Data.Argonaut.Decode (class DecodeJson, decodeJson)
+import Data.Either (Either(..))
+import Data.Maybe (isJust)
 import Data.Symbol (SProxy(..))
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
-import Effect.Class.Console (logShow)
+import Effect.Class.Console (log, logShow)
+import Global.Unsafe (unsafeStringify)
 import GraphQL.Client.Args (type (==>), (=>>))
 import GraphQL.Client.BaseClients.Affjax (AffjaxClient(..))
-import GraphQL.Client.Query (query)
+import GraphQL.Client.Query (query, queryFullRes)
 import GraphQL.Client.Types (class GqlQuery, Client(..))
 
 main :: Effect Unit
@@ -19,7 +22,13 @@ main =
       queryGql "Widget names with id 1"
         { widgets: { id: 1 } =>> { name } }
     logShow $ map _.name widgets
+    fullResult  <-
+      queryFullRes decodeJson identity client "Widget names with id 1"
+        { widgets: { id: 1 } =>> { name } }
 
+    logShow fullResult.data_
+    logShow $ isJust fullResult.errors
+    logShow $ isJust fullResult.errors_json
 -- Run gql query
 queryGql ::
   forall query returns.

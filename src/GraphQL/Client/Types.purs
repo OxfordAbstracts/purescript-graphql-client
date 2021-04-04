@@ -3,9 +3,13 @@ module GraphQL.Client.Types where
 import Prelude
 
 import Data.Argonaut.Core (Json)
+import Data.Argonaut.Decode (JsonDecodeError)
+import Data.Either (Either)
+import Data.Maybe (Maybe)
 import Effect (Effect)
 import Effect.Aff (Aff)
 import FRP.Event (Event, makeEvent)
+import Foreign.Object (Object)
 import GraphQL.Client.QueryReturns (class QueryReturns)
 import GraphQL.Client.ToGqlString (class GqlQueryString)
 
@@ -74,3 +78,26 @@ watchQueryEventOpts optsF client query = makeEvent (clientWatchQuery (optsF (def
 
 watchQueryEvent :: forall opts c. WatchQueryClient c opts => c -> String -> Event Json
 watchQueryEvent = watchQueryEventOpts identity
+
+-- Full response types 
+
+
+-- Full responses 
+-- | The full graphql query response,
+-- | According to https://spec.graphql.org/June2018/#sec-Response-Format
+type GqlRes res
+  = { data_ :: Either JsonDecodeError res
+    , errors :: Maybe (Array GqlError)
+    , errors_json :: Maybe (Array Json) -- For deprecated error responses where custom props are not in extensions
+    , extensions :: Maybe (Object Json)
+    }
+
+type GqlError
+  = { message :: String
+    , locations :: ErrorLocations
+    , path :: Maybe (Array (Either Int String))
+    , extensions :: Maybe (Object Json)
+    }
+
+type ErrorLocations
+  = Maybe (Array { line :: Int, column :: Int })
