@@ -65,6 +65,7 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
                   Schema.template
                     { name: pg.moduleName
                     , mainSchemaCode: pg.mainSchemaCode
+                    , idImport: opts.idImport
                     , enums: map _.name pg.enums
                     , modulePrefix
                     }
@@ -454,6 +455,7 @@ inlineComment = foldMap (\str -> "\n{- " <> str <> " -}\n")
 
 typeName :: String -> String
 typeName str = case pascalCase str of
+  "Id" -> "ID"
   "Float" -> "Number"
   "Numeric" -> "Number"
   "Bigint" -> "Int"

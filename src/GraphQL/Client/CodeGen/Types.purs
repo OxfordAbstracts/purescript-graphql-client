@@ -30,6 +30,11 @@ type InputOptions
               , typeName :: String
               }
           )
+    , idImport ::
+        Maybe
+          { moduleName :: String
+          , typeName :: String
+          }
     , dir :: String
     , isHasura :: Boolean
     , useNewtypesForRecords :: Boolean 
@@ -47,6 +52,7 @@ defaultInputOptions :: InputOptions
 defaultInputOptions =
   { externalTypes: mempty
   , fieldTypeOverrides: mempty
+  , idImport: mempty
   , dir: ""
   , isHasura: false
   , useNewtypesForRecords: true

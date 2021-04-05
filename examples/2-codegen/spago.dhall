@@ -25,6 +25,7 @@ You can edit this file as you like.
   , "strings-extra"
   , "typelevel"
   , "variant"
+  , "debug"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs", "../../src/**/*.purs" ]

@@ -261,6 +261,7 @@ instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Quer
                         ]
                     ]
               , externalTypes: mempty
+              , idImport: Nothing
               }
           )
             `
@@ -330,6 +331,7 @@ type AlsoUnkown = Data.Argonaut.Core.Json -- Unknown scalar type. Add AlsoUnkown
       , customEnumCode: const ""
       , fieldTypeOverrides: mempty
       , externalTypes: mempty
+      , idImport: Nothing
       }
 
   shouldParseToAll schema r =
@@ -343,6 +345,7 @@ type AlsoUnkown = Data.Argonaut.Core.Json -- Unknown scalar type. Add AlsoUnkown
       , customEnumCode: const ""
       , fieldTypeOverrides: mempty
       , externalTypes: mempty
+      , idImport: Nothing
       }
       { schema, moduleName: "Test" }
       `shouldEqual`
