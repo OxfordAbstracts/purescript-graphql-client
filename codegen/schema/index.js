@@ -4,7 +4,7 @@ const { promisify } = require('util')
 const mkdirp = require('mkdirp')
 const rm = promisify(require('rimraf'))
 
-module.exports = async (opts, gqlEndpoints) => {
+const generateSchemas = async (opts, gqlEndpoints) => {
   if (!Array.isArray(gqlEndpoints)) {
     gqlEndpoints = [gqlEndpoints]
   }
@@ -15,4 +15,16 @@ module.exports = async (opts, gqlEndpoints) => {
   const schemas = await Promise.all(gqlEndpoints.map(getGqlSchema))
 
   return await writePursSchemas(opts, schemas)
+}
+
+const generateSchema = (opts) => {
+  const { modulePath, url } = opts
+  const moduleName = modulePath[modulePath.length - 1]
+
+  return generateSchemas({ ...opts, modulePath: modulePath.slice(0, -1) }, [{ moduleName, url }])
+}
+
+module.exports = {
+  generateSchema,
+  generateSchemas
 }
