@@ -310,7 +310,7 @@ eg.
 ```purs
 let condition = true
 
-result <- query client "query_to_hasura_service"
+result <- query client "args_of_differing_types"
   { widget: (if condition then ArgL { x: 1} else ArgR { y: "something" })
     =>>
     { prop1, prop2 }
@@ -324,7 +324,7 @@ eg.
 ```purs
 let condition = true
 
-result <- query client "query_to_hasura_service"
+result <- query client "only_set_arg_if"
   { widget: { x: guardArg condition 1} 
     =>>
     { prop1, prop2 }
@@ -337,7 +337,7 @@ you can use `AndArg` or the `++` operator.
 eg.
 ```purs
 
-result <- query client "query_to_hasura_service"
+result <- query client "mixed_args_query"
   { widget: 
     { homogenous_array_prop: [1,2,3]
     , mixed_array_prop: 1 ++ "hello" 
