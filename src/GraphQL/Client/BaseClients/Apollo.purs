@@ -4,6 +4,8 @@ module GraphQL.Client.BaseClients.Apollo
   , ApolloSubClientOptions
   , ApolloClient
   , ApolloSubClient
+  , MutationOpts
+  , QueryOpts
   , createClient
   , createSubscriptionClient
   , class IsApollo
@@ -260,7 +262,7 @@ instance clientWatchQuery ::
   clientWatchQuery opts c = watchQueryImpl (encode opts) (unsafeToForeign c)
   defWatchOpts = const defQueryOpts
 
-instance subClientWatchQuery ::
+instance subClientWatchQuery :: 
   WatchQueryClient
     ApolloSubClient
     { fetchPolicy :: Maybe FetchPolicy

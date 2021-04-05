@@ -19,7 +19,7 @@ require('./server-fn')(async () => {
         'updating cache',
         'Event recieved',
         '{ posts: [{ author: "author 1", comment: "comment 1" },{ author: "author 2", comment: "comment 2" },{ author: "joe bloggs", comment: "good" }] }',
-        'updating cache',
+        'updating cache'
       ])
       console.info('tests passed')
       process.exit(0)

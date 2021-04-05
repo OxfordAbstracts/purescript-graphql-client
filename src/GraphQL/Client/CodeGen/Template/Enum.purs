@@ -3,18 +3,21 @@ module GraphQL.Client.CodeGen.Template.Enum where
 import Prelude
 
 import Data.Foldable (intercalate)
+import Data.Maybe (Maybe)
 import Data.String (toUpper)
 import Data.String as String
+import GraphQL.Client.CodeGen.Lines (docComment)
 
 template ::
   String ->
   { name :: String
+  , description :: Maybe String
   , values :: Array String
   , imports :: Array String
   , customCode :: {name :: String, values :: Array String} ->  String 
   } ->
   String
-template modulePrefix { name, values, imports, customCode } =
+template modulePrefix { name, description, values, imports, customCode } =
     """module """ <> modulePrefix <> """Enum.""" <> name <> """ where
 
 import Prelude
@@ -29,7 +32,7 @@ import GraphQL.Hasura.Decode (class DecodeHasura)
 import GraphQL.Hasura.Encode (class EncodeHasura)
 """ <> intercalate "\n" imports <> """
 
-data """ <> name <> """ 
+""" <> docComment description <> """data """ <> name <> """ 
   = """ <> enumCtrs <> """
 """ <> customCode {name, values} <> """
 

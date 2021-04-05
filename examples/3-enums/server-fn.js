@@ -15,7 +15,7 @@ module.exports = (onListening) => {
         name: String!
         colour: Colour!
     }
-
+    "colour description"
     enum Colour {
       RED
       GREEN

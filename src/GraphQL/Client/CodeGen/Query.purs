@@ -11,7 +11,7 @@ import Data.Maybe (Maybe(..))
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
 import Data.String.CodeUnits as SCU
-import GraphQL.Client.CodeGen.Schema (indent)
+import GraphQL.Client.CodeGen.Lines (indent)
 import Text.Parsing.Parser (ParseError, runParser)
 
 queryFromGqlToPurs :: String -> Either ParseError String
