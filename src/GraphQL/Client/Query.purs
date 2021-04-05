@@ -11,7 +11,7 @@ module GraphQL.Client.Query
   , mutation_
   , decodeGqlRes
   , queryFullRes
-  , mutateFullRes
+  , mutationFullRes
   , getFullRes
   , addErrorInfo
   ) where
@@ -256,7 +256,7 @@ queryFullRes decodeFn optsF (Client client) queryNameUnsafe q =
 
 -- | Run a graphQL mutation, getting the full response,
 -- | According to https://spec.graphql.org/June2018/#sec-Response-Format
-mutateFullRes ::
+mutationFullRes ::
   forall client schema mutation returns a b queryOpts mutationOpts.
   QueryClient client queryOpts mutationOpts =>
   GqlQuery schema mutation returns =>
@@ -267,7 +267,7 @@ mutateFullRes ::
   String ->
   mutation ->
   Aff (GqlRes returns)
-mutateFullRes decodeFn optsF (Client client) queryNameUnsafe q =
+mutationFullRes decodeFn optsF (Client client) queryNameUnsafe q =
   addErrorInfo queryName q do
     json <- clientMutation opts client queryName $ toGqlQueryString q
     getFullRes decodeFn json

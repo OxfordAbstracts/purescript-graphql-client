@@ -82,6 +82,7 @@ name = SProxy
     - [Making queries](#making-queries)
     - [Decoding and Encoding JSON](#decoding-and-encoding-json)
     - [Arguments](#arguments)
+    - [Full responses](#full-responses)
     - [Apollo only features](#apollo-only-features)
   
 ## Getting started 
@@ -346,6 +347,16 @@ result <- query client "mixed_args_query"
     { prop1, prop2 }
   } 
 ```
+
+### Full responses 
+
+If you wish to get the full response, as per the [GraphQL Spec](https://spec.graphql.org/June2018/#sec-Response) use the "FullRes" versions of the query functions
+
+- `queryFullRes`
+- `mutationFullRes`
+- `subscriptionFullRes`
+
+These will include all errors and extensions in the response, even if the response type checked. 
 
 ### Apollo only features 
 
