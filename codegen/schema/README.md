@@ -22,6 +22,12 @@ Argument for generateSchema
         { get :: String -> Promise (Nullable Json)
         , set :: { key :: String, val :: Json } -> Promise Unit
         }
+
+-- | Add a custom module and type for the ID type
+, idImport :: Nullable 
+  { moduleName :: String 
+  , typeName :: String 
+  }
 -- | External scalar types. The object key is the name of the scalar type in the graphQL schema.
 -- | When the scalar type is encountered it will be set at the type in the provided module
 -- | Useful for handling custom scalar types such as `Date`
@@ -72,6 +78,11 @@ Argument for generateSchema
         { get :: String -> Promise (Nullable Json)
         , set :: { key :: String, val :: Json } -> Promise Unit
         }
+-- | Add a custom module and type for the ID type
+, idImport :: Nullable 
+  { moduleName :: String 
+  , typeName :: String 
+  }
 -- | External scalar types. The object key is the name of the scalar type in the graphQL schema.
 -- | When the scalar type is encountered it will be set at the type in the provided module
 -- | Useful for handling custom scalar types such as `Date`
