@@ -362,3 +362,18 @@ These will include all errors and extensions in the response, even if the respon
 
 With apollo you can make type checked cache updates. To see examples of this look at `examples/6-watch-query` and `examples/7-watch-query-optimistic`. You can also set many options for queries, mutations and subscriptions using , `queryOpts` , `mutationOpts`, `subscriptionOpts` respectively.
 To see how these options work, I recommend looking at the [Apollo core docs](https://www.apollographql.com/docs/react/api/core/ApolloClient/)
+
+The options are usually set using record updates or `identity` for default options. 
+
+eg.
+```purs 
+        mutationOpts _ 
+            { update = Just update 
+            , fetchPolicy = Just NetworkOnly
+            } 
+            client 
+            "make_post"
+            { addPost: { author, comment } =>> { author: unit }
+            }
+
+```
