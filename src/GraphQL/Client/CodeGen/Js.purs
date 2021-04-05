@@ -17,8 +17,8 @@ import Text.Parsing.Parser (parseErrorMessage)
 
 schemasFromGqlToPursJs :: Fn2 InputOptionsJs (Array GqlInput) JsResult
 schemasFromGqlToPursJs = mkFn2 go
-  where 
-  go ::  InputOptionsJs -> Array GqlInput -> JsResult
+  where
+  go :: InputOptionsJs -> Array GqlInput -> JsResult
   go optsJs =
     schemasFromGqlToPurs opts
       >>> map (either getError ({ result: _, parseError: "", argsTypeError: "" }))
@@ -33,6 +33,7 @@ schemasFromGqlToPursJs = mkFn2 go
       , useNewtypesForRecords: fromNullable true optsJs.useNewtypesForRecords
       , enumImports: fromNullable [] optsJs.enumImports
       , customEnumCode: fromNullable (const "") optsJs.customEnumCode
+      , idImport: toMaybe optsJs.idImport
       , cache:
           toMaybe optsJs.cache
             <#> \{ get, set } ->
@@ -67,12 +68,17 @@ type InputOptionsJs
                   }
               )
           )
+    , idImport ::
+        Nullable
+          { moduleName :: String
+          , typeName :: String
+          }
     , dir :: Nullable String
     , modulePath :: Nullable (Array String)
     , isHasura :: Nullable Boolean
     , useNewtypesForRecords :: Nullable Boolean
-    , enumImports :: Nullable (Array String) 
-    , customEnumCode :: Nullable ({name :: String, values :: Array String} ->  String)
+    , enumImports :: Nullable (Array String)
+    , customEnumCode :: Nullable ({ name :: String, values :: Array String } -> String)
     , cache ::
         Nullable
           { get :: String -> Promise (Nullable Json)

@@ -7,11 +7,12 @@ module.exports = (onListening) => {
   const schema = buildSchema(`
     type Query {
         prop: String
-        widgets(id: Int): [Widget!]!
+        widgets(id: ID): [Widget!]!
     }
     
     type Widget { 
-        id: Int
+        id: ID
+        int: Int
         name: String!
     }
     `)
@@ -26,8 +27,8 @@ module.exports = (onListening) => {
   }
 
   const widgets = [
-    { id: 1, name: 'one' },
-    { id: 2, name: 'two' }
+    { id: '1', int: 1, name: 'one' },
+    { id: '2', int: 2, name: 'two' }
   ]
 
   const app = express()

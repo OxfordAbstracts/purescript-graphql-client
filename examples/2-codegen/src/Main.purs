@@ -9,6 +9,7 @@ import Effect.Class.Console (logShow)
 import Generated.Gql.Schema.Admin (Query)
 import Generated.Gql.Symbols (name)
 import GraphQL.Client.Args ((=>>))
+import GraphQL.Client.ID (ID(..))
 import GraphQL.Client.Query (query_)
 import GraphQL.Client.Types (class GqlQuery)
 import Type.Proxy (Proxy(..))
@@ -18,7 +19,7 @@ main =
   launchAff_ do
     { widgets } <-
       queryGql "Widget names with id 1"
-        { widgets: { id: 1 } =>> { name } }
+        { widgets: { id: ID "1" } =>> { name } }
     logShow $ map _.name widgets
 
 -- Run gql query
