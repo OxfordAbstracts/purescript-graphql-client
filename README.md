@@ -356,7 +356,7 @@ If you wish to get the full response, as per the [GraphQL Spec](https://spec.gra
 - `mutationFullRes`
 - `subscriptionFullRes`
 
-These will include all errors and extensions in the response, even if the response type checked. 
+These will include all errors and extensions in the response, even if a response of the correct type has been returned. 
 
 ### Apollo only features 
 
