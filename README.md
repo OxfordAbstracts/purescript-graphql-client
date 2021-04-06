@@ -10,7 +10,7 @@ A typesafe graphql client for purescript.
 
 This library will allow you to make graphql queries and type checks the query, arguments and response.
 
-It includes modules for making graphql queries and codegen modules for making sure your GraphQL schema and Purescript schema are in sync. 
+It includes functions for making graphql queries and codegen tools for making sure your GraphQL schema and Purescript schema are in sync. 
 
 ## Example
 
@@ -130,7 +130,7 @@ If you are looking for a production solution to schema codegen read the rest of 
 
 It is possible to write the schema yourself but it is easier and safer to use the library's codegen tools.
 
-There is an npm library that is a thin wrapper around the schema codegen in the purs, pre-compiled. Install this package.
+There is an npm library that is a thin wrapper around this libraries schema codegen. First, install this package:
 
 ```
 npm i -D purescript-graphql-client
