@@ -303,7 +303,7 @@ result <- queryWithDecoder decodeHasura client "query_to_hasura_service"
 
 Arguments can be added using the `Args` constructor or the `=>>` operator. I recommend using the [query codegen tool](https://gql-query-to-purs.herokuapp.com/query) to test this out and see how it works.
 
-As GraphQL arguments may not have inconsistent type depending on conditions, the library provides tools to help handle this. 
+As GraphQL arguments may not have consistent type depending on conditions, the library provides tools to help handle this. 
 
 `ArgL` and `ArgR` allow you to have different types different code branches in arguments. 
 
@@ -312,7 +312,7 @@ eg.
 let condition = true
 
 result <- query client "args_of_differing_types"
-  { widget: (if condition then ArgL { x: 1} else ArgR { y: "something" })
+  { widget: (if condition then ArgL { x: 1 } else ArgR { y: "something" })
     =>>
     { prop1, prop2 }
   } 
