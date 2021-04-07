@@ -79,12 +79,13 @@ name = SProxy
   - [Examples](#examples)
   - [API Documentation](#api-documentation)
   - [Guide](#guide)
-    - [Making queries](#making-queries)
+    - [Query syntax](#query-syntax)
     - [Decoding and Encoding JSON](#decoding-and-encoding-json)
     - [Arguments](#arguments)
     - [Aliases](#aliases)
     - [Full responses](#full-responses)
     - [Apollo only features](#apollo-only-features)
+  - [Alternatives to this package](#alternatives-to-this-package)
   
 ## Getting started 
 
@@ -271,11 +272,11 @@ API documentation can be found at https://pursuit.purescript.org/packages/puresc
 
 ## Guide 
 
-### Making queries
+### Query syntax
 Once you are set up and have generated your purescript schema. You can write your queries. 
 
 The easiest way to do this is to go to https://gql-query-to-purs.herokuapp.com/query and paste your 
-graphql query on the left. I usually copy the GraphQL query directly from GraphiQl (GraphQL IDE). 
+graphql query on the left. I usually copy the GraphQL query directly from GraphiQL (GraphQL IDE). 
 
 You have to the option to make the queries with either `unit`s to mark scalar values (leaf nodes) or symbol record puns. The symbol record puns are slightly less verbose and closer to GraphQL syntax but require you import the generated Symbols module. 
 
@@ -327,7 +328,7 @@ eg.
 let condition = true
 
 result <- query client "only_set_arg_if"
-  { widget: { x: guardArg condition 1} 
+  { widget: { x: guardArg condition 1 } 
     =>>
     { prop1, prop2 }
   } 
@@ -341,7 +342,7 @@ eg.
 
 result <- query client "mixed_args_query"
   { widget: 
-    { homogenous_array_prop: [1,2,3]
+    { homogenous_array_prop: [1, 2, 3]
     , mixed_array_prop: 1 ++ "hello" 
     } 
     =>>
@@ -395,3 +396,15 @@ eg.
             }
 
 ```
+
+## Alternatives to this package
+
+There is another, older, purescript graphQL client package at https://github.com/purescript-graphqlclient/purescript-graphqlclient , which is a port of [elm-graphql](https://github.com/dillonkearns/elm-graphql/)
+Although the names and scope of the 2 project are very similar they are not connected and there are a few differences
+From my understanding, the main differences between the 2 projects are:
+- This project uses record syntax to make queries whereas purescript-graphqlclient uses Applicative/ado syntax
+- This project allows use of Apollo if you wish (or other lower level graphQL clients)
+- This project supports subscriptions, watch queries and client caching
+- Athough we use this package in production at Oxford Abstracts, purescript-graphqlclient has probably been used more in production
+
+I have not used purescript-graphqlclient myself so please let me know if any of the above is incorrect or incomplete. 
