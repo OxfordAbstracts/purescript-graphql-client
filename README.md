@@ -82,6 +82,7 @@ name = SProxy
     - [Making queries](#making-queries)
     - [Decoding and Encoding JSON](#decoding-and-encoding-json)
     - [Arguments](#arguments)
+    - [Aliases](#aliases)
     - [Full responses](#full-responses)
     - [Apollo only features](#apollo-only-features)
   
@@ -346,6 +347,23 @@ result <- query client "mixed_args_query"
     =>>
     { prop1, prop2 }
   } 
+```
+
+### Aliases
+
+It is possible to alias properties using the alias operator `:` from `GraphQL.Client.Alias`.
+
+eg.
+
+```purs
+import GraphQL.Client.Alias ((:))
+import Generated.Symbols (widgets) -- Or wherever your symbols module is
+...
+
+queryGql "my_alias_query"
+  { widgets: { id: 1 } =>> { name } 
+  , widgetWithId2: widgets : { id: 2 } =>> { name } 
+  }
 ```
 
 ### Full responses 
