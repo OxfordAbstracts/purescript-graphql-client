@@ -401,7 +401,7 @@ eg.
 
 There is another purescript graphQL client package at https://github.com/purescript-graphqlclient/purescript-graphqlclient , which is a port of [elm-graphql](https://github.com/dillonkearns/elm-graphql/).
 
-Although the names and scope of the 2 project are very similar they are not connected and there are a few differences:
+Although the names and scope of the 2 projects are very similar they are not connected and there are a few differences:
 - This project uses record syntax to make queries whereas purescript-graphqlclient uses Applicative/ado syntax
 - This project allows use of Apollo if you wish (or other lower level graphQL clients)
 - This project supports subscriptions, watch queries and client caching
