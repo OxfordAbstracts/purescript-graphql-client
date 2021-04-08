@@ -361,7 +361,7 @@ import GraphQL.Client.Alias ((:))
 import Generated.Symbols (widgets) -- Or wherever your symbols module is
 ...
 
-queryGql "my_alias_query"
+query client "my_alias_query"
   { widgets: { id: 1 } =>> { name } 
   , widgetWithId2: widgets : { id: 2 } =>> { name } 
   }
