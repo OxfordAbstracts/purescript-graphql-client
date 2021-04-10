@@ -95,20 +95,40 @@ Install purescript-graphql-client
 
 Either use spago (recommended)
 
-and add graphql-client to your project packages.dhall
+and add graphql-client and graphql-parser to your project packages.dhall
 ```
   in  upstream
+  with graphql-parser =
+      { dependencies =
+          [ "prelude", "maybe"
+          ]
+      , repo =
+          "https://github.com/meeshkan/purescript-graphql-parser.git"
+      , version =
+          "v0.0.11"
+      }
   with graphql-client =
       { dependencies =
-          [ "graphql-parser", "foreign", "foreign-generic", "strings-extra", "typelevel", "event"
+          [ "graphql-parser"
+          , "foreign"
+          , "foreign-generic"
+          , "strings-extra"
+          , "typelevel"
+          , "event"
+          , "argonaut-codecs"
+          , "variant"
+          , "parsing"
+          , "numbers"
+          , "affjax"
+          , "aff-promise"
+          , "heterogeneous"
           ]
       , repo =
           "https://github.com/OxfordAbstracts/purescript-graphql-client.git"
       , version =
           {- set this to the version of graphql-client you want -}
-          "v3.0.1" 
+          "v3.0.1"
       }
-
 ```
 and install 
 
