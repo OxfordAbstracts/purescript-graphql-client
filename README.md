@@ -152,7 +152,7 @@ If you are looking for a production solution to schema codegen read the rest of 
 
 It is possible to write the schema yourself but it is easier and safer to use the library's codegen tools.
 
-There is an npm library that is a thin wrapper around this libraries schema codegen. First, install this package:
+There is an npm library that is a thin wrapper around this library's schema codegen. First, install this package:
 
 ```
 npm i -D purescript-graphql-client
