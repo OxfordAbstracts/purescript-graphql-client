@@ -5,40 +5,31 @@ import Control.Alt ((<|>))
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (JsonDecodeError(..), decodeJson)
 import Data.Argonaut.Decode.Decoders (decodeJArray)
-import Data.Array (fold, foldl, head, (!!))
-import Data.Array as Array
+import Data.Array (foldl)
 import Data.Bifunctor (lmap)
 import Data.Date (Date, canonicalDate)
-import Data.DateTime (DateTime(..), Hour, Minute, Time(..), adjust)
+import Data.DateTime (DateTime(..), Time(..), adjust)
 import Data.Either (Either(..), note)
 import Data.Enum (class BoundedEnum, toEnum)
-import Data.Int (fromString, toNumber)
+import Data.Int (toNumber)
 import Data.Int as Int
-import Data.List (List)
-import Data.List as List
 import Data.List.NonEmpty as NonEmpty
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
-import Data.String (Pattern(..), split, take)
-import Data.String.CodeUnits (dropWhile, singleton)
+import Data.String.CodeUnits (singleton)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
-import Data.Time.Duration (Minutes(..), fromDuration)
-import Data.Traversable (class Foldable, fold, traverse)
-import Data.Typelevel.Undefined (undefined)
+import Data.Time.Duration (Minutes(..))
+import Data.Traversable (class Foldable, traverse)
 import Data.Variant (Variant, inj)
-import Debug.Trace (spy, traceM)
 import Foreign.Object (Object)
 import Foreign.Object as Object
 import Prim.Row as Row
 import Prim.RowList (class RowToList, Cons, Nil, kind RowList)
 import Record.Builder (Builder)
 import Record.Builder as Builder
-import Text.Parsing.Parser.Combinators (withErrorMessage)
-import Text.Parsing.StringParser (Parser, fail, runParser, try)
+import Text.Parsing.StringParser (Parser, fail, runParser)
 import Text.Parsing.StringParser as P
-import Text.Parsing.StringParser as PS
 import Text.Parsing.StringParser.CodeUnits (anyDigit, char, eof)
-import Text.Parsing.StringParser.Combinators (lookAhead, many, many1, many1Till, optionMaybe, withError)
-import Text.Parsing.StringParser.Combinators as PC
+import Text.Parsing.StringParser.Combinators (many1, optionMaybe)
 import Type.Data.RowList (RLProxy(..))
 
 type Err a
@@ -69,16 +60,16 @@ instance decodeHasuraMaybe :: DecodeHasura a => DecodeHasura (Maybe a) where
   decodeHasura = decodeJson >=> traverse decodeHasura
 
 instance decodeHasuraDateTime :: DecodeHasura DateTime where
-  decodeHasura = runParserJson isoDateTime
+  decodeHasura = runJsonParser isoDateTime
 
 instance decodeHasuraDate :: DecodeHasura Date where
-  decodeHasura = decodeJson >=> decodeDateStr
+  decodeHasura = runJsonParser isoDate
 
 instance decodeHasuraTime :: DecodeHasura Time where
-  decodeHasura = decodeJson >=> decodeTimeStr
+  decodeHasura = runJsonParser isoTime
 
-runParserJson :: forall a. Parser a -> Json -> Either JsonDecodeError a
-runParserJson p = decodeJson >=> runParser p >>> lmap (show >>> TypeMismatch)
+runJsonParser :: forall a. Parser a -> Json -> Either JsonDecodeError a
+runJsonParser p = decodeJson >=> runParser p >>> lmap (show >>> TypeMismatch)
 
 instance decodeHasuraRecord ::
   ( RowToList fields fieldList
@@ -98,49 +89,6 @@ instance decodeHasuraJsonVariant ::
   ) =>
   DecodeHasura (Variant variants) where
   decodeHasura o = decodeHasuraVariant (RLProxy :: RLProxy rl) o
-
-decodeDateStr :: String -> Err Date
-decodeDateStr string = case split (Pattern "-") string of
-  [ year, month, day ] -> do
-    decodeDateParts year month day
-  -- pure $ maybe dt $ adjust 
-  _ -> notDecoded "Date" string
-
--- where
--- timeZoneStr = dropWhile (notEq '+' && notEq '-') string
--- tzHours = 
-decodeTimeStr :: String -> Err Time
-decodeTimeStr string = case Array.take 3 $ split (Pattern ":") string of
-  [ hour, minute, secondsAndMs ] ->
-    let
-      sAndMsArr = split (Pattern ".") secondsAndMs
-    in
-      decodeTimeParts hour minute (fold $ head sAndMsArr) (fromMaybe "0" $ sAndMsArr !! 1)
-  _ -> notDecoded "Time" string
-
-decodeDateParts :: String -> String -> String -> Err Date
-decodeDateParts year month day =
-  canonicalDate
-    <$> strToEnum "year" year
-    <*> strToEnum "month" month
-    <*> strToEnum "day" day
-
-decodeTimeParts :: String -> String -> String -> String -> Err Time
-decodeTimeParts hour minute second ms =
-  Time
-    <$> strToEnum "hour" hour
-    <*> strToEnum "minute" minute
-    <*> strToEnum "second" second
-    <*> strToEnum "millisecond" (take 3 ms)
-
-strToEnum :: forall a. Bounded a => BoundedEnum a => String -> String -> Err a
-strToEnum label a =
-  fromString a
-    >>= toEnum
-    # note (TypeMismatch $ "could not convert string to " <> label <> ": " <> a)
-
-notDecoded :: forall a. String -> String -> Either JsonDecodeError a
-notDecoded typeName input = Left $ TypeMismatch $ "Could not decode " <> typeName <> " from: " <> input
 
 -- Records 
 class DecodeHasuraFields (xs :: RowList) (from :: # Type) (to :: # Type) | xs -> from to where
@@ -230,7 +178,6 @@ isoDateTime = do
     >>= \tz ->
         adjust tz resWoTz
 
--- let mult = if sign == '-' then -1 else 1
 isoDate :: Parser Date
 isoDate = do
   year <- enum "year"
