@@ -22,6 +22,7 @@ You can edit this file as you like.
   , "record"
   , "spec"
   , "spec-discovery"
+  , "string-parsers"
   , "strings"
   , "strings-extra"
   , "typelevel"
