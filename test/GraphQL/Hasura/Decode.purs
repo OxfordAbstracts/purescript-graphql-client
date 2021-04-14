@@ -7,7 +7,7 @@ import Data.Either (Either(..))
 import Data.Enum (class BoundedEnum, toEnum)
 import Data.Maybe (fromMaybe)
 import GraphQL.Hasura.Decode (decodeHasura)
-import Test.Spec (Spec, describe, it, itOnly)
+import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
 import Unsafe.Coerce (unsafeCoerce)
 
