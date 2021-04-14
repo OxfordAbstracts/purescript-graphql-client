@@ -12,20 +12,22 @@ const createClient_ = function (opts) {
     })
   }
 
-  const otherExchanges = opts.websocketUrl ? [
-    subscriptionExchange({
-      forwardSubscription (operation) {
-        return {
-          subscribe: function (sink) {
-            const dispose = wsClient.subscribe(operation, sink)
+  const otherExchanges = opts.websocketUrl
+    ? [
+        subscriptionExchange({
+          forwardSubscription (operation) {
             return {
-              unsubscribe: dispose
+              subscribe: function (sink) {
+                const dispose = wsClient.subscribe(operation, sink)
+                return {
+                  unsubscribe: dispose
+                }
+              }
             }
           }
-        }
-      }
-    })
-  ] : []
+        })
+      ]
+    : []
 
   return createClient({
     url: opts.url,

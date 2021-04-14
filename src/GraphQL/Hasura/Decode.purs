@@ -1,30 +1,44 @@
 module GraphQL.Hasura.Decode (class DecodeHasura, class DecodeHasuraFields, getFields, decodeHasura) where
 
 import Prelude
-
 import Control.Alt ((<|>))
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (JsonDecodeError(..), decodeJson)
 import Data.Argonaut.Decode.Decoders (decodeJArray)
-import Data.Array (head, (!!))
+import Data.Array (fold, foldl, head, (!!))
 import Data.Array as Array
 import Data.Bifunctor (lmap)
 import Data.Date (Date, canonicalDate)
-import Data.DateTime (DateTime(DateTime), Time(..))
+import Data.DateTime (DateTime(..), Hour, Minute, Time(..), adjust)
 import Data.Either (Either(..), note)
 import Data.Enum (class BoundedEnum, toEnum)
-import Data.Int (fromString)
-import Data.Maybe (Maybe, fromMaybe)
+import Data.Int (fromString, toNumber)
+import Data.Int as Int
+import Data.List (List)
+import Data.List as List
+import Data.List.NonEmpty as NonEmpty
+import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.String (Pattern(..), split, take)
+import Data.String.CodeUnits (dropWhile, singleton)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
-import Data.Traversable (fold, traverse)
+import Data.Time.Duration (Minutes(..), fromDuration)
+import Data.Traversable (class Foldable, fold, traverse)
+import Data.Typelevel.Undefined (undefined)
 import Data.Variant (Variant, inj)
+import Debug.Trace (spy, traceM)
 import Foreign.Object (Object)
 import Foreign.Object as Object
 import Prim.Row as Row
 import Prim.RowList (class RowToList, Cons, Nil, kind RowList)
 import Record.Builder (Builder)
 import Record.Builder as Builder
+import Text.Parsing.Parser.Combinators (withErrorMessage)
+import Text.Parsing.StringParser (Parser, fail, runParser, try)
+import Text.Parsing.StringParser as P
+import Text.Parsing.StringParser as PS
+import Text.Parsing.StringParser.CodeUnits (anyDigit, char, eof)
+import Text.Parsing.StringParser.Combinators (lookAhead, many, many1, many1Till, optionMaybe, withError)
+import Text.Parsing.StringParser.Combinators as PC
 import Type.Data.RowList (RLProxy(..))
 
 type Err a
@@ -55,17 +69,16 @@ instance decodeHasuraMaybe :: DecodeHasura a => DecodeHasura (Maybe a) where
   decodeHasura = decodeJson >=> traverse decodeHasura
 
 instance decodeHasuraDateTime :: DecodeHasura DateTime where
-  decodeHasura =
-    decodeJson
-      >=> \string -> case split (Pattern "T") string of
-          [ date, time ] -> DateTime <$> decodeDateStr date <*> decodeTimeStr time
-          _ -> notDecoded "DateTime" string
+  decodeHasura = runParserJson isoDateTime
 
 instance decodeHasuraDate :: DecodeHasura Date where
   decodeHasura = decodeJson >=> decodeDateStr
 
 instance decodeHasuraTime :: DecodeHasura Time where
   decodeHasura = decodeJson >=> decodeTimeStr
+
+runParserJson :: forall a. Parser a -> Json -> Either JsonDecodeError a
+runParserJson p = decodeJson >=> runParser p >>> lmap (show >>> TypeMismatch)
 
 instance decodeHasuraRecord ::
   ( RowToList fields fieldList
@@ -88,11 +101,16 @@ instance decodeHasuraJsonVariant ::
 
 decodeDateStr :: String -> Err Date
 decodeDateStr string = case split (Pattern "-") string of
-  [ year, month, day ] -> decodeDateParts year month day
+  [ year, month, day ] -> do
+    decodeDateParts year month day
+  -- pure $ maybe dt $ adjust 
   _ -> notDecoded "Date" string
 
-decodeTimeStr :: String -> Either JsonDecodeError Time
-decodeTimeStr string = case Array.take 3 $ split (Pattern ":") string of -- TODO: handle postgres timezone offsets
+-- where
+-- timeZoneStr = dropWhile (notEq '+' && notEq '-') string
+-- tzHours = 
+decodeTimeStr :: String -> Err Time
+decodeTimeStr string = case Array.take 3 $ split (Pattern ":") string of
   [ hour, minute, secondsAndMs ] ->
     let
       sAndMsArr = split (Pattern ".") secondsAndMs
@@ -117,7 +135,7 @@ decodeTimeParts hour minute second ms =
 
 strToEnum :: forall a. Bounded a => BoundedEnum a => String -> String -> Err a
 strToEnum label a =
-  fromString a 
+  fromString a
     >>= toEnum
     # note (TypeMismatch $ "could not convert string to " <> label <> ": " <> a)
 
@@ -191,3 +209,79 @@ instance decodeHasuraVariantCons ::
     namep = SProxy :: SProxy name
 
     name = reflectSymbol namep
+
+isoDateTime :: Parser DateTime
+isoDateTime = do
+  date <- isoDate
+  charV 'T'
+  time <- isoTime
+  tzMay <-
+    optionMaybe do
+      sign <- (char '+' <|> char '-')
+      hour <- int
+      charV ':'
+      minute <- int
+      let
+        tzInt = minute + hour * 60
+      pure $ Minutes $ toNumber if sign == '-' then -tzInt else tzInt
+  let
+    resWoTz = DateTime date time
+  pure $ fromMaybe resWoTz $ tzMay
+    >>= \tz ->
+        adjust tz resWoTz
+
+-- let mult = if sign == '-' then -1 else 1
+isoDate :: Parser Date
+isoDate = do
+  year <- enum "year"
+  charV '-'
+  month <- enum "month"
+  charV '-'
+  day <- enum "day"
+  pure $ canonicalDate year month day
+
+isoTime :: Parser Time
+isoTime = do
+  hours <- enum "hours"
+  charV ':'
+  minutes <- enum "minutes"
+  charV ':'
+  seconds <- enum "seconds"
+  (charV '.' <|> eof)
+  ms <- optionMaybe $ enumTruncated 3 "ms"
+  pure $ Time hours minutes seconds (fromMaybe bottom ms)
+
+isoTz :: Parser Minutes
+isoTz = do
+  sign <- (char '+' <|> char '-')
+  hour <- int
+  charV ':'
+  minute <- int
+  let
+    tzInt = minute + hour * 60
+  pure $ Minutes $ toNumber if sign == '-' then -tzInt else tzInt
+
+charV :: Char -> Parser Unit
+charV = void <<< char
+
+enum :: forall e. BoundedEnum e => String -> Parser e
+enum fail = int >>= (toEnum >>> maybeFail fail)
+
+enumTruncated :: forall e. BoundedEnum e => Int -> String -> Parser e
+enumTruncated max fail = intTruncated max >>= (toEnum >>> maybeFail fail)
+
+int :: Parser Int
+int = many1 (anyDigit) >>= digitsToInt
+
+intTruncated :: Int -> Parser Int
+intTruncated max = many1 (anyDigit) <#> NonEmpty.take max >>= digitsToInt
+
+digitsToInt :: forall f. Foldable f => f Char -> Parser Int
+digitsToInt =
+  foldl (\s c -> s <> singleton c) ""
+    >>> \str -> case Int.fromString str of
+        Nothing -> fail $ "Failed to parse Int from: " <> str
+        Just i -> pure i
+
+maybeFail :: forall a. String -> Maybe a -> Parser a
+maybeFail str = maybe (P.fail str) pure
