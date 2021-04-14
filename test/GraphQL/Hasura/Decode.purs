@@ -45,7 +45,7 @@ spec =
               ( Right
                   $ DateTime
                       (canonicalDate (toEnumB 2020) (toEnumB 10) (toEnumB 9))
-                      (Time (toEnumB 9) (toEnumB 7) (toEnumB 6) (toEnumB 555))
+                      (Time (toEnumB 7) (toEnumB 7) (toEnumB 6) (toEnumB 555))
               )
       it "decodes a date time with a negative timezone"
         $ decodeHasura (unsafeCoerce "2020-10-09T08:00:00.555555-02:30")
@@ -53,7 +53,7 @@ spec =
               ( Right
                   $ DateTime
                       (canonicalDate (toEnumB 2020) (toEnumB 10) (toEnumB 9))
-                      (Time (toEnumB 5) (toEnumB 30) (toEnumB 0) (toEnumB 555))
+                      (Time (toEnumB 10) (toEnumB 30) (toEnumB 0) (toEnumB 555))
               )
 
 

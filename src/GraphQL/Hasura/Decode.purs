@@ -171,7 +171,7 @@ isoDateTime = do
       minute <- int
       let
         tzInt = minute + hour * 60
-      pure $ Minutes $ toNumber if sign == '-' then -tzInt else tzInt
+      pure $ Minutes $ toNumber if sign == '-' then tzInt else -tzInt
   let
     resWoTz = DateTime date time
   pure $ fromMaybe resWoTz $ tzMay
