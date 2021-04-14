@@ -1,38 +1,70 @@
 {
-    "name": "purescript-graphql-client",
-    "license": [
-        "MIT"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/OxfordAbstracts/purescript-graphql-client"
-    },
-    "ignore": [
-        "**/.*",
-        "node_modules",
-        "bower_components",
-        "output"
-    ],
-    "dependencies": {
-        "purescript-aff": "^v5.1.2",
-        "purescript-aff-promise": "^v2.0.1",
-        "purescript-affjax": "^v11.0.0",
-        "purescript-argonaut-codecs": "^v7.0.0",
-        "purescript-argonaut-core": "^v5.1.0",
-        "purescript-console": "^v4.4.0",
-        "purescript-effect": "^v2.0.1",
-        "purescript-event": "^v1.2.4",
-        "purescript-foreign-generic": "^v10.0.0",
-        "purescript-foreign-object": "^v2.0.3",
-        "purescript-heterogeneous": "^v0.4.1",
-        "purescript-parsing": "^v5.1.0",
-        "purescript-psci-support": "^v4.0.0",
-        "purescript-record": "^v2.0.2",
-        "purescript-spec": "^v4.0.1",
-        "purescript-spec-discovery": "^v5.0.0",
-        "purescript-strings-extra": "^v2.2.1",
-        "purescript-typelevel": "^v6.0.0",
-        "purescript-variant": "^v6.0.1",
-        "purescript-graphql-parser": "meeshkan/purescript-graphql-parser#v0.0.11"
-    }
+  "name": "purescript-graphql-client",
+  "license": [
+    "MIT"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OxfordAbstracts/purescript-graphql-client"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-aff": "^v5.1.2",
+    "purescript-aff-promise": "^v2.0.1",
+    "purescript-affjax": "^v11.0.0",
+    "purescript-argonaut-codecs": "^v7.0.0",
+    "purescript-argonaut-core": "^v5.1.0",
+    "purescript-console": "^v4.4.0",
+    "purescript-effect": "^v2.0.1",
+    "purescript-event": "^v1.2.4",
+    "purescript-foreign-generic": "^v10.0.0",
+    "purescript-foreign-object": "^v2.0.3",
+    "purescript-heterogeneous": "^v0.4.1",
+    "purescript-parsing": "^v5.1.0",
+    "purescript-psci-support": "^v4.0.0",
+    "purescript-record": "^v2.0.2",
+    "purescript-spec": "^v4.0.1",
+    "purescript-spec-discovery": "^v5.0.0",
+    "purescript-strings-extra": "^v2.2.1",
+    "purescript-typelevel": "^v6.0.0",
+    "purescript-variant": "^v6.0.1",
+    "purescript-string-parsers": "v5.0.1",
+    "purescript-graphql-parser": "meeshkan/purescript-graphql-parser#v0.0.11"
+  },
+  "resolutions": {
+    "purescript-prelude": "^4.1.0",
+    "purescript-bifunctors": "^4.0.0",
+    "purescript-invariant": "^4.0.0",
+    "purescript-control": "^4.0.0",
+    "purescript-either": "^4.0.0",
+    "purescript-distributive": "^4.0.0",
+    "purescript-type-equality": "^3.0.0",
+    "purescript-unsafe-coerce": "^4.0.0",
+    "purescript-identity": "^4.0.0",
+    "purescript-maybe": "^4.0.1",
+    "purescript-newtype": "^3.0.0",
+    "purescript-orders": "^4.0.0",
+    "purescript-tuples": "^v5.1.0",
+    "purescript-effect": "^v2.0.1",
+    "purescript-gen": "^2.1.0",
+    "purescript-foldable-traversable": "^4.1.1",
+    "purescript-tailrec": "^4.0.0",
+    "purescript-refs": "^4.1.0",
+    "purescript-nonempty": "^v5.0.0",
+    "purescript-partial": "^2.0.1",
+    "purescript-unfoldable": "^v4.1.0",
+    "purescript-math": "^v2.1.1",
+    "purescript-lazy": "^4.0.0",
+    "purescript-st": "^4.0.0",
+    "purescript-arrays": "^v5.3.1",
+    "purescript-enums": "^4.0.0",
+    "purescript-integers": "^v4.0.0",
+    "purescript-lists": "^v5.4.1",
+    "purescript-strings": "^v4.0.2"
+  }
 }
