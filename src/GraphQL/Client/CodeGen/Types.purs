@@ -13,6 +13,7 @@ import Prelude hiding (between)
 import Control.Promise (Promise)
 import Data.Argonaut.Core (Json)
 import Data.Map (Map)
+import Data.Map as Map
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Aff (Aff)
@@ -50,9 +51,9 @@ type InputOptions
 
 defaultInputOptions :: InputOptions
 defaultInputOptions =
-  { externalTypes: mempty
-  , fieldTypeOverrides: mempty
-  , idImport: mempty
+  { externalTypes: Map.empty
+  , fieldTypeOverrides: Map.empty
+  , idImport: Nothing
   , dir: ""
   , isHasura: false
   , useNewtypesForRecords: true

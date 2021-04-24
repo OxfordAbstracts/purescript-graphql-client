@@ -5,18 +5,19 @@ import Prelude
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError, decodeJson)
 import Data.Either (Either, hush)
-import FRP.Event (Event, filterMap)
+import Data.Maybe (Maybe)
 import GraphQL.Client.Query (decodeGqlRes)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
 import GraphQL.Client.Types (class GqlQuery, class WatchQueryClient, Client(..), watchQueryEvent, watchQueryEventOpts)
+import Halogen.Subscription (Emitter)
 
 watchQueryOpts ::
   forall b a returns query schema client opts.
   WatchQueryClient client opts =>
   GqlQuery schema query returns =>
   DecodeJson returns =>
-  (opts -> opts) -> Client client schema a b -> String -> query -> Event (Either JsonDecodeError returns)
+  (opts -> opts) -> Client client schema a b -> String -> query -> Emitter (Either JsonDecodeError returns)
 watchQueryOpts = watchQueryOptsWithDecoder decodeJson
 
 watchQueryOptsWithDecoder ::
@@ -28,7 +29,7 @@ watchQueryOptsWithDecoder ::
   (Client client schema a b) ->
   String ->
   query ->
-  Event (Either JsonDecodeError returns)
+  Emitter (Either JsonDecodeError returns)
 watchQueryOptsWithDecoder decodeFn optsF (Client client) queryNameUnsafe q =
   watchQueryEventOpts optsF client query
     <#> decodeGqlRes decodeFn
@@ -43,7 +44,7 @@ watchQuery ::
   WatchQueryClient client opts =>
   GqlQuery schema query returns =>
   DecodeJson returns =>
-  Client client schema a b -> String -> query -> Event (Either JsonDecodeError returns)
+  Client client schema a b -> String -> query -> Emitter (Either JsonDecodeError returns)
 watchQuery = watchQueryWithDecoder decodeJson
 
 watchQueryWithDecoder ::
@@ -54,7 +55,7 @@ watchQueryWithDecoder ::
   (Client client schema a b) ->
   String ->
   query ->
-  Event (Either JsonDecodeError returns)
+  Emitter (Either JsonDecodeError returns)
 watchQueryWithDecoder decodeFn (Client client) queryNameUnsafe q =
   watchQueryEvent client query
     <#> decodeGqlRes decodeFn
@@ -63,5 +64,5 @@ watchQueryWithDecoder decodeFn (Client client) queryNameUnsafe q =
 
   query = "query " <> queryName <> " " <> toGqlQueryString q
 
-ignoreErrors :: forall err returns. Event (Either err returns) -> Event returns
-ignoreErrors = filterMap hush
+ignoreErrors :: forall err returns. Emitter (Either err returns) -> Emitter (Maybe returns)
+ignoreErrors = map hush

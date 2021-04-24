@@ -260,7 +260,7 @@ instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Quer
                         , Tuple "my_type_c" { moduleName: "MyModule", typeName: "MyTypeC" }
                         ]
                     ]
-              , externalTypes: mempty
+              , externalTypes: Map.empty
               , idImport: Nothing
               }
           )
@@ -329,8 +329,8 @@ type AlsoUnkown = Data.Argonaut.Core.Json -- Unknown scalar type. Add AlsoUnkown
       , modulePath: []
       , enumImports: []
       , customEnumCode: const ""
-      , fieldTypeOverrides: mempty
-      , externalTypes: mempty
+      , fieldTypeOverrides: Map.empty
+      , externalTypes: Map.empty
       , idImport: Nothing
       }
 
@@ -343,8 +343,8 @@ type AlsoUnkown = Data.Argonaut.Core.Json -- Unknown scalar type. Add AlsoUnkown
       , modulePath: []
       , enumImports: []
       , customEnumCode: const ""
-      , fieldTypeOverrides: mempty
-      , externalTypes: mempty
+      , fieldTypeOverrides: Map.empty
+      , externalTypes: Map.empty
       , idImport: Nothing
       }
       { schema, moduleName: "Test" }

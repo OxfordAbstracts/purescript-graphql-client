@@ -3,7 +3,6 @@ module Main where
 import Prelude
 
 import Data.Argonaut.Decode (class DecodeJson)
-import Data.Symbol (SProxy(..))
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
@@ -40,8 +39,8 @@ type Widget
     }
 
 -- Symbols 
-prop :: SProxy "prop"
-prop = SProxy
+prop :: Proxy "prop"
+prop = Proxy
 
-name :: SProxy "name"
-name = SProxy
+name :: Proxy "name"
+name = Proxy

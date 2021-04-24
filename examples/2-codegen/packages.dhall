@@ -91,8 +91,7 @@ in  upstream
         , "effect"
         , "foreign-generic"
         , "foreign-object"
-        , "graphql-parser"
-        , "heterogeneous"
+              , "heterogeneous"
         , "parsing"
         , "psci-support"
         , "record"
@@ -120,8 +119,7 @@ in  upstream
           [ "effect"
           , "console"
           , "parsing"
-          , "generics-rep"
-          , "numbers"
+                    , "numbers"
           , "psci-support"
           ]
       , repo =

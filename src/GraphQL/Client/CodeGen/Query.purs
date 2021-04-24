@@ -2,7 +2,6 @@ module GraphQL.Client.CodeGen.Query (queryFromGqlToPurs) where
 
 import Prelude
 
-import Data.Char.Unicode as Unicode
 import Data.Either (Either)
 import Data.GraphQL.AST as AST
 import Data.GraphQL.Parser (document)
@@ -10,12 +9,14 @@ import Data.List (fold, foldMap, intercalate, mapMaybe)
 import Data.Maybe (Maybe(..))
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
+import Data.String (toLower)
 import Data.String.CodeUnits as SCU
+import Debug (spy)
 import GraphQL.Client.CodeGen.Lines (indent)
 import Text.Parsing.Parser (ParseError, runParser)
 
 queryFromGqlToPurs :: String -> Either ParseError String
-queryFromGqlToPurs gql = runParser gql document <#> toPurs
+queryFromGqlToPurs gql = runParser gql document <#> spy gql <#> toPurs
   where
   toPurs :: AST.Document -> String
   toPurs = unwrap >>> mapMaybe definitionToPurs >>> intercalate "\n\n"
@@ -23,8 +24,8 @@ queryFromGqlToPurs gql = runParser gql document <#> toPurs
   definitionToPurs :: AST.Definition -> Maybe String
   definitionToPurs = case _ of
     AST.Definition_ExecutableDefinition def -> executableDefinitionToPurs def
-    AST.Definition_TypeSystemDefinition def -> Nothing
-    AST.Definition_TypeSystemExtension ext -> Nothing
+    AST.Definition_TypeSystemDefinition _ -> Nothing
+    AST.Definition_TypeSystemExtension _ -> Nothing
 
   executableDefinitionToPurs :: AST.ExecutableDefinition -> Maybe String
   executableDefinitionToPurs = case _ of 
@@ -37,11 +38,8 @@ queryFromGqlToPurs gql = runParser gql document <#> toPurs
     (AST.OperationDefinition_OperationType opType) -> operationTypeToPurs opType
 
   operationTypeToPurs 
-    { directives
-    , name
-    , operationType
+    { name
     , selectionSet
-    , variableDefinitions
     } = lowerCaseFirst (fold name) <> " = " <> selectionSetToPurs selectionSet
 
   selectionSetToPurs :: AST.SelectionSet -> String
@@ -62,7 +60,6 @@ queryFromGqlToPurs gql = runParser gql document <#> toPurs
     { alias
     , name
     , arguments
-    , directives
     , selectionSet
     }) = 
 
@@ -88,12 +85,12 @@ queryFromGqlToPurs gql = runParser gql document <#> toPurs
   
   valueToPurs :: AST.Value -> String
   valueToPurs = case _ of 
-    AST.Value_Variable val -> "Value_Variable not yet implemented"
+    AST.Value_Variable _ -> "Value_Variable not yet implemented"
     AST.Value_IntValue val -> show $ unwrap val
     AST.Value_FloatValue val -> show $ unwrap val 
     AST.Value_StringValue val -> show $ unwrap val 
     AST.Value_BooleanValue val -> show $ unwrap val 
-    AST.Value_NullValue val -> "NullValue variable not yet implemented"
+    AST.Value_NullValue _ -> "NullValue variable not yet implemented"
     AST.Value_EnumValue val -> unwrap val 
     AST.Value_ListValue val -> listValueToPurs val
     AST.Value_ObjectValue val -> objectValueToPurs val 
@@ -116,4 +113,4 @@ queryFromGqlToPurs gql = runParser gql document <#> toPurs
 lowerCaseFirst :: String -> String
 lowerCaseFirst =
   SCU.uncons >>> foldMap \{ head, tail } ->
-    SCU.singleton (Unicode.toLower head) <> tail
+   toLower (SCU.singleton head) <> tail

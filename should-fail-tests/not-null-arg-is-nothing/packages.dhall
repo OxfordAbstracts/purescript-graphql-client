@@ -113,8 +113,7 @@ in  upstream
           [ "effect"
           , "console"
           , "parsing"
-          , "generics-rep"
-          , "numbers"
+                    , "numbers"
           , "psci-support"
           ]
       , repo =

@@ -1,36 +1,34 @@
-module GraphQL.Hasura.Decode (class DecodeHasura, class DecodeHasuraFields, getFields, decodeHasura) where
+module GraphQL.Hasura.Decode (class DecodeHasura, class DecodeHasuraFields, class DecodeHasuraField, decodeHasura, decodeHasuraFields, decodeHasuraField) where
 
 import Prelude
 import Control.Alt ((<|>))
-import Data.Argonaut.Core (Json)
+import Data.Argonaut.Core (Json, toObject)
 import Data.Argonaut.Decode (JsonDecodeError(..), decodeJson)
 import Data.Argonaut.Decode.Decoders (decodeJArray)
-import Data.Array (foldl)
+import Data.Foldable (foldl)
 import Data.Bifunctor (lmap)
 import Data.Date (Date, canonicalDate)
 import Data.DateTime (DateTime(..), Time(..), adjust)
-import Data.Either (Either(..), note)
+import Data.Either (Either(..))
 import Data.Enum (class BoundedEnum, toEnum)
 import Data.Int (toNumber)
 import Data.Int as Int
 import Data.List.NonEmpty as NonEmpty
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.String.CodeUnits (singleton)
-import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
+import Data.Symbol (class IsSymbol, reflectSymbol)
 import Data.Time.Duration (Minutes(..))
 import Data.Traversable (class Foldable, traverse)
-import Data.Variant (Variant, inj)
 import Foreign.Object (Object)
 import Foreign.Object as Object
 import Prim.Row as Row
-import Prim.RowList (class RowToList, Cons, Nil, kind RowList)
-import Record.Builder (Builder)
-import Record.Builder as Builder
+import Prim.RowList as RL
+import Record as Record
 import Text.Parsing.StringParser (Parser, fail, runParser)
 import Text.Parsing.StringParser as P
 import Text.Parsing.StringParser.CodeUnits (anyDigit, char, eof)
 import Text.Parsing.StringParser.Combinators (many1, optionMaybe)
-import Type.Data.RowList (RLProxy(..))
+import Type.Proxy (Proxy(..))
 
 type Err a
   = Either JsonDecodeError a
@@ -71,92 +69,59 @@ instance decodeHasuraTime :: DecodeHasura Time where
 runJsonParser :: forall a. Parser a -> Json -> Either JsonDecodeError a
 runJsonParser p = decodeJson >=> runParser p >>> lmap (show >>> TypeMismatch)
 
-instance decodeHasuraRecord ::
-  ( RowToList fields fieldList
-  , DecodeHasuraFields fieldList () fields
-  ) =>
-  DecodeHasura (Record fields) where
-  decodeHasura js = do
-    o :: Object Json <- decodeJson js
-    steps <- getFields fieldListP o
-    pure $ Builder.build steps {}
-    where
-    fieldListP = RLProxy :: RLProxy fieldList
+instance decodeRecord
+  :: ( DecodeHasuraFields row list
+     , RL.RowToList row list
+     )
+  => DecodeHasura (Record row) where
+  decodeHasura json =
+    case toObject json of
+      Just object -> decodeHasuraFields object (Proxy :: Proxy list)
+      Nothing -> Left $ TypeMismatch "Object"
 
-instance decodeHasuraJsonVariant ::
-  ( RowToList variants rl
-  , DecodeHasuraVariant rl variants
-  ) =>
-  DecodeHasura (Variant variants) where
-  decodeHasura o = decodeHasuraVariant (RLProxy :: RLProxy rl) o
+class DecodeHasuraFields (row :: Row Type) (list :: RL.RowList Type) | list -> row where
+  decodeHasuraFields :: forall proxy. Object Json -> proxy list -> Either JsonDecodeError (Record row)
 
--- Records 
-class DecodeHasuraFields (xs :: RowList) (from :: # Type) (to :: # Type) | xs -> from to where
-  getFields ::
-    RLProxy xs ->
-    Object Json ->
-    Err (Builder (Record from) (Record to))
+instance decodeHasuraFieldsNil :: DecodeHasuraFields () RL.Nil where
+  decodeHasuraFields _ _ = Right {}
 
-instance decodeHasuraFieldsCons ::
-  ( IsSymbol name
-  , DecodeHasura ty
-  , DecodeHasuraFields tail from from'
-  , Row.Lacks name from'
-  , Row.Cons name ty from' to
-  ) =>
-  DecodeHasuraFields (Cons name ty tail) from to where
-  getFields _ obj = do
-    value :: ty <- annnotateErr $ decodeHasura =<< readProp obj
-    rest <- getFields tailP obj
-    let
-      first :: Builder (Record from') (Record to)
-      first = Builder.insert nameP value
-    pure $ first <<< rest
-    where
-    nameP = SProxy :: SProxy name
+instance decodeHasuraFieldsCons
+  :: ( DecodeHasuraField value
+     , DecodeHasuraFields rowTail tail
+     , IsSymbol field
+     , Row.Cons field value rowTail row
+     , Row.Lacks field rowTail
+     )
+  => DecodeHasuraFields row (RL.Cons field value tail) where
+    decodeHasuraFields object _ = do
+      let
+        _field = Proxy :: Proxy field
+        fieldName = reflectSymbol _field
+        fieldValue = Object.lookup fieldName object
 
-    tailP = RLProxy :: RLProxy tail
+      case decodeHasuraField fieldValue of
+        Just fieldVal -> do
+          val <- lmap (AtKey fieldName) fieldVal
+          rest <- decodeHasuraFields object (Proxy :: Proxy tail)
+          Right $ Record.insert _field val rest
 
-    name = reflectSymbol nameP
+        Nothing ->
+          Left $ AtKey fieldName MissingValue
 
-    annnotateErr = lmap (AtKey name)
+class DecodeHasuraField a where
+  decodeHasuraField :: Maybe Json -> Maybe (Either JsonDecodeError a)
 
-    readProp = Object.lookup name >>> note (AtKey name MissingValue)
+instance decodeFieldMaybe
+  :: DecodeHasura a
+  => DecodeHasuraField (Maybe a) where
+  decodeHasuraField Nothing = Just $ Right Nothing
+  decodeHasuraField (Just j) = Just $ decodeHasura j
 
-instance decodeHasuraFieldsNil ::
-  DecodeHasuraFields Nil () () where
-  getFields _ _ = pure identity
+else instance decodeFieldId
+  :: DecodeHasura a
+  => DecodeHasuraField a where
+  decodeHasuraField j = decodeHasura <$> j
 
-class DecodeHasuraVariant (xs :: RowList) (row :: # Type) | xs -> row where
-  decodeHasuraVariant ::
-    RLProxy xs ->
-    Json ->
-    Err (Variant row)
-
-instance decodeHasuraVariantNil ::
-  DecodeHasuraVariant Nil trash where
-  decodeHasuraVariant _ _ = Left $ TypeMismatch "Unable to match any variant member."
-
-instance decodeHasuraVariantCons ::
-  ( IsSymbol name
-  , DecodeHasura ty
-  , Row.Cons name ty trash row
-  , DecodeHasuraVariant tail row
-  ) =>
-  DecodeHasuraVariant (Cons name ty tail) row where
-  decodeHasuraVariant _ o =
-    do
-      obj :: { type :: String, value :: Json } <- decodeHasura o
-      if obj.type == name then do
-        value :: ty <- decodeHasura obj.value
-        pure $ inj namep value
-      else
-        (Left $ TypeMismatch $ "Did not match variant tag " <> name)
-      <|> decodeHasuraVariant (RLProxy :: RLProxy tail) o
-    where
-    namep = SProxy :: SProxy name
-
-    name = reflectSymbol namep
 
 isoDateTime :: Parser DateTime
 isoDateTime = do

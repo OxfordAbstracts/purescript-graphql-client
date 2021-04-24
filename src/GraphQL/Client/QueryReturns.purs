@@ -4,7 +4,7 @@ import Prelude
 
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype, unwrap)
-import Data.Symbol (class IsSymbol, SProxy)
+import Data.Symbol (class IsSymbol)
 import Data.Typelevel.Undefined (undefined)
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Args (class SatisifyNotNullParam, ArgPropToGql, Args(..), Params)
@@ -18,7 +18,7 @@ queryReturns ::
   forall schema query returns.
   QueryReturns schema query returns =>
   Proxy schema -> query -> Proxy returns
-queryReturns schemaProxy query = Proxy
+queryReturns _ _ = Proxy
 
 class QueryReturns schema query returns | schema query -> returns where
   -- | Do not use this. Use `queryReturns` instead. Only exported due to compiler restrictions
@@ -34,7 +34,7 @@ else instance queryReturnsParamsArgs ::
   , SatisifyNotNullParam {|params} {|args}
   ) =>
   QueryReturns (Params  {|params} t) (Args {|args} q) result where
-  queryReturnsImpl _ (Args args q) = queryReturnsImpl (undefined :: t) q
+  queryReturnsImpl _ (Args _ q) = queryReturnsImpl (undefined :: t) q
 else instance queryReturnsParamsNoArgs ::
   ( QueryReturns t q result
   , SatisifyNotNullParam {|params} {}
@@ -52,7 +52,7 @@ else instance queryReturnsNewtype ::
   QueryReturns newtypeSchema {|query} returns where
   queryReturnsImpl sch query = queryReturnsImpl (unwrap sch) query
 else instance queryReturnsAll :: QueryReturns a q a where
-  queryReturnsImpl a q = a
+  queryReturnsImpl a _ = a
   
 -- | For internal use only but must be exported for other modules to compile
 newtype PropToSchemaType schema
@@ -64,8 +64,8 @@ instance propToSchemaTypeAlias ::
   , Row.Cons al subSchema rest schema
   , QueryReturns subSchema val returns
   ) =>
-  MappingWithIndex (PropToSchemaType schema) (SProxy sym) (Alias (SProxy al) val) returns where
-  mappingWithIndex (PropToSchemaType schema) sym (Alias al val) =
+  MappingWithIndex (PropToSchemaType schema) (Proxy sym) (Alias (Proxy al) val) returns where
+  mappingWithIndex (PropToSchemaType schema) _ (Alias al val) =
     let
       subSchema = Record.get al schema
     in
@@ -74,10 +74,10 @@ else instance propToSchemaTypeProxyAlias ::
   ( IsSymbol sym
   , IsSymbol val
   , Row.Cons val subSchema rest schema
-  , QueryReturns subSchema (SProxy val) returns
+  , QueryReturns subSchema (Proxy val) returns
   ) =>
-  MappingWithIndex (PropToSchemaType schema) (SProxy sym) (SProxy val) returns where
-  mappingWithIndex (PropToSchemaType schema) sym val =
+  MappingWithIndex (PropToSchemaType schema) (Proxy sym) (Proxy val) returns where
+  mappingWithIndex (PropToSchemaType schema) _ val =
     let
       subSchema = Record.get val schema
     in
@@ -87,7 +87,7 @@ else instance propToSchemaType_ ::
   , Row.Cons sym subSchema rest schema
   , QueryReturns subSchema val returns
   ) =>
-  MappingWithIndex (PropToSchemaType schema) (SProxy sym) val returns where
+  MappingWithIndex (PropToSchemaType schema) (Proxy sym) val returns where
   mappingWithIndex (PropToSchemaType schema) sym val =
     let
       subSchema = Record.get sym schema

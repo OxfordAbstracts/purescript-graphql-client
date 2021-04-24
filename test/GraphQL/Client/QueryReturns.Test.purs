@@ -1,9 +1,8 @@
-module GraphQL.Client.QueryReturns.Test (TestSchema, N1) where
+module GraphQL.Client.QueryReturns.Test where
 
 import Prelude
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
-import Data.Symbol (SProxy(..))
 import Data.Typelevel.Bool (True)
 import Data.Typelevel.Undefined (undefined)
 import GraphQL.Client.Alias ((:))
@@ -227,24 +226,25 @@ testArrayArgsAndRec =
           =>> { id }
     }
 
-id :: SProxy "id"
-id = SProxy
+id :: Proxy "id"
+id = Proxy
 
-idRenamed :: SProxy "idRenamed"
-idRenamed = SProxy
+idRenamed :: Proxy "idRenamed"
+idRenamed = Proxy
 
-name :: SProxy "name"
-name = SProxy
+name :: Proxy "name"
+name = Proxy
 
-users :: SProxy "users"
-users = SProxy
+users :: Proxy "users"
+users = Proxy
 
-name_alias :: SProxy "name_alias"
-name_alias = SProxy
+name_alias :: Proxy "name_alias"
+name_alias = Proxy
 
-other_names :: SProxy "other_names"
-other_names = SProxy
+other_names :: Proxy "other_names"
+other_names = Proxy
 
+class QueryReturnsTypeChecks :: forall k. k -> Type -> Type -> Constraint
 class QueryReturnsTypeChecks schema query checks | schema checks -> query where
   typeChecks :: Proxy schema -> query -> checks
 

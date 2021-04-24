@@ -14,7 +14,6 @@ You can edit this file as you like.
   , "event"
   , "foreign-generic"
   , "foreign-object"
-  , "graphql-parser"
   , "heterogeneous"
   , "parsing"
   , "proxy"
