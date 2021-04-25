@@ -4,8 +4,7 @@ import Prelude
 
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError, decodeJson)
-import Data.Either (Either, hush)
-import Data.Maybe (Maybe)
+import Data.Either (Either)
 import GraphQL.Client.Query (decodeGqlRes)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
@@ -63,6 +62,3 @@ watchQueryWithDecoder decodeFn (Client client) queryNameUnsafe q =
   queryName = safeQueryName queryNameUnsafe
 
   query = "query " <> queryName <> " " <> toGqlQueryString q
-
-ignoreErrors :: forall err returns. Emitter (Either err returns) -> Emitter (Maybe returns)
-ignoreErrors = map hush
