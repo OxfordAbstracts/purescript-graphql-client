@@ -15,7 +15,6 @@ You can edit this file as you like.
   , "bifunctors"
   , "control"
   , "datetime"
-  , "debug"
   , "effect"
   , "either"
   , "enums"
