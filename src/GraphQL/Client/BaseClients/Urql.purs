@@ -108,7 +108,7 @@ instance queryClientSubscription :: QueryClient UrqlSubClient Unit Unit where
 
 queryForeign ::
   forall client o.
-  QueryClient client o o=>
+  QueryClient client o o =>
   Boolean -> client -> String -> String -> Aff Json
 queryForeign isMutation client name q_ = fromEffectFnAff $ fn (unsafeCoerce client) q
   where

@@ -22,7 +22,6 @@ module Main where
 import Prelude
 
 import Data.Argonaut.Decode (class DecodeJson)
-import Data.Symbol (SProxy(..))
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
@@ -59,11 +58,11 @@ type Widget
     }
 
 -- Symbols 
-prop :: SProxy "prop"
-prop = SProxy
+prop :: Proxy "prop"
+prop = Proxy
 
-name :: SProxy "name"
-name = SProxy
+name :: Proxy "name"
+name = Proxy
 ```
 
 ## Table of contents
@@ -98,23 +97,13 @@ Either use spago (recommended)
 and add graphql-client and graphql-parser to your project packages.dhall
 ```
   in  upstream
-  with graphql-parser =
-      { dependencies =
-          [ "prelude", "maybe"
-          ]
-      , repo =
-          "https://github.com/meeshkan/purescript-graphql-parser.git"
-      , version =
-          "v0.0.11"
-      }
   with graphql-client =
       { dependencies =
-          [ "graphql-parser"
-          , "foreign"
+          [ "foreign"
           , "foreign-generic"
           , "strings-extra"
           , "typelevel"
-          , "event"
+        
           , "argonaut-codecs"
           , "variant"
           , "parsing"
@@ -240,7 +229,7 @@ Look in `examples/4-mutation` for a complete example.
 Use `createSubscriptionClient` if you want to make subscriptions. eg.
 
 ```purescript
-import FRP.Event as FRP
+import Halogen.Subscription as HS
 import MySchema (Query, Subscription, Mutation)
 import GraphQL.Client.BaseClients.Apollo (createSubscriptionClient)
 import GraphQL.Client.Subscription (subscription)
@@ -263,7 +252,7 @@ import GraphQL.Client.Types (Client)
       }
 
   cancel <-
-    FRP.subscribe event \e -> do
+    HS.subscribe event \e -> do
       log "Event recieved"
       logShow e
     

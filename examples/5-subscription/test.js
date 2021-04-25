@@ -15,9 +15,9 @@ require('./server-fn')(async () => {
     setTimeout(() => {
       deepStrictEqual(logs, [
         'Event recieved',
-        '{ postAdded: { author: "joe bloggs", comment: "great" } }',
+        '(Right { postAdded: { author: "joe bloggs", comment: "great" } })',
         'Event recieved',
-        '{ postAdded: { author: "joe bloggs", comment: "bad" } }'
+        '(Right { postAdded: { author: "joe bloggs", comment: "bad" } })'
       ])
       console.info('tests passed')
       process.exit(0)

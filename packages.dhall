@@ -105,20 +105,6 @@ in  upstream
 -------------------------------
 -}
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.13.8-20210114/packages.dhall sha256:6c7e247826373fc2b63fbf0a28fa84d8ff4981fbac0aa087985413716cb4b286
+      https://github.com/purescript/package-sets/releases/download/psc-0.14.1-20210419/packages.dhall sha256:d9a082ffb5c0fabf689574f0680e901ca6f924e01acdbece5eeedd951731375a
 
 in  upstream
-  with graphql-parser =
-      { dependencies =
-          [ "effect"
-          , "console"
-          , "parsing"
-          , "generics-rep"
-          , "numbers"
-          , "psci-support"
-          ]
-      , repo =
-          "https://github.com/meeshkan/purescript-graphql-parser.git"
-      , version =
-          "v0.0.11"
-      }

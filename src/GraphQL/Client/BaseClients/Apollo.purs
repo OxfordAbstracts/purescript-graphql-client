@@ -62,6 +62,33 @@ foreign import data ApolloClient :: Type
 -- | From the @apollo/client npm module 
 foreign import data ApolloSubClient :: Type
 
+type QueryOpts
+  = { fetchPolicy :: Maybe FetchPolicy
+    , errorPolicy :: ErrorPolicy
+    }
+
+defQueryOpts :: QueryOpts
+defQueryOpts =
+  { fetchPolicy: Nothing
+  , errorPolicy: All
+  }
+
+type MutationOpts
+  = { errorPolicy :: ErrorPolicy
+    , refetchQueries :: Array String
+    , update :: Maybe (Effect Unit)
+    , optimisticResponse :: Maybe Json
+    }
+
+defMutationOpts :: MutationOpts
+defMutationOpts =
+  { errorPolicy: All
+  , refetchQueries: []
+  , update: Nothing
+  , optimisticResponse: Nothing
+  }
+
+
 createClient ::
   forall querySchema mutationSchema subscriptionSchema.
   ApolloClientOptions -> Effect (Client ApolloClient querySchema mutationSchema subscriptionSchema)
@@ -105,14 +132,9 @@ type ApolloSubApolloClientOptionsForeign
 instance queryClient ::
   QueryClient
     ApolloClient
-    { fetchPolicy :: Maybe FetchPolicy
-    , errorPolicy :: ErrorPolicy
-    }
-    { errorPolicy :: ErrorPolicy
-    , refetchQueries :: Array String
-    , update :: Maybe (Effect Unit)
-    , optimisticResponse :: Maybe Json
-    } where
+    QueryOpts
+    MutationOpts
+    where
   clientQuery opts = queryForeign false (encode opts)
   clientMutation opts =
     queryForeign true
@@ -132,11 +154,8 @@ instance queryClientSubscription ::
     { fetchPolicy :: Maybe FetchPolicy
     , errorPolicy :: ErrorPolicy
     }
-    { errorPolicy :: ErrorPolicy
-    , refetchQueries :: Array String
-    , update :: Maybe (Effect Unit)
-    , optimisticResponse :: Maybe Json
-    } where
+    MutationOpts
+    where
   clientQuery opts = queryForeign false (encode opts)
   clientMutation opts =
     queryForeign true
@@ -153,37 +172,11 @@ instance queryClientSubscription ::
 instance subClientSubscription ::
   SubscriptionClient
     ApolloSubClient
-    { fetchPolicy :: Maybe FetchPolicy
-    , errorPolicy :: ErrorPolicy
-    } where
+    QueryOpts
+    where
   clientSubscription opts = subscriptionImpl (encode opts)
   defSubOpts = const defQueryOpts
 
-type QueryOpts
-  = { fetchPolicy :: Maybe FetchPolicy
-    , errorPolicy :: ErrorPolicy
-    }
-
-defQueryOpts :: QueryOpts
-defQueryOpts =
-  { fetchPolicy: Nothing
-  , errorPolicy: All
-  }
-
-type MutationOpts
-  = { errorPolicy :: ErrorPolicy
-    , refetchQueries :: Array String
-    , update :: Maybe (Effect Unit)
-    , optimisticResponse :: Maybe Json
-    }
-
-defMutationOpts :: MutationOpts
-defMutationOpts =
-  { errorPolicy: All
-  , refetchQueries: []
-  , update: Nothing
-  , optimisticResponse: Nothing
-  }
 
 queryForeign ::
   forall q m client.
@@ -198,6 +191,7 @@ queryForeign isMutation opts client name q_ = fromEffectFnAff $ fn opts (unsafeC
 
   q = opStr <> " " <> name <> " " <> q_
 
+class IsApollo :: forall k. k -> Constraint
 class IsApollo cl
 
 instance isApolloClient :: IsApollo ApolloClient
@@ -256,18 +250,16 @@ writeQuery encoder client query newData = do
 instance clientWatchQuery ::
   WatchQueryClient
     ApolloClient
-    { fetchPolicy :: Maybe FetchPolicy
-    , errorPolicy :: ErrorPolicy
-    } where
+    QueryOpts
+    where
   clientWatchQuery opts c = watchQueryImpl (encode opts) (unsafeToForeign c)
   defWatchOpts = const defQueryOpts
 
 instance subClientWatchQuery :: 
   WatchQueryClient
     ApolloSubClient
-    { fetchPolicy :: Maybe FetchPolicy
-    , errorPolicy :: ErrorPolicy
-    } where
+    QueryOpts 
+    where
   clientWatchQuery opts c = watchQueryImpl (encode opts) (unsafeToForeign c)
   defWatchOpts = const defQueryOpts
 

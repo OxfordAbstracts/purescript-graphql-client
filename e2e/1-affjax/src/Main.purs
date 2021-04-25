@@ -4,7 +4,6 @@ import Prelude
 
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Maybe (isJust)
-import Data.Symbol (SProxy(..))
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
@@ -12,6 +11,7 @@ import GraphQL.Client.Args (type (==>), (=>>))
 import GraphQL.Client.BaseClients.Affjax (AffjaxClient(..))
 import GraphQL.Client.Query (query, queryFullRes)
 import GraphQL.Client.Types (class GqlQuery, Client(..))
+import Type.Proxy (Proxy(..))
 
 main :: Effect Unit
 main =
@@ -51,8 +51,8 @@ type Widget
     }
 
 -- Symbols 
-prop :: SProxy "prop"
-prop = SProxy
+prop :: Proxy "prop"
+prop = Proxy
 
-name :: SProxy "name"
-name = SProxy
+name :: Proxy "name"
+name = Proxy

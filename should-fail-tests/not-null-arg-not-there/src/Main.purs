@@ -2,7 +2,6 @@ module Main where
 
 import Prelude
 
-import Data.Symbol (SProxy(..))
 import Effect (Effect)
 import GraphQL.Client.Args (type (==>), NotNull, (=>>))
 import GraphQL.Client.QueryReturns (queryReturns)
@@ -23,8 +22,8 @@ type TestNotNullParamsSchema
             }
     }
 
-id :: SProxy "id"
-id = SProxy
+id :: Proxy "id"
+id = Proxy
 
 passing1 :: Unit
 passing1 =

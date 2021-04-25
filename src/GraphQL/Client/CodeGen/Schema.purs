@@ -8,17 +8,17 @@ import Prelude
 
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
-import Data.Array (fold, notElem, nub, nubBy)
+import Data.Array (notElem, nub, nubBy)
 import Data.Array as Array
 import Data.Either (Either(..), hush)
-import Data.Foldable (foldMap, intercalate)
+import Data.Foldable (fold, foldMap, intercalate)
 import Data.Function (on)
 import Data.FunctorWithIndex (mapWithIndex)
 import Data.GraphQL.AST as AST
 import Data.GraphQL.Parser (document)
 import Data.List (List, mapMaybe)
 import Data.List as List
-import Data.Map (lookup)
+import Data.Map (lookup, unions)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Monoid (guard)
@@ -150,7 +150,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
   imports =
     fold $ nub
       $ toImport mainCode (Array.fromFoldable externalTypes)
-      <> toImport mainCode (Array.fromFoldable $ fold fieldTypeOverrides)
+      <> toImport mainCode (Array.fromFoldable $  unions fieldTypeOverrides)
       <> toImport mainCode [ { moduleName: "Data.Argonaut.Core" } ]
 
   mainCode = unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
@@ -162,9 +162,9 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
 
   definitionToPurs :: AST.Definition -> Maybe String
   definitionToPurs = case _ of
-    AST.Definition_ExecutableDefinition def -> Nothing
+    AST.Definition_ExecutableDefinition _ -> Nothing
     AST.Definition_TypeSystemDefinition def -> typeSystemDefinitionToPurs def
-    AST.Definition_TypeSystemExtension ext -> Nothing
+    AST.Definition_TypeSystemExtension _ -> Nothing
 
   typeSystemDefinitionToPurs :: AST.TypeSystemDefinition -> Maybe String
   typeSystemDefinitionToPurs = case _ of
@@ -173,7 +173,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     AST.TypeSystemDefinition_DirectiveDefinition directiveDefinition -> directiveDefinitionToPurs directiveDefinition
 
   schemaDefinitionToPurs :: AST.SchemaDefinition -> String
-  schemaDefinitionToPurs (AST.SchemaDefinition { rootOperationTypeDefinition, directives }) = map rootOperationTypeDefinitionToPurs rootOperationTypeDefinition # intercalate "\n\n"
+  schemaDefinitionToPurs (AST.SchemaDefinition { rootOperationTypeDefinition }) = map rootOperationTypeDefinitionToPurs rootOperationTypeDefinition # intercalate "\n\n"
 
   rootOperationTypeDefinitionToPurs :: AST.RootOperationTypeDefinition -> String
   rootOperationTypeDefinitionToPurs (AST.RootOperationTypeDefinition { operationType, namedType }) =
@@ -197,7 +197,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     AST.TypeDefinition_InputObjectTypeDefinition inputObjectTypeDefinition -> Just $ inputObjectTypeDefinitionToPurs inputObjectTypeDefinition
 
   scalarTypeDefinitionToPurs :: AST.ScalarTypeDefinition -> String
-  scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name, directives }) =
+  scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name }) =
     guard (notElem tName builtInTypes)
       $  docComment description
       <> "type "
@@ -221,9 +221,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
   objectTypeDefinitionToPurs :: AST.ObjectTypeDefinition -> String
   objectTypeDefinitionToPurs ( AST.ObjectTypeDefinition
       { description
-    , directives
     , fieldsDefinition
-    , implementsInterfaces
     , name
     }
   ) =
@@ -265,7 +263,6 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     , name
     , argumentsDefinition
     , type: tipe
-    , directives
     }
   ) =
     inlineComment description
@@ -291,8 +288,6 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
       { description
     , name
     , type: tipe
-    , defaultValue
-    , directives
     }
   ) =
     inlineComment description
@@ -301,18 +296,17 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
       <> argTypeToPurs tipe
 
   interfaceTypeDefinitionToPurs :: AST.InterfaceTypeDefinition -> Maybe String
-  interfaceTypeDefinitionToPurs (AST.InterfaceTypeDefinition def) = Nothing
+  interfaceTypeDefinitionToPurs (AST.InterfaceTypeDefinition _) = Nothing
 
   unionTypeDefinitionToPurs :: AST.UnionTypeDefinition -> Maybe String
-  unionTypeDefinitionToPurs (AST.UnionTypeDefinition def) = Nothing
+  unionTypeDefinitionToPurs (AST.UnionTypeDefinition _) = Nothing
 
   enumTypeDefinitionToPurs :: AST.EnumTypeDefinition -> Maybe String
-  enumTypeDefinitionToPurs (AST.EnumTypeDefinition def) = Nothing
+  enumTypeDefinitionToPurs (AST.EnumTypeDefinition _) = Nothing
 
   inputObjectTypeDefinitionToPurs :: AST.InputObjectTypeDefinition -> String
   inputObjectTypeDefinitionToPurs ( AST.InputObjectTypeDefinition
       { description
-    , directives
     , inputFieldsDefinition
     , name
     }
@@ -351,9 +345,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
 
   inputValueDefinitionToPurs :: String -> AST.InputValueDefinition -> String
   inputValueDefinitionToPurs objectName ( AST.InputValueDefinition
-      { defaultValue
-    , description
-    , directives
+      { description
     , name
     , type: tipe
     }
@@ -369,7 +361,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
             _ -> out.moduleName <> "." <> out.typeName
 
   directiveDefinitionToPurs :: AST.DirectiveDefinition -> Maybe String
-  directiveDefinitionToPurs directiveDefinition = Nothing
+  directiveDefinitionToPurs _ = Nothing
 
   argTypeToPurs :: AST.Type -> String
   argTypeToPurs = case _ of
@@ -419,11 +411,6 @@ gqlToPursEnums = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
     AST.Definition_TypeSystemDefinition def -> typeSystemDefinitionToPurs def
     _ -> Nothing
 
-  definitionToPurs :: AST.Definition -> Maybe GqlEnum
-  definitionToPurs = case _ of
-    AST.Definition_ExecutableDefinition def -> Nothing
-    AST.Definition_TypeSystemDefinition def -> typeSystemDefinitionToPurs def
-    AST.Definition_TypeSystemExtension ext -> Nothing
 
   typeSystemDefinitionToPurs :: AST.TypeSystemDefinition -> Maybe GqlEnum
   typeSystemDefinitionToPurs = case _ of

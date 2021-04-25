@@ -10,9 +10,9 @@ jobs:
 
       - uses: purescript-contrib/setup-purescript@main
         with:
-          purescript: "0.13.8"
+          purescript: "0.14.1"
           psa: "0.7.2"
-          spago: "0.19.1"
+          spago: "0.20.1"
 
       - name: Cache PureScript dependencies
         uses: actions/cache@v2

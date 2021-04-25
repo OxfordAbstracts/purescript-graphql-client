@@ -6,12 +6,11 @@ import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Aff (Milliseconds(..), delay, launchAff_)
 import Effect.Class.Console (log, logShow)
-import FRP.Event as FRP
+import Halogen.Subscription as HS
 import Generated.Gql.Schema.Admin (Query, Subscription, Mutation)
 import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.BaseClients.Apollo (createSubscriptionClient, updateCacheJson)
 import GraphQL.Client.Query (mutationOpts)
-import GraphQL.Client.Subscription (ignoreErrors)
 import GraphQL.Client.Types (Client)
 import GraphQL.Client.WatchQuery (watchQuery)
 
@@ -26,10 +25,10 @@ main = do
       }
   let
     myQuery = { posts: { author: unit, comment: unit } }
-    event = ignoreErrors $ watchQuery client "get_props" myQuery
+    event =  watchQuery client "get_props" myQuery
 
   cancel <-
-    FRP.subscribe event \e -> do
+    HS.subscribe event \e -> do
       log "Event recieved"
       logShow e
 

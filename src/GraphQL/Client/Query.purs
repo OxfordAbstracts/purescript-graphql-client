@@ -21,18 +21,16 @@ import Prelude
 import Affjax (URL)
 import Control.Monad.Error.Class (class MonadThrow)
 import Control.Monad.Except (class MonadError, catchError)
-import Data.Argonaut.Core (Json)
+import Data.Argonaut.Core (Json, stringify)
 import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError, decodeJson, printJsonDecodeError)
 import Data.Argonaut.Decode.Combinators (getField, (.:), (.:?))
-import Data.Array (intercalate)
+import Data.Array (intercalate, mapMaybe)
 import Data.Either (Either(..), hush)
-import Data.Filterable (filterMap)
 import Data.Maybe (Maybe(..))
 import Data.Traversable (traverse)
 import Effect.Aff (Aff, Error, error, message, throwError)
 import Effect.Class (liftEffect)
 import Foreign.Object (Object)
-import Global.Unsafe (unsafeStringify)
 import GraphQL.Client.BaseClients.Urql (UrqlClient, createGlobalClientUnsafe)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (class GqlQueryString, toGqlQueryString, toGqlQueryStringFormatted)
@@ -98,7 +96,7 @@ query_ ::
   GqlQuery schema query returns =>
   DecodeJson returns =>
   URL -> Proxy schema -> String -> query -> Aff returns
-query_ url schema name q = do
+query_ url _ name q = do
   client <-
     liftEffect
       $ createGlobalClientUnsafe
@@ -162,7 +160,7 @@ mutation_ ::
   GqlQuery schema mutation returns =>
   DecodeJson returns =>
   URL -> Proxy schema -> String -> mutation -> Aff returns
-mutation_ url schema name q = do
+mutation_ url _ name q = do
   client <-
     liftEffect
       $ createGlobalClientUnsafe
@@ -205,7 +203,7 @@ decodeJsonData decodeFn json = case decodeGqlRes decodeFn json of
             " Response failed to decode from JSON: "
               <> printJsonDecodeError err
               <> "\n Full response: "
-              <> unsafeStringify json
+              <> stringify json
   Right result -> pure result
 
 decodeGqlRes :: forall a. (Json -> Either JsonDecodeError a) -> Json -> Either JsonDecodeError a
@@ -293,7 +291,7 @@ getFullRes decodeFn json = do
   pure
     { data_
     , errors_json: errors
-    , errors: map (filterMap (decodeError >>> hush)) errors
+    , errors: map (mapMaybe (decodeError >>> hush)) errors
     , extensions
     }
 

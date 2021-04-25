@@ -91,8 +91,7 @@ in  upstream
         , "effect"
         , "foreign-generic"
         , "foreign-object"
-        , "graphql-parser"
-        , "heterogeneous"
+              , "heterogeneous"
         , "parsing"
         , "psci-support"
         , "record"
@@ -112,20 +111,6 @@ in  upstream
 -------------------------------
 -}
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.13.8-20210118/packages.dhall sha256:a59c5c93a68d5d066f3815a89f398bcf00e130a51cb185b2da29b20e2d8ae115
+      https://github.com/purescript/package-sets/releases/download/psc-0.14.1-20210419/packages.dhall sha256:d9a082ffb5c0fabf689574f0680e901ca6f924e01acdbece5eeedd951731375a
 
 in  upstream
-  with graphql-parser =
-      { dependencies =
-          [ "effect"
-          , "console"
-          , "parsing"
-          , "generics-rep"
-          , "numbers"
-          , "psci-support"
-          ]
-      , repo =
-          "https://github.com/meeshkan/purescript-graphql-parser.git"
-      , version =
-          "v0.0.11"
-      }

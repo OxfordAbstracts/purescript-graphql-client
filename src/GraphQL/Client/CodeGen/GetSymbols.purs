@@ -14,39 +14,40 @@ symbolsToCode :: forall f. Foldable f => String -> f String -> String
 symbolsToCode modulePrefix symbols =
   """module """ <> modulePrefix <> """Symbols where
 
-import Data.Symbol (SProxy(..))
+import Type.Proxy (Proxy(..))
 """
     <> symbolsString
   where
   symbolsString =
      symbols
         # Array.fromFoldable
-        # Array.nub
-        # foldMap (\s -> "\n" <> s <> " :: SProxy " <> show s <> "\n" <> s <> " = SProxy")
+        # Array.nub 
+        # foldMap (\s -> "\n" <> s <> " = Proxy :: Proxy" <> show s
+          )
 
 getSymbols :: AST.Document -> List String
 getSymbols doc = unwrap doc >>= definitionToSymbols # nub # sort
   where
   definitionToSymbols :: AST.Definition -> List String
   definitionToSymbols = case _ of
-    AST.Definition_ExecutableDefinition def -> mempty
+    AST.Definition_ExecutableDefinition _ -> mempty
     AST.Definition_TypeSystemDefinition def -> typeSystemDefinitionToSymbols def
-    AST.Definition_TypeSystemExtension ext -> mempty
+    AST.Definition_TypeSystemExtension _ -> mempty
 
   typeSystemDefinitionToSymbols :: AST.TypeSystemDefinition -> List String
   typeSystemDefinitionToSymbols = case _ of
-    AST.TypeSystemDefinition_SchemaDefinition schemaDefinition -> mempty
+    AST.TypeSystemDefinition_SchemaDefinition _ -> mempty
     AST.TypeSystemDefinition_TypeDefinition typeDefinition -> typeDefinitionToSymbols typeDefinition
-    AST.TypeSystemDefinition_DirectiveDefinition directiveDefinition -> mempty
+    AST.TypeSystemDefinition_DirectiveDefinition _ -> mempty
 
   typeDefinitionToSymbols :: AST.TypeDefinition -> List String
   typeDefinitionToSymbols = case _ of
-    AST.TypeDefinition_ScalarTypeDefinition scalarTypeDefinition -> mempty
+    AST.TypeDefinition_ScalarTypeDefinition _ -> mempty
     AST.TypeDefinition_ObjectTypeDefinition objectTypeDefinition -> objectTypeDefinitionToSymbols objectTypeDefinition
-    AST.TypeDefinition_InterfaceTypeDefinition interfaceTypeDefinition -> mempty
-    AST.TypeDefinition_UnionTypeDefinition unionTypeDefinition -> mempty
-    AST.TypeDefinition_EnumTypeDefinition enumTypeDefinition -> mempty
-    AST.TypeDefinition_InputObjectTypeDefinition inputObjectTypeDefinition -> mempty
+    AST.TypeDefinition_InterfaceTypeDefinition _ -> mempty
+    AST.TypeDefinition_UnionTypeDefinition _ -> mempty
+    AST.TypeDefinition_EnumTypeDefinition _ -> mempty
+    AST.TypeDefinition_InputObjectTypeDefinition _ -> mempty
 
   objectTypeDefinitionToSymbols :: AST.ObjectTypeDefinition -> List String
   objectTypeDefinitionToSymbols ( AST.ObjectTypeDefinition
@@ -59,11 +60,8 @@ getSymbols doc = unwrap doc >>= definitionToSymbols # nub # sort
 
   fieldDefinitionToSymbols :: AST.FieldDefinition -> List String
   fieldDefinitionToSymbols ( AST.FieldDefinition
-      { description
-    , name
+      { name
     , argumentsDefinition
-    , type: tipe
-    , directives
     }
   ) = name : maybe mempty argumentsDefinitionToSymbols argumentsDefinition
 

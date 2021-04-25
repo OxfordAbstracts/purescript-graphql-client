@@ -15,10 +15,10 @@ require('./server-fn')(async () => {
     setTimeout(() => {
       deepStrictEqual(logs, [
         'Event recieved',
-        '{ posts: [{ author: "author 1", comment: "comment 1" },{ author: "author 2", comment: "comment 2" }] }',
+        '(Right { posts: [{ author: "author 1", comment: "comment 1" },{ author: "author 2", comment: "comment 2" }] })',
         'updating cache',
         'Event recieved',
-        '{ posts: [{ author: "author 1", comment: "comment 1" },{ author: "author 2", comment: "comment 2" },{ author: "joe bloggs", comment: "good" }] }',
+        '(Right { posts: [{ author: "author 1", comment: "comment 1" },{ author: "author 2", comment: "comment 2" },{ author: "joe bloggs", comment: "good" }] })',
         'updating cache'
       ])
       console.info('tests passed')

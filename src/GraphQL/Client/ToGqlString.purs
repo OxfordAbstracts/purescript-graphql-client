@@ -15,11 +15,12 @@ import Data.String.CodeUnits as String
 import Data.String.Regex (split)
 import Data.String.Regex.Flags (global)
 import Data.String.Regex.Unsafe (unsafeRegex)
-import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
+import Data.Symbol (class IsSymbol, reflectSymbol)
 import Data.Time (Time)
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Args (AndArg(..), Args(..), IgnoreArg, OrArg(..))
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
+import Type.Proxy (Proxy(..))
 
 -- | Generate a GraphQL query from its purs representation
 toGqlQueryString :: forall q. GqlQueryString q => q -> String
@@ -44,13 +45,13 @@ class GqlQueryString q where
 
 instance gqlQueryStringUnit :: GqlQueryString Unit where
   toGqlQueryStringImpl _ _ = ""
-else instance gqlQueryStringSymbol :: IsSymbol s => GqlQueryString (SProxy s) where
-  toGqlQueryStringImpl _ _ = ": " <> reflectSymbol (SProxy :: SProxy s)
+else instance gqlQueryStringSymbol :: IsSymbol s => GqlQueryString (Proxy s) where
+  toGqlQueryStringImpl _ _ = ": " <> reflectSymbol (Proxy :: Proxy s)
 else instance gqlQueryStringArgsScalar ::
   ( HFoldlWithIndex PropToGqlArg String (Record args) String
     ) =>
   GqlQueryString (Args { | args } Unit) where
-  toGqlQueryStringImpl opts (Args args _) = gqlArgStringRecordTopLevel args
+  toGqlQueryStringImpl _ (Args args _) = gqlArgStringRecordTopLevel args
 else instance gqlQueryStringArgs ::
   ( HFoldlWithIndex PropToGqlArg String (Record args) String
   , GqlQueryString (Record body)
@@ -72,7 +73,7 @@ instance propToGqlStringAlias ::
   , IsSymbol sym
   , IsSymbol alias
   ) =>
-  FoldingWithIndex PropToGqlString (SProxy sym) String (Alias (SProxy alias) a) String where
+  FoldingWithIndex PropToGqlString (Proxy sym) String (Alias (Proxy alias) a) String where
   foldingWithIndex (PropToGqlString opts) prop str (Alias alias a) =
     str <> nl
       <> reflectSymbol prop
@@ -85,7 +86,7 @@ else instance propToGqlString ::
   ( GqlQueryString a
   , IsSymbol sym
   ) =>
-  FoldingWithIndex PropToGqlString (SProxy sym) String a String where
+  FoldingWithIndex PropToGqlString (Proxy sym) String a String where
   foldingWithIndex (PropToGqlString opts) prop str a =
     str <> nl
       <> reflectSymbol prop
@@ -235,7 +236,7 @@ instance propToGqlArg ::
   , IsSymbol sym
   , IsIgnoreArg a
   ) =>
-  FoldingWithIndex PropToGqlArg (SProxy sym) String a String where
+  FoldingWithIndex PropToGqlArg (Proxy sym) String a String where
   foldingWithIndex PropToGqlArg prop str a = 
     if isIgnoreArg a then 
       str

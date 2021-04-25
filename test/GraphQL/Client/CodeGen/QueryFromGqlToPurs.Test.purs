@@ -18,7 +18,7 @@ spec =
   }
 }"""
           `shouldBeAsPurs`
-            """"myQuery = 
+            """myQuery = 
   { users:
     { first_name
     }

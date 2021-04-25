@@ -4,8 +4,8 @@ import Prelude
 
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError, decodeJson)
-import Data.Either (Either, hush)
-import FRP.Event (Event, filterMap)
+import Data.Either (Either)
+import Halogen.Subscription (Emitter)
 import GraphQL.Client.Query (decodeGqlRes, getFullRes)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
@@ -16,7 +16,7 @@ subscriptionOpts ::
   SubscriptionClient client opts =>
   GqlQuery schema query returns =>
   DecodeJson returns =>
-  (opts -> opts) -> Client client a b schema -> String -> query -> Event (Either JsonDecodeError returns)
+  (opts -> opts) -> Client client a b schema -> String -> query -> Emitter (Either JsonDecodeError returns)
 subscriptionOpts = subscriptionOptsWithDecoder decodeJson
 
 subscriptionOptsWithDecoder ::
@@ -28,7 +28,7 @@ subscriptionOptsWithDecoder ::
   (Client client a b schema) ->
   String ->
   query ->
-  Event (Either JsonDecodeError returns)
+  Emitter (Either JsonDecodeError returns)
 subscriptionOptsWithDecoder decodeFn optsF (Client client) queryNameUnsafe q =
   subscriptionEventOpts optsF client query
     <#> decodeGqlRes decodeFn
@@ -43,7 +43,7 @@ subscription ::
   SubscriptionClient client opts =>
   GqlQuery schema query returns =>
   DecodeJson returns =>
-  Client client a b schema -> String -> query -> Event (Either JsonDecodeError returns)
+  Client client a b schema -> String -> query -> Emitter (Either JsonDecodeError returns)
 subscription = subscriptionWithDecoder decodeJson
 
 subscriptionWithDecoder ::
@@ -54,12 +54,9 @@ subscriptionWithDecoder ::
   (Client client a b schema) ->
   String ->
   query ->
-  Event (Either JsonDecodeError returns)
+  Emitter (Either JsonDecodeError returns)
 subscriptionWithDecoder decodeFn =
   subscriptionOptsWithDecoder decodeFn identity
-
-ignoreErrors :: forall err returns. Event (Either err returns) -> Event returns
-ignoreErrors = filterMap hush
 
 -- | Run a graphQL subscription, getting the full response,
 -- | According to https://spec.graphql.org/June2018/#sec-Response-Format
@@ -73,7 +70,7 @@ subscriptionFullRes ::
   (Client client a b schema) ->
   String ->
   subscription ->
-  Event (Either JsonDecodeError (GqlRes returns))
+  Emitter (Either JsonDecodeError (GqlRes returns))
 subscriptionFullRes decodeFn optsF (Client client) queryNameUnsafe q = ado
     json <- subscriptionEventOpts optsF client query
     in getFullRes decodeFn json

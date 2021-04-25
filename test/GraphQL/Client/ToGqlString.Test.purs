@@ -2,12 +2,12 @@ module GraphQL.Client.ToGqlString.Test where
 
 import Prelude
 
-import Data.Symbol (SProxy(..))
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Args (IgnoreArg(..), (++), (=>>))
 import GraphQL.Client.ToGqlString (toGqlQueryString, toGqlQueryStringFormatted)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
+import Type.Proxy (Proxy(..))
 
 spec :: Spec Unit
 spec =
@@ -63,7 +63,7 @@ spec =
   b
 }"""
       it "converts aliases"
-        $ toGqlQueryStringFormatted { a_alias: (SProxy :: SProxy "a") : { nested_alias: (SProxy :: SProxy "nested") }, b: unit }
+        $ toGqlQueryStringFormatted { a_alias: (Proxy :: _ "a") : { nested_alias: (Proxy :: _ "nested") }, b: unit }
             `shouldEqual`
               """ {
   a_alias: a {
@@ -74,11 +74,11 @@ spec =
       it "converts aliases and nested args"
         $ toGqlQueryStringFormatted
             { a_alias:
-                (SProxy :: SProxy "a")
+                (Proxy :: _ "a")
                   : { arg: "abc"
                     , where: { id: { eq: 10 } }
                     }
-                  =>> { nested_alias: (SProxy :: SProxy "nested") }
+                  =>> { nested_alias: (Proxy :: _ "nested") }
             , b: unit
             }
             `shouldEqual`
@@ -91,11 +91,11 @@ spec =
       it "converts aliases and nested args (unformatted)"
         $ toGqlQueryString
             { a_alias:
-                (SProxy :: SProxy "a")
+                (Proxy :: _ "a")
                   : { arg: "abc"
                     , where: { id: { eq: 10 } }
                     }
-                  =>> { nested_alias: (SProxy :: SProxy "nested") }
+                  =>> { nested_alias: (Proxy :: _ "nested") }
             , b: unit
             }
             `shouldEqual`

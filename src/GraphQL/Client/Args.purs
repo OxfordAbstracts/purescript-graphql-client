@@ -6,13 +6,15 @@ import Data.Bifunctor (class Bifunctor)
 import Data.Date (Date)
 import Data.DateTime (DateTime)
 import Data.Maybe (Maybe)
-import Data.Symbol (class IsSymbol, SProxy)
+import Data.Symbol (class IsSymbol)
 import Data.Time (Time)
 import Data.Typelevel.Bool (class Or, False, True)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex)
 import Heterogeneous.Mapping (class HMapWithIndex, class MappingWithIndex)
 import Prim.Row as Row
+import Type.Proxy (Proxy)
 
+data Params :: forall k1 k2. k1 -> k2 -> Type
 data Params p t
 
 infixr 6 type Params as ==>
@@ -55,6 +57,7 @@ guardArg b args =
 onlyArgs :: forall a. a -> Args a Unit
 onlyArgs a = Args a unit
 
+class ArgGql :: forall k1 k2. k1 -> k2 -> Constraint
 class ArgGql params arg
 
 instance argToGqlNotNull :: (IsMaybeOrIgnored arg False, ArgGql param arg) => ArgGql (NotNull param) arg
@@ -65,6 +68,7 @@ else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
 else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql param (OrArg argL argR)
 else instance argToGqlIgnore :: ArgGql param IgnoreArg
 
+class IsMaybeOrIgnored :: forall k1 k2. k1 -> k2 -> Constraint
 class IsMaybeOrIgnored arg b | arg -> b 
 
 instance isMaybe :: IsMaybeOrIgnored (Maybe a) True 
@@ -99,10 +103,10 @@ instance argPropToGql_ ::
   , ArgGql param arg
   , SatisifyNotNullParam param arg
   ) =>
-  MappingWithIndex (ArgPropToGql params) (SProxy sym) arg Unit where
-  mappingWithIndex (ArgPropToGql params) sym arg = unit
+  MappingWithIndex (ArgPropToGql params) (Proxy sym) arg Unit where
+  mappingWithIndex (ArgPropToGql _) _ _ = unit
 
-class SatisifyNotNullParam param arg | param -> arg
+class SatisifyNotNullParam (param :: Type) (arg :: Type) | param -> arg
 
 instance satisfyNotNullParamRecord ::
   HFoldlWithIndex (ArgsSatisifyNotNullsProps arg) Unit { | param } Unit =>
@@ -118,8 +122,8 @@ instance argsSatisifyNotNulls_ ::
   , SatisifyNotNullParam param arg
   , Row.Cons sym arg rest args
   ) =>
-  FoldingWithIndex (ArgsSatisifyNotNullsProps args) (SProxy sym) Unit (NotNull param) Unit where
-  foldingWithIndex (ArgsSatisifyNotNullsProps args) _ sym param = unit
+  FoldingWithIndex (ArgsSatisifyNotNullsProps args) (Proxy sym) Unit (NotNull param) Unit where
+  foldingWithIndex (ArgsSatisifyNotNullsProps _) _ _ _ = unit
 else instance argsSatisifyOthers_ ::
-  FoldingWithIndex (ArgsSatisifyNotNullsProps args) (SProxy sym) Unit param Unit where
-  foldingWithIndex (ArgsSatisifyNotNullsProps args) _ sym param = unit
+  FoldingWithIndex (ArgsSatisifyNotNullsProps args) (Proxy sym) Unit param Unit where
+  foldingWithIndex (ArgsSatisifyNotNullsProps _) _ _ _ = unit

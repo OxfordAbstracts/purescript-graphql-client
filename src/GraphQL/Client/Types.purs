@@ -8,10 +8,10 @@ import Data.Either (Either)
 import Data.Maybe (Maybe)
 import Effect (Effect)
 import Effect.Aff (Aff)
-import FRP.Event (Event, makeEvent)
 import Foreign.Object (Object)
 import GraphQL.Client.QueryReturns (class QueryReturns)
 import GraphQL.Client.ToGqlString (class GqlQueryString)
+import Halogen.Subscription (Emitter, makeEmitter)
 
 class
   ( QueryReturns schema query returns
@@ -24,6 +24,7 @@ instance queriable ::
   ) =>
   GqlQuery schema query returns
 
+newtype Client :: forall k1 k2 k3. Type -> k1 -> k2 -> k3 -> Type
 newtype Client baseClient querySchema mutationSchema subscriptionSchema
   = Client baseClient
 
@@ -53,10 +54,11 @@ class SubscriptionClient baseClient opts | baseClient -> opts where
     Effect (Effect Unit)
   defSubOpts :: baseClient -> opts
 
-subscriptionEventOpts :: forall opts c. SubscriptionClient c opts => (opts -> opts) -> c -> String -> Event Json
-subscriptionEventOpts optsF client query = makeEvent (clientSubscription (optsF (defSubOpts client)) client query)
+-- TODO: Remove `Event` part of name
+subscriptionEventOpts :: forall opts c. SubscriptionClient c opts => (opts -> opts) -> c -> String -> Emitter Json
+subscriptionEventOpts optsF client query = makeEmitter (clientSubscription (optsF (defSubOpts client)) client query)
 
-subscriptionEvent :: forall opts c. SubscriptionClient c opts => c -> String -> Event Json
+subscriptionEvent :: forall opts c. SubscriptionClient c opts => c -> String -> Emitter Json
 subscriptionEvent = subscriptionEventOpts identity
 
 -- | A type class for making graphql watch queries (observable queries). 
@@ -73,10 +75,10 @@ class WatchQueryClient baseClient opts | baseClient -> opts where
     Effect (Effect Unit)
   defWatchOpts :: baseClient -> opts
 
-watchQueryEventOpts :: forall opts c. WatchQueryClient c opts => (opts -> opts) -> c -> String -> Event Json
-watchQueryEventOpts optsF client query = makeEvent (clientWatchQuery (optsF (defWatchOpts client)) client query)
+watchQueryEventOpts :: forall opts c. WatchQueryClient c opts => (opts -> opts) -> c -> String -> Emitter Json
+watchQueryEventOpts optsF client query = makeEmitter (clientWatchQuery (optsF (defWatchOpts client)) client query)
 
-watchQueryEvent :: forall opts c. WatchQueryClient c opts => c -> String -> Event Json
+watchQueryEvent :: forall opts c. WatchQueryClient c opts => c -> String -> Emitter Json
 watchQueryEvent = watchQueryEventOpts identity
 
 -- Full response types 
