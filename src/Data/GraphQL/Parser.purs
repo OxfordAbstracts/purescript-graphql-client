@@ -1,6 +1,7 @@
 module Data.GraphQL.Parser where
 
 import Prelude hiding (between)
+
 import Control.Alt ((<|>))
 import Control.Lazy (fix)
 import Data.Array (many, singleton, some)
@@ -8,14 +9,16 @@ import Data.Enum (toEnum)
 import Data.Foldable (fold)
 import Data.GraphQL.AST as AST
 import Data.Int as DI
+import Data.List (List(..), (:))
 import Data.List as L
+import Data.List as List
 import Data.Maybe (Maybe(..), maybe)
 import Data.Number as DN
 import Data.String.CodePoints as CP
 import Data.String.CodeUnits (fromCharArray)
 import Data.Traversable (sequence)
-import Text.Parsing.Parser (Parser, fail)
-import Text.Parsing.Parser.Combinators (between, lookAhead, option, optional, sepBy1, sepEndBy, sepEndBy1, try, (<?>))
+import Text.Parsing.Parser (Parser, ParserT, fail)
+import Text.Parsing.Parser.Combinators (between, lookAhead, option, optional, sepBy1, try, (<?>))
 import Text.Parsing.Parser.String (class StringLike, anyChar, char, noneOf, oneOf, string)
 
 -------
@@ -29,6 +32,18 @@ ca2str = pure <<< fromCharArray
 
 toCA ∷ ∀ s. Char → Parser s (Array Char)
 toCA = pure <<< singleton
+
+-- | Parse phrases delimited and optionally terminated by a separator.
+sepEndBy_ :: forall m s a sep. Monad m => ParserT s m a -> ParserT s m sep -> ParserT s m (List a)
+sepEndBy_ p sep = sepEndBy1_ p sep <|> pure Nil
+
+-- | Parse phrases delimited and optionally terminated by a separator, requiring at least one match.
+sepEndBy1_ :: forall m s a sep. Monad m => ParserT s m a -> ParserT s m sep -> ParserT s m (List a)
+sepEndBy1_ p sep = do
+  a <- p
+  (do _ <- sep
+      as <- sepEndBy_ p sep
+      pure (a : as)) <|> pure (List.singleton a)
 
 --------------
 -- chars
@@ -224,10 +239,10 @@ argument vc =
     <*> (ignoreMe *> char ':' *> ignoreMe *> vc)
 
 _listish ∷ ∀ s p. StringLike s ⇒ Parser s p → Parser s (L.List p)
-_listish p = sepEndBy p ignoreMe
+_listish p = sepEndBy_ p ignoreMe
 
 _listish1 ∷ ∀ s p. StringLike s ⇒ Parser s p → Parser s (L.List p)
-_listish1 p = L.fromFoldable <$> sepEndBy1 p ignoreMe
+_listish1 p = L.fromFoldable <$> sepEndBy1_ p ignoreMe
 
 listish ∷ ∀ s p. StringLike s ⇒ String → String → Parser s p → Parser s (L.List p)
 listish o c p = string o *> ignoreMe *> _listish p <* string c
@@ -250,7 +265,7 @@ value =
       <|> (try (AST.Value_EnumValue <$> enumValue))
       <|> (try (AST.Value_ListValue <$> listValue p))
       <|> (AST.Value_ObjectValue <$> objectValue p)
-      <?> "Could not parse value"
+      <?> "value"
 
 --- util
 ooo ∷ ∀ s a. StringLike s ⇒ Parser s a → Parser s (Maybe a)
@@ -279,7 +294,7 @@ typeSystemDirectiveLocation =
     <|> (try (string "ENUM_VALUE") *> pure AST.ENUM_VALUE)
     <|> (try (string "INPUT_OBJECT") *> pure AST.INPUT_OBJECT)
     <|> (string "INPUT_FIELD_DEFINITION" *> pure AST.INPUT_FIELD_DEFINITION)
-    <?> "Could not parse typeSystemDirectiveLocation"
+    <?> "typeSystemDirectiveLocation"
 
 executableDirectiveLocation ∷ ∀ s. StringLike s ⇒ Parser s AST.ExecutableDirectiveLocation
 executableDirectiveLocation =
@@ -290,13 +305,13 @@ executableDirectiveLocation =
     <|> (try (string "FRAGMENT_DEFINITION") *> pure AST.FRAGMENT_DEFINITION)
     <|> (try (string "FRAGMENT_SPREAD") *> pure AST.FRAGMENT_SPREAD)
     <|> (string "INLINE_FRAGMENT" *> pure AST.INLINE_FRAGMENT)
-    <?> "Could not parse executableDirectiveLocation"
+    <?> "executableDirectiveLocation"
 
 directiveLocation ∷ ∀ s. StringLike s ⇒ Parser s AST.DirectiveLocation
 directiveLocation =
   (try (AST.DirectiveLocation_TypeSystemDirectiveLocation <$> typeSystemDirectiveLocation))
     <|> (AST.DirectiveLocation_ExecutableDirectiveLocation <$> executableDirectiveLocation)
-    <?> "Could not parse directiveLocation"
+    <?> "directiveLocation"
 
 directiveLocations ∷ ∀ s. StringLike s ⇒ Parser s AST.DirectiveLocations
 directiveLocations =
@@ -325,7 +340,7 @@ nonNullType ∷ ∀ s. StringLike s ⇒ Parser s AST.Type → Parser s AST.NonNu
 nonNullType v =
   (try (AST.NonNullType_NamedType <$> (namedType <* char '!')))
     <|> (AST.NonNullType_ListType <$> (listType v <* char '!'))
-    <?> "Could not parse nonNullType"
+    <?> "nonNullType"
 
 _type ∷ ∀ s. StringLike s ⇒ Parser s AST.Type
 _type =
@@ -333,7 +348,7 @@ _type =
     (try (AST.Type_NonNullType <$> nonNullType p))
       <|> (try (AST.Type_NamedType <$> namedType))
       <|> (AST.Type_ListType <$> listType p)
-      <?> "Could not parse type"
+      <?> "type"
 
 defaultValue ∷ ∀ s. StringLike s ⇒ Parser s AST.DefaultValue
 defaultValue = char '=' *> ignoreMe *> (AST.DefaultValue <$> value)
@@ -389,7 +404,7 @@ unionTypeExtension =
     *> ignoreMe
     *> ( (try unionTypeExtensionWithUnionMemberTypes)
           <|> unionTypeExtensionWithDirectives
-          <?> "Could not parse unionTypeExtension"
+          <?> "unionTypeExtension"
       )
 
 unionTypeDefinition ∷ ∀ s. StringLike s ⇒ Parser s AST.UnionTypeDefinition
@@ -429,7 +444,7 @@ enumTypeExtension =
     *> ignoreMe
     *> ( (try enumTypeExtensionWithEnumValuesDefinition)
           <|> enumTypeExtensionWithDirectives
-          <?> "Could not parse enumTypeExtension"
+          <?> "enumTypeExtension"
       )
 
 enumTypeDefinition ∷ ∀ s. StringLike s ⇒ Parser s AST.EnumTypeDefinition
@@ -457,7 +472,7 @@ operationType =
   (try $ string "query" *> pure AST.Query)
     <|> (try $ string "mutation" *> pure AST.Mutation)
     <|> (string "subscription" *> pure AST.Subscription)
-    <?> "Could not parse operation type"
+    <?> "operation type"
 
 operationTypeDefinition ∷ ∀ s. StringLike s ⇒ Parser s (AST.OperationTypeDefinition)
 operationTypeDefinition =
@@ -525,7 +540,7 @@ schemaExtension =
     *> ignoreMe
     *> ( (try schemaExtensionWithOperationTypeDefinition)
           <|> schemaExtensionWithDirectives
-          <?> "Could not parse schemaExtension"
+          <?> "schemaExtension"
       )
 
 --------
@@ -557,7 +572,7 @@ objectTypeExtension =
     *> ( (try objectTypeExtensionWithFieldsDefinition)
           <|> (try objectTypeExtensionWithDirectives)
           <|> objectTypeExtensionWithImplementsInterfaces
-          <?> "Could not parse objectTypeExtension"
+          <?> "objectTypeExtension"
       )
 
 -----
@@ -583,7 +598,7 @@ inputObjectTypeExtension =
     *> ignoreMe
     *> ( (try inputObjectTypeExtensionWithInputFieldsDefinition)
           <|> inputObjectTypeExtensionWithDirectives
-          <?> "Could not parse inputObjectTypeExtension"
+          <?> "inputObjectTypeExtension"
       )
 
 inputObjectTypeDefinition ∷ ∀ s. StringLike s ⇒ Parser s AST.InputObjectTypeDefinition
@@ -614,7 +629,7 @@ interfaceTypeExtension =
     *> ignoreMe
     *> ( (try interfaceTypeExtensionWithFieldsDefinition)
           <|> interfaceTypeExtensionWithDirectives
-          <?> "Could not parse interfaceTypeExtension"
+          <?> "interfaceTypeExtension"
       )
 
 interfaceTypeDefinition ∷ ∀ s. StringLike s ⇒ Parser s AST.InterfaceTypeDefinition
@@ -633,7 +648,7 @@ typeDefinition =
     <|> (try (AST.TypeDefinition_UnionTypeDefinition <$> unionTypeDefinition))
     <|> (try (AST.TypeDefinition_EnumTypeDefinition <$> enumTypeDefinition))
     <|> (AST.TypeDefinition_InputObjectTypeDefinition <$> inputObjectTypeDefinition)
-    <?> "Could not parse typeDefinition"
+    <?> "typeDefinition"
 
 typeExtension ∷ ∀ s. StringLike s ⇒ Parser s AST.TypeExtension
 typeExtension =
@@ -643,7 +658,7 @@ typeExtension =
     <|> (try (AST.TypeExtension_UnionTypeExtension <$> unionTypeExtension))
     <|> (try (AST.TypeExtension_EnumTypeExtension <$> enumTypeExtension))
     <|> (AST.TypeExtension_InputObjectTypeExtension <$> inputObjectTypeExtension)
-    <?> "Could not parse typeExtension"
+    <?> "typeExtension"
 
 rootOperationDefinition ∷ ∀ s. StringLike s ⇒ Parser s AST.RootOperationTypeDefinition
 rootOperationDefinition =
@@ -670,7 +685,7 @@ typeSystemDefinition =
   (try (AST.TypeSystemDefinition_SchemaDefinition <$> schemaDefinition))
     <|> (try (AST.TypeSystemDefinition_TypeDefinition <$> typeDefinition))
     <|> (AST.TypeSystemDefinition_DirectiveDefinition <$> directiveDefinition)
-    <?> "Could not parse typeSystemDefinition"
+    <?> "typeSystemDefinition"
 
 alias ∷ ∀ s. StringLike s ⇒ Parser s String
 alias = name <* ignoreMe <* char ':'
@@ -687,7 +702,7 @@ selection ss =
   (try (AST.Selection_Field <$> (field ss)))
     <|> (try (AST.Selection_FragmentSpread <$> fragmentSpread))
     <|> (AST.Selection_InlineFragment <$> (inlineFragment ss))
-    <?> "Could not parse selection"
+    <?> "selection"
 
 selectionSet ∷ ∀ s. StringLike s ⇒ Parser s AST.SelectionSet
 selectionSet = fix \p → AST.SelectionSet <$> listish "{" "}" (selection p)
@@ -724,20 +739,20 @@ typeSystemExtension ∷ ∀ s. StringLike s ⇒ Parser s AST.TypeSystemExtension
 typeSystemExtension =
   (try (AST.TypeSystemExtension_SchemaExtension <$> schemaExtension))
     <|> (AST.TypeSystemExtension_TypeExtension <$> typeExtension)
-    <?> "Could not parse typeSystemExtension"
+    <?> "typeSystemExtension"
 
 executableDefinition ∷ ∀ s. StringLike s ⇒ Parser s AST.ExecutableDefinition
 executableDefinition =
   (try (AST.ExecutableDefinition_OperationDefinition <$> operationDefinition))
     <|> (AST.ExecutableDefinition_FragmentDefinition <$> fragmentDefinition)
-    <?> "Could not parse executableDefinition"
+    <?> "executableDefinition"
 
 definition ∷ ∀ s. StringLike s ⇒ Parser s AST.Definition
 definition =
   (try (AST.Definition_ExecutableDefinition <$> executableDefinition))
     <|> (try (AST.Definition_TypeSystemDefinition <$> typeSystemDefinition))
     <|> (AST.Definition_TypeSystemExtension <$> typeSystemExtension)
-    <?> "Could not parse definition"
+    <?> "definition"
 
 document ∷ ∀ s. StringLike s ⇒ Parser s AST.Document
 document = AST.Document <$> (ignoreMe *> _listish definition)

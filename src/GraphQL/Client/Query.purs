@@ -96,7 +96,7 @@ query_ ::
   GqlQuery schema query returns =>
   DecodeJson returns =>
   URL -> Proxy schema -> String -> query -> Aff returns
-query_ url schema name q = do
+query_ url _ name q = do
   client <-
     liftEffect
       $ createGlobalClientUnsafe
@@ -160,7 +160,7 @@ mutation_ ::
   GqlQuery schema mutation returns =>
   DecodeJson returns =>
   URL -> Proxy schema -> String -> mutation -> Aff returns
-mutation_ url schema name q = do
+mutation_ url _ name q = do
   client <-
     liftEffect
       $ createGlobalClientUnsafe

@@ -9,14 +9,12 @@ import Data.List (fold, foldMap, intercalate, mapMaybe)
 import Data.Maybe (Maybe(..))
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
-import Data.String (toLower)
-import Data.String.CodeUnits as SCU
-import Debug (spy)
+import Data.String as String
 import GraphQL.Client.CodeGen.Lines (indent)
 import Text.Parsing.Parser (ParseError, runParser)
 
 queryFromGqlToPurs :: String -> Either ParseError String
-queryFromGqlToPurs gql = runParser gql document <#> spy gql <#> toPurs
+queryFromGqlToPurs gql = runParser gql document <#> toPurs
   where
   toPurs :: AST.Document -> String
   toPurs = unwrap >>> mapMaybe definitionToPurs >>> intercalate "\n\n"
@@ -111,6 +109,4 @@ queryFromGqlToPurs gql = runParser gql document <#> spy gql <#> toPurs
       <> " )"
 
 lowerCaseFirst :: String -> String
-lowerCaseFirst =
-  SCU.uncons >>> foldMap \{ head, tail } ->
-   toLower (SCU.singleton head) <> tail
+lowerCaseFirst str = String.toLower (String.take 1 str) <> (String.drop 1 str)

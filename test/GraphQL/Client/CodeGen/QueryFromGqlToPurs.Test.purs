@@ -4,21 +4,21 @@ import Prelude
 
 import Data.Either (Either(..))
 import GraphQL.Client.CodeGen.Query (queryFromGqlToPurs)
-import Test.Spec (Spec, describe, it, itOnly)
+import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
 
 spec :: Spec Unit
 spec =
   describe "GraphQL.Client.CodeGen.Query" do
     describe "toGqlQueryString mainSchemaCode" do
-      itOnly "converts a single prop query" do
+      it "converts a single prop query" do
         """query MyQuery {
   users {
     first_name
   }
 }"""
           `shouldBeAsPurs`
-            """"myQuery = 
+            """myQuery = 
   { users:
     { first_name
     }
