@@ -11,7 +11,6 @@ import Generated.Gql.Schema.Admin (Query, Subscription, Mutation)
 import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.BaseClients.Apollo (createSubscriptionClient, updateCacheJson)
 import GraphQL.Client.Query (mutationOpts)
-import GraphQL.Client.Subscription (ignoreErrors)
 import GraphQL.Client.Types (Client)
 import GraphQL.Client.WatchQuery (watchQuery)
 import Data.Argonaut.Core (jsonNull, jsonTrue)
@@ -26,7 +25,7 @@ main = do
       }
   let
     myQuery = { posts: { author: unit, comment: unit } }
-    event = ignoreErrors $ watchQuery client "get_props" myQuery
+    event = watchQuery client "get_props" myQuery
 
   cancel <-
     HS.subscribe event \e -> do

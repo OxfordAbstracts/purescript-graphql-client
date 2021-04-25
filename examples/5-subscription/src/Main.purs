@@ -10,7 +10,7 @@ import Generated.Gql.Schema.Admin (Query, Subscription, Mutation)
 import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.BaseClients.Apollo (createSubscriptionClient)
 import GraphQL.Client.Query (mutation)
-import GraphQL.Client.Subscription (subscription, ignoreErrors)
+import GraphQL.Client.Subscription (subscription)
 import GraphQL.Client.Types (Client)
 
 main :: Effect Unit
@@ -23,7 +23,7 @@ main = do
       , websocketUrl: "ws://localhost:4000/subscriptions"
       }
   let
-    event = ignoreErrors $ subscription client "get_props" { postAdded: { author: unit, comment: unit } }
+    event = subscription client "get_props" { postAdded: { author: unit, comment: unit } }
 
   cancel <-
     HS.subscribe event \e -> do
