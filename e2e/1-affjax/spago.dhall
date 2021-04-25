@@ -3,7 +3,7 @@ Welcome to a Spago project!
 You can edit this file as you like.
 -}
 { name = "my-project"
-, dependencies = 
+, dependencies =
   [ "aff"
   , "aff-promise"
   , "affjax"
@@ -11,6 +11,7 @@ You can edit this file as you like.
   , "argonaut-core"
   , "arrays"
   , "bifunctors"
+  , "console"
   , "control"
   , "datetime"
   , "effect"
