@@ -11,7 +11,6 @@ You can edit this file as you like.
   , "argonaut-core"
   , "console"
   , "effect"
-  , "event"
   , "foreign-generic"
   , "foreign-object"
   , "heterogeneous"
