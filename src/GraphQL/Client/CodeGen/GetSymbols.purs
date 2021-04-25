@@ -14,15 +14,16 @@ symbolsToCode :: forall f. Foldable f => String -> f String -> String
 symbolsToCode modulePrefix symbols =
   """module """ <> modulePrefix <> """Symbols where
 
-import Data.Symbol (Proxy(..))
+import Type.Proxy (Proxy(..))
 """
     <> symbolsString
   where
   symbolsString =
      symbols
         # Array.fromFoldable
-        # Array.nub
-        # foldMap (\s -> "\n" <> s <> " :: Proxy " <> show s <> "\n" <> s <> " = Proxy")
+        # Array.nub 
+        # foldMap (\s -> "\n" <> s <> " = Proxy :: Proxy" <> show s
+          )
 
 getSymbols :: AST.Document -> List String
 getSymbols doc = unwrap doc >>= definitionToSymbols # nub # sort

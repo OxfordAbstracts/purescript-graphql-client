@@ -198,6 +198,7 @@ queryForeign isMutation opts client name q_ = fromEffectFnAff $ fn opts (unsafeC
 
   q = opStr <> " " <> name <> " " <> q_
 
+class IsApollo :: forall k. k -> Constraint
 class IsApollo cl
 
 instance isApolloClient :: IsApollo ApolloClient
