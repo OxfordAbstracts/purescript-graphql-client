@@ -33,8 +33,7 @@
     "purescript-strings-extra": "v2.2.1",
     "purescript-typelevel": "v6.0.0",
     "purescript-variant": "v6.0.1",
-    "purescript-string-parsers": "v5.0.1",
-    "purescript-graphql-parser": "meeshkan/purescript-graphql-parser#v0.0.11"
+    "purescript-string-parsers": "v5.0.1"
   },
   "resolutions": {
     "purescript-functions": "^v4.0.0"
