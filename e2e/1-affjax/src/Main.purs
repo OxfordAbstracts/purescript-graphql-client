@@ -11,6 +11,7 @@ import GraphQL.Client.Args (type (==>), (=>>))
 import GraphQL.Client.BaseClients.Affjax (AffjaxClient(..))
 import GraphQL.Client.Query (query, queryFullRes)
 import GraphQL.Client.Types (class GqlQuery, Client(..))
+import Type.Proxy (Proxy(..))
 
 main :: Effect Unit
 main =

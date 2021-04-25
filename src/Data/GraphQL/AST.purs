@@ -1,5 +1,6 @@
 module Data.GraphQL.AST where
 
+import Prim hiding (Type)
 import Prelude
 import Data.Generic.Rep (class Generic)
 import Data.Show.Generic (genericShow)
