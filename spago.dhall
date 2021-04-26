@@ -18,6 +18,7 @@ You can edit this file as you like.
   , "effect"
   , "either"
   , "enums"
+  , "exceptions"
   , "foldable-traversable"
   , "foreign"
   , "foreign-generic"
@@ -31,11 +32,15 @@ You can edit this file as you like.
   , "maybe"
   , "media-types"
   , "newtype"
+  , "node-buffer"
+  , "node-fs"
   , "nullable"
   , "numbers"
   , "ordered-collections"
   , "parsing"
   , "prelude"
+  , "profunctor"
+  , "profunctor-lenses"
   , "psci-support"
   , "quickcheck"
   , "record"
@@ -49,6 +54,7 @@ You can edit this file as you like.
   , "type-equality"
   , "typelevel"
   , "unicode"
+  -- , "unsafe-coerce"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
