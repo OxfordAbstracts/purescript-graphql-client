@@ -54,7 +54,7 @@ You can edit this file as you like.
   , "type-equality"
   , "typelevel"
   , "unicode"
-  , "unsafe-coerce"
+  -- , "unsafe-coerce"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
