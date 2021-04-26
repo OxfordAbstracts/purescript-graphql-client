@@ -5,7 +5,6 @@ import Prelude
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype, unwrap)
 import Data.Symbol (class IsSymbol)
-import Data.Typelevel.Undefined (undefined)
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Args (class SatisifyNotNullParam, ArgPropToGql, Args(..), Params)
 import Heterogeneous.Mapping (class HMapWithIndex, class MappingWithIndex, hmapWithIndex)
@@ -22,7 +21,7 @@ queryReturns _ _ = Proxy
 
 class QueryReturns schema query returns | schema query -> returns where
   -- | Do not use this. Use `queryReturns` instead. Only exported due to compiler restrictions
-  queryReturnsImpl :: schema -> query -> returns
+  queryReturnsImpl :: schema -> query -> returns -- TODO: use Proxies here so undefined is not needed
 
 instance queryReturnsArray :: QueryReturns a q t => QueryReturns (Array a) q (Array t) where
   queryReturnsImpl _ q = pure $ queryReturnsImpl (undefined :: a) q
@@ -99,3 +98,6 @@ propToSchemaType ::
   HMapWithIndex (PropToSchemaType schema) query returns =>
   Record schema -> query -> returns
 propToSchemaType schema query_ = hmapWithIndex (PropToSchemaType schema) query_
+
+
+foreign import undefined :: forall a. a
