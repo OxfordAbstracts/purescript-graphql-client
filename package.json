@@ -1,6 +1,6 @@
 {
   "name": "purescript-graphql-client",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "A typesafe graphql client for purescript.",
   "main": "codegen/schema/index.js",
   "directories": {
