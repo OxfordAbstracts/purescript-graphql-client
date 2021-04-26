@@ -8,7 +8,6 @@ import Data.DateTime (Date, DateTime(..), Time(..), day, month, year)
 import Data.Enum (class BoundedEnum, fromEnum)
 import Data.Maybe (Maybe)
 import Heterogeneous.Mapping (class HMap, class Mapping, hmap)
-import Unsafe.Coerce (unsafeCoerce)
 
 class EncodeHasura a where
   encodeHasura :: a -> Json
@@ -65,10 +64,9 @@ showEnum :: forall b. BoundedEnum b => b -> String
 showEnum = show <<< fromEnum
 
 instance encodeHasuraRecord :: HMap EncodeHasuraProp { | r } jsonRecord => EncodeHasura { | r } where
-  encodeHasura = encodeRecordProps >>> recordToJson
-    where
-    recordToJson :: jsonRecord -> Json
-    recordToJson = unsafeCoerce
+  encodeHasura = encodeRecordProps >>> unsafeToJson
+
+foreign import unsafeToJson :: forall a. a -> Json
 
 data EncodeHasuraProp
   = EncodeHasuraProp

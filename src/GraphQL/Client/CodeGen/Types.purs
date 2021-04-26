@@ -6,6 +6,7 @@ module GraphQL.Client.CodeGen.Types
   , FileToWrite
   , FilesToWrite
   , JsResult
+  , defaultInputOptions
   ) where
 
 import Prelude hiding (between)

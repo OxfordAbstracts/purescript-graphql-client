@@ -38,7 +38,6 @@ import GraphQL.Client.BaseClients.Apollo.ErrorPolicy (ErrorPolicy(..))
 import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
 import GraphQL.Client.Types (class GqlQuery, class QueryClient, class SubscriptionClient, class WatchQueryClient, Client(..))
-import Unsafe.Coerce (unsafeCoerce)
 
 type ApolloClientOptions
   = { url :: URL
@@ -182,8 +181,7 @@ queryForeign ::
   forall q m client.
   QueryClient client q m =>
   Boolean -> Foreign -> client -> String -> String -> Aff Json
-queryForeign isMutation opts client name q_ = fromEffectFnAff $ fn opts (unsafeCoerce client) q
-  -- fromEffectFnAff $ fn (apolloOptionsToForeign opts) (unsafeCoerce client) q
+queryForeign isMutation opts client name q_ = fromEffectFnAff $ fn opts (unsafeToForeign client) q
   where
   fn = if isMutation then mutationImpl else queryImpl
 

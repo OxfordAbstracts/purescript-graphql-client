@@ -1,14 +1,12 @@
 module GraphQL.Client.QueryReturns.Test where
 
 import Prelude
+
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
-import Data.Typelevel.Bool (True)
-import Data.Typelevel.Undefined (undefined)
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Args (type (==>), NotNull, (=>>), (++))
 import GraphQL.Client.QueryReturns (class QueryReturns, queryReturns)
-import Type.Equality (class TypeEquals)
 import Type.Proxy (Proxy(..))
 
 -- TYPE LEVEL TESTS
@@ -244,24 +242,23 @@ name_alias = Proxy
 other_names :: Proxy "other_names"
 other_names = Proxy
 
-class QueryReturnsTypeChecks :: forall k. k -> Type -> Type -> Constraint
-class QueryReturnsTypeChecks schema query checks | schema checks -> query where
-  typeChecks :: Proxy schema -> query -> checks
+class QueryReturnsTypeChecks :: forall k. k -> Type -> Constraint
+class QueryReturnsTypeChecks schema query where
+  typeChecks :: Proxy schema -> query -> Unit
 
 instance queryReturnsTypeChecks ::
   ( QueryReturns schema query returns
-  , TypeEquals bool True
   ) =>
-  QueryReturnsTypeChecks schema query True where
-  typeChecks _ _ = undefined
+  QueryReturnsTypeChecks schema query where
+  typeChecks _ _ = unit
 
-passing1 :: True
+passing1 :: Unit
 passing1 =
   typeChecks testSchemaProxy
     { users: { id }
     }
 
-passing2 :: True
+passing2 :: Unit
 passing2 =
   typeChecks testNotNullParamsSchemaProxy
     { users: { online: false } =>> { id }
@@ -282,13 +279,13 @@ type TestNestedParamsSchema
 testNestedParamsSchemaProxy :: Proxy TestNestedParamsSchema
 testNestedParamsSchemaProxy = Proxy
 
-passingTestNestedParamsSchema1 :: True
+passingTestNestedParamsSchema1 :: Unit
 passingTestNestedParamsSchema1 =
   typeChecks testNestedParamsSchemaProxy
     { users: { online: true } =>> { id }
     }
 
-passingTestNestedParamsSchema2 :: True
+passingTestNestedParamsSchema2 :: Unit
 passingTestNestedParamsSchema2 =
   typeChecks testNestedParamsSchemaProxy
     { users: { online: false, nested: { required: 1 } } =>> { id }
@@ -315,13 +312,13 @@ derive instance newTypeChildLevel :: Newtype ChildLevel _
 testCircularNewtypeSchemaProxy :: Proxy TestCircularNewtypeSchema
 testCircularNewtypeSchemaProxy = Proxy
 
-passingCircularNewtypeSchema1 :: True
+passingCircularNewtypeSchema1 :: Unit
 passingCircularNewtypeSchema1 =
   typeChecks testCircularNewtypeSchemaProxy
     { top: { child: { val: unit } }
     }
 
-passingCircularNewtypeSchema2 :: True
+passingCircularNewtypeSchema2 :: Unit
 passingCircularNewtypeSchema2 =
   typeChecks testCircularNewtypeSchemaProxy
     { top: { child: { top: { child: { val: unit } } } }

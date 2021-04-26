@@ -11,7 +11,7 @@ jobs:
       - uses: purescript-contrib/setup-purescript@main
         with:
           purescript: "0.14.1"
-          psa: "0.7.2"
+          psa: "0.8.2"
           spago: "0.20.1"
 
       - name: Cache PureScript dependencies

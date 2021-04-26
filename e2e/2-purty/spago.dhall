@@ -42,19 +42,14 @@ You can edit this file as you like.
   , "profunctor"
   , "profunctor-lenses"
   , "psci-support"
-  , "quickcheck"
   , "record"
-  , "spec"
-  , "spec-discovery"
   , "string-parsers"
   , "strings"
   , "strings-extra"
   , "transformers"
   , "tuples"
-  , "type-equality"
-  , "typelevel"
+  , "typelevel-prelude"
   , "unicode"
-  , "unsafe-coerce"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs", "../../src/**/*.purs" ]

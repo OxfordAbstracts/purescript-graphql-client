@@ -18,11 +18,10 @@ import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
-import Foreign (Foreign)
+import Foreign (Foreign, unsafeToForeign)
 import Foreign.Object (Object)
 import Foreign.Object as Object
 import GraphQL.Client.Types (class QueryClient, class SubscriptionClient, Client(..))
-import Unsafe.Coerce (unsafeCoerce)
 
 type UrqlClientOptions
   = { url :: URL
@@ -110,7 +109,7 @@ queryForeign ::
   forall client o.
   QueryClient client o o =>
   Boolean -> client -> String -> String -> Aff Json
-queryForeign isMutation client name q_ = fromEffectFnAff $ fn (unsafeCoerce client) q
+queryForeign isMutation client name q_ = fromEffectFnAff $ fn (unsafeToForeign client) q
   where
   fn = if isMutation then mutationImpl else queryImpl
 
