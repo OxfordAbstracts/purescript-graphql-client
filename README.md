@@ -102,8 +102,6 @@ and add graphql-client and graphql-parser to your project packages.dhall
           [ "foreign"
           , "foreign-generic"
           , "strings-extra"
-          , "typelevel"
-        
           , "argonaut-codecs"
           , "variant"
           , "parsing"
