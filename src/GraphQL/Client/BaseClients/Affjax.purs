@@ -7,13 +7,13 @@ import Affjax.RequestBody as RequestBody
 import Affjax.RequestHeader (RequestHeader(..))
 import Affjax.ResponseFormat as ResponseFormat
 import Data.Argonaut.Core (Json)
+import Data.Argonaut.Encode (encodeJson)
 import Data.Either (Either(..))
 import Data.HTTP.Method as Method
 import Data.Maybe (Maybe(..))
 import Data.MediaType.Common (applicationJSON)
 import Effect.Aff (Aff, error, throwError)
 import GraphQL.Client.Types (class QueryClient)
-import Unsafe.Coerce (unsafeCoerce)
 
 data AffjaxClient
   = AffjaxClient URL (Array RequestHeader)
@@ -41,18 +41,10 @@ queryPostForeign opStr url headers queryName q =
       , content =
         Just
           $ RequestBody.Json
-          $ toJson
+          $ encodeJson
               { query: opStr <> " " <> queryName <> " " <> q
               , variables: {}
               , operationName: queryName
               }
       , headers = headers <> [ ContentType applicationJSON ]
       }
-  where
-  toJson ::
-    { operationName :: String
-    , query :: String
-    , variables :: {}
-    } ->
-    Json
-  toJson = unsafeCoerce
