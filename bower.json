@@ -59,9 +59,7 @@
         "purescript-strings-extra": "^v3.0.0",
         "purescript-transformers": "^v5.0.0",
         "purescript-tuples": "^v6.0.0",
-        "purescript-type-equality": "^v4.0.0",
-        "purescript-typelevel": "^v6.0.0",
-        "purescript-unicode": "^v5.0.0",
-        "purescript-unsafe-coerce": "^v5.0.0"
+        "purescript-typelevel-prelude": "^v6.0.0",
+        "purescript-unicode": "^v5.0.0"
     }
 }
