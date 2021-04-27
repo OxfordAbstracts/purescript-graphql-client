@@ -120,7 +120,7 @@ and add graphql-client and graphql-parser to your project packages.dhall
 and install 
 
 ```
-spago install graphql-client 
+spago install graphql-client
 ```
 
 or bower
@@ -142,7 +142,7 @@ It is possible to write the schema yourself but it is easier and safer to use th
 There is an npm library that is a thin wrapper around this library's schema codegen. First, install this package:
 
 ```
-npm i -D purescript-graphql-client
+npm i -D purescript-graphql-client@4.0.1
 ```
 
 Then add a script to generate your schema on build.
