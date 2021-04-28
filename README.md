@@ -312,9 +312,9 @@ result <- queryWithDecoder decodeHasura client "query_to_hasura_service"
 
 Arguments can be added using the `Args` constructor or the `=>>` operator. I recommend using the [query codegen tool](https://gql-query-to-purs.herokuapp.com/query) to test this out and see how it works.
 
-As GraphQL arguments may mixed types, the library provides tools to help handle this. 
+As GraphQL arguments may have mixed types, the library provides tools to help handle this. 
 
-`ArgL` and `ArgR` allow you to have different types different code branches in arguments. 
+`ArgL` and `ArgR` allow you to have different types for different code branches in arguments. 
 
 eg. 
 ```purs
@@ -341,7 +341,7 @@ result <- query client "only_set_arg_if"
   } 
 ```
 
-GraphQL arrays can be written as purescript array if they are homogenous, but for mixed type arrays
+GraphQL arrays can be written as purescript arrays if they are homogenous, but for mixed type arrays
 you can use `AndArg` or the `++` operator. 
 
 eg.
