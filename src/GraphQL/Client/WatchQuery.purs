@@ -8,7 +8,7 @@ import Data.Either (Either)
 import GraphQL.Client.Query (decodeGqlRes)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
-import GraphQL.Client.Types (class GqlQuery, class WatchQueryClient, Client(..), watchQueryEvent, watchQueryEventOpts)
+import GraphQL.Client.Types (class GqlQuery, class WatchQueryClient, Client(..), watchQueryEventOpts)
 import Halogen.Subscription (Emitter)
 
 watchQueryOpts ::
