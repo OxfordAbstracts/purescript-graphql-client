@@ -102,8 +102,6 @@ and add graphql-client and graphql-parser to your project packages.dhall
           [ "foreign"
           , "foreign-generic"
           , "strings-extra"
-          , "typelevel"
-        
           , "argonaut-codecs"
           , "variant"
           , "parsing"
@@ -116,13 +114,13 @@ and add graphql-client and graphql-parser to your project packages.dhall
           "https://github.com/OxfordAbstracts/purescript-graphql-client.git"
       , version =
           {- set this to the version of graphql-client you want -}
-          "v3.0.1"
+          "v4.0.1"
       }
 ```
 and install 
 
 ```
-spago install graphql-client 
+spago install graphql-client
 ```
 
 or bower
@@ -144,7 +142,7 @@ It is possible to write the schema yourself but it is easier and safer to use th
 There is an npm library that is a thin wrapper around this library's schema codegen. First, install this package:
 
 ```
-npm i -D purescript-graphql-client
+npm i -D purescript-graphql-client@4.0.2
 ```
 
 Then add a script to generate your schema on build.
@@ -314,9 +312,9 @@ result <- queryWithDecoder decodeHasura client "query_to_hasura_service"
 
 Arguments can be added using the `Args` constructor or the `=>>` operator. I recommend using the [query codegen tool](https://gql-query-to-purs.herokuapp.com/query) to test this out and see how it works.
 
-As GraphQL arguments may mixed types, the library provides tools to help handle this. 
+As GraphQL arguments may have mixed types, the library provides tools to help handle this. 
 
-`ArgL` and `ArgR` allow you to have different types different code branches in arguments. 
+`ArgL` and `ArgR` allow you to have different types for different code branches in arguments. 
 
 eg. 
 ```purs
@@ -343,7 +341,7 @@ result <- query client "only_set_arg_if"
   } 
 ```
 
-GraphQL arrays can be written as purescript array if they are homogenous, but for mixed type arrays
+GraphQL arrays can be written as purescript arrays if they are homogenous, but for mixed type arrays
 you can use `AndArg` or the `++` operator. 
 
 eg.
