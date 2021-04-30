@@ -35,7 +35,7 @@ watchQueryOptsWithDecoder decodeFn optsF (Client client) queryNameUnsafe q =
   where
   queryName = safeQueryName queryNameUnsafe
 
-  query = "watchQuery " <> queryName <> " " <> toGqlQueryString q
+  query = "query " <> queryName <> " " <> toGqlQueryString q
 
 
 watchQuery ::
@@ -55,10 +55,4 @@ watchQueryWithDecoder ::
   String ->
   query ->
   Emitter (Either JsonDecodeError returns)
-watchQueryWithDecoder decodeFn (Client client) queryNameUnsafe q =
-  watchQueryEvent client query
-    <#> decodeGqlRes decodeFn
-  where
-  queryName = safeQueryName queryNameUnsafe
-
-  query = "query " <> queryName <> " " <> toGqlQueryString q
+watchQueryWithDecoder decodeFn = watchQueryOptsWithDecoder decodeFn identity
