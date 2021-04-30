@@ -1,6 +1,6 @@
 {
   "name": "purescript-graphql-client",
-  "version": "2.1.7",
+  "version": "4.0.2",
   "description": "A typesafe graphql client for purescript.",
   "main": "codegen/schema/index.js",
   "directories": {
@@ -8,7 +8,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "spago test --no-install && node ./run-example-tests && node ./run-should-fail-tests",
+    "test": "spago test --no-install && node ./run-example-tests && npm run should-fail-tests",
+    "should-fail-tests": "node ./run-should-fail-tests",
     "bundle": "spago bundle-module -m GraphQL.Client.CodeGen.Js -t 'gen-schema-bundled.js'",
     "patch": "npm run bundle && gcam 'update bundle' --allow-empty && pulp version patch && pulp publish && npm publish",
     "patch-old": "npm run bundle && gcam 'update bundle' --allow-empty && npm version patch && pulp version patch && npm publish && pulp publish"

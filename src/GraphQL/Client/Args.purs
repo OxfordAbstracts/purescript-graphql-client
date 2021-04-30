@@ -8,7 +8,7 @@ import Data.DateTime (DateTime)
 import Data.Maybe (Maybe)
 import Data.Symbol (class IsSymbol)
 import Data.Time (Time)
-import Data.Typelevel.Bool (class Or, False, True)
+import Type.Data.Boolean (class Or, False, True)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex)
 import Heterogeneous.Mapping (class HMapWithIndex, class MappingWithIndex)
 import Prim.Row as Row

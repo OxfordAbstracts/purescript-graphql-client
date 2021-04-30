@@ -11,7 +11,6 @@ import Data.GraphQL.AST as AST
 import Data.Int as DI
 import Data.List (List(..), (:))
 import Data.List as L
-import Data.List as List
 import Data.Maybe (Maybe(..), maybe)
 import Data.Number as DN
 import Data.String.CodePoints as CP
@@ -43,7 +42,7 @@ sepEndBy1_ p sep = do
   a <- p
   (do _ <- sep
       as <- sepEndBy_ p sep
-      pure (a : as)) <|> pure (List.singleton a)
+      pure (a : as)) <|> pure (L.singleton a)
 
 --------------
 -- chars
