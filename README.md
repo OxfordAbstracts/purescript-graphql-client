@@ -102,6 +102,7 @@ and add graphql-client and graphql-parser to your project packages.dhall
           [ "foreign"
           , "foreign-generic"
           , "strings-extra"
+          , "typelevel"
           , "argonaut-codecs"
           , "variant"
           , "parsing"
@@ -109,6 +110,7 @@ and add graphql-client and graphql-parser to your project packages.dhall
           , "affjax"
           , "aff-promise"
           , "heterogeneous"
+          , "string-parsers"
           ]
       , repo =
           "https://github.com/OxfordAbstracts/purescript-graphql-client.git"
