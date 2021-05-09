@@ -213,7 +213,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
       lookup tName externalTypes
         # fromMaybe
             { moduleName: "Data.Argonaut.Core"
-            , typeName: "Json -- Unknown scalar type. Add " <> tName <> " to externalTypes in codegen options override this behaviour"
+            , typeName: "Json -- Unknown scalar type. Add " <> tName <> " to externalTypes in codegen options to override this behaviour"
             }
 
   builtInTypes = [ "Int", "Number", "String", "Boolean" ]
