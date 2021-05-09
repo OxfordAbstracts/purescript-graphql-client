@@ -1,7 +1,7 @@
 {
   "name": "4-mutation",
   "version": "1.0.0",
-  "description": "Handle enums in with code gen.",
+  "description": "Handle mutations in with code gen.",
   "main": "server.js",
   "directories": {
     "test": "test"
