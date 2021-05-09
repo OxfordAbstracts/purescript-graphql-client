@@ -102,6 +102,7 @@ and add graphql-client and graphql-parser to your project packages.dhall
           [ "foreign"
           , "foreign-generic"
           , "strings-extra"
+          , "typelevel"
           , "argonaut-codecs"
           , "variant"
           , "parsing"
@@ -109,6 +110,7 @@ and add graphql-client and graphql-parser to your project packages.dhall
           , "affjax"
           , "aff-promise"
           , "heterogeneous"
+          , "string-parsers"
           ]
       , repo =
           "https://github.com/OxfordAbstracts/purescript-graphql-client.git"
@@ -139,10 +141,10 @@ If you are looking for a production solution to schema codegen read the rest of 
 
 It is possible to write the schema yourself but it is easier and safer to use the library's codegen tools.
 
-There is an npm library that is a thin wrapper around this library's schema codegen. First, install this package:
+There is an npm library that is a thin wrapper around this library's schema codegen. First, install this package and `graphqurl` for graphql schema introspection:
 
 ```
-npm i -D purescript-graphql-client@4.0.2
+npm i -D purescript-graphql-client@4.0.2 graphqurl
 ```
 
 Then add a script to generate your schema on build.
