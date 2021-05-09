@@ -23,5 +23,8 @@
     "mkdirp": "1.0.4",
     "rimraf": "3.0.2",
     "xhr2": "0.2.0"
+  },
+  "devDependencies": {
+    "exec-sh": "^0.4.0"
   }
 }
