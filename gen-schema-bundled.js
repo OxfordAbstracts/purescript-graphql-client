@@ -28417,7 +28417,7 @@ var PS = {};
               var tName = typeName(v1.name);
               var typeAndModule = Data_Maybe.fromMaybe({
                   moduleName: "Data.Argonaut.Core",
-                  typeName: "Json -- Unknown scalar type. Add " + (tName + " to externalTypes in codegen options override this behaviour")
+                  typeName: "Json -- Unknown scalar type. Add " + (tName + " to externalTypes in codegen options to override this behaviour")
               })(Data_Map_Internal.lookup(Data_Ord.ordString)(tName)(v.externalTypes));
               return Data_Monoid.guard(Data_Monoid.monoidString)(Data_Array.notElem(Data_Eq.eqString)(tName)(builtInTypes))(GraphQL_Client_CodeGen_Lines.docComment(Data_Foldable.foldableMaybe)(v1.description) + ("type " + (tName + (" = " + (typeAndModule.moduleName + ("." + typeAndModule.typeName))))));
           };

@@ -301,11 +301,11 @@ newtype Query = Query
 derive instance newtypeQuery :: Newtype Query _
 instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
 
-type SomethingUnknown = Data.Argonaut.Core.Json -- Unknown scalar type. Add SomethingUnknown to externalTypes in codegen options override this behaviour
+type SomethingUnknown = Data.Argonaut.Core.Json -- Unknown scalar type. Add SomethingUnknown to externalTypes in codegen options to override this behaviour
 
-type SomethingElseUnknown = Data.Argonaut.Core.Json -- Unknown scalar type. Add SomethingElseUnknown to externalTypes in codegen options override this behaviour
+type SomethingElseUnknown = Data.Argonaut.Core.Json -- Unknown scalar type. Add SomethingElseUnknown to externalTypes in codegen options to override this behaviour
 
-type AlsoUnkown = Data.Argonaut.Core.Json -- Unknown scalar type. Add AlsoUnkown to externalTypes in codegen options override this behaviour"""
+type AlsoUnkown = Data.Argonaut.Core.Json -- Unknown scalar type. Add AlsoUnkown to externalTypes in codegen options to override this behaviour"""
         gql `shouldParseTo` result
   where
   mkMap :: forall v. Array (Tuple String (Array (Tuple String v))) -> Map String (Map String v)
