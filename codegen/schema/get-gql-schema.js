@@ -1,12 +1,28 @@
-const exec = require('exec-sh').promise
+const fetch = require('node-fetch')
+const {
+  getIntrospectionQuery,
+  printSchema,
+  buildClientSchema
+} = require('graphql')
 
 exports.getGqlSchema = async ({ moduleName, cache, url, token }) => {
   try {
-    const cmd = `gq ${url} \\
-    --introspect \\
-    ${token ? `-H 'Authorization: Bearer ${token}'` : ''}`
+    const introspectionQuery = getIntrospectionQuery()
 
-    const { stdout: schema } = await exec(cmd, { stdio: 'pipe' })
+    const response = await fetch(
+      url,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query: introspectionQuery })
+      }
+    )
+
+    const { data } = await response.json()
+
+    const schema = printSchema(buildClientSchema(data))
 
     return { moduleName, cache, schema }
   } catch (err) {

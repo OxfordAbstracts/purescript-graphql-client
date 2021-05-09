@@ -26,16 +26,15 @@
   "homepage": "https://github.com/OxfordAbstracts/purescript-graphql-client#readme",
   "dependencies": {
     "@urql/core": "^1.16.2",
-    "exec-sh": "0.3.4",
     "graphql": "^15.5.0",
     "graphql-ws": "^4.1.2",
-    "graphqurl": "hasura/graphqurl#722613105f88006496a3c9568e4c7f2158f77490",
     "isomorphic-unfetch": "^3.1.0",
     "mkdirp": "1.0.4",
     "rimraf": "3.0.2"
   },
   "devDependencies": {
     "@apollo/client": "^3.3.7",
+    "exec-sh": "^0.4.0",
     "wonka": "^4.0.15"
   }
 }
