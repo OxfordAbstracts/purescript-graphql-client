@@ -1,7 +1,7 @@
 {
-  "name": "3-enums",
+  "name": "3-comments",
   "version": "1.0.0",
-  "description": "Handle enums in with code gen.",
+  "description": "Handle comments in with code gen.",
   "main": "server.js",
   "directories": {
     "test": "test"
@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "console": "^0.7.2",
     "express": "4.17.1",
     "express-graphql": "0.12.0",
     "graphql": "15.4.0",
