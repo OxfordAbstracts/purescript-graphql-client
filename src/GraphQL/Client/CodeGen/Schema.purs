@@ -430,9 +430,8 @@ gqlToPursEnums = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
   enumValuesDefinitionToPurs :: AST.EnumValuesDefinition -> Array String
   enumValuesDefinitionToPurs def =
     Array.fromFoldable $ unwrap def
-      <#> \(AST.EnumValueDefinition { description, enumValue }) ->
-          inlineComment description
-            <> unwrap enumValue
+      <#> \(AST.EnumValueDefinition { enumValue }) ->
+          unwrap enumValue
 
 namedTypeToPurs :: AST.NamedType -> String
 namedTypeToPurs (AST.NamedType str) = typeName str
