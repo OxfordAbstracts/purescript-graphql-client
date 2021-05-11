@@ -19,13 +19,13 @@ const go = async () => {
     try {
       console.log(`testing: ${p}`)
 
-      await exec(`cd "./should-fail-tests/${p}" && spago install`, true);
-      await exec(`cd "./should-fail-tests/${p}" && spago build --no-install`, true);
+      await exec(`cd "./should-fail-tests/${p}" && spago install`, true)
+      await exec(`cd "./should-fail-tests/${p}" && spago build --no-install`, true)
 
       console.error(`${p} compiled. Test failed`)
       process.exit(1)
     } catch (err) {
-      const {stderr} = err;
+      const { stderr } = err
       try {
         ok(simplify(stderr, 0, 100).includes(simplify(expectedError, 4, 20)))
       } catch (e) {
