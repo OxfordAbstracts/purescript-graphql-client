@@ -9,7 +9,9 @@ import Data.String.Regex.Flags (global)
 import Data.String.Regex.Unsafe (unsafeRegex)
 
 docComment :: forall m. Foldable m => m String -> String
-docComment = foldMap (\str -> "\n" <> prependLines " -- | " str <> "\n")
+docComment = foldMap (\str -> "\n" <> prependLines commentPrefix str <> "\n")
+
+commentPrefix = " -- | " :: String
 
 indent :: String -> String
 indent = prependLines "  "

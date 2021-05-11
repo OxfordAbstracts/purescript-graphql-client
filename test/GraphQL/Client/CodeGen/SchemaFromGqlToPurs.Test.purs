@@ -307,6 +307,38 @@ type SomethingElseUnknown = Data.Argonaut.Core.Json -- Unknown scalar type. Add 
 
 type AlsoUnkown = Data.Argonaut.Core.Json -- Unknown scalar type. Add AlsoUnkown to externalTypes in codegen options to override this behaviour"""
         gql `shouldParseTo` result
+      it "removes duplicate definitions" do
+        let
+          gql =
+            """
+schema {
+  query: Query
+}
+
+type Query {
+  int: Int!
+}
+
+type X { int: Int! }
+type X { int: Int! }
+          """
+
+          result =
+            """
+type Query = Query
+
+newtype Query = Query 
+  { int :: Int
+  }
+derive instance newtypeQuery :: Newtype Query _
+instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
+
+newtype X = X 
+  { int :: Int
+  }
+derive instance newtypeX :: Newtype X _
+instance argToGqlX :: (Newtype X {| p},  RecordArg p a u) => ArgGql X { | a }"""
+        gql `shouldParseTo` result
   where
   mkMap :: forall v. Array (Tuple String (Array (Tuple String v))) -> Map String (Map String v)
   mkMap = Map.fromFoldable >>> map Map.fromFoldable
