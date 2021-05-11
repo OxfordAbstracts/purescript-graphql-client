@@ -13,9 +13,15 @@ exports.getGqlSchema = async ({ moduleName, cache, url, token }) => {
       url,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers:
+          token
+            ? {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              }
+            : {
+                'Content-Type': 'application/json'
+              },
         body: JSON.stringify({ query: introspectionQuery })
       }
     )
