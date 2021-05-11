@@ -8,7 +8,7 @@ import Prelude
 
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
-import Data.Array (notElem, nub, nubBy)
+import Data.Array (filter, notElem, nub, nubBy)
 import Data.Array as Array
 import Data.Either (Either(..), hush)
 import Data.Foldable (fold, foldMap, intercalate)
@@ -23,14 +23,15 @@ import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
-import Data.String (Pattern(..), codePointFromChar, contains)
+import Data.String (Pattern(..), codePointFromChar, contains, take)
+import Data.String as String
 import Data.String.CodePoints (takeWhile)
 import Data.String.Extra (pascalCase)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
-import GraphQL.Client.CodeGen.Lines (docComment, indent)
+import GraphQL.Client.CodeGen.Lines (commentPrefix, docComment, fromLines, indent, toLines)
 import GraphQL.Client.CodeGen.Template.Enum as Enum
 import GraphQL.Client.CodeGen.Template.Schema as Schema
 import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptions, PursGql)
@@ -158,7 +159,11 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
   removeDuplicateDefinitions = Array.fromFoldable >>> nubBy (compare `on` getDefinitionTypeName) >>> List.fromFoldable
 
   getDefinitionTypeName :: String -> String
-  getDefinitionTypeName = takeWhile (notEq (codePointFromChar '='))
+  getDefinitionTypeName =
+     takeWhile (notEq (codePointFromChar '=')) 
+     >>> toLines 
+     >>> filter (\l -> take (String.length commentPrefix) l /= commentPrefix) 
+     >>> fromLines
 
   definitionToPurs :: AST.Definition -> Maybe String
   definitionToPurs = case _ of
