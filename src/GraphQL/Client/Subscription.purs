@@ -73,7 +73,7 @@ subscriptionFullRes ::
   Emitter (Either JsonDecodeError (GqlRes returns))
 subscriptionFullRes decodeFn optsF (Client client) queryNameUnsafe q = ado
     json <- subscriptionEventOpts optsF client query
-    in getFullRes decodeFn json
+    in pure $ getFullRes decodeFn json
   where
   queryName = safeQueryName queryNameUnsafe
 
