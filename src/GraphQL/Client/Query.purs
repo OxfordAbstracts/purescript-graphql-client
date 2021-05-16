@@ -14,6 +14,8 @@ module GraphQL.Client.Query
   , mutationFullRes
   , getFullRes
   , addErrorInfo
+  , decodeErrorsMaybe
+  , decodeError
   ) where
 
 import Prelude
@@ -280,17 +282,18 @@ getFullRes ::
   (Json -> Either JsonDecodeError res) ->
   Json ->
   GqlRes res
-getFullRes decodeFn json =
+getFullRes decodeFn json = 
   let
     data_ = decodeGqlRes decodeFn json
 
     errors = getErrors json
 
     extensions = getExtensions json
+    
   in
     { data_
     , errors_json: errors
-    , errors: map (mapMaybe (decodeError >>> hush)) errors
+    , errors: map decodeErrorsMaybe errors
     , extensions
     }
 
@@ -303,6 +306,9 @@ getExtensions :: Json -> Maybe (Object Json)
 getExtensions json = case decodeJson json of
   Right ({ extensions } :: { extensions :: _ }) -> Just extensions
   _ -> Nothing
+
+decodeErrorsMaybe :: Array Json -> Array GqlError
+decodeErrorsMaybe = mapMaybe (decodeError >>> hush)
 
 decodeError :: Json -> Either JsonDecodeError GqlError
 decodeError json = do
