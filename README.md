@@ -114,7 +114,7 @@ and add graphql-client and graphql-parser to your project packages.dhall
           "https://github.com/OxfordAbstracts/purescript-graphql-client.git"
       , version =
           {- set this to the version of graphql-client you want -}
-          "v4.0.4"
+          "v4.0.12"
       }
 ```
 and install 
