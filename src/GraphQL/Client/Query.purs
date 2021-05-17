@@ -14,6 +14,8 @@ module GraphQL.Client.Query
   , mutationFullRes
   , getFullRes
   , addErrorInfo
+  , decodeErrorsMaybe
+  , decodeError
   ) where
 
 import Prelude
@@ -246,7 +248,7 @@ queryFullRes ::
 queryFullRes decodeFn optsF (Client client) queryNameUnsafe q =
   addErrorInfo queryName q do
     json <- clientQuery opts client queryName $ toGqlQueryString q
-    getFullRes decodeFn json
+    pure $ getFullRes decodeFn json
   where
   opts = optsF (defQueryOpts client)
 
@@ -268,7 +270,7 @@ mutationFullRes ::
 mutationFullRes decodeFn optsF (Client client) queryNameUnsafe q =
   addErrorInfo queryName q do
     json <- clientMutation opts client queryName $ toGqlQueryString q
-    getFullRes decodeFn json
+    pure $ getFullRes decodeFn json
   where
   opts = optsF (defMutationOpts client)
 
@@ -276,22 +278,22 @@ mutationFullRes decodeFn optsF (Client client) queryNameUnsafe q =
 
 
 getFullRes ::
-  forall res m.
-  Applicative m =>
+  forall res.
   (Json -> Either JsonDecodeError res) ->
   Json ->
-  m (GqlRes res)
-getFullRes decodeFn json = do
+  GqlRes res
+getFullRes decodeFn json = 
   let
     data_ = decodeGqlRes decodeFn json
 
     errors = getErrors json
 
     extensions = getExtensions json
-  pure
+    
+  in
     { data_
     , errors_json: errors
-    , errors: map (mapMaybe (decodeError >>> hush)) errors
+    , errors: map decodeErrorsMaybe errors
     , extensions
     }
 
@@ -304,6 +306,9 @@ getExtensions :: Json -> Maybe (Object Json)
 getExtensions json = case decodeJson json of
   Right ({ extensions } :: { extensions :: _ }) -> Just extensions
   _ -> Nothing
+
+decodeErrorsMaybe :: Array Json -> Array GqlError
+decodeErrorsMaybe = mapMaybe (decodeError >>> hush)
 
 decodeError :: Json -> Either JsonDecodeError GqlError
 decodeError json = do
