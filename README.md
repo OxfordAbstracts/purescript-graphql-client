@@ -94,7 +94,11 @@ Install purescript-graphql-client
 
 Either use spago (recommended)
 
-and add graphql-client and graphql-parser to your project packages.dhall
+```
+spago install graphql-client
+```
+
+If you are using an older package set, you will have to add graphql-client to your project packages.dhall first
 ```
   in  upstream
   with graphql-client =
@@ -117,13 +121,8 @@ and add graphql-client and graphql-parser to your project packages.dhall
           "v4.0.12"
       }
 ```
-and install 
 
-```
-spago install graphql-client
-```
-
-or bower
+or install with bower
 
 ```
 bower install purescript-graphql-client 
