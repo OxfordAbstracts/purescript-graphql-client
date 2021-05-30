@@ -12,7 +12,7 @@ This library will allow you to make graphql queries and type checks the query, a
 
 It includes functions for making graphql queries and codegen tools for making sure your GraphQL schema and Purescript schema are in sync. 
 
-For a higher level client in halogen projects, you may wish to use [purescript-halogen-graphql-connect](https://github.com/OxfordAbstracts/purescript-halogen-graphql-connect)
+For a higher level graphql client in halogen projects, you may wish to use [purescript-halogen-graphql-connect](https://github.com/OxfordAbstracts/purescript-halogen-graphql-connect)
 
 ## Example
 
@@ -444,15 +444,18 @@ eg.
 
 ## Alternatives to this package
 
+
+### purescript-halogen-graphql-connect
+
+There is also a higher level graphql client for halogen projects [purescript-halogen-graphql-connect](https://github.com/OxfordAbstracts/purescript-halogen-graphql-connect). Purescript-halogen-graphql-connect if a small wrapper around this project that makes it easier to use in halogen projects. 
+
+### purescript-graphqlclient
+
 There is another purescript graphQL client package at https://github.com/purescript-graphqlclient/purescript-graphqlclient , which is a port of [elm-graphql](https://github.com/dillonkearns/elm-graphql/).
 
 Although the names and scope of the 2 packages are very similar they are not connected and there are a few differences:
 - This package uses record syntax to make queries whereas purescript-graphqlclient uses applicative/ado syntax
 - This package allows use of Apollo if you wish (or other lower level graphQL clients)
 - This package supports subscriptions, watch queries and client caching
-- Athough we use this package in production at Oxford Abstracts, purescript-graphqlclient has probably been used more in production
-
-I have not used purescript-graphqlclient myself so please let me know if any of the above is incorrect or incomplete. 
 
 
-There is also a higher level graphql client for halogen projects [purescript-halogen-graphql-connect](https://github.com/OxfordAbstracts/purescript-halogen-graphql-connect)
