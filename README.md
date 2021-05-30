@@ -12,7 +12,7 @@ This library will allow you to make graphql queries and type checks the query, a
 
 It includes functions for making graphql queries and codegen tools for making sure your GraphQL schema and Purescript schema are in sync. 
 
-For a higher level client in halogen projects, you may wish to use https://github.com/OxfordAbstracts/purescript-halogen-graphql-connect
+For a higher level client in halogen projects, you may wish to use [purescript-halogen-graphql-connect](https://github.com/OxfordAbstracts/purescript-halogen-graphql-connect)
 
 ## Example
 
@@ -453,3 +453,6 @@ Although the names and scope of the 2 packages are very similar they are not con
 - Athough we use this package in production at Oxford Abstracts, purescript-graphqlclient has probably been used more in production
 
 I have not used purescript-graphqlclient myself so please let me know if any of the above is incorrect or incomplete. 
+
+
+There is also a higher level graphql client for halogen projects [purescript-halogen-graphql-connect](https://github.com/OxfordAbstracts/purescript-halogen-graphql-connect)
