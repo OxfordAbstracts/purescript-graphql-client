@@ -183,7 +183,7 @@ There is an npm library that is a thin wrapper around this library's schema code
 npm i -D purescript-graphql-client
 ```
 
-Then add a script to generate your schema on build.
+Then add a script to generate your schema on build. Run this script before compiling your purescript project.
 ```js
 const { generateSchema } = require('purescript-graphql-client')
 
