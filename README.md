@@ -453,8 +453,8 @@ A small wrapper around this project that makes it easier to use in halogen proje
 
 ### [purescript-graphql-fundeps](https://github.com/meeshkan/purescript-graphql-fundeps)
 
-A much more lightweight graphql client. This package does not infer query types but allows writing in 
-graphql syntax and has much less source code. Probably preferable if your query types are not too complex.
+A much more lightweight graphql client. This package does not infer query types and does not support subscriptions or caching but allows writing in 
+graphql syntax and has much less source code. Probably preferable if your query types are not too complex and you do not need subscriptions or caching.
 
 ### [purescript-graphqlclient](https://github.com/purescript-graphqlclient/purescript-graphqlclient)
 
