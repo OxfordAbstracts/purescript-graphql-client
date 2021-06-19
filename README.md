@@ -88,6 +88,7 @@ name = Proxy
     - [Apollo only features](#apollo-only-features)
   - [Alternatives to this package](#alternatives-to-this-package)
     - [purescript-halogen-graphql-connect](#purescript-halogen-graphql-connect)
+    - [purescript-graphql-fundeps](#purescript-graphql-fundeps)
     - [purescript-graphqlclient](#purescript-graphqlclient)
   
 ## Getting started 
@@ -450,7 +451,7 @@ eg.
 
 A small wrapper around this project that makes it easier to use in halogen projects. 
 
-### [purescript-graphql-fundeps](https://github.com/meeshkan/purescript-graphql-fundeps)
+### [purescript-graphql-fundeps](https://github.com/meeshkan/purescript-graphql-fundeps)
 
 A much more lightweight graphql client. This package does not infer query types but allows writing in 
 graphql syntax and has much less source code. Probably preferable if your query types are not too complex.
