@@ -87,6 +87,8 @@ name = Proxy
     - [Full responses](#full-responses)
     - [Apollo only features](#apollo-only-features)
   - [Alternatives to this package](#alternatives-to-this-package)
+    - [purescript-halogen-graphql-connect](#purescript-halogen-graphql-connect)
+    - [purescript-graphqlclient](#purescript-graphqlclient)
   
 ## Getting started 
 
@@ -444,14 +446,18 @@ eg.
 
 ## Alternatives to this package
 
+### [purescript-halogen-graphql-connect](https://github.com/OxfordAbstracts/purescript-halogen-graphql-connect)
 
-### purescript-halogen-graphql-connect
+A small wrapper around this project that makes it easier to use in halogen projects. 
 
-There is also a higher level graphql client for halogen projects [purescript-halogen-graphql-connect](https://github.com/OxfordAbstracts/purescript-halogen-graphql-connect). Purescript-halogen-graphql-connect if a small wrapper around this project that makes it easier to use in halogen projects. 
+### [purescript-graphql-fundeps](https://github.com/meeshkan/purescript-graphql-fundeps)
 
-### purescript-graphqlclient
+A much more lightweight graphql client. This package does not infer query types but allows writing in 
+graphql syntax and has much less source code. Probably preferable if your query types are not too complex.
 
-There is another purescript graphQL client package at https://github.com/purescript-graphqlclient/purescript-graphqlclient , which is a port of [elm-graphql](https://github.com/dillonkearns/elm-graphql/).
+### [purescript-graphqlclient](https://github.com/purescript-graphqlclient/purescript-graphqlclient)
+
+A port of [elm-graphql](https://github.com/dillonkearns/elm-graphql/).
 
 Although the names and scope of the 2 packages are very similar they are not connected and there are a few differences:
 - This package uses record syntax to make queries whereas purescript-graphqlclient uses applicative/ado syntax
