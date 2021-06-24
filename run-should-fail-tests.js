@@ -30,6 +30,7 @@ const go = async () => {
         ok(simplify(stderr, 0, 100).includes(simplify(expectedError, 4, 20)))
       } catch (e) {
         console.log('stderr: \n', stderr)
+        console.info('simplified error', simplify(stderr, 0, 100))
         throw e
       }
       console.log(`test passed: ${p}`)

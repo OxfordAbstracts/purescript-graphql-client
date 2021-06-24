@@ -30,29 +30,29 @@ else instance queryReturnsMaybe :: QueryReturns a q t => QueryReturns (Maybe a) 
 else instance queryReturnsParamsArgs ::
   ( QueryReturns t q result
   , HMapWithIndex (ArgPropToGql params) { | args } s
-  , SatisifyNotNullParam {|params} {|args}
+  , SatisifyNotNullParam { | params } { | args }
   ) =>
-  QueryReturns (Params  {|params} t) (Args {|args} q) result where
+  QueryReturns (Params { | params } t) (Args { | args } q) result where
   queryReturnsImpl _ (Args _ q) = queryReturnsImpl (undefined :: t) q
 else instance queryReturnsParamsNoArgs ::
   ( QueryReturns t q result
-  , SatisifyNotNullParam {|params} {}
+  , SatisifyNotNullParam { | params } {}
   ) =>
-  QueryReturns (Params  {|params} t) q result where
+  QueryReturns (Params { | params } t) q result where
   queryReturnsImpl _ q = queryReturnsImpl (undefined :: t) q
 else instance queryReturnsRecord ::
   HMapWithIndex (PropToSchemaType schema) query returns =>
   QueryReturns { | schema } query returns where
   queryReturnsImpl = propToSchemaType
 else instance queryReturnsNewtype ::
-  ( Newtype newtypeSchema {|schema}
-  , QueryReturns {|schema} {|query} returns
+  ( Newtype newtypeSchema { | schema }
+  , QueryReturns { | schema } { | query } returns
   ) =>
-  QueryReturns newtypeSchema {|query} returns where
+  QueryReturns newtypeSchema { | query } returns where
   queryReturnsImpl sch query = queryReturnsImpl (unwrap sch) query
 else instance queryReturnsAll :: QueryReturns a q a where
   queryReturnsImpl a _ = a
-  
+
 -- | For internal use only but must be exported for other modules to compile
 newtype PropToSchemaType schema
   = PropToSchemaType { | schema }
@@ -93,11 +93,11 @@ else instance propToSchemaType_ ::
     in
       queryReturnsImpl subSchema val
 
+
 propToSchemaType ::
   forall query returns schema.
   HMapWithIndex (PropToSchemaType schema) query returns =>
   Record schema -> query -> returns
 propToSchemaType schema query_ = hmapWithIndex (PropToSchemaType schema) query_
-
 
 foreign import undefined :: forall a. a

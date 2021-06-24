@@ -1,34 +1,19 @@
-Error found:
-in module Main
-at src/Main.purs:32:7 - 32:35 (line 32, column 7 - line 32, column 35)
-
-  Could not match type
-
-    ( online :: t0
-    | t1
-    )
-
-  with type
-
-    ()
-
-
+Could not match type
+( online :: t0
+| t1
+)
+with type
+() @Type
 while trying to match type ( online :: t0
-                           | t1
-                           )
-  with type ()
+| t1
+)
+with type () @Type
 while solving type class constraint
-
-  Prim.Row.Cons "online"
-                t0
-                t1
-                ()
-
+Prim.Row.Cons "online"
+t0
+t1
+(() @Type)
 while inferring the type of queryReturns testSchemaProxy
 in value declaration passing1
-
 where t0 is an unknown type
-      t1 is an unknown type
-
-See https://github.com/purescript/documentation/blob/master/errors/TypesDoNotUnify.md for more information,
-or to contribute content related to this error.
+t1 is an unknown type
