@@ -1,17 +1,16 @@
 module GraphQL.Client.Args where
 
 import Prelude
-
 import Data.Bifunctor (class Bifunctor)
 import Data.Date (Date)
 import Data.DateTime (DateTime)
 import Data.Maybe (Maybe)
 import Data.Symbol (class IsSymbol)
 import Data.Time (Time)
-import Type.Data.Boolean (class Or, False, True)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex)
 import Heterogeneous.Mapping (class HMapWithIndex, class MappingWithIndex)
 import Prim.Row as Row
+import Prim.TypeError as TE
 import Type.Proxy (Proxy)
 
 data Params :: forall k1 k2. k1 -> k2 -> Type
@@ -30,22 +29,26 @@ data Args a t
 
 infixr 6 Args as =>>
 
-data AndArg a1 a2 = AndArg a1 a2
+data AndArg a1 a2
+  = AndArg a1 a2
 
 infixr 6 AndArg as ++
 
-data OrArg argL argR 
-  = ArgL argL 
+data OrArg argL argR
+  = ArgL argL
   | ArgR argR
 
 derive instance functorOrArg :: Functor (OrArg argL)
 
-instance bifunctorOrArg :: Bifunctor OrArg where 
-  bimap lf rf = map rf >>> case _ of 
-    ArgL l -> ArgL $ lf l
-    ArgR r -> ArgR r
+instance bifunctorOrArg :: Bifunctor OrArg where
+  bimap lf rf =
+    map rf
+      >>> case _ of
+          ArgL l -> ArgL $ lf l
+          ArgR r -> ArgR r
 
-data IgnoreArg = IgnoreArg
+data IgnoreArg
+  = IgnoreArg
 
 guardArg :: forall a. Boolean -> a -> OrArg IgnoreArg a
 guardArg b args =
@@ -60,7 +63,7 @@ onlyArgs a = Args a unit
 class ArgGql :: forall k1 k2. k1 -> k2 -> Constraint
 class ArgGql params arg
 
-instance argToGqlNotNull :: (IsMaybeOrIgnored arg False, ArgGql param arg) => ArgGql (NotNull param) arg
+instance argToGqlNotNull :: (IsNotNull param arg, ArgGql param arg) => ArgGql (NotNull param) arg
 else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
 else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
 else instance argToGqlArrayAnd :: (ArgGql param a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArg a1 a2)
@@ -68,26 +71,58 @@ else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
 else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql param (OrArg argL argR)
 else instance argToGqlIgnore :: ArgGql param IgnoreArg
 
-class IsMaybeOrIgnored :: forall k1 k2. k1 -> k2 -> Constraint
-class IsMaybeOrIgnored arg b | arg -> b 
 
-instance isMaybe :: IsMaybeOrIgnored (Maybe a) True 
-else instance isIgnored :: IsMaybeOrIgnored IgnoreArg True
-else instance isMaybeOrIgnoredOrArg ::
-  ( IsMaybeOrIgnored l lb
-  , IsMaybeOrIgnored r rb
-  , Or lb rb b
-  ) =>
-   IsMaybeOrIgnored (OrArg l r) b
-else instance notMaybe :: IsMaybeOrIgnored a False
+class IsNotNull :: forall k1 k2. k1 -> k2 -> Constraint
+class IsNotNull param arg 
+
+instance
+    ( TE.Fail
+        ( TE.Above
+            (TE.Text "A `Maybe` query argument cannot be used with with required schema argument: ")
+            ( TE.Beside
+                (TE.Text "  ")
+                ( TE.Above
+                       (TE.Beside (TE.Text "Schema: ") (TE.Quote param))
+                       (TE.Beside (TE.Text "Query: ") (TE.Quote (Maybe arg)))
+                )
+            )
+        )
+    ) => IsNotNull param (Maybe arg)
+
+else instance
+    ( TE.Fail
+        ( TE.Above
+            (TE.Text "An `IgnoreArg` query argument cannot be used with with required schema argument: ")
+            ( TE.Beside
+                (TE.Text "  ")
+                ( TE.Above
+                       (TE.Beside (TE.Text "Schema: ") (TE.Quote param))
+                       (TE.Beside (TE.Text "Query: ") (TE.Quote IgnoreArg))
+                )
+            )
+        )
+    ) => IsNotNull param IgnoreArg
+else instance
+  ( IsNotNull param l
+  , IsNotNull param r
+  ) => IsNotNull param (OrArg l r)
+else instance IsNotNull param arg
+
 
 instance argToGqlInt :: ArgGql Int Int
+
 instance argToGqlNumber :: ArgGql Number Number
+
 instance argToGqlString :: ArgGql String String
+
 instance argToGqlBoolean :: ArgGql Boolean Boolean
+
 instance argToGqlDate :: ArgGql Date Date
+
 instance argToGqlTime :: ArgGql Time Time
+
 instance argToGqlDateTime :: ArgGql DateTime DateTime
+
 instance argToGqlRecord :: RecordArg p a u => ArgGql { | p } { | a }
 
 class HMapWithIndex (ArgPropToGql p) { | a } u <= RecordArg p a u
