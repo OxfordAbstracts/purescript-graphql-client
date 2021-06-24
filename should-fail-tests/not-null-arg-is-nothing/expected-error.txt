@@ -1,20 +1,15 @@
 A custom type error occurred while solving type class constraints:
-
-  An `IgnoreArg` query argument cannot be used with with required schema argument:
-    Schema: Boolean
-    Query: IgnoreArg
-
+A `Maybe` query argument cannot be used with with required schema argument:
+Schema: Boolean
+Query: Maybe Boolean
 while solving type class constraint
-
-  GraphQL.Client.Args.IsNotNull Boolean
-                                IgnoreArg
-
+GraphQL.Client.Args.IsNotNull Boolean
+(Maybe Boolean)
 while applying a function queryReturns
-  of type QueryReturns t0 t1 t2 => Proxy @Type t0 -> t1 -> Proxy @Type t2
-  to argument testSchemaProxy
+of type QueryReturns t0 t1 t2 => Proxy @Type t0 -> t1 -> Proxy @Type t2
+to argument testSchemaProxy
 while inferring the type of queryReturns testSchemaProxy
 in value declaration passing1
-
 where t0 is an unknown type
-      t1 is an unknown type
-      t2 is an unknown type
+t1 is an unknown type
+t2 is an unknown type

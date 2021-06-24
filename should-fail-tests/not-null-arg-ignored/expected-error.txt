@@ -1,33 +1,15 @@
-Error found:
-in module Main
-at src/Main.purs:32:7 - 32:35 (line 32, column 7 - line 32, column 35)
-
-  Could not match type
-
-    True
-
-  with type
-
-    False
-
-
+A custom type error occurred while solving type class constraints:
+An `IgnoreArg` query argument cannot be used with with required schema argument:
+Schema: Boolean
+Query: IgnoreArg
 while solving type class constraint
-
-  Data.Typelevel.Bool.Or t3
-                         t4
-                         False
-
+GraphQL.Client.Args.IsNotNull Boolean
+IgnoreArg
 while applying a function queryReturns
-  of type QueryReturns t0 t1 t2 => Proxy t0 -> t1 -> Proxy t2
-  to argument testSchemaProxy
+of type QueryReturns t0 t1 t2 => Proxy @Type t0 -> t1 -> Proxy @Type t2
+to argument testSchemaProxy
 while inferring the type of queryReturns testSchemaProxy
 in value declaration passing1
-
-where t2 is an unknown type
-      t1 is an unknown type
-      t0 is an unknown type
-      t3 is an unknown type
-      t4 is an unknown type
-
-See https://github.com/purescript/documentation/blob/master/errors/TypesDoNotUnify.md for more information,
-or to contribute content related to this error.
+where t0 is an unknown type
+t1 is an unknown type
+t2 is an unknown type
