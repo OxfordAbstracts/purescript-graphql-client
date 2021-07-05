@@ -449,7 +449,7 @@ typeName str = case pascalCase str of
   "Id" -> "ID"
   "Float" -> "Number"
   "Numeric" -> "Number"
-  "Bigint" -> "Int"
+  "Bigint" -> "Number"
   "Smallint" -> "Int"
   "Integer" -> "Int"
   "Int" -> "Int"
