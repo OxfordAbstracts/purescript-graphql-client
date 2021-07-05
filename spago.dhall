@@ -51,7 +51,6 @@ You can edit this file as you like.
   , "strings-extra"
   , "transformers"
   , "tuples"
-  , "typelevel-prelude"
   , "unicode"
   ]
 , packages = ./packages.dhall
