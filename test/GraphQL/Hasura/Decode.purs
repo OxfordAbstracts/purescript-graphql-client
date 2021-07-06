@@ -23,6 +23,14 @@ spec =
                       (canonicalDate (toEnumB 2020) (toEnumB 10) (toEnumB 9))
                       (Time (toEnumB 8) (toEnumB 7) (toEnumB 6) (toEnumB 0))
               )
+      it "decodes a date time without milliseconds and a GMT timezone"
+        $ decodeHasura (fromString  "2020-10-09T00:00:00+00:00")
+            `shouldEqual`
+              ( Right
+                  $ DateTime
+                      (canonicalDate (toEnumB 2020) (toEnumB 10) (toEnumB 9))
+                      (Time (toEnumB 0) (toEnumB 0) (toEnumB 0) (toEnumB 0))
+              )
       it "decodes a date time with milliseconds"
         $ decodeHasura (fromString "2020-10-09T08:07:06.555")
             `shouldEqual`

@@ -151,8 +151,7 @@ isoTime = do
   minutes <- enum "minutes"
   charV ':'
   seconds <- enum "seconds"
-  (charV '.' <|> eof)
-  ms <- optionMaybe $ enumTruncated 3 "ms"
+  ms <- optionMaybe $ (charV '.' <|> eof) *> enumTruncated 3 "ms"
   pure $ Time hours minutes seconds (fromMaybe bottom ms)
 
 isoTz :: Parser Minutes
