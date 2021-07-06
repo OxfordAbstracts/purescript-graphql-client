@@ -85,7 +85,6 @@ name = Proxy
     - [Full responses](#full-responses)
     - [Apollo only features](#apollo-only-features)
   - [Alternatives to this package](#alternatives-to-this-package)
-    - [purescript-halogen-graphql-connect](#purescript-halogen-graphql-connect)
     - [purescript-graphql-fundeps](#purescript-graphql-fundeps)
     - [purescript-graphqlclient](#purescript-graphqlclient)
   
