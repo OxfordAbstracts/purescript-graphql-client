@@ -28366,7 +28366,7 @@ var PS = {};
   var GraphQL_Client_CodeGen_Template_Schema = $PS["GraphQL.Client.CodeGen.Template.Schema"];
   var Text_Parsing_Parser = $PS["Text.Parsing.Parser"];
   var Text_Parsing_Parser_String = $PS["Text.Parsing.Parser.String"];                
-  var typeName = function (gqlToPursTypes) {
+  var typeName = function (gqlScalarsToPursTypes) {
       return function (str) {
           return Data_Maybe["fromMaybe'"](function (v) {
               var v1 = Data_String_Extra.pascalCase(str);
@@ -28416,7 +28416,7 @@ var PS = {};
                   return "DateTime";
               };
               return v1;
-          })(Data_Map_Internal.lookup(Data_Ord.ordString)(str)(gqlToPursTypes));
+          })(Data_Map_Internal.lookup(Data_Ord.ordString)(str)(gqlScalarsToPursTypes));
       };
   };
   var toImport = function (mainCode) {
@@ -28424,9 +28424,9 @@ var PS = {};
           return Data_Monoid.guard(Data_Monoid.monoidString)(Data_String_CodeUnits.contains(t.moduleName)(mainCode))("\x0aimport " + (t.moduleName + (" as " + t.moduleName)));
       });
   };
-  var namedTypeToPurs = function (gqlToPursTypes) {
+  var namedTypeToPurs = function (gqlScalarsToPursTypes) {
       return function (v) {
-          return typeName(gqlToPursTypes)(v);
+          return typeName(gqlScalarsToPursTypes)(v);
       };
   };
   var inlineComment = Data_Foldable.foldMap(Data_Foldable.foldableMaybe)(Data_Monoid.monoidString)(function (str) {
@@ -28446,8 +28446,8 @@ var PS = {};
           var unionTypeDefinitionToPurs = function (v1) {
               return Data_Maybe.Nothing.value;
           };
-          var typeName_ = typeName(v.gqlToPursTypes);
-          var namedTypeToPurs_ = namedTypeToPurs(v.gqlToPursTypes);
+          var typeName_ = typeName(v.gqlScalarsToPursTypes);
+          var namedTypeToPurs_ = namedTypeToPurs(v.gqlScalarsToPursTypes);
           var rootOperationTypeDefinitionToPurs = function (v1) {
               var opStr = (function () {
                   if (v1.operationType instanceof Data_GraphQL_AST.Query) {
@@ -28682,8 +28682,8 @@ var PS = {};
           return imports + (Data_Monoid.guard(Data_Monoid.monoidString)(imports !== "")("\x0a") + ("\x0a" + mainCode));
       };
   };
-  var gqlToPursEnums = function (gqlToPursTypes) {
-      var typeName_ = typeName(gqlToPursTypes);
+  var gqlToPursEnums = function (gqlScalarsToPursTypes) {
+      var typeName_ = typeName(gqlScalarsToPursTypes);
       var enumValuesDefinitionToPurs = function (def) {
           return Data_Array.fromFoldable(Data_List_Types.foldableList)(Data_Functor.mapFlipped(Data_List_Types.functorList)(Data_Newtype.unwrap()(def))(function (v) {
               return Data_Newtype.unwrap()(v.enumValue);
@@ -28724,7 +28724,7 @@ var PS = {};
               var symbols = Data_Array.fromFoldable(Data_List_Types.foldableList)(GraphQL_Client_CodeGen_GetSymbols.getSymbols(ast));
               return {
                   mainSchemaCode: gqlToPursMainSchemaCode(opts)(ast),
-                  enums: gqlToPursEnums(opts.gqlToPursTypes)(ast),
+                  enums: gqlToPursEnums(opts.gqlScalarsToPursTypes)(ast),
                   symbols: symbols,
                   moduleName: v.moduleName
               };
@@ -28822,7 +28822,7 @@ var PS = {};
           dir: opts_.dir,
           enumImports: opts_.enumImports,
           externalTypes: opts_.externalTypes,
-          gqlToPursTypes: opts_.gqlToPursTypes,
+          gqlScalarsToPursTypes: opts_.gqlScalarsToPursTypes,
           idImport: opts_.idImport,
           isHasura: opts_.isHasura,
           modulePath: opts_.modulePath,
@@ -28922,7 +28922,7 @@ var PS = {};
               }))()(Data_Semigroup.semigroupRecordCons(new Data_Symbol.IsSymbol(function () {
                   return "typeName";
               }))()(Data_Semigroup.semigroupRecordNil)(Data_Semigroup.semigroupString))(Data_Semigroup.semigroupString))))))(optsJs.fieldTypeOverrides))),
-              gqlToPursTypes: Data_Map_Internal.fromFoldableWithIndex(Data_Ord.ordString)(Foreign_Object.foldableWithIndexObject)(fromNullable(Data_Monoid.mempty(Foreign_Object.monoidObject(Data_Semigroup.semigroupString)))(optsJs.gqlToPursTypes)),
+              gqlScalarsToPursTypes: Data_Map_Internal.fromFoldableWithIndex(Data_Ord.ordString)(Foreign_Object.foldableWithIndexObject)(fromNullable(Data_Monoid.mempty(Foreign_Object.monoidObject(Data_Semigroup.semigroupString)))(optsJs.gqlScalarsToPursTypes)),
               dir: fromNullable("")(optsJs.dir),
               modulePath: fromNullable([  ])(optsJs.modulePath),
               isHasura: fromNullable(false)(optsJs.isHasura),

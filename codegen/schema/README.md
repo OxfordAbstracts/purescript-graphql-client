@@ -11,7 +11,7 @@ Argument for generateSchema
 -- | Whether the schema should use newtypes. Necessary for circular/recursive schemas
 , useNewtypesForRecords :: Nullable Boolean 
 -- | How to map graphQL types to Purescript types. The keys are graphql types and the values are purescript types you want them to be decoded as. Reasonable defaults are provided if you don't specify
-, gqlToPursTypes :: Nullable (Object String) 
+, gqlScalarsToPursTypes :: Nullable (Object String) 
 -- | Extra imports for the generated enums
 , enumImports :: Nullable (Array String) 
 -- | Custom code to add to the generated enums
@@ -69,7 +69,7 @@ Argument for generateSchema
 -- | Whether the schema should use newtypes. Necessary for circular/recursive schemas
 , useNewtypesForRecords :: Nullable Boolean 
 -- | How to map graphQL types to Purescript types. The keys are graphql types and the values are purescript types you want them to be decoded as. Reasonable defaults are provided if you don't specify
-, gqlToPursTypes :: Nullable (Object String) 
+, gqlScalarsToPursTypes :: Nullable (Object String) 
 -- | Extra imports for the generated enums
 , enumImports :: Nullable (Array String) 
 -- | Custom code to add to the generated enums

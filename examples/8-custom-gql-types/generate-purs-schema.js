@@ -8,7 +8,7 @@ module.exports = () =>
     modulePath: ['Generated', 'Gql', 'Admin'],
     useNewtypesForRecords: false,
     url: 'http://localhost:4000/graphql',
-    gqlToPursTypes: {
+    gqlScalarsToPursTypes: {
       GqlTypeThatIsAString: 'String',
       GqlTypeThatIsAnInt: 'Int'
     }

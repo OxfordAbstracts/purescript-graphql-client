@@ -117,7 +117,7 @@ schemaFromGqlToPurs opts { schema, moduleName } =
           symbols = Array.fromFoldable $ getSymbols ast
         in
           { mainSchemaCode: gqlToPursMainSchemaCode opts ast
-          , enums: gqlToPursEnums opts.gqlToPursTypes ast
+          , enums: gqlToPursEnums opts.gqlScalarsToPursTypes ast
           , symbols
           , moduleName
           }
@@ -141,7 +141,7 @@ toImport mainCode =
     )
 
 gqlToPursMainSchemaCode :: InputOptions -> AST.Document -> String
-gqlToPursMainSchemaCode { gqlToPursTypes, externalTypes, fieldTypeOverrides, useNewtypesForRecords } doc =
+gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrides, useNewtypesForRecords } doc =
   imports
     <> guard (imports /= "") "\n"
     <> "\n"
@@ -407,12 +407,12 @@ gqlToPursMainSchemaCode { gqlToPursTypes, externalTypes, fieldTypeOverrides, use
 
   wrapArray s = "(Array " <> s <> ")"
 
-  typeName_ = typeName gqlToPursTypes
+  typeName_ = typeName gqlScalarsToPursTypes
   
-  namedTypeToPurs_ = namedTypeToPurs gqlToPursTypes
+  namedTypeToPurs_ = namedTypeToPurs gqlScalarsToPursTypes
 
 gqlToPursEnums :: Map String String -> AST.Document -> Array GqlEnum
-gqlToPursEnums gqlToPursTypes = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
+gqlToPursEnums gqlScalarsToPursTypes = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
   where
   definitionToEnum :: AST.Definition -> Maybe GqlEnum
   definitionToEnum = case _ of
@@ -440,17 +440,17 @@ gqlToPursEnums gqlToPursTypes = unwrap >>> mapMaybe definitionToEnum >>> Array.f
       <#> \(AST.EnumValueDefinition { enumValue }) ->
           unwrap enumValue
 
-  typeName_ = typeName gqlToPursTypes
+  typeName_ = typeName gqlScalarsToPursTypes
 
 namedTypeToPurs :: Map String String -> AST.NamedType -> String
-namedTypeToPurs gqlToPursTypes (AST.NamedType str) = typeName gqlToPursTypes str
+namedTypeToPurs gqlScalarsToPursTypes (AST.NamedType str) = typeName gqlScalarsToPursTypes str
 
 inlineComment :: Maybe String -> String
 inlineComment = foldMap (\str -> "\n{- " <> str <> " -}\n")
 
 typeName :: Map String String -> String -> String
-typeName gqlToPursTypes str =
-  lookup str gqlToPursTypes
+typeName gqlScalarsToPursTypes str =
+  lookup str gqlScalarsToPursTypes
     # fromMaybe' \_ -> case pascalCase str of
         "Id" -> "ID"
         "Float" -> "Number"

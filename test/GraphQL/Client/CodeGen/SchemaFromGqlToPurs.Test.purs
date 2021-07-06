@@ -247,7 +247,7 @@ instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Quer
           ` ( shouldParseToOpts
               { dir: ""
               , cache: Nothing
-              , gqlToPursTypes: Map.empty
+              , gqlScalarsToPursTypes: Map.empty
               , useNewtypesForRecords: true
               , isHasura: false
               , modulePath: []
@@ -357,7 +357,7 @@ instance argToGqlX :: (Newtype X {| p},  RecordArg p a u) => ArgGql X { | a }"""
     shouldParseToOpts
       { dir: ""
       , cache: Nothing
-      , gqlToPursTypes: Map.empty
+      , gqlScalarsToPursTypes: Map.empty
       , useNewtypesForRecords: true
       , isHasura: false
       , modulePath: []
@@ -372,7 +372,7 @@ instance argToGqlX :: (Newtype X {| p},  RecordArg p a u) => ArgGql X { | a }"""
     schemaFromGqlToPurs
       { dir: ""
       , cache: Nothing
-      , gqlToPursTypes: Map.empty
+      , gqlScalarsToPursTypes: Map.empty
       , useNewtypesForRecords: true
       , isHasura: false
       , modulePath: []

@@ -27,7 +27,7 @@ schemasFromGqlToPursJs = mkFn2 go
     opts =
       { externalTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.externalTypes)
       , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (fromNullable mempty optsJs.fieldTypeOverrides)
-      , gqlToPursTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.gqlToPursTypes)
+      , gqlScalarsToPursTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.gqlScalarsToPursTypes)
       , dir: fromNullable "" optsJs.dir
       , modulePath: fromNullable [] optsJs.modulePath
       , isHasura: fromNullable false optsJs.isHasura
@@ -53,7 +53,7 @@ fromNullable :: forall a. a -> Nullable a -> a
 fromNullable a = fromMaybe a <<< toMaybe
 
 type InputOptionsJs
-  = { gqlToPursTypes :: Nullable (Object String)
+  = { gqlScalarsToPursTypes :: Nullable (Object String)
     , externalTypes ::
         Nullable
           ( Object
