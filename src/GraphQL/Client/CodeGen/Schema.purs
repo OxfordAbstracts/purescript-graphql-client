@@ -5,7 +5,6 @@ module GraphQL.Client.CodeGen.Schema
   ) where
 
 import Prelude
-
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Array (filter, notElem, nub, nubBy)
@@ -18,9 +17,9 @@ import Data.GraphQL.AST as AST
 import Data.GraphQL.Parser (document)
 import Data.List (List, mapMaybe)
 import Data.List as List
-import Data.Map (lookup, unions)
+import Data.Map (Map, lookup, unions)
 import Data.Map as Map
-import Data.Maybe (Maybe(..), fromMaybe, maybe)
+import Data.Maybe (Maybe(..), fromMaybe, fromMaybe', maybe)
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
 import Data.String (Pattern(..), codePointFromChar, contains, take)
@@ -118,7 +117,7 @@ schemaFromGqlToPurs opts { schema, moduleName } =
           symbols = Array.fromFoldable $ getSymbols ast
         in
           { mainSchemaCode: gqlToPursMainSchemaCode opts ast
-          , enums: gqlToPursEnums ast
+          , enums: gqlToPursEnums opts.gqlScalarsToPursTypes ast
           , symbols
           , moduleName
           }
@@ -142,7 +141,7 @@ toImport mainCode =
     )
 
 gqlToPursMainSchemaCode :: InputOptions -> AST.Document -> String
-gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecords } doc =
+gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrides, useNewtypesForRecords } doc =
   imports
     <> guard (imports /= "") "\n"
     <> "\n"
@@ -151,7 +150,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
   imports =
     fold $ nub
       $ toImport mainCode (Array.fromFoldable externalTypes)
-      <> toImport mainCode (Array.fromFoldable $  unions fieldTypeOverrides)
+      <> toImport mainCode (Array.fromFoldable $ unions fieldTypeOverrides)
       <> toImport mainCode [ { moduleName: "Data.Argonaut.Core" } ]
 
   mainCode = unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
@@ -160,10 +159,10 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
 
   getDefinitionTypeName :: String -> String
   getDefinitionTypeName =
-     takeWhile (notEq (codePointFromChar '=')) 
-     >>> toLines 
-     >>> filter (\l -> take (String.length commentPrefix) l /= commentPrefix) 
-     >>> fromLines
+    takeWhile (notEq (codePointFromChar '='))
+      >>> toLines
+      >>> filter (\l -> take (String.length commentPrefix) l /= commentPrefix)
+      >>> fromLines
 
   definitionToPurs :: AST.Definition -> Maybe String
   definitionToPurs = case _ of
@@ -185,7 +184,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     "type "
       <> opStr
       <> " = "
-      <> typeName (namedTypeToPurs namedType)
+      <> (namedTypeToPurs_ namedType)
     where
     opStr = case operationType of
       AST.Query -> "Query"
@@ -204,7 +203,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
   scalarTypeDefinitionToPurs :: AST.ScalarTypeDefinition -> String
   scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name }) =
     guard (notElem tName builtInTypes)
-      $  docComment description
+      $ docComment description
       <> "type "
       <> tName
       <> " = "
@@ -212,7 +211,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
       <> "."
       <> typeAndModule.typeName
     where
-    tName = typeName name
+    tName = typeName_ name
 
     typeAndModule =
       lookup tName externalTypes
@@ -231,13 +230,13 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     }
   ) =
     let
-      tName = typeName name
+      tName = typeName_ name
     in
       docComment description
         <> if useNewtypesForRecords then
             "newtype "
-              <> typeName name
-              <> (fieldsDefinition # foldMap \fd -> " = " <> typeName name <> " " <> fieldsDefinitionToPurs tName fd)
+              <> typeName_ name
+              <> (fieldsDefinition # foldMap \fd -> " = " <> typeName_ name <> " " <> fieldsDefinitionToPurs tName fd)
               <> "\nderive instance newtype"
               <> tName
               <> " :: Newtype "
@@ -252,7 +251,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
               <> " { | a }"
           else
             "type "
-              <> typeName name
+              <> typeName_ name
               <> (fieldsDefinition # foldMap \fd -> " = " <> fieldsDefinitionToPurs tName fd)
 
   fieldsDefinitionToPurs :: String -> AST.FieldsDefinition -> String
@@ -317,7 +316,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     }
   ) =
     let
-      tName = typeName name
+      tName = typeName_ name
     in
       docComment description
         <> "newtype "
@@ -370,13 +369,13 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
 
   argTypeToPurs :: AST.Type -> String
   argTypeToPurs = case _ of
-    (AST.Type_NamedType namedType) -> namedTypeToPurs namedType
+    (AST.Type_NamedType namedType) -> namedTypeToPurs_ namedType
     (AST.Type_ListType listType) -> argListTypeToPurs listType
     (AST.Type_NonNullType notNullType) -> wrapNotNull $ argNotNullTypeToPurs notNullType
 
   argNotNullTypeToPurs :: AST.NonNullType -> String
   argNotNullTypeToPurs = case _ of
-    AST.NonNullType_NamedType t -> namedTypeToPurs t
+    AST.NonNullType_NamedType t -> namedTypeToPurs_ t
     AST.NonNullType_ListType t -> argListTypeToPurs t
 
   argListTypeToPurs :: AST.ListType -> String
@@ -391,7 +390,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     (AST.Type_NonNullType notNullType) -> notNullTypeToPurs notNullType
 
   namedTypeToPursNullable :: AST.NamedType -> String
-  namedTypeToPursNullable = wrapMaybe <<< namedTypeToPurs
+  namedTypeToPursNullable = wrapMaybe <<< namedTypeToPurs_
 
   listTypeToPursNullable :: AST.ListType -> String
   listTypeToPursNullable t = wrapMaybe $ listTypeToPurs t
@@ -400,7 +399,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
 
   notNullTypeToPurs :: AST.NonNullType -> String
   notNullTypeToPurs = case _ of
-    AST.NonNullType_NamedType t -> namedTypeToPurs t
+    AST.NonNullType_NamedType t -> namedTypeToPurs_ t
     AST.NonNullType_ListType t -> listTypeToPurs t
 
   listTypeToPurs :: AST.ListType -> String
@@ -408,14 +407,17 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
 
   wrapArray s = "(Array " <> s <> ")"
 
-gqlToPursEnums :: AST.Document -> Array GqlEnum
-gqlToPursEnums = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
+  typeName_ = typeName gqlScalarsToPursTypes
+  
+  namedTypeToPurs_ = namedTypeToPurs gqlScalarsToPursTypes
+
+gqlToPursEnums :: Map String String -> AST.Document -> Array GqlEnum
+gqlToPursEnums gqlScalarsToPursTypes = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
   where
   definitionToEnum :: AST.Definition -> Maybe GqlEnum
   definitionToEnum = case _ of
     AST.Definition_TypeSystemDefinition def -> typeSystemDefinitionToPurs def
     _ -> Nothing
-
 
   typeSystemDefinitionToPurs :: AST.TypeSystemDefinition -> Maybe GqlEnum
   typeSystemDefinitionToPurs = case _ of
@@ -426,7 +428,7 @@ gqlToPursEnums = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
   typeDefinitionToPurs = case _ of
     AST.TypeDefinition_EnumTypeDefinition (AST.EnumTypeDefinition enumTypeDefinition) ->
       Just
-        { name: typeName enumTypeDefinition.name
+        { name: typeName_ enumTypeDefinition.name
         , description: enumTypeDefinition.description
         , values: maybe [] enumValuesDefinitionToPurs enumTypeDefinition.enumValuesDefinition
         }
@@ -438,27 +440,31 @@ gqlToPursEnums = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
       <#> \(AST.EnumValueDefinition { enumValue }) ->
           unwrap enumValue
 
-namedTypeToPurs :: AST.NamedType -> String
-namedTypeToPurs (AST.NamedType str) = typeName str
+  typeName_ = typeName gqlScalarsToPursTypes
+
+namedTypeToPurs :: Map String String -> AST.NamedType -> String
+namedTypeToPurs gqlScalarsToPursTypes (AST.NamedType str) = typeName gqlScalarsToPursTypes str
 
 inlineComment :: Maybe String -> String
 inlineComment = foldMap (\str -> "\n{- " <> str <> " -}\n")
 
-typeName :: String -> String
-typeName str = case pascalCase str of
-  "Id" -> "ID"
-  "Float" -> "Number"
-  "Numeric" -> "Number"
-  "Bigint" -> "Int"
-  "Smallint" -> "Int"
-  "Integer" -> "Int"
-  "Int" -> "Int"
-  "Int2" -> "Int"
-  "Int4" -> "Int"
-  "Int8" -> "Int"
-  "Text" -> "String"
-  "Citext" -> "String"
-  "Jsonb" -> "Json"
-  "Timestamp" -> "DateTime"
-  "Timestamptz" -> "DateTime"
-  s -> s
+typeName :: Map String String -> String -> String
+typeName gqlScalarsToPursTypes str =
+  lookup str gqlScalarsToPursTypes
+    # fromMaybe' \_ -> case pascalCase str of
+        "Id" -> "ID"
+        "Float" -> "Number"
+        "Numeric" -> "Number"
+        "Bigint" -> "Number"
+        "Smallint" -> "Int"
+        "Integer" -> "Int"
+        "Int" -> "Int"
+        "Int2" -> "Int"
+        "Int4" -> "Int"
+        "Int8" -> "Int"
+        "Text" -> "String"
+        "Citext" -> "String"
+        "Jsonb" -> "Json"
+        "Timestamp" -> "DateTime"
+        "Timestamptz" -> "DateTime"
+        s -> s

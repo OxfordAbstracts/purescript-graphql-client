@@ -20,7 +20,8 @@ import Effect (Effect)
 import Effect.Aff (Aff)
 
 type InputOptions
-  = { externalTypes ::
+  = { gqlScalarsToPursTypes :: Map String String
+    , externalTypes ::
         Map String
           { moduleName :: String
           , typeName :: String
@@ -53,6 +54,7 @@ type InputOptions
 defaultInputOptions :: InputOptions
 defaultInputOptions =
   { externalTypes: Map.empty
+  , gqlScalarsToPursTypes: Map.empty
   , fieldTypeOverrides: Map.empty
   , idImport: Nothing
   , dir: ""

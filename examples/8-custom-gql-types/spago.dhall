@@ -2,10 +2,8 @@
 Welcome to a Spago project!
 You can edit this file as you like.
 -}
-{ name = "graphql-client"
-, repository = "https://github.com/OxfordAbstracts/purescript-graphql-client"
-, license = "MIT"
-, dependencies =
+{ name = "my-project"
+, dependencies = 
   [ "aff"
   , "aff-promise"
   , "affjax"
@@ -13,8 +11,10 @@ You can edit this file as you like.
   , "argonaut-core"
   , "arrays"
   , "bifunctors"
+  , "console"
   , "control"
   , "datetime"
+  , "debug"
   , "effect"
   , "either"
   , "enums"
@@ -42,17 +42,15 @@ You can edit this file as you like.
   , "profunctor"
   , "profunctor-lenses"
   , "psci-support"
-  , "quickcheck"
   , "record"
-  , "spec"
-  , "spec-discovery"
   , "string-parsers"
   , "strings"
   , "strings-extra"
   , "transformers"
   , "tuples"
+  , "typelevel-prelude"
   , "unicode"
   ]
 , packages = ./packages.dhall
-, sources = [ "src/**/*.purs", "test/**/*.purs" ]
+, sources = [ "src/**/*.purs", "test/**/*.purs", "../../src/**/*.purs" ]
 }
