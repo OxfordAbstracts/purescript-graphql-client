@@ -29,10 +29,12 @@ data Args a t
 
 infixr 6 Args as =>>
 
-data AndArg a1 a2
-  = AndArg a1 a2
+type AndArg a b = AndArgs (Array a)  b
 
-infixr 6 AndArg as ++
+andArg :: forall a b. a -> b -> AndArg a b
+andArg a b = AndArgs [a] b
+
+infixr 6 andArg as ++
 
 data AndArgs a1 a2
   = AndArgs a1 a2
@@ -69,13 +71,21 @@ class ArgGql :: forall k1 k2. k1 -> k2 -> Constraint
 class ArgGql params arg
 
 instance argToGqlNotNull :: (IsNotNull param arg, ArgGql param arg) => ArgGql (NotNull param) arg
+else instance argToGqlIgnore :: ArgGql param IgnoreArg
+else instance argToGqlArrayAnds :: (ArgGql (Array param) ( a1), ArgGql (Array param)  a2) => ArgGql (Array param) (AndArgs a1 a2)
+else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql param (OrArg argL argR)
 else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
 else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
-else instance argToGqlArrayAnd :: (ArgGql (Array param) a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArg a1 a2)
-else instance argToGqlArrayAnds :: (ArgGql (Array param) a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArgs a1 a2)
 else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
-else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql param (OrArg argL argR)
-else instance argToGqlIgnore :: ArgGql param IgnoreArg
+
+-- instance argToGqlNotNull :: (IsNotNull param arg, ArgGql param arg) => ArgGql (NotNull param) arg
+-- else instance argToGqlIgnore :: ArgGql param IgnoreArg
+-- else instance argToGqlArrayAnd :: (ArgGql (Array param) a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArg a1 a2)
+-- else instance argToGqlArrayAnds :: (ArgGql (Array param) a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArgs a1 a2)
+-- else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql param (OrArg argL argR)
+-- else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
+-- else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
+-- else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
 
 
 class IsNotNull :: forall k1 k2. k1 -> k2 -> Constraint

@@ -250,7 +250,7 @@ testArrayArgsAndsRec =
   queryReturns testSchemaProxy
     { users:
         { is_in_rec:
-            [{ int: 0 }] +++ [ignoreOrStr true, ignoreOrStr false]
+            [{ int: 0 }] +++ ((ArgR [ignoreOrStr true, ignoreOrStr false]) :: OrArg IgnoreArg _)
         }
           =>> { id }
     }

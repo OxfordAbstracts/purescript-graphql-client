@@ -151,11 +151,11 @@ else instance gqlArgStringOrArg ::
   toGqlArgStringImpl = case _ of
     ArgL a -> toGqlArgStringImpl a
     ArgR a -> toGqlArgStringImpl a
-else instance gqlArgStringAndArg ::
-  ( GqlAndArgString (AndArg a1 a2)
-    ) =>
-  GqlArgString (AndArg a1 a2) where
-  toGqlArgStringImpl andArg = "[" <> toGqlAndArgStringImpl andArg <> "]"
+-- else instance gqlArgStringAndArg ::
+--   ( GqlAndArgString (AndArg a1 a2)
+--     ) =>
+--   GqlArgString (AndArg a1 a2) where
+--   toGqlArgStringImpl andArg = "[" <> toGqlAndArgStringImpl andArg <> "]"
 else instance gqlArgStringAndArgs ::
   ( GqlAndArgsString (AndArgs a1 a2)
     ) =>
@@ -216,21 +216,21 @@ removeTrailingZeros s =
 padMilli :: Millisecond -> String
 padMilli = padl 3 '0' <<< show <<< fromEnum
 
-class GqlAndArgString q where
-  toGqlAndArgStringImpl :: q -> String
+-- class GqlAndArgString q where
+--   toGqlAndArgStringImpl :: q -> String
 
-instance gqlArgStringAndArgNotEnd ::
-  ( GqlArgString a1
-  , GqlAndArgString (AndArg a2 a3)
-  ) =>
-  GqlAndArgString (AndArg a1 (AndArg a2 a3)) where
-  toGqlAndArgStringImpl (AndArg head tail) = toGqlArgStringImpl head <> ", " <> toGqlAndArgStringImpl tail
-else instance gqlArgStringAndArgEnd ::
-  ( GqlArgString a1
-  , GqlArgString a2
-  ) =>
-  GqlAndArgString (AndArg a1 a2) where
-  toGqlAndArgStringImpl (AndArg a1 a2) = toGqlArgStringImpl a1 <> ", " <> toGqlArgStringImpl a2
+-- instance gqlArgStringAndArgNotEnd ::
+--   ( GqlArgString a1
+--   , GqlAndArgString (AndArg a2 a3)
+--   ) =>
+--   GqlAndArgString (AndArg a1 (AndArg a2 a3)) where
+--   toGqlAndArgStringImpl (AndArg head tail) = toGqlArgStringImpl head <> ", " <> toGqlAndArgStringImpl tail
+-- else instance gqlArgStringAndArgEnd ::
+--   ( GqlArgString a1
+--   , GqlArgString a2
+--   ) =>
+--   GqlAndArgString (AndArg a1 a2) where
+--   toGqlAndArgStringImpl (AndArg a1 a2) = toGqlArgStringImpl a1 <> ", " <> toGqlArgStringImpl a2
 
 class GqlAndArgsString q where
   toGqlAndArgsStringImpl :: q -> String
@@ -241,12 +241,18 @@ instance gqlArgStringAndArgsNotEnd ::
   ) =>
   GqlAndArgsString (AndArgs (Array a1) (AndArgs a2 a3)) where
   toGqlAndArgsStringImpl (AndArgs head tail) = foldMap (toGqlArgStringImpl >>> \s -> s <> ", ") head <> toGqlAndArgsStringImpl tail
-else instance gqlArgStringAndArgsEnd ::
+else instance gqlArgStringAndArgsEndArray ::
   ( GqlArgString a1
   , GqlArgString a2
   ) =>
   GqlAndArgsString (AndArgs (Array a1) (Array a2)) where
   toGqlAndArgsStringImpl (AndArgs a1 a2) = intercalate ", " (map toGqlArgStringImpl a1 <> map toGqlArgStringImpl a2)
+else instance gqlArgStringAndArgsEnd ::
+  ( GqlArgString a1
+  , GqlArgString a2
+  ) =>
+  GqlAndArgsString (AndArgs (Array a1) a2) where
+  toGqlAndArgsStringImpl (AndArgs a1 a2) = intercalate ", " (map toGqlArgStringImpl a1 <>  [toGqlArgStringImpl a2])
 
 data PropToGqlArg
   = PropToGqlArg
