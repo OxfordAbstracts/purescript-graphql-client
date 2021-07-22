@@ -1,8 +1,7 @@
 module GraphQL.Client.ToGqlString where
 
 import Prelude
-
-import Data.Array (fold, intercalate, length, mapWithIndex)
+import Data.Array (fold, foldMap, intercalate, length, mapWithIndex, null)
 import Data.Array as Array
 import Data.Date (Date)
 import Data.DateTime (DateTime(..), Millisecond)
@@ -18,7 +17,7 @@ import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Data.Time (Time)
 import GraphQL.Client.Alias (Alias(..))
-import GraphQL.Client.Args (AndArg(..), Args(..), IgnoreArg, OrArg(..))
+import GraphQL.Client.Args (AndArg(..), AndArgs(..), Args(..), IgnoreArg, OrArg(..))
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
 import Type.Proxy (Proxy(..))
 
@@ -157,6 +156,11 @@ else instance gqlArgStringAndArg ::
     ) =>
   GqlArgString (AndArg a1 a2) where
   toGqlArgStringImpl andArg = "[" <> toGqlAndArgStringImpl andArg <> "]"
+else instance gqlArgStringAndArgs ::
+  ( GqlAndArgsString (AndArgs a1 a2)
+    ) =>
+  GqlArgString (AndArgs a1 a2) where
+  toGqlArgStringImpl andArg = "[" <> toGqlAndArgsStringImpl andArg <> "]"
 else instance gqlArgStringRecord_ :: HFoldlWithIndex PropToGqlArg String (Record r) String => GqlArgString (Record r) where
   toGqlArgStringImpl r = gqlArgStringRecord r
 
@@ -228,6 +232,22 @@ else instance gqlArgStringAndArgEnd ::
   GqlAndArgString (AndArg a1 a2) where
   toGqlAndArgStringImpl (AndArg a1 a2) = toGqlArgStringImpl a1 <> ", " <> toGqlArgStringImpl a2
 
+class GqlAndArgsString q where
+  toGqlAndArgsStringImpl :: q -> String
+
+instance gqlArgStringAndArgsNotEnd ::
+  ( GqlArgString a1
+  , GqlAndArgsString (AndArgs a2 a3)
+  ) =>
+  GqlAndArgsString (AndArgs (Array a1) (AndArgs a2 a3)) where
+  toGqlAndArgsStringImpl (AndArgs head tail) = foldMap (toGqlArgStringImpl >>> \s -> s <> ", ") head <> toGqlAndArgsStringImpl tail
+else instance gqlArgStringAndArgsEnd ::
+  ( GqlArgString a1
+  , GqlArgString a2
+  ) =>
+  GqlAndArgsString (AndArgs (Array a1) (Array a2)) where
+  toGqlAndArgsStringImpl (AndArgs a1 a2) = intercalate ", " (map toGqlArgStringImpl a1 <> map toGqlArgStringImpl a2)
+
 data PropToGqlArg
   = PropToGqlArg
 
@@ -237,10 +257,10 @@ instance propToGqlArg ::
   , IsIgnoreArg a
   ) =>
   FoldingWithIndex PropToGqlArg (Proxy sym) String a String where
-  foldingWithIndex PropToGqlArg prop str a = 
-    if isIgnoreArg a then 
+  foldingWithIndex PropToGqlArg prop str a =
+    if isIgnoreArg a then
       str
-    else 
+    else
       pre <> reflectSymbol prop <> ": " <> toGqlArgStringImpl a
     where
     pre = if str == "" then "" else str <> ", "
@@ -259,13 +279,13 @@ gqlArgStringRecordTopLevel ::
   String
 gqlArgStringRecordTopLevel r = "(" <> hfoldlWithIndex PropToGqlArg "" r <> ")"
 
-class IsIgnoreArg a where 
+class IsIgnoreArg a where
   isIgnoreArg :: a -> Boolean
 
 instance isIgnoreArgIgnoreArg :: IsIgnoreArg IgnoreArg where
   isIgnoreArg _ = true
 else instance isIgnoreArgOrArg :: (IsIgnoreArg l, IsIgnoreArg r) => IsIgnoreArg (OrArg l r) where
-  isIgnoreArg = case _ of 
+  isIgnoreArg = case _ of
     ArgL l -> isIgnoreArg l
     ArgR r -> isIgnoreArg r
 else instance isIgnoreArgOther :: IsIgnoreArg a where
