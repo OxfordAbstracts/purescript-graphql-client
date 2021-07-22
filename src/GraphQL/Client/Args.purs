@@ -71,8 +71,8 @@ class ArgGql params arg
 instance argToGqlNotNull :: (IsNotNull param arg, ArgGql param arg) => ArgGql (NotNull param) arg
 else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
 else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
-else instance argToGqlArrayAnd :: (ArgGql param a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArg a1 a2)
-else instance argToGqlArrayAnds :: (ArgGql param a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArgs a1 a2)
+else instance argToGqlArrayAnd :: (ArgGql (Array param) a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArg a1 a2)
+else instance argToGqlArrayAnds :: (ArgGql (Array param) a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArgs a1 a2)
 else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
 else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql param (OrArg argL argR)
 else instance argToGqlIgnore :: ArgGql param IgnoreArg
