@@ -1,7 +1,7 @@
 module GraphQL.Client.ToGqlString where
 
 import Prelude
-import Data.Array (fold, foldMap, intercalate, length, mapWithIndex, null)
+import Data.Array (fold, foldMap, intercalate, length, mapWithIndex)
 import Data.Array as Array
 import Data.Date (Date)
 import Data.DateTime (DateTime(..), Millisecond)
