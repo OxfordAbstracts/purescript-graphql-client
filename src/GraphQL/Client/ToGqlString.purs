@@ -17,7 +17,7 @@ import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Data.Time (Time)
 import GraphQL.Client.Alias (Alias(..))
-import GraphQL.Client.Args (AndArg(..), AndArgs(..), Args(..), IgnoreArg, OrArg(..))
+import GraphQL.Client.Args (AndArgs(..), Args(..), IgnoreArg, OrArg(..))
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
 import Type.Proxy (Proxy(..))
 
@@ -151,11 +151,6 @@ else instance gqlArgStringOrArg ::
   toGqlArgStringImpl = case _ of
     ArgL a -> toGqlArgStringImpl a
     ArgR a -> toGqlArgStringImpl a
--- else instance gqlArgStringAndArg ::
---   ( GqlAndArgString (AndArg a1 a2)
---     ) =>
---   GqlArgString (AndArg a1 a2) where
---   toGqlArgStringImpl andArg = "[" <> toGqlAndArgStringImpl andArg <> "]"
 else instance gqlArgStringAndArgs ::
   ( GqlAndArgsString (AndArgs a1 a2)
     ) =>
@@ -215,22 +210,6 @@ removeTrailingZeros s =
 -- digits.
 padMilli :: Millisecond -> String
 padMilli = padl 3 '0' <<< show <<< fromEnum
-
--- class GqlAndArgString q where
---   toGqlAndArgStringImpl :: q -> String
-
--- instance gqlArgStringAndArgNotEnd ::
---   ( GqlArgString a1
---   , GqlAndArgString (AndArg a2 a3)
---   ) =>
---   GqlAndArgString (AndArg a1 (AndArg a2 a3)) where
---   toGqlAndArgStringImpl (AndArg head tail) = toGqlArgStringImpl head <> ", " <> toGqlAndArgStringImpl tail
--- else instance gqlArgStringAndArgEnd ::
---   ( GqlArgString a1
---   , GqlArgString a2
---   ) =>
---   GqlAndArgString (AndArg a1 a2) where
---   toGqlAndArgStringImpl (AndArg a1 a2) = toGqlArgStringImpl a1 <> ", " <> toGqlArgStringImpl a2
 
 class GqlAndArgsString q where
   toGqlAndArgsStringImpl :: q -> String
