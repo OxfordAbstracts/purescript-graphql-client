@@ -380,7 +380,7 @@ result <- query client "only_set_arg_if"
 ```
 
 GraphQL arrays can be written as purescript arrays if they are homogenous, but for mixed type arrays
-you can use `AndArg` or the `++` operator. 
+you can use `AndArgs`/`andArg` or the `+++`/`++` operator. 
 
 eg.
 ```purs
@@ -389,6 +389,7 @@ result <- query client "mixed_args_query"
   { widget: 
     { homogenous_array_prop: [1, 2, 3]
     , mixed_array_prop: 1 ++ "hello" 
+    , mixed_array_prop: [1, 2] +++ ["hello", "world"]
     } 
     =>>
     { prop1, prop2 }
