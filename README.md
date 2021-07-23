@@ -229,8 +229,8 @@ To use purescript-graphql-client in the browser you have a few options for a bas
 
 You can also create your own base client by making your own data type an instance of `QueryClient`. Look in `GraphQL.Client.BaseClients.Affjax` for a simple example
 
-To use Affjax you can simple create a base client using the `AffjaxClient` data constructor and 
-passing it the url of your GraphQL endpoint and any request headers.
+To use Affjax you can create a base client using the `AffjaxClient` data constructor and 
+pass it the url of your GraphQL endpoint and any request headers.
 
 To use Apollo you will have to install the Apollo npm module. 
 ```
