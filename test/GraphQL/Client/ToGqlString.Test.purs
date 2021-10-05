@@ -5,6 +5,7 @@ import Prelude
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Args (IgnoreArg(..), (++), (=>>))
 import GraphQL.Client.ToGqlString (toGqlQueryString, toGqlQueryStringFormatted)
+import GraphQL.Client.Variable (Var(..))
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
 import Type.Proxy (Proxy(..))
@@ -103,7 +104,7 @@ spec =
       it "converts array args"
         $ toGqlQueryStringFormatted
             { a:
-                { a: [1, 2, 3]
+                { a: [ 1, 2, 3 ]
                 , b: 1 ++ 2 ++ 3 ++ 4
                 }
                   =>> { nested: unit }
@@ -120,7 +121,7 @@ spec =
         $ toGqlQueryStringFormatted
             { a:
                 { i: IgnoreArg
-                , a: [1, 2, 3]
+                , a: [ 1, 2, 3 ]
                 , b: IgnoreArg
                 , c: "X"
                 , d: IgnoreArg
@@ -134,4 +135,14 @@ spec =
     nested
   }
   b
+}"""
+      it "handles variables"
+        $ toGqlQueryStringFormatted
+            { a: { arg: Var :: _ "var1" _ } =>> { nested: unit }
+            }
+            `shouldEqual`
+              """ {
+  a(arg: $var1) {
+    nested
+  }
 }"""

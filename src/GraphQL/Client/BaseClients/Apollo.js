@@ -140,7 +140,7 @@ exports.mutationImpl = function (opts) {
               refetchQueries: opts.refetchQueries,
               optimisticResponse: opts.optimisticResponse,
               update: function () {
-                if (opts.update){
+                if (opts.update) {
                   opts.update()
                 }
               }
