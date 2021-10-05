@@ -1,4 +1,4 @@
-module GraphQL.Client.Variable (Var(..), GetVar, getVars) where
+module GraphQL.Client.Variable where
 
 import Control.Apply (lift2)
 import Data.Symbol (class IsSymbol)
@@ -17,11 +17,18 @@ data GetVar
 
 instance getVarVar ::
   ( IsSymbol name
-  , Row.Lacks name acc
-  , Row.Cons name a acc res
+  , Row.Cons name a () varRec
+  , Row.Union acc varRec r3
+  , Row.Union varRec acc r3
+  , Row.Nub r3 res
   ) =>
   Folding GetVar (Proxy { | acc }) (Var name a) (Proxy { | res }) where
-  folding GetVar acc Var = lift2 (Record.insert (Proxy :: Proxy name)) (Proxy :: Proxy a) acc
+  folding GetVar acc Var =
+    let
+      varRec :: Proxy (Record varRec)
+      varRec = lift2 (Record.insert (Proxy :: Proxy name)) (Proxy :: Proxy a) (Proxy :: Proxy {})
+    in
+      lift2 Record.merge acc varRec
 else instance getVarNested ::
   ( HFoldl GetVar (Proxy {}) { | nested } (Proxy { | subRes })
   , Row.Union acc subRes r3
@@ -36,3 +43,4 @@ else instance getVarSkip ::
 -- | Get the type of the variables for a graphql query
 getVars :: forall query res. HFoldl GetVar (Proxy {}) query res => query -> res
 getVars = hfoldl GetVar (Proxy :: Proxy {})
+
