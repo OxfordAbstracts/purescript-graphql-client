@@ -15,11 +15,13 @@ import GraphQL.Hasura.Decode (class DecodeHasura, decodeHasura)
 
 -- | Used for creating spread aliases dynamically
 -- | eq: 
+-- | ```
 -- | mutation myUpdates {
 -- |   _1: update_users(where: {id : 1}, _set: { value: 10 }) { affected_rows }
 -- |   _2: update_users(where: {id : 2}, _set: { value: 15 }) { affected_rows }
 -- |   _3: update_users(where: {id : 3}, _set: { value: 20 }) { affected_rows }
 -- | }
+-- | ```
 data Spread alias args fields
   = Spread alias (Array args) fields
 

@@ -18,7 +18,8 @@ import Control.Apply (lift2)
 import Data.Argonaut.Core (Json, jsonEmptyObject)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Symbol (class IsSymbol)
-import GraphQL.Client.Alias.Dynamic (Spread)
+import GraphQL.Client.Alias (Alias(..))
+import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (AndArg, Args, OrArg)
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables.TypeName (VarTypeNameProps, varTypeNameRecord)
@@ -37,6 +38,28 @@ instance getVarVar ::
   ) =>
   GetVar (Var name a) { | var } where
   getVar _ = lift2 (Record.insert (Proxy :: Proxy name)) (Proxy :: Proxy a) (Proxy :: Proxy {})
+else instance getVarAlias ::
+  ( GetVar query var
+  ) =>
+  GetVar (Alias name query) var where
+  getVar _ = getVar (Proxy :: _ query)
+else instance getVarSpread ::
+  ( GetVar l { | varL }
+  , GetVar r { | varR }
+  , Row.Union varR varL trash
+  , Row.Union varL varR trash -- keep both union directions to make sure value type is the same
+  , Row.Nub trash var
+  ) =>
+  GetVar (Spread name l r) { | var } where
+  getVar _ =
+    let
+      varL :: Proxy { | varL }
+      varL = getVar (Proxy :: _ l)
+
+      varR :: Proxy { | varR }
+      varR = getVar (Proxy :: _ r)
+    in
+      lift2 Record.merge varL varR
 else instance getVarArg ::
   ( GetVar arg { | varArg }
   , GetVar t { | varT }
