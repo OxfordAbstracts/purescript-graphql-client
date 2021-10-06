@@ -17,6 +17,7 @@ import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Data.Time (Time)
 import GraphQL.Client.Alias (Alias(..))
+import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (AndArgs(AndArgs), Args(..), IgnoreArg, OrArg(..))
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars, getQuery)
@@ -46,13 +47,29 @@ class GqlQueryString q where
 
 instance gqlQueryStringUnit :: GqlQueryString Unit where
   toGqlQueryStringImpl _ _ = ""
-
 else instance gqlQueryStringWithVars :: GqlQueryString query => GqlQueryString (WithVars query vars) where
   toGqlQueryStringImpl opts withVars = toGqlQueryStringImpl opts $ getQuery withVars
 else instance gqlQueryStringSymbol :: IsSymbol s => GqlQueryString (Proxy s) where
   toGqlQueryStringImpl _ _ = ": " <> reflectSymbol (Proxy :: Proxy s)
 else instance gqlQueryStringVar :: IsSymbol s => GqlQueryString (Var s a) where
   toGqlQueryStringImpl _ _ = "$" <> reflectSymbol (Proxy :: Proxy s)
+else instance gqlQueryStringSpread ::
+  ( IsSymbol alias
+  , GqlQueryString (Args args fields)
+  ) =>
+  GqlQueryString (Spread (Proxy alias) args fields) where
+  toGqlQueryStringImpl opts (Spread alias args fields) = indent opts $ " {" <> nl <> intercalate nl dynamicFields <> nl <> "}"
+    where
+    nl = if isJust opts.indentation then "\n" else " "
+
+    dynamicFields =
+      args
+        # mapWithIndex \idx arg ->
+            "_"
+              <> show idx
+              <> ": "
+              <> reflectSymbol alias
+              <> toGqlQueryStringImpl opts (Args arg fields)
 else instance gqlQueryStringArgsScalar ::
   ( HFoldlWithIndex PropToGqlArg String (Record args) String
     ) =>
@@ -73,6 +90,7 @@ else instance gqlQueryStringEmptyRecord ::
 
 data PropToGqlString
   = PropToGqlString ToGqlQueryStringOptions
+
 
 instance propToGqlStringAlias ::
   ( GqlQueryString a
@@ -106,25 +124,34 @@ gqlQueryStringRecord ::
   HFoldlWithIndex PropToGqlString String { | r } String =>
   { | r } ->
   String
-gqlQueryStringRecord opts r = indent $ " {" <> hfoldlWithIndex (PropToGqlString opts) "" r <> nl <> "}"
+gqlQueryStringRecord opts r = indent opts $ " {" <> hfoldlWithIndex (PropToGqlString opts) "" r <> nl <> "}"
   where
   multiline = isJust opts.indentation
 
   nl = guard multiline "\n"
 
-  indent :: String -> String
-  indent str = case opts.indentation of
-    Just indentation ->
-      let
-        lines = toLines str
-      in
-        lines
-          # mapWithIndex (\i l -> if i == 0 || i == length lines - 1 then l else power " " indentation <> l)
-          # joinWith nl
-    _ -> str
+indent ::
+  forall r.
+  { indentation :: Maybe Int
+  | r
+  } ->
+  String -> String
+indent opts str = case opts.indentation of
+  Just indentation ->
+    let
+      lines = toLines str
+    in
+      lines
+        # mapWithIndex (\i l -> if i == 0 || i == length lines - 1 then l else power " " indentation <> l)
+        # joinWith nl
+  _ -> str
+  where
+  multiline = isJust opts.indentation
 
-  toLines :: String -> Array String
-  toLines = split (unsafeRegex """\n""" global)
+  nl = guard multiline "\n"
+
+toLines :: String -> Array String
+toLines = split (unsafeRegex """\n""" global)
 
 toGqlArgString :: forall q. GqlArgString q => q -> String
 toGqlArgString = toGqlArgStringImpl
@@ -240,7 +267,7 @@ else instance gqlArgStringAndArgsEnd ::
   , GqlArgString a2
   ) =>
   GqlAndArgsString (AndArgs (Array a1) a2) where
-  toGqlAndArgsStringImpl (AndArgs a1 a2) = intercalate ", " (map toGqlArgStringImpl a1 <>  [toGqlArgStringImpl a2])
+  toGqlAndArgsStringImpl (AndArgs a1 a2) = intercalate ", " (map toGqlArgStringImpl a1 <> [ toGqlArgStringImpl a2 ])
 
 data PropToGqlArg
   = PropToGqlArg

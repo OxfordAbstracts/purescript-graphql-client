@@ -18,6 +18,7 @@ import Control.Apply (lift2)
 import Data.Argonaut.Core (Json, jsonEmptyObject)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Symbol (class IsSymbol)
+import GraphQL.Client.Alias.Dynamic (Spread)
 import GraphQL.Client.Args (AndArg, Args, OrArg)
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables.TypeName (VarTypeNameProps, varTypeNameRecord)
@@ -146,6 +147,12 @@ instance varsTypeCheckedWithVars :: VarsTypeChecked (WithVars query vars) where
 else instance varsTypeCheckedWithoutVars ::
   GetVar { | query } {} =>
   VarsTypeChecked { | query } where
+  getVarsJson _ = jsonEmptyObject
+  getVarsTypeNames _ = ""
+
+else instance varsTypeCheckedSpread ::
+  GetVar (Spread alias arg fields)  {} =>
+  VarsTypeChecked (Spread alias arg fields) where
   getVarsJson _ = jsonEmptyObject
   getVarsTypeNames _ = ""
 
