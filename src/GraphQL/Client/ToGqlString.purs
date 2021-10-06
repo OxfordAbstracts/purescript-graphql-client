@@ -20,6 +20,7 @@ import Data.Time (Time)
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Args (AndArg(..), Args(..), IgnoreArg, OrArg(..))
 import GraphQL.Client.Variable (Var)
+import GraphQL.Client.Variables (WithVars, getQuery)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
 import Type.Proxy (Proxy(..))
 
@@ -46,6 +47,9 @@ class GqlQueryString q where
 
 instance gqlQueryStringUnit :: GqlQueryString Unit where
   toGqlQueryStringImpl _ _ = ""
+
+else instance gqlQueryStringWithVars :: GqlQueryString query => GqlQueryString (WithVars query vars) where
+  toGqlQueryStringImpl opts withVars = toGqlQueryStringImpl opts $ getQuery withVars
 else instance gqlQueryStringSymbol :: IsSymbol s => GqlQueryString (Proxy s) where
   toGqlQueryStringImpl _ _ = ": " <> reflectSymbol (Proxy :: Proxy s)
 else instance gqlQueryStringVar :: IsSymbol s => GqlQueryString (Var s a) where

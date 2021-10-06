@@ -1,6 +1,7 @@
 module GraphQL.Client.Variable.Test where
 
-import GraphQL.Client.Variable (Var(..), getVars)
+import GraphQL.Client.Variable (Var(..))
+import GraphQL.Client.Variables (getQueryVars)
 import Type.Proxy (Proxy)
 
 -- TYPE LEVEL TESTS
@@ -8,14 +9,14 @@ testBasic ::
   Proxy
     { var1 :: Int
     }
-testBasic = getVars { x: Var :: _ "var1" Int }
+testBasic = getQueryVars { x: Var :: _ "var1" Int }
 
 testDuplicates ::
   Proxy
     { var1 :: Int
     }
 testDuplicates =
-  getVars
+  getQueryVars
     { x: Var :: _ "var1" Int
     , y: Var :: _ "var1" Int
     }
@@ -26,7 +27,7 @@ testMixed ::
     , var2 :: String
     }
 testMixed =
-  getVars
+  getQueryVars
     { x: Var :: _ "var1" Int
     , y: Var :: _ "var2" String
     }
@@ -37,7 +38,7 @@ testNested ::
     , var2 :: String
     }
 testNested =
-  getVars
+  getQueryVars
     { x: Var :: _ "var1" Int
     , y:
         { a: Var :: _ "var1" Int
