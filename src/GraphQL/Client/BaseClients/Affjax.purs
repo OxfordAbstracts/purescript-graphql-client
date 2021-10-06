@@ -19,8 +19,8 @@ data AffjaxClient
   = AffjaxClient URL (Array RequestHeader)
 
 instance queryClient :: QueryClient AffjaxClient Unit Unit where
-  clientQuery _ (AffjaxClient url headers) name q = throwLeft =<< queryPostForeign "query" url headers name q
-  clientMutation _ (AffjaxClient url headers) name q = throwLeft =<< queryPostForeign "mutation" url headers name q
+  clientQuery _ (AffjaxClient url headers) name q vars = throwLeft =<< queryPostForeign "query" url headers name q vars
+  clientMutation _ (AffjaxClient url headers) name q vars = throwLeft =<< queryPostForeign "mutation" url headers name q vars
   defQueryOpts = const unit
   defMutationOpts = const unit
 
@@ -30,8 +30,8 @@ throwLeft = case _ of
   Right { body } -> pure body
 
 queryPostForeign ::
-  String -> URL -> Array RequestHeader -> String -> String -> Aff (Either Error (Response Json))
-queryPostForeign opStr url headers queryName q =
+  String -> URL -> Array RequestHeader -> String -> String -> Json -> Aff (Either Error (Response Json))
+queryPostForeign opStr url headers queryName q vars =
   request
     defaultRequest
       { withCredentials = true
@@ -43,7 +43,7 @@ queryPostForeign opStr url headers queryName q =
           $ RequestBody.Json
           $ encodeJson
               { query: opStr <> " " <> queryName <> " " <> q
-              , variables: {}
+              , variables: vars
               , operationName: queryName
               }
       , headers = headers <> [ ContentType applicationJSON ]

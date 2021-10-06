@@ -105,21 +105,25 @@ exports.queryImpl = function (opts) {
 
   return function (client) {
     return function (query) {
-      return function (onError, onSuccess) {
-        try {
-          client
-            .query({
-              query: gql(query),
-              errorPolicy: opts.errorPolicy,
-              fetchPolicy: opts.fetchPolicy
-            })
-            .then(onSuccess)
-            .catch(onError)
-        } catch (err) {
-          onError(err)
-        }
-        return function (cancelError, onCancelerError, onCancelerSuccess) {
-          onCancelerSuccess()
+      return function (variables) {
+        return function (onError, onSuccess) {
+          try {
+            client
+              .query({
+                query: gql(query),
+                variables: variables,
+
+                errorPolicy: opts.errorPolicy,
+                fetchPolicy: opts.fetchPolicy
+              })
+              .then(onSuccess)
+              .catch(onError)
+          } catch (err) {
+            onError(err)
+          }
+          return function (cancelError, onCancelerError, onCancelerSuccess) {
+            onCancelerSuccess()
+          }
         }
       }
     }
@@ -129,29 +133,32 @@ exports.queryImpl = function (opts) {
 exports.mutationImpl = function (opts) {
   return function (client) {
     return function (mutation) {
-      return function (onError, onSuccess) {
-        const { gql } = require('@apollo/client/core')
+      return function (variables) {
+        return function (onError, onSuccess) {
+          const { gql } = require('@apollo/client/core')
 
-        try {
-          client
-            .mutate({
-              mutation: gql(mutation),
-              errorPolicy: opts.errorPolicy,
-              refetchQueries: opts.refetchQueries,
-              optimisticResponse: opts.optimisticResponse,
-              update: function () {
-                if (opts.update) {
-                  opts.update()
+          try {
+            client
+              .mutate({
+                mutation: gql(mutation),
+                errorPolicy: opts.errorPolicy,
+                refetchQueries: opts.refetchQueries,
+                optimisticResponse: opts.optimisticResponse,
+                variables: variables,
+                update: function () {
+                  if (opts.update) {
+                    opts.update()
+                  }
                 }
-              }
-            })
-            .then(onSuccess)
-            .catch(onError)
-        } catch (err) {
-          onError(err)
-        }
-        return function (cancelError, onCancelerError, onCancelerSuccess) {
-          onCancelerSuccess()
+              })
+              .then(onSuccess)
+              .catch(onError)
+          } catch (err) {
+            onError(err)
+          }
+          return function (cancelError, onCancelerError, onCancelerSuccess) {
+            onCancelerSuccess()
+          }
         }
       }
     }
@@ -161,21 +168,24 @@ exports.mutationImpl = function (opts) {
 exports.subscriptionImpl = function (opts) {
   return function (client) {
     return function (query) {
-      return function (onData) {
-        return function () {
-          const { gql } = require('@apollo/client/core')
+      return function (variables) {
+        return function (onData) {
+          return function () {
+            const { gql } = require('@apollo/client/core')
 
-          const subscription = client
-            .subscribe({
-              query: gql(query),
-              errorPolicy: opts.errorPolicy,
-              fetchPolicy: opts.fetchPolicy
-            })
-            .subscribe(
-              function (x) { onData(x)() }
-            )
+            const subscription = client
+              .subscribe({
+                query: gql(query),
+                variables: variables,
+                errorPolicy: opts.errorPolicy,
+                fetchPolicy: opts.fetchPolicy
+              })
+              .subscribe(
+                function (x) { onData(x)() }
+              )
 
-          return function () { subscription.unsubscribe() }
+            return function () { subscription.unsubscribe() }
+          }
         }
       }
     }
@@ -185,23 +195,27 @@ exports.subscriptionImpl = function (opts) {
 exports.watchQueryImpl = function (opts) {
   return function (client) {
     return function (query) {
-      return function (onData) {
-        return function () {
-          const { gql } = require('@apollo/client/core')
+      return function (variables) {
+        return function (onData) {
+          return function () {
+            const { gql } = require('@apollo/client/core')
 
-          const subscription = client
-            .watchQuery({
-              query: gql(query),
-              errorPolicy: opts.errorPolicy,
-              fetchPolicy: opts.fetchPolicy
-            })
-            .subscribe(
-              function (x) {
-                onData(x)()
-              }
-            )
+            const subscription = client
+              .watchQuery({
+                query: gql(query),
+                variables: variables,
 
-          return function () { subscription.unsubscribe() }
+                errorPolicy: opts.errorPolicy,
+                fetchPolicy: opts.fetchPolicy
+              })
+              .subscribe(
+                function (x) {
+                  onData(x)()
+                }
+              )
+
+            return function () { subscription.unsubscribe() }
+          }
         }
       }
     }

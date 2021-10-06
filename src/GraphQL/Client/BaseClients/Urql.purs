@@ -108,8 +108,8 @@ instance queryClientSubscription :: QueryClient UrqlSubClient Unit Unit where
 queryForeign ::
   forall client o.
   QueryClient client o o =>
-  Boolean -> client -> String -> String -> Aff Json
-queryForeign isMutation client name q_ = fromEffectFnAff $ fn (unsafeToForeign client) q
+  Boolean -> client -> String -> String -> Json -> Aff Json
+queryForeign isMutation client name q_ vars = fromEffectFnAff $ fn (unsafeToForeign client) q vars
   where
   fn = if isMutation then mutationImpl else queryImpl
 
@@ -117,9 +117,9 @@ queryForeign isMutation client name q_ = fromEffectFnAff $ fn (unsafeToForeign c
 
   q = opStr <> " " <> name <> " " <> q_
 
-foreign import queryImpl :: Foreign -> String -> EffectFnAff Json
+foreign import queryImpl :: Foreign -> String -> Json -> EffectFnAff Json
 
-foreign import mutationImpl :: Foreign -> String -> EffectFnAff Json
+foreign import mutationImpl :: Foreign -> String -> Json -> EffectFnAff Json
 
 instance subcriptionClient :: SubscriptionClient UrqlSubClient Unit where
   clientSubscription _ = subscriptionImpl
@@ -127,5 +127,6 @@ instance subcriptionClient :: SubscriptionClient UrqlSubClient Unit where
 foreign import subscriptionImpl ::
   UrqlSubClient ->
   String ->
+  Json ->
   (Json -> Effect Unit) ->
   Effect (Effect Unit)

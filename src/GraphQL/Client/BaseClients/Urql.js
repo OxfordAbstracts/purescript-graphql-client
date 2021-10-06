@@ -62,18 +62,23 @@ exports.createSubscriptionClientImpl = function (opts) {
 
 exports.queryImpl = function (client) {
   return function (query) {
-    return function (onError, onSuccess) {
-      try {
-        client
-          .query(query)
-          .toPromise()
-          .then(onSuccess)
-          .catch(onError)
-      } catch (err) {
-        onError(err)
-      }
-      return function (cancelError, onCancelerError, onCancelerSuccess) {
-        onCancelerSuccess()
+    return function (variables) {
+      return function (onError, onSuccess) {
+        console.info('query', query)
+        console.info('variables', variables)
+
+        try {
+          client
+            .query(query, variables)
+            .toPromise()
+            .then(onSuccess)
+            .catch(onError)
+        } catch (err) {
+          onError(err)
+        }
+        return function (cancelError, onCancelerError, onCancelerSuccess) {
+          onCancelerSuccess()
+        }
       }
     }
   }
@@ -81,18 +86,20 @@ exports.queryImpl = function (client) {
 
 exports.mutationImpl = function (client) {
   return function (mutation) {
-    return function (onError, onSuccess) {
-      try {
-        client
-          .mutation(mutation)
-          .toPromise()
-          .then(onSuccess)
-          .catch(onError)
-      } catch (err) {
-        onError(err)
-      }
-      return function (cancelError, onCancelerError, onCancelerSuccess) {
-        onCancelerSuccess()
+    return function (variables) {
+      return function (onError, onSuccess) {
+        try {
+          client
+            .mutation(mutation, variables)
+            .toPromise()
+            .then(onSuccess)
+            .catch(onError)
+        } catch (err) {
+          onError(err)
+        }
+        return function (cancelError, onCancelerError, onCancelerSuccess) {
+          onCancelerSuccess()
+        }
       }
     }
   }
@@ -102,15 +109,17 @@ exports.subscriptionImpl = function (client) {
   const { subscribe, pipe } = require('wonka')
 
   return function (query) {
-    return function (callback) {
-      return function () {
-        const { unsubscribe } = pipe(
-          client.subscription(query),
-          subscribe(function (value) {
-            callback(value)()
-          })
-        )
-        return unsubscribe
+    return function (variables) {
+      return function (callback) {
+        return function () {
+          const { unsubscribe } = pipe(
+            client.subscription(query, variables),
+            subscribe(function (value) {
+              callback(value)()
+            })
+          )
+          return unsubscribe
+        }
       }
     }
   }

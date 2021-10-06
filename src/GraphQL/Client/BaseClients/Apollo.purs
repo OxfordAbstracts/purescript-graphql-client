@@ -180,8 +180,8 @@ instance subClientSubscription ::
 queryForeign ::
   forall q m client.
   QueryClient client q m =>
-  Boolean -> Foreign -> client -> String -> String -> Aff Json
-queryForeign isMutation opts client name q_ = fromEffectFnAff $ fn opts (unsafeToForeign client) q
+  Boolean -> Foreign -> client -> String -> String ->  Json ->  Aff Json
+queryForeign isMutation opts client name q_ vars = fromEffectFnAff $ fn opts (unsafeToForeign client) q vars
   where
   fn = if isMutation then mutationImpl else queryImpl
 
@@ -265,9 +265,9 @@ foreign import createClientImpl :: ApolloClientOptionsForeign -> Effect ApolloCl
 
 foreign import createSubscriptionClientImpl :: ApolloSubApolloClientOptionsForeign -> Effect ApolloSubClient
 
-foreign import queryImpl :: Foreign -> Foreign -> String -> EffectFnAff Json
+foreign import queryImpl :: Foreign -> Foreign -> String ->    Json -> EffectFnAff Json
 
-foreign import mutationImpl :: Foreign -> Foreign -> String -> EffectFnAff Json
+foreign import mutationImpl :: Foreign -> Foreign -> String ->  Json ->  EffectFnAff Json
 
 foreign import readQueryImpl :: Foreign -> String -> Effect (Nullable Json)
 
@@ -277,6 +277,7 @@ foreign import subscriptionImpl ::
   Foreign ->
   ApolloSubClient ->
   String ->
+  Json ->
   (Json -> Effect Unit) ->
   Effect (Effect Unit)
 
@@ -284,5 +285,7 @@ foreign import watchQueryImpl ::
   Foreign ->
   Foreign ->
   String ->
+    Json ->
+
   (Json -> Effect Unit) ->
   Effect (Effect Unit)

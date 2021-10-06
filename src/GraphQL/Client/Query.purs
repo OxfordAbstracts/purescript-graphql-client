@@ -37,6 +37,7 @@ import GraphQL.Client.BaseClients.Urql (UrqlClient, createGlobalClientUnsafe)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (class GqlQueryString, toGqlQueryString, toGqlQueryStringFormatted)
 import GraphQL.Client.Types (class GqlQuery, class QueryClient, Client(..), GqlRes, GqlError, clientMutation, clientQuery, defMutationOpts, defQueryOpts)
+import GraphQL.Client.Variables (class VarsTypeChecked, getVarsJson, getVarsTypeNames)
 import Type.Proxy (Proxy(..))
 
 -- | Run a graphQL query with a custom decoder and custom options
@@ -175,10 +176,11 @@ runQuery ::
   forall client schema query returns qOpts mOpts.
   QueryClient client qOpts mOpts =>
   GqlQuery schema query returns =>
+  VarsTypeChecked query =>
   (Json -> Either JsonDecodeError returns) -> qOpts -> client -> Proxy schema -> String -> query -> Aff returns
 runQuery decodeFn opts client _ queryNameUnsafe q =
   addErrorInfo queryName q do
-    json <- clientQuery opts client queryName $ toGqlQueryString q
+    json <- clientQuery opts client queryName (getVarsTypeNames q <> toGqlQueryString q) (getVarsJson q)
     decodeJsonData decodeFn json
   where
   queryName = safeQueryName queryNameUnsafe
@@ -187,10 +189,11 @@ runMutation ::
   forall client schema query returns qOpts mOpts.
   QueryClient client qOpts mOpts =>
   GqlQuery schema query returns =>
+  VarsTypeChecked query =>
   (Json -> Either JsonDecodeError returns) -> mOpts -> client -> Proxy schema -> String -> query -> Aff returns
 runMutation decodeFn opts client _ queryNameUnsafe q =
   addErrorInfo queryName q do
-    json <- clientMutation opts client queryName $ toGqlQueryString q
+    json <- clientMutation opts client queryName (getVarsTypeNames q <> toGqlQueryString q) (getVarsJson q)
     decodeJsonData decodeFn json
   where
   queryName = safeQueryName queryNameUnsafe
@@ -231,7 +234,6 @@ addErrorInfo queryName q =
       <> ".\nquery: "
       <> toGqlQueryStringFormatted q
 
-
 -- | Run a graphQL query, getting the full response,
 -- | According to https://spec.graphql.org/June2018/#sec-Response-Format
 queryFullRes ::
@@ -247,7 +249,7 @@ queryFullRes ::
   Aff (GqlRes returns)
 queryFullRes decodeFn optsF (Client client) queryNameUnsafe q =
   addErrorInfo queryName q do
-    json <- clientQuery opts client queryName $ toGqlQueryString q
+    json <- clientQuery opts client queryName (toGqlQueryString q) (getVarsJson q)
     pure $ getFullRes decodeFn json
   where
   opts = optsF (defQueryOpts client)
@@ -269,27 +271,25 @@ mutationFullRes ::
   Aff (GqlRes returns)
 mutationFullRes decodeFn optsF (Client client) queryNameUnsafe q =
   addErrorInfo queryName q do
-    json <- clientMutation opts client queryName $ toGqlQueryString q
+    json <- clientMutation opts client queryName (toGqlQueryString q) (getVarsJson q)
     pure $ getFullRes decodeFn json
   where
   opts = optsF (defMutationOpts client)
 
   queryName = safeQueryName queryNameUnsafe
 
-
 getFullRes ::
   forall res.
   (Json -> Either JsonDecodeError res) ->
   Json ->
   GqlRes res
-getFullRes decodeFn json = 
+getFullRes decodeFn json =
   let
     data_ = decodeGqlRes decodeFn json
 
     errors = getErrors json
 
     extensions = getExtensions json
-    
   in
     { data_
     , errors_json: errors

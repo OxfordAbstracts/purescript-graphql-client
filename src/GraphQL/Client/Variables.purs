@@ -1,26 +1,27 @@
 module GraphQL.Client.Variables
   ( class GetVar
+  , class VarsTypeChecked
   , GetVarRec
   , WithVars
-  , getJsonVars
+  , getVarsJson
+  , getVarsTypeNames 
   , getQuery
   , getQueryVars
   , getVar
   , withVars
-  , withVars_
   , withVarsEncode
-  , withVarsEncode_
   ) where
 
 import Prelude
 
 import Control.Apply (lift2)
-import Data.Argonaut.Core (Json)
+import Data.Argonaut.Core (Json, jsonEmptyObject)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Symbol (class IsSymbol)
 import GraphQL.Client.Args (AndArg, Args, OrArg)
 import GraphQL.Client.Variable (Var)
-import Heterogeneous.Folding (class Folding, class HFoldl, hfoldl)
+import GraphQL.Client.Variables.TypeName (VarTypeNameProps, varTypeNameRecord)
+import Heterogeneous.Folding (class Folding, class HFoldl, class HFoldlWithIndex, hfoldl)
 import Prim.Row as Row
 import Record as Record
 import Type.Proxy (Proxy(..))
@@ -112,42 +113,39 @@ getQueryVars _ = getVar (Proxy :: _ query)
 
 data WithVars :: forall k. Type -> k -> Type
 data WithVars query vars
-  = WithVars query Json
+  = WithVars query String Json
 
 -- | Add variables to a query with a custom encoder
 withVarsEncode ::
   forall query vars.
-  HFoldl GetVarRec (Proxy {}) query (Proxy vars) =>
-  (vars -> Json) ->
-  query -> vars -> WithVars query vars
-withVarsEncode encode query vars = WithVars query $ encode vars
+  HFoldlWithIndex VarTypeNameProps String {|vars} String =>
+  HFoldl GetVarRec (Proxy {}) query (Proxy {|vars}) =>
+  ({|vars} -> Json) ->
+  query -> {|vars} -> WithVars query {|vars}
+withVarsEncode encode query vars = WithVars query (varTypeNameRecord vars) $ encode vars
 
 -- | Add variables to a query
 withVars ::
   forall query vars.
-  HFoldl GetVarRec (Proxy {}) query (Proxy vars) =>
-  EncodeJson vars =>
-  query -> vars -> WithVars query vars
+  HFoldlWithIndex VarTypeNameProps String {|vars} String =>
+  HFoldl GetVarRec (Proxy {}) query (Proxy {|vars}) =>
+  EncodeJson {|vars} =>
+  query -> {|vars} -> WithVars query {|vars}
 withVars = withVarsEncode encodeJson
 
--- | Add variables to a query with a custom encoder
-withVarsEncode_ ::
-  forall query vars.
-  HFoldl GetVarRec (Proxy {}) query (Proxy vars) =>
-  (vars -> Json) ->
-  query -> vars -> WithVars (Proxy query) vars
-withVarsEncode_ encode _ vars = WithVars (Proxy :: _ query) $ encode vars
-
--- | Add variables to a query
-withVars_ ::
-  forall query vars.
-  HFoldl GetVarRec (Proxy {}) query (Proxy vars) =>
-  EncodeJson vars =>
-  query -> vars -> WithVars (Proxy query) vars
-withVars_ = withVarsEncode_ encodeJson
-
-getJsonVars :: forall query vars. WithVars query vars -> Json
-getJsonVars (WithVars _ json) = json
-
 getQuery :: forall query vars. WithVars query vars -> query
-getQuery (WithVars query _) = query
+getQuery (WithVars query _ _) = query
+
+class VarsTypeChecked query where
+  getVarsJson :: query -> Json
+  getVarsTypeNames :: query -> String 
+
+instance varsTypeCheckedWithVars :: VarsTypeChecked (WithVars query vars) where
+  getVarsJson (WithVars _ _ json) = json
+  getVarsTypeNames (WithVars _ varsTypeNames _) = varsTypeNames
+else instance varsTypeCheckedWithoutVars ::
+  GetVar { | query } {} =>
+  VarsTypeChecked { | query } where
+  getVarsJson _ = jsonEmptyObject
+  getVarsTypeNames _ = ""
+
