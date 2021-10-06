@@ -30,6 +30,7 @@ import GraphQL.Client.Args (class ArgGql)
 import GraphQL.Client.ToGqlString (class GqlArgString)
 import GraphQL.Hasura.Decode (class DecodeHasura)
 import GraphQL.Hasura.Encode (class EncodeHasura)
+import GraphQL.Client.Variables.TypeName (class VarTypeName)
 """ <> intercalate "\n" imports <> """
 
 """ <> docComment description <> """data """ <> name <> """ 
@@ -60,6 +61,9 @@ instance decdoeHasura""" <> name <> """ :: DecodeHasura """ <> name <> """ where
 
 instance encodeHasura""" <> name <> """ :: EncodeHasura """ <> name <> """ where 
   encodeHasura = encodeJson
+
+instance varTypeName""" <> name <> """ :: VarTypeName """ <> name <> """ where 
+  varTypeName _ = """ <> show (name <> "!") <> """
 
 instance show""" <> name <> """ :: Show """ <> name <> """ where
   show a = case a of 

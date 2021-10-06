@@ -1,12 +1,14 @@
 module Main where
 
 import Prelude
-
 import Data.Argonaut.Decode (class DecodeJson)
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
-import GraphQL.Client.Args (type (==>), (=>>))
+import Generated.Gql.Enum.Colour (Colour(..))
+import Generated.Gql.Schema.Admin (Query)
+import Generated.Gql.Symbols (colour)
+import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.Query (query_)
 import GraphQL.Client.Types (class GqlQuery)
 import GraphQL.Client.Variable (Var(..))
@@ -17,36 +19,17 @@ main :: Effect Unit
 main =
   launchAff_ do
     { widgets } <-
-      queryGql "Widget names with id 1"
-        $ { widgets: { id: Var :: _ "idVar" Int } =>> { name }
-          }
+      queryGql "widget_colours_with_id1"
+        $ { widgets: { colour: Var :: _ "colourVar" Colour } =>> { colour } }
             `withVars`
-              { idVar: 1 }
-
-    logShow $ map _.name widgets
+              { colourVar: RED }
+    -- Will log [ RED ] as there is one red widget
+    logShow $ map _.colour widgets
 
 -- Run gql query
 queryGql ::
   forall query returns.
-  GqlQuery Schema query returns =>
+  GqlQuery Query query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
-queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Schema)
-
--- Schema
-type Schema
-  = { prop :: String
-    , widgets :: { id :: Int } ==> Array Widget
-    }
-
-type Widget
-  = { name :: String
-    , id :: Int
-    }
-
--- Symbols 
-prop :: Proxy "prop"
-prop = Proxy
-
-name :: Proxy "name"
-name = Proxy
+queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Query)
