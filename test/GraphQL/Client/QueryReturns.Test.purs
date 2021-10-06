@@ -5,7 +5,7 @@ import Prelude
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import GraphQL.Client.Alias ((:))
-import GraphQL.Client.Args (type (==>), NotNull, (=>>), (++))
+import GraphQL.Client.Args (type (==>), IgnoreArg(..), NotNull, OrArg(..), (++), (+++), (=>>))
 import GraphQL.Client.QueryReturns (class QueryReturns, queryReturns)
 import Type.Proxy (Proxy(..))
 
@@ -223,6 +223,46 @@ testArrayArgsAndRec =
         }
           =>> { id }
     }
+testArrayArgsAndOrRec ::
+  Proxy
+    { users ::
+        Array
+          { id :: Int
+          }
+    }
+testArrayArgsAndOrRec =
+  queryReturns testSchemaProxy
+    { users:
+        { is_in_rec:
+            { int: 0 } ++ ignoreOrStr false ++ ignoreOrStr true
+        }
+          =>> { id }
+    }
+    
+testArrayArgsAndsRec ::
+  Proxy
+    { users ::
+        Array
+          { id :: Int
+          }
+    }
+testArrayArgsAndsRec =
+  queryReturns testSchemaProxy
+    { users:
+        { is_in_rec:
+            [{ int: 0 }] +++ ((ArgR [ignoreOrStr true, ignoreOrStr false]) :: OrArg IgnoreArg _)
+        }
+          =>> { id }
+    }
+
+
+ignoreOrStr :: Boolean -> OrArg IgnoreArg
+     { string :: String
+     }
+ignoreOrStr false =  ArgL IgnoreArg
+ignoreOrStr true =  ArgR {string: ""}
+
+
 
 id :: Proxy "id"
 id = Proxy

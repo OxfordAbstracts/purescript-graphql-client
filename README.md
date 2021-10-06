@@ -12,8 +12,6 @@ This library will allow you to make graphql queries and type checks the query, a
 
 It includes functions for making graphql queries and codegen tools for making sure your GraphQL schema and Purescript schema are in sync. 
 
-For a higher level graphql client in halogen projects, you may wish to use [purescript-halogen-graphql-connect](https://github.com/OxfordAbstracts/purescript-halogen-graphql-connect)
-
 ## Example
 
 Here is a complete application using purescript-graphql-client, that makes a graphQL query and logs the result, without using schema codegen.
@@ -88,7 +86,6 @@ name = Proxy
     - [Full responses](#full-responses)
     - [Apollo only features](#apollo-only-features)
   - [Alternatives to this package](#alternatives-to-this-package)
-    - [purescript-halogen-graphql-connect](#purescript-halogen-graphql-connect)
     - [purescript-graphql-fundeps](#purescript-graphql-fundeps)
     - [purescript-graphqlclient](#purescript-graphqlclient)
   
@@ -233,8 +230,8 @@ To use purescript-graphql-client in the browser you have a few options for a bas
 
 You can also create your own base client by making your own data type an instance of `QueryClient`. Look in `GraphQL.Client.BaseClients.Affjax` for a simple example
 
-To use Affjax you can simple create a base client using the `AffjaxClient` data constructor and 
-passing it the url of your GraphQL endpoint and any request headers.
+To use Affjax you can create a base client using the `AffjaxClient` data constructor and 
+pass it the url of your GraphQL endpoint and any request headers.
 
 To use Apollo you will have to install the Apollo npm module. 
 ```
@@ -384,7 +381,7 @@ result <- query client "only_set_arg_if"
 ```
 
 GraphQL arrays can be written as purescript arrays if they are homogenous, but for mixed type arrays
-you can use `AndArg` or the `++` operator. 
+you can use `AndArgs`/`andArg` or the `+++`/`++` operator. 
 
 eg.
 ```purs
@@ -393,6 +390,7 @@ result <- query client "mixed_args_query"
   { widget: 
     { homogenous_array_prop: [1, 2, 3]
     , mixed_array_prop: 1 ++ "hello" 
+    , mixed_array_prop: [1, 2] +++ ["hello", "world"]
     } 
     =>>
     { prop1, prop2 }
@@ -473,9 +471,6 @@ eg.
 
 ## Alternatives to this package
 
-### [purescript-halogen-graphql-connect](https://github.com/OxfordAbstracts/purescript-halogen-graphql-connect)
-
-A small wrapper around this project that makes it easier to use in halogen projects. 
 
 ### [purescript-graphql-fundeps](https://github.com/meeshkan/purescript-graphql-fundeps)
 

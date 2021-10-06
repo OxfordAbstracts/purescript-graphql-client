@@ -3,7 +3,7 @@ module GraphQL.Client.ToGqlString.Test where
 import Prelude
 
 import GraphQL.Client.Alias ((:))
-import GraphQL.Client.Args (IgnoreArg(..), (++), (=>>))
+import GraphQL.Client.Args (IgnoreArg(..), (++), (+++), (=>>))
 import GraphQL.Client.ToGqlString (toGqlQueryString, toGqlQueryStringFormatted)
 import GraphQL.Client.Variable (Var(..))
 import Test.Spec (Spec, describe, it)
@@ -106,13 +106,15 @@ spec =
             { a:
                 { a: [ 1, 2, 3 ]
                 , b: 1 ++ 2 ++ 3 ++ 4
+                , c: ["a", "b"] +++ [1, 2] 
+                , d: ([] :: Array Int) +++ ["a", "b"] +++ [1, 2] +++ ([] :: Array Int) +++ [ "c", "d"] +++ ([] :: Array Int)
                 }
                   =>> { nested: unit }
             , b: unit
             }
             `shouldEqual`
               """ {
-  a(a: [1, 2, 3], b: [1, 2, 3, 4]) {
+  a(a: [1, 2, 3], b: [1, 2, 3, 4], c: ["a", "b", 1, 2], d: ["a", "b", 1, 2, "c", "d"]) {
     nested
   }
   b
