@@ -64,8 +64,6 @@ exports.queryImpl = function (client) {
   return function (query) {
     return function (variables) {
       return function (onError, onSuccess) {
-        console.info('query', query)
-        console.info('variables', variables)
 
         try {
           client
