@@ -7,6 +7,8 @@ import Data.Newtype (class Newtype, unwrap)
 import Data.Symbol (class IsSymbol)
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Args (class SatisifyNotNullParam, ArgPropToGql, Args(..), Params)
+import GraphQL.Client.Variable (Var)
+import GraphQL.Client.Variables (WithVars)
 import Heterogeneous.Mapping (class HMapWithIndex, class MappingWithIndex, hmapWithIndex)
 import Prim.Row as Row
 import Record as Record
@@ -23,7 +25,11 @@ class QueryReturns schema query returns | schema query -> returns where
   -- | Do not use this. Use `queryReturns` instead. Only exported due to compiler restrictions
   queryReturnsImpl :: schema -> query -> returns -- TODO: use Proxies here so undefined is not needed
 
-instance queryReturnsArray :: QueryReturns a q t => QueryReturns (Array a) q (Array t) where
+instance queryReturnsWithVars :: QueryReturns a q t => QueryReturns a (WithVars q vars) t where
+  queryReturnsImpl a _ =  queryReturnsImpl a (undefined :: q)
+else instance queryReturnsVar :: QueryReturns a q t => QueryReturns a (Var name q) t where
+  queryReturnsImpl a _ =  queryReturnsImpl a (undefined :: q)
+else instance queryReturnsArray :: QueryReturns a q t => QueryReturns (Array a) q (Array t) where
   queryReturnsImpl _ q = pure $ queryReturnsImpl (undefined :: a) q
 else instance queryReturnsMaybe :: QueryReturns a q t => QueryReturns (Maybe a) q (Maybe t) where
   queryReturnsImpl _ q = pure $ queryReturnsImpl (undefined :: a) q

@@ -82,6 +82,7 @@ name = Proxy
     - [Decoding and Encoding JSON](#decoding-and-encoding-json)
     - [Arguments](#arguments)
     - [Aliases](#aliases)
+    - [Variables](#variables)
     - [Full responses](#full-responses)
     - [Apollo only features](#apollo-only-features)
   - [Alternatives to this package](#alternatives-to-this-package)
@@ -412,6 +413,31 @@ query client "my_alias_query"
   , widgetWithId2: widgets : { id: 2 } =>> { name } 
   }
 ```
+
+### Variables
+
+It is possible to define variables using the `Var` contructor 
+and substitute them using the `withVars` function
+eg.
+
+```purs
+import GraphQL.Client.Variable (Var(..))
+import GraphQL.Client.Variables (withVars)
+...
+
+query client "widget_names_with_id_1"
+        $ { widgets: { id: Var :: _ "idVar" Int } =>> { name }
+          }
+            `withVars`
+              { idVar: 1 }
+```
+`withVars` uses `encodeJson` to turn the variables in json. If you 
+wish to use a custom encoder, use `withVarsEncode`.
+
+To provide custom types as variables you will have to make them an instance of `VarTypeName`. 
+This type class specifies their graphql type. 
+
+There is a full example in the examples directory.
 
 ### Full responses 
 

@@ -5,11 +5,12 @@ import Prelude
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError, decodeJson)
 import Data.Either (Either)
-import Halogen.Subscription (Emitter)
 import GraphQL.Client.Query (decodeGqlRes, getFullRes)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
 import GraphQL.Client.Types (class GqlQuery, class SubscriptionClient, Client(..), GqlRes, subscriptionEventOpts)
+import GraphQL.Client.Variables (getVarsJson)
+import Halogen.Subscription (Emitter)
 
 subscriptionOpts ::
   forall b a returns query schema client opts.
@@ -30,7 +31,7 @@ subscriptionOptsWithDecoder ::
   query ->
   Emitter (Either JsonDecodeError returns)
 subscriptionOptsWithDecoder decodeFn optsF (Client client) queryNameUnsafe q =
-  subscriptionEventOpts optsF client query
+  subscriptionEventOpts optsF client query (getVarsJson q)
     <#> decodeGqlRes decodeFn
   where
   queryName = safeQueryName queryNameUnsafe
@@ -72,7 +73,7 @@ subscriptionFullRes ::
   subscription ->
   Emitter (Either JsonDecodeError (GqlRes returns))
 subscriptionFullRes decodeFn optsF (Client client) queryNameUnsafe q = ado
-    json <- subscriptionEventOpts optsF client query
+    json <- subscriptionEventOpts optsF client query (getVarsJson q)
     in pure $ getFullRes decodeFn json
   where
   queryName = safeQueryName queryNameUnsafe

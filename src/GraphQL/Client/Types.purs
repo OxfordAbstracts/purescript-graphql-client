@@ -11,16 +11,19 @@ import Effect.Aff (Aff)
 import Foreign.Object (Object)
 import GraphQL.Client.QueryReturns (class QueryReturns)
 import GraphQL.Client.ToGqlString (class GqlQueryString)
+import GraphQL.Client.Variables (class VarsTypeChecked)
 import Halogen.Subscription (Emitter, makeEmitter)
 
 class
   ( QueryReturns schema query returns
   , GqlQueryString query
+  , VarsTypeChecked query 
   ) <= GqlQuery schema query returns | schema query -> returns
 
 instance queriable ::
   ( QueryReturns schema query returns
   , GqlQueryString query
+  , VarsTypeChecked query 
   ) =>
   GqlQuery schema query returns
 
@@ -35,8 +38,8 @@ newtype Client baseClient querySchema mutationSchema subscriptionSchema
 -- | make it an instance of `QueryClient`
 -- | and pass it to query
 class QueryClient baseClient queryOpts mutationOpts | baseClient -> queryOpts mutationOpts where
-  clientQuery :: queryOpts -> baseClient -> String -> String -> Aff Json
-  clientMutation :: mutationOpts -> baseClient -> String -> String -> Aff Json
+  clientQuery :: queryOpts -> baseClient -> String -> String -> Json ->  Aff Json
+  clientMutation :: mutationOpts -> baseClient -> String -> String -> Json ->  Aff Json
   defQueryOpts :: baseClient -> queryOpts
   defMutationOpts :: baseClient -> mutationOpts
 
@@ -50,15 +53,16 @@ class SubscriptionClient baseClient opts | baseClient -> opts where
     opts -> 
     baseClient ->
     String ->
+    Json -> 
     (Json -> Effect Unit) ->
     Effect (Effect Unit)
   defSubOpts :: baseClient -> opts
 
 -- TODO: Remove `Event` part of name
-subscriptionEventOpts :: forall opts c. SubscriptionClient c opts => (opts -> opts) -> c -> String -> Emitter Json
-subscriptionEventOpts optsF client query = makeEmitter (clientSubscription (optsF (defSubOpts client)) client query)
+subscriptionEventOpts :: forall opts c. SubscriptionClient c opts => (opts -> opts) -> c -> String -> Json -> Emitter Json
+subscriptionEventOpts optsF client query vars = makeEmitter (clientSubscription (optsF (defSubOpts client)) client query vars)
 
-subscriptionEvent :: forall opts c. SubscriptionClient c opts => c -> String -> Emitter Json
+subscriptionEvent :: forall opts c. SubscriptionClient c opts => c -> String -> Json -> Emitter Json
 subscriptionEvent = subscriptionEventOpts identity
 
 -- | A type class for making graphql watch queries (observable queries). 
@@ -71,14 +75,15 @@ class WatchQueryClient baseClient opts | baseClient -> opts where
     opts -> 
     baseClient ->
     String ->
+    Json -> 
     (Json -> Effect Unit) ->
     Effect (Effect Unit)
   defWatchOpts :: baseClient -> opts
 
-watchQueryEventOpts :: forall opts c. WatchQueryClient c opts => (opts -> opts) -> c -> String -> Emitter Json
-watchQueryEventOpts optsF client query = makeEmitter (clientWatchQuery (optsF (defWatchOpts client)) client query)
+watchQueryEventOpts :: forall opts c. WatchQueryClient c opts => (opts -> opts) -> c -> String -> Json -> Emitter Json
+watchQueryEventOpts optsF client query vars = makeEmitter (clientWatchQuery (optsF (defWatchOpts client)) client query vars)
 
-watchQueryEvent :: forall opts c. WatchQueryClient c opts => c -> String -> Emitter Json
+watchQueryEvent :: forall opts c. WatchQueryClient c opts => c -> String -> Json -> Emitter Json
 watchQueryEvent = watchQueryEventOpts identity
 
 -- Full response types 
