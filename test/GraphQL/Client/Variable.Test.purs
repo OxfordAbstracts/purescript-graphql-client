@@ -1,5 +1,7 @@
 module GraphQL.Client.Variable.Test where
 
+import Prelude
+import GraphQL.Client.Args ((++), (=>>))
 import GraphQL.Client.Variable (Var(..))
 import GraphQL.Client.Variables (getQueryVars)
 import Type.Proxy (Proxy)
@@ -45,3 +47,23 @@ testNested =
         , b: Var :: _ "var2" String
         }
     }
+
+testArgs ::
+  Proxy
+    { idVar :: Int
+    }
+testArgs = getQueryVars ((Var :: _ "idVar" Int) =>> { name: unit })
+
+testAndArgs ::
+  Proxy
+    { aVar :: Int
+    , bVar :: Number
+    }
+testAndArgs =
+  getQueryVars
+    ( { a:
+          Var :: _ "aVar" Int
+      }
+        ++ { b: Var :: _ "bVar" Number }
+        =>> { name: unit }
+    )

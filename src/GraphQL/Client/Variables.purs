@@ -18,8 +18,8 @@ import Control.Apply (lift2)
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Symbol (class IsSymbol)
-import GraphQL.Client.Args (AndArg, Args, OrArg, (++), (=>>))
-import GraphQL.Client.Variable (Var(..))
+import GraphQL.Client.Args (AndArg, Args, OrArg)
+import GraphQL.Client.Variable (Var)
 import Heterogeneous.Folding (class Folding, class HFoldl, hfoldl)
 import Prim.Row as Row
 import Record as Record
@@ -151,64 +151,3 @@ getJsonVars (WithVars _ json) = json
 
 getQuery :: forall query vars. WithVars query vars -> query
 getQuery (WithVars query _) = query
-
-testBasic ::
-  Proxy
-    { var1 :: Int
-    }
-testBasic = getQueryVars { x: Var :: _ "var1" Int }
-
-testDuplicates ::
-  Proxy
-    { var1 :: Int
-    }
-testDuplicates =
-  getQueryVars
-    { x: Var :: _ "var1" Int
-    , y: Var :: _ "var1" Int
-    }
-
-testMixed ::
-  Proxy
-    { var1 :: Int
-    , var2 :: String
-    }
-testMixed =
-  getQueryVars
-    { x: Var :: _ "var1" Int
-    , y: Var :: _ "var2" String
-    }
-
-testNested ::
-  Proxy
-    { var1 :: Int
-    , var2 :: String
-    }
-testNested =
-  getQueryVars
-    { x: Var :: _ "var1" Int
-    , y:
-        { a: Var :: _ "var1" Int
-        , b: Var :: _ "var2" String
-        }
-    }
-
-testArgs ::
-  Proxy
-    { idVar :: Int
-    }
-testArgs = getQueryVars ((Var :: _ "idVar" Int) =>> { name: unit })
-
-testAndArgs ::
-  Proxy
-    { aVar :: Int
-    , bVar :: Number
-    }
-testAndArgs =
-  getQueryVars
-    ( { a:
-          Var :: _ "aVar" Int
-      }
-        ++ { b: Var :: _ "bVar" Number }
-        =>> { name: unit }
-    )
