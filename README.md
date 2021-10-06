@@ -82,6 +82,7 @@ name = Proxy
     - [Decoding and Encoding JSON](#decoding-and-encoding-json)
     - [Arguments](#arguments)
     - [Aliases](#aliases)
+      - [Dynamically spread Aliases](#dynamically-spread-aliases)
     - [Variables](#variables)
     - [Full responses](#full-responses)
     - [Apollo only features](#apollo-only-features)
@@ -413,6 +414,40 @@ query client "my_alias_query"
   , widgetWithId2: widgets : { id: 2 } =>> { name } 
   }
 ```
+
+#### Dynamically spread Aliases
+
+Sometimes it is useful to create aliased queries or mutations from a collection of size unknown at compile time. 
+
+In a dynamic language you might fold a collection of users to create a graphql query like:
+
+```gql 
+mutation myUpdates {
+  _1: update_users(where: {id : 1}, _set: { value: 10 }) { affected_rows }
+  _2: update_users(where: {id : 2}, _set: { value: 15 }) { affected_rows }
+  _3: update_users(where: {id : 3}, _set: { value: 20 }) { affected_rows }
+}
+```
+
+To do this there is there is the `Spread` constructor that creates these aliases for you and decodes the response as an array. 
+
+eg.
+```purs
+
+import GraphQL.Client.Alias.Dynamic (Spread(..))
+import Generated.Symbols (update_users) -- Or wherever your symbols module is
+
+...
+query client "update_multiple_users"
+    $ Spread update_users
+        [ { where: { id: 1}, _set: { value: 10 } }
+        , { where: { id: 2}, _set: { value: 15 } }
+        , { where: { id: 3}, _set: { value: 20 } }
+        ]
+        { affected_rows }
+```
+
+Look alias example in the examples directory for more details. 
 
 ### Variables
 
