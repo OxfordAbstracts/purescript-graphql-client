@@ -7,27 +7,37 @@ module.exports = (onListening) => {
   const schema = buildSchema(`
     type Query {
         prop: String
-        widgets(id: Int): [Widget!]!
+        widgets(colour: Colour): [Widget!]!
     }
-    
-    type Widget { 
+
+    type Widget {
         id: Int
         name: String!
+        colour: Colour!
     }
+    "colour description"
+    enum Colour {
+      RED
+      GREEN
+      BLUE
+      yellow
+    }
+
     `)
 
   const root = {
     prop: () => {
       return 'Hello world!'
     },
-    widgets: ({ id }) =>
-      widgets.filter(w => !id || id === w.id)
+    widgets: ({ colour }) =>
+      widgets.filter(w => !colour || colour === w.colour)
 
   }
 
   const widgets = [
-    { id: 1, name: 'one' },
-    { id: 2, name: 'two' }
+    { id: 1, name: 'one', colour: 'RED' },
+    { id: 2, name: 'two', colour: 'GREEN' },
+    { id: 3, name: 'three', colour: 'GREEN' }
   ]
 
   const app = express()
