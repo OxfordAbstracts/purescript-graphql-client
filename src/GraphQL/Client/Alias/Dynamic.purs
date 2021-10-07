@@ -31,7 +31,7 @@ data Spread alias args fields
   = Spread alias (Array args) fields
 
 -- | The return type of a query made with a dynamic alias spread
--- | This type has 
+-- | This type has encodes/decodes as an object with "_n" as a key
 newtype SpreadRes a
   = SpreadRes (Array a)
 
