@@ -6,6 +6,7 @@ import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype, unwrap)
 import Data.Symbol (class IsSymbol)
 import GraphQL.Client.Alias (Alias(..))
+import GraphQL.Client.Alias.Dynamic (Spread(..), SpreadRes)
 import GraphQL.Client.Args (class SatisifyNotNullParam, ArgPropToGql, Args(..), Params)
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars)
@@ -26,9 +27,16 @@ class QueryReturns schema query returns | schema query -> returns where
   queryReturnsImpl :: schema -> query -> returns -- TODO: use Proxies here so undefined is not needed
 
 instance queryReturnsWithVars :: QueryReturns a q t => QueryReturns a (WithVars q vars) t where
-  queryReturnsImpl a _ =  queryReturnsImpl a (undefined :: q)
+  queryReturnsImpl a _ = queryReturnsImpl a (undefined :: q)
 else instance queryReturnsVar :: QueryReturns a q t => QueryReturns a (Var name q) t where
-  queryReturnsImpl a _ =  queryReturnsImpl a (undefined :: q)
+  queryReturnsImpl a _ = queryReturnsImpl a (undefined :: q)
+else instance queryReturnsSpread ::
+  ( IsSymbol alias
+  , Row.Cons alias subSchema rest schema
+  , QueryReturns subSchema q returns
+  ) =>
+  QueryReturns {|schema} (Spread (Proxy alias) args q) (SpreadRes returns) where
+  queryReturnsImpl _ _ =  undefined
 else instance queryReturnsArray :: QueryReturns a q t => QueryReturns (Array a) q (Array t) where
   queryReturnsImpl _ q = pure $ queryReturnsImpl (undefined :: a) q
 else instance queryReturnsMaybe :: QueryReturns a q t => QueryReturns (Maybe a) q (Maybe t) where
@@ -98,7 +106,6 @@ else instance propToSchemaType_ ::
       subSchema = Record.get sym schema
     in
       queryReturnsImpl subSchema val
-
 
 propToSchemaType ::
   forall query returns schema.

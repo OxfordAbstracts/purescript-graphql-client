@@ -5,6 +5,7 @@ import Prelude
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import GraphQL.Client.Alias ((:))
+import GraphQL.Client.Alias.Dynamic (Spread(..), SpreadRes)
 import GraphQL.Client.Args (type (==>), IgnoreArg(..), NotNull, OrArg(..), (++), (+++), (=>>))
 import GraphQL.Client.QueryReturns (class QueryReturns, queryReturns)
 import Type.Proxy (Proxy(..))
@@ -30,8 +31,9 @@ type TestSchema
             , other_names :: Array String
             }
     , orders ::
-        Array
-          { user_id :: Int }
+        { name :: String }
+          ==> Array
+            { user_id :: Int }
     , obj_rel :: { id :: Int }
     , nested1 :: { id :: Int } ==> N1
     }
@@ -47,7 +49,7 @@ derive instance newtypeN1 :: Newtype N1 _
 
 newtype N2
   = N2 { val :: String }
-  
+
 derive instance newtypeN2 :: Newtype N2 _
 
 testSchemaProxy :: Proxy TestSchema
@@ -128,6 +130,24 @@ testAlias online = queryReturns testSchemaProxy query
     , obj_rel: { id }
     }
 
+testSpread ::
+  Proxy
+    ( SpreadRes
+        ( Array
+            { user_id :: Int
+            }
+        )
+    )
+testSpread = queryReturns testSchemaProxy query
+  where
+  query =
+    Spread
+      (Proxy :: _ "orders")
+      [ { name: "apples" }
+      , { name: "oranges" }
+      ]
+      { user_id: unit }
+
 testArgs ::
   Proxy
     { users ::
@@ -137,9 +157,9 @@ testArgs ::
           , other_names :: Array String
           }
     , obj_rel :: { id :: Int }
-    , nested1 :: 
-      { nested2 :: { val :: String }
-      }
+    , nested1 ::
+        { nested2 :: { val :: String }
+        }
     }
 testArgs = queryReturns testSchemaProxy query
   where
@@ -223,6 +243,7 @@ testArrayArgsAndRec =
         }
           =>> { id }
     }
+
 testArrayArgsAndOrRec ::
   Proxy
     { users ::
@@ -238,7 +259,7 @@ testArrayArgsAndOrRec =
         }
           =>> { id }
     }
-    
+
 testArrayArgsAndsRec ::
   Proxy
     { users ::
@@ -250,19 +271,19 @@ testArrayArgsAndsRec =
   queryReturns testSchemaProxy
     { users:
         { is_in_rec:
-            [{ int: 0 }] +++ ((ArgR [ignoreOrStr true, ignoreOrStr false]) :: OrArg IgnoreArg _)
+            [ { int: 0 } ] +++ ((ArgR [ ignoreOrStr true, ignoreOrStr false ]) :: OrArg IgnoreArg _)
         }
           =>> { id }
     }
 
+ignoreOrStr ::
+  Boolean ->
+  OrArg IgnoreArg
+    { string :: String
+    }
+ignoreOrStr false = ArgL IgnoreArg
 
-ignoreOrStr :: Boolean -> OrArg IgnoreArg
-     { string :: String
-     }
-ignoreOrStr false =  ArgL IgnoreArg
-ignoreOrStr true =  ArgR {string: ""}
-
-
+ignoreOrStr true = ArgR { string: "" }
 
 id :: Proxy "id"
 id = Proxy
@@ -288,7 +309,7 @@ class QueryReturnsTypeChecks schema query where
 
 instance queryReturnsTypeChecks ::
   ( QueryReturns schema query returns
-  ) =>
+    ) =>
   QueryReturnsTypeChecks schema query where
   typeChecks _ _ = unit
 

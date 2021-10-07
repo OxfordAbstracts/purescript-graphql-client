@@ -3,6 +3,7 @@ module GraphQL.Client.ToGqlString.Test where
 import Prelude
 
 import GraphQL.Client.Alias ((:))
+import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (IgnoreArg(..), (++), (+++), (=>>))
 import GraphQL.Client.ToGqlString (toGqlQueryString, toGqlQueryStringFormatted)
 import GraphQL.Client.Variable (Var(..))
@@ -146,5 +147,21 @@ spec =
               """ {
   a(arg: $var1) {
     nested
+  }
+}"""
+      it "handles dynamic aliases"
+        $ toGqlQueryStringFormatted
+             (Spread (Proxy :: _ "b") [ { arg: 10}, { arg: 20}, { arg: 30}] { field: unit })
+            
+            `shouldEqual`
+              """ {
+  _0: b(arg: 10) {
+    field
+  }
+  _1: b(arg: 20) {
+    field
+  }
+  _2: b(arg: 30) {
+    field
   }
 }"""
