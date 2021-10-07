@@ -429,7 +429,7 @@ mutation myUpdates {
 }
 ```
 
-To do this there is there is the `Spread` constructor that creates these aliases for you and decodes the response as an array. 
+To do this in this library there is there is the `Spread` constructor that creates these aliases for you and decodes the response as an array. 
 
 eg.
 ```purs
