@@ -391,7 +391,7 @@ result <- query client "mixed_args_query"
   { widget: 
     { homogenous_array_prop: [1, 2, 3]
     , mixed_array_prop: 1 ++ "hello" 
-    , mixed_array_prop: [1, 2] +++ ["hello", "world"]
+    , mixed_array_prop2: [1, 2] +++ ["hello", "world"]
     } 
     =>>
     { prop1, prop2 }
