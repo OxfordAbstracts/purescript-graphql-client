@@ -23,9 +23,6 @@ infixr 6 type Params as ==>
 newtype NotNull t
   = NotNull t
 
-newtype ParamNew t
-  = ParamNew t
-
 data Args a t
   = Args a t
 
