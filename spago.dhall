@@ -52,6 +52,7 @@ You can edit this file as you like.
   , "strings-extra"
   , "transformers"
   , "tuples"
+  , "typelevel-lists"
   , "unicode"
   ]
 , packages = ./packages.dhall
