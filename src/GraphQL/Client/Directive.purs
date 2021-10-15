@@ -41,7 +41,7 @@ class DirectivesTypeCheckTopLevelLocation location directiveDeclarations q bool 
 
 instance directivesTypeCheckTopLevelLocationFound ::
   IsMember location locations result =>
-  DirectivesTypeCheckTopLevelLocation location (Cons' (Directive name args locations) tail) (ApplyDirective name args q) result
+  DirectivesTypeCheckTopLevelLocation location (Cons' (Directive name description args locations) tail) (ApplyDirective name args q) result
 else instance directivesTypeCheckTopLevelLocationNotFound ::
   DirectivesTypeCheckTopLevelLocation location tail q result =>
   DirectivesTypeCheckTopLevelLocation location (Cons' head tail) q result

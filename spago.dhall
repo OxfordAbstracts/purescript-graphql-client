@@ -54,6 +54,7 @@ You can edit this file as you like.
   , "tuples"
   , "typelevel-lists"
   , "unicode"
+  , "unsafe-coerce"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

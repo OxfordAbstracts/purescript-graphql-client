@@ -19,20 +19,16 @@ testTopLevelDir ::
 testTopLevelDir _ _ _ = unit
 
 t1 :: Unit
-t1 = testTopLevelDir dirs OpQuery $ at_cached { ttl: 1 } unit
+t1 = testTopLevelDir dirs OpQuery $ cached { ttl: 1 } unit
 
 t2 :: Unit
-t2 = testTopLevelDir dirs OpSubscription $ at_cached { ttl: 1 } unit
+t2 = testTopLevelDir dirs OpSubscription $ cached { ttl: 1 } unit
 
 t3 :: Unit
 t3 = testTopLevelDir dirs OpMutation $ at_custom { a: "val" } unit
 
-at_cached ::
-  forall q args.
-  args ->
-  q ->
-  ApplyDirective "cached" args q
-at_cached = applyDir (Proxy :: _ "cached")
+cached :: forall q args. args -> q -> ApplyDirective "cached" args q
+cached = applyDir (Proxy :: _ "cached")
 
 at_custom ::
   forall q args.
@@ -43,8 +39,8 @@ at_custom = applyDir (Proxy :: _ "custom")
 
 dirs ::
   Proxy
-    ( (Directive "cached" { ttl :: Int } (QUERY :> SUBSCRIPTION :> Nil'))
-        :> (Directive "custom" { a :: String } (MUTATION :> Nil'))
+    ( (Directive "cached" "" { ttl :: Int } (QUERY :> SUBSCRIPTION :> Nil'))
+        :> (Directive "custom" "" { a :: String } (MUTATION :> Nil'))
         :> Nil'
     )
 dirs = Proxy

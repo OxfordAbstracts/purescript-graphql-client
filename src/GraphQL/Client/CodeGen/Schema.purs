@@ -19,21 +19,22 @@ import Data.List (List, mapMaybe)
 import Data.List as List
 import Data.Map (Map, lookup, unions)
 import Data.Map as Map
-import Data.Maybe (Maybe(..), fromMaybe, fromMaybe', maybe)
+import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
 import Data.String (Pattern(..), codePointFromChar, contains, take)
 import Data.String as String
 import Data.String.CodePoints (takeWhile)
-import Data.String.Extra (pascalCase)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
+import GraphQL.Client.CodeGen.Directive (getDocumentDirectivesPurs)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
 import GraphQL.Client.CodeGen.Lines (commentPrefix, docComment, fromLines, indent, toLines)
 import GraphQL.Client.CodeGen.Template.Enum as Enum
 import GraphQL.Client.CodeGen.Template.Schema as Schema
 import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptions, PursGql)
+import GraphQL.Client.CodeGen.Util (argTypeToPurs, argumentsDefinitionToPurs, inlineComment, namedTypeToPurs, typeName, wrapNotNull)
 import Text.Parsing.Parser (ParseError, runParser)
 
 schemasFromGqlToPurs :: InputOptions -> Array GqlInput -> Aff (Either ParseError FilesToWrite)
@@ -91,6 +92,12 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
         pursGqls >>= _.symbols
           # \syms ->
               { path: opts.dir <> "/Symbols.purs", code: symbolsToCode modulePrefix syms }
+    , directives:
+        pursGqls
+          <#> \pg ->
+              { code: pg.directives
+              , path: opts.dir <> "/Directives/" <> pg.moduleName <> ".purs"
+              }
     }
 
 -- | Given a gql doc this will create the equivalent purs gql schema
@@ -118,6 +125,7 @@ schemaFromGqlToPurs opts { schema, moduleName } =
         in
           { mainSchemaCode: gqlToPursMainSchemaCode opts ast
           , enums: gqlToPursEnums opts.gqlScalarsToPursTypes ast
+          , directives: getDocumentDirectivesPurs opts.gqlScalarsToPursTypes ast
           , symbols
           , moduleName
           }
@@ -272,32 +280,13 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
     inlineComment description
       <> name
       <> " :: "
-      <> foldMap argumentsDefinitionToPurs argumentsDefinition
+      <> foldMap (argumentsDefinitionToPurs gqlScalarsToPursTypes) argumentsDefinition
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
           Nothing -> typeToPurs tipe
           Just out -> case tipe of
             AST.Type_NonNullType _ -> out.moduleName <> "." <> out.typeName
             AST.Type_ListType _ -> wrapArray $ out.moduleName <> "." <> out.typeName
             _ -> wrapMaybe $ out.moduleName <> "." <> out.typeName
-
-  argumentsDefinitionToPurs :: AST.ArgumentsDefinition -> String
-  argumentsDefinitionToPurs (AST.ArgumentsDefinition inputValueDefinitions) =
-    indent
-      $ "\n{ "
-      <> intercalate "\n, " (map inputValueDefinitionsToPurs inputValueDefinitions)
-      <> "\n}\n==> "
-
-  inputValueDefinitionsToPurs :: AST.InputValueDefinition -> String
-  inputValueDefinitionsToPurs ( AST.InputValueDefinition
-      { description
-    , name
-    , type: tipe
-    }
-  ) =
-    inlineComment description
-      <> name
-      <> " :: "
-      <> argTypeToPurs tipe
 
   interfaceTypeDefinitionToPurs :: AST.InterfaceTypeDefinition -> Maybe String
   interfaceTypeDefinitionToPurs (AST.InterfaceTypeDefinition _) = Nothing
@@ -358,7 +347,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
       <> name
       <> " :: "
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
-          Nothing -> argTypeToPurs tipe
+          Nothing -> argTypeToPurs gqlScalarsToPursTypes tipe
           Just out -> case tipe of
             AST.Type_NonNullType _ -> wrapNotNull $ out.moduleName <> "." <> out.typeName
             AST.Type_ListType _ -> wrapArray $ out.moduleName <> "." <> out.typeName
@@ -366,22 +355,6 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
 
   directiveDefinitionToPurs :: AST.DirectiveDefinition -> Maybe String
   directiveDefinitionToPurs _ = Nothing
-
-  argTypeToPurs :: AST.Type -> String
-  argTypeToPurs = case _ of
-    (AST.Type_NamedType namedType) -> namedTypeToPurs_ namedType
-    (AST.Type_ListType listType) -> argListTypeToPurs listType
-    (AST.Type_NonNullType notNullType) -> wrapNotNull $ argNotNullTypeToPurs notNullType
-
-  argNotNullTypeToPurs :: AST.NonNullType -> String
-  argNotNullTypeToPurs = case _ of
-    AST.NonNullType_NamedType t -> namedTypeToPurs_ t
-    AST.NonNullType_ListType t -> argListTypeToPurs t
-
-  argListTypeToPurs :: AST.ListType -> String
-  argListTypeToPurs (AST.ListType t) = "(Array " <> argTypeToPurs t <> ")"
-
-  wrapNotNull s = "(NotNull " <> s <> ")"
 
   typeToPurs :: AST.Type -> String
   typeToPurs = case _ of
@@ -408,7 +381,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
   wrapArray s = "(Array " <> s <> ")"
 
   typeName_ = typeName gqlScalarsToPursTypes
-  
+
   namedTypeToPurs_ = namedTypeToPurs gqlScalarsToPursTypes
 
 gqlToPursEnums :: Map String String -> AST.Document -> Array GqlEnum
@@ -441,30 +414,3 @@ gqlToPursEnums gqlScalarsToPursTypes = unwrap >>> mapMaybe definitionToEnum >>> 
           unwrap enumValue
 
   typeName_ = typeName gqlScalarsToPursTypes
-
-namedTypeToPurs :: Map String String -> AST.NamedType -> String
-namedTypeToPurs gqlScalarsToPursTypes (AST.NamedType str) = typeName gqlScalarsToPursTypes str
-
-inlineComment :: Maybe String -> String
-inlineComment = foldMap (\str -> "\n{- " <> str <> " -}\n")
-
-typeName :: Map String String -> String -> String
-typeName gqlScalarsToPursTypes str =
-  lookup str gqlScalarsToPursTypes
-    # fromMaybe' \_ -> case pascalCase str of
-        "Id" -> "ID"
-        "Float" -> "Number"
-        "Numeric" -> "Number"
-        "Bigint" -> "Number"
-        "Smallint" -> "Int"
-        "Integer" -> "Int"
-        "Int" -> "Int"
-        "Int2" -> "Int"
-        "Int4" -> "Int"
-        "Int8" -> "Int"
-        "Text" -> "String"
-        "Citext" -> "String"
-        "Jsonb" -> "Json"
-        "Timestamp" -> "DateTime"
-        "Timestamptz" -> "DateTime"
-        s -> s

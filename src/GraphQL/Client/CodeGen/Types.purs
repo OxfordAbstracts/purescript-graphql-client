@@ -74,6 +74,7 @@ type GqlInput
 type PursGql
   = { moduleName :: String
     , mainSchemaCode :: String
+    , directives :: String
     , symbols :: Array String
     , enums :: Array GqlEnum
     }
@@ -83,6 +84,7 @@ type GqlEnum
 
 type FilesToWrite
   = { schemas :: Array FileToWrite
+    , directives :: Array FileToWrite
     , enums :: Array FileToWrite
     , symbols :: FileToWrite
     }
