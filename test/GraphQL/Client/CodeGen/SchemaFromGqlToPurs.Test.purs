@@ -212,6 +212,7 @@ enum my_enum {
                   , values: [ "enum_val1", "enum_val2" ]
                   }
                 ]
+            , directives: noDirectives
             }
       it "handles type overrides " do
         let
@@ -450,3 +451,19 @@ newtype SubscriptionRoot = SubscriptionRoot """
     <> subscription
     <> "\nderive instance newtypeSubscriptionRoot :: Newtype SubscriptionRoot _"
     <> "\ninstance argToGqlSubscriptionRoot :: (Newtype SubscriptionRoot {| p},  RecordArg p a u) => ArgGql SubscriptionRoot { | a }"
+
+
+noDirectives :: String
+noDirectives =  """
+import Prelude
+import GraphQL.Client.Directive (class DirectivesTypeCheckTopLevel, ApplyDirective, applyDir)
+import GraphQL.Client.Directive.Definition (Directive)
+import GraphQL.Client.Directive.Location (MUTATION, QUERY, SUBSCRIPTION)
+import GraphQL.Client.Operation (OpMutation(..), OpQuery(..), OpSubscription(..))
+import Type.Data.List (type (:>), Nil')
+import Type.Proxy (Proxy(..))
+
+type Directives =  
+    ( Nil'
+    )
+"""
