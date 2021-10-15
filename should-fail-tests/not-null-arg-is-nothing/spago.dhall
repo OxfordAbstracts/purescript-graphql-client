@@ -3,7 +3,7 @@ Welcome to a Spago project!
 You can edit this file as you like.
 -}
 { name = "my-project"
-, dependencies = 
+, dependencies =
   [ "aff"
   , "aff-promise"
   , "affjax"
@@ -50,6 +50,7 @@ You can edit this file as you like.
   , "strings-extra"
   , "transformers"
   , "tuples"
+  , "typelevel-lists"
   , "typelevel-prelude"
   , "unicode"
   ]
