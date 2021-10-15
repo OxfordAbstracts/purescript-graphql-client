@@ -25,7 +25,7 @@ queryReturns _ _ = Proxy
 
 class QueryReturns schema query returns | schema query -> returns where
   -- | Do not use this. Use `queryReturns` instead. Only exported due to compiler restrictions
-  queryReturnsImpl :: schema -> query -> returns -- TODO: use Proxies here so undefined is not needed
+  queryReturnsImpl :: schema -> query -> returns -- TODO: use Proxies or remove memebr here so undefined is not needed
 
 instance queryReturnsWithVars :: QueryReturns a q t => QueryReturns a (WithVars q vars) t where
   queryReturnsImpl a _ = queryReturnsImpl a (undefined :: q)

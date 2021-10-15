@@ -6,13 +6,10 @@ import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (IgnoreArg(..), (++), (+++), (=>>))
 import GraphQL.Client.Directive (applyDir)
-import GraphQL.Client.Directive.Definition (Directive, directive)
-import GraphQL.Client.Directive.Location (QUERY)
 import GraphQL.Client.ToGqlString (toGqlQueryString, toGqlQueryStringFormatted)
 import GraphQL.Client.Variable (Var(..))
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
-import Type.Data.List (type (:>), Nil')
 import Type.Proxy (Proxy(..))
 
 spec :: Spec Unit

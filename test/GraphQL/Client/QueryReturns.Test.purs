@@ -1,12 +1,12 @@
 module GraphQL.Client.QueryReturns.Test where
 
 import Prelude
-
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..), SpreadRes)
 import GraphQL.Client.Args (type (==>), IgnoreArg(..), NotNull, OrArg(..), (++), (+++), (=>>))
+import GraphQL.Client.Directive (applyDir)
 import GraphQL.Client.QueryReturns (class QueryReturns, queryReturns)
 import Type.Proxy (Proxy(..))
 
@@ -275,6 +275,24 @@ testArrayArgsAndsRec =
         }
           =>> { id }
     }
+
+testDirective ::
+  Proxy
+    { users ::
+        Array
+          { id :: Int
+          }
+    }
+testDirective =
+  queryReturns testSchemaProxy
+    $ applyDir (Proxy :: _ "cache") {}
+          { users:
+              { is_in_rec:
+                  [ { int: 0 } ] +++ ((ArgR [ ignoreOrStr true, ignoreOrStr false ]) :: OrArg IgnoreArg _)
+              }
+                =>> { id }
+          }
+      
 
 ignoreOrStr ::
   Boolean ->
