@@ -5,10 +5,14 @@ import Prelude
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (IgnoreArg(..), (++), (+++), (=>>))
+import GraphQL.Client.Directive (applyDir)
+import GraphQL.Client.Directive.Definition (Directive, directive)
+import GraphQL.Client.Directive.Location (QUERY)
 import GraphQL.Client.ToGqlString (toGqlQueryString, toGqlQueryStringFormatted)
 import GraphQL.Client.Variable (Var(..))
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
+import Type.Data.List (type (:>), Nil')
 import Type.Proxy (Proxy(..))
 
 spec :: Spec Unit
@@ -164,4 +168,15 @@ spec =
   _2: b(arg: 30) {
     field
   }
+}"""
+      it "handles top level directives"
+        let 
+          cached = applyDir (Proxy :: _ "cached")
+        in
+         toGqlQueryStringFormatted
+             (cached {ttl: 10} { a: unit } )
+            
+            `shouldEqual`
+              """@cached(ttl: 10) {
+  a
 }"""

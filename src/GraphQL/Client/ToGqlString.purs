@@ -19,6 +19,7 @@ import Data.Time (Time)
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (AndArgs(AndArgs), Args(..), IgnoreArg, OrArg(..))
+import GraphQL.Client.Directive (ApplyDirective(..))
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars, getQuery)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
@@ -49,6 +50,17 @@ instance gqlQueryStringUnit :: GqlQueryString Unit where
   toGqlQueryStringImpl _ _ = ""
 else instance gqlQueryStringWithVars :: GqlQueryString query => GqlQueryString (WithVars query vars) where
   toGqlQueryStringImpl opts withVars = toGqlQueryStringImpl opts $ getQuery withVars
+else instance gqlQueryStringApplyDirective ::
+  ( IsSymbol name
+  , HFoldlWithIndex PropToGqlArg String { | args } String
+  , GqlQueryString query
+  ) =>
+  GqlQueryString (ApplyDirective name { | args } query) where
+  toGqlQueryStringImpl opts (ApplyDirective args q) =
+    "@"
+      <> reflectSymbol (Proxy :: Proxy name)
+      <> gqlArgStringRecordTopLevel args
+      <> toGqlQueryStringImpl opts q
 else instance gqlQueryStringSymbol :: IsSymbol s => GqlQueryString (Proxy s) where
   toGqlQueryStringImpl _ _ = ": " <> reflectSymbol (Proxy :: Proxy s)
 else instance gqlQueryStringVar :: IsSymbol s => GqlQueryString (Var s a) where
@@ -90,7 +102,6 @@ else instance gqlQueryStringEmptyRecord ::
 
 data PropToGqlString
   = PropToGqlString ToGqlQueryStringOptions
-
 
 instance propToGqlStringAlias ::
   ( GqlQueryString a
