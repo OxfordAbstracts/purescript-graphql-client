@@ -1,12 +1,11 @@
 module Main where
 
 import Prelude
-
 import Data.Argonaut.Decode (class DecodeJson)
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
-import Generated.Gql.Admin.Directives (Directives, cached)
+import Generated.Gql.Directives.Admin (Directives, cached)
 import Generated.Gql.Schema.Admin (Query)
 import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.Operation (OpQuery)
@@ -18,9 +17,9 @@ main :: Effect Unit
 main =
   launchAff_ do
     { widgets } <-
-      queryGql "widgets_cached" $
-         cached { ttl: 10, refresh: false} 
-            { widgets : { id: 1 } =>> { name: unit }
+      queryGql "widgets_cached"
+        $ cached { ttl: 10, refresh: false }
+            { widgets: { id: 1 } =>> { name: unit }
             }
     logShow $ map _.name widgets
 
@@ -31,4 +30,3 @@ queryGql ::
   DecodeJson returns =>
   String -> query -> Aff returns
 queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Query)
-

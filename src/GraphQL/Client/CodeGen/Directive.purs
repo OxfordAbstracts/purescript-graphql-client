@@ -4,11 +4,11 @@ module GraphQL.Client.CodeGen.Directive where
 import Prelude
 
 import Data.GraphQL.AST as AST
-import Data.List (List, fold, foldMap, intercalate, mapMaybe)
+import Data.List (List, fold, foldMap, mapMaybe)
 import Data.Map (Map)
 import Data.Maybe (Maybe(..))
 import GraphQL.Client.CodeGen.Lines (indent)
-import GraphQL.Client.CodeGen.Util (argumentsDefinitionToPurs, inputValueDefinitionsToPurs)
+import GraphQL.Client.CodeGen.Util (inputValueDefinitionsToPurs)
 
 getDocumentDirectivesPurs :: Map String String -> AST.Document -> String
 getDocumentDirectivesPurs gqlScalarsToPursTypes (AST.Document defs) =

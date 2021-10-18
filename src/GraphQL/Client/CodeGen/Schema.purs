@@ -95,7 +95,7 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
     , directives:
         pursGqls
           <#> \pg ->
-              { code: "module " <> modulePrefix <> pg.moduleName <> ".Directives where\n" <> pg.directives
+              { code: "module " <> modulePrefix <> "Directives." <> pg.moduleName <> " where\n" <> pg.directives
               , path: opts.dir <> "/Directives/" <> pg.moduleName <> ".purs"
               }
     }
