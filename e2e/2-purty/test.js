@@ -5,6 +5,7 @@ const mkdirp = require('mkdirp')
 const go = async () => {
   try {
     await mkdirp('./src/generated/Schema')
+    await mkdirp('./src/generated/Directives')
     await writePursSchemas({
       dir: './src/generated',
       modulePath: ['Generated', 'Gql'],
