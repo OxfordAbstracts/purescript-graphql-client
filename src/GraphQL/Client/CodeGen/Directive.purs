@@ -2,7 +2,7 @@
 module GraphQL.Client.CodeGen.Directive where
 
 import Prelude
-
+import Data.Foldable (null)
 import Data.GraphQL.AST as AST
 import Data.List (List, fold, foldMap, mapMaybe)
 import Data.Map (Map)
@@ -48,12 +48,23 @@ getDirectiveDefinitions defs =
         _ -> mempty
 
 directiveToPurs :: Map String String -> AST.DirectiveDefinition -> String
-directiveToPurs gqlScalarsToPursTypes (AST.DirectiveDefinition { name, description, argumentsDefinition, directiveLocations }) = indent $
-  "Directive " <> show name <> " " <> show (fold description)
-    <> foldMap (\(AST.ArgumentsDefinition inputs) ->  inputValueDefinitionsToPurs gqlScalarsToPursTypes inputs) argumentsDefinition
-    <> " ("
-    <> directiveLocationsToPurs directiveLocations
-    <> "Nil')\n  :> "
+directiveToPurs gqlScalarsToPursTypes (AST.DirectiveDefinition { name, description, argumentsDefinition, directiveLocations }) =
+  if null locations then
+    ""
+  else
+    indent
+      $ "Directive "
+      <> show name
+      <> " "
+      <> show (fold description)
+      <> foldMap (\(AST.ArgumentsDefinition inputs) -> inputValueDefinitionsToPurs gqlScalarsToPursTypes inputs) argumentsDefinition
+      <> " ("
+      <> locationsStr
+      <> "Nil')\n  :> "
+  where
+  locations = directiveLocationsToPurs directiveLocations
+
+  locationsStr = fold locations
 
 directiveToApplierPurs :: AST.DirectiveDefinition -> String
 directiveToApplierPurs (AST.DirectiveDefinition { name }) =
@@ -67,8 +78,8 @@ directiveToApplierPurs (AST.DirectiveDefinition { name }) =
     <> show name
     <> ")"
 
-directiveLocationsToPurs :: AST.DirectiveLocations -> String
-directiveLocationsToPurs (AST.DirectiveLocations locations) = fold $ mapMaybe directiveLocationToPurs locations
+directiveLocationsToPurs :: AST.DirectiveLocations -> List String
+directiveLocationsToPurs (AST.DirectiveLocations locations) = mapMaybe directiveLocationToPurs locations
 
 directiveLocationToPurs :: AST.DirectiveLocation -> Maybe String
 directiveLocationToPurs = case _ of
