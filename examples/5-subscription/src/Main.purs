@@ -1,21 +1,23 @@
 module Main where
 
 import Prelude
+
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Aff (Milliseconds(..), delay, launchAff_)
 import Effect.Class.Console (log, logShow)
-import Halogen.Subscription as HS
 import Generated.Gql.Schema.Admin (Query, Subscription, Mutation)
 import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.BaseClients.Apollo (createSubscriptionClient)
 import GraphQL.Client.Query (mutation)
 import GraphQL.Client.Subscription (subscription)
 import GraphQL.Client.Types (Client)
+import Halogen.Subscription as HS
+import Type.Data.List (Nil')
 
 main :: Effect Unit
 main = do
-  client :: Client _ Query Mutation Subscription <-
+  client :: Client _ Nil' Query Mutation Subscription <-
     createSubscriptionClient
       { url: "http://localhost:4000/graphql"
       , authToken: Nothing

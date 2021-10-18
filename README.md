@@ -245,9 +245,11 @@ import MySchema (Query, Mutation)
 import GraphQL.Client.BaseClients.Apollo (createClient)
 import GraphQL.Client.Query (query)
 import GraphQL.Client.Types (Client)
+import Type.Data.List (Nil')
+
 ...
 
-    client  :: Client _ Query Mutation Void <- createClient
+    client  :: Client _ Nil' Query Mutation Void <- createClient
       { url: "http://localhost:4000/graphql"
       , authToken: Nothing
       , headers: []
@@ -272,9 +274,11 @@ import MySchema (Query, Subscription, Mutation)
 import GraphQL.Client.BaseClients.Apollo (createSubscriptionClient)
 import GraphQL.Client.Subscription (subscription)
 import GraphQL.Client.Types (Client)
+import Type.Data.List (Nil')
+
 ...
 
-  client :: Client _ Query Mutation Subscription <-
+  client :: Client _ Nil' Query Mutation Subscription <-
     createSubscriptionClient
       { url: "http://localhost:4000/graphql"
       , authToken: Nothing
