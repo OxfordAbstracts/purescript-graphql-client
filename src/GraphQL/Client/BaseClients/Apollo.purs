@@ -36,6 +36,7 @@ import Foreign.Object (Object)
 import Foreign.Object as Object
 import GraphQL.Client.BaseClients.Apollo.ErrorPolicy (ErrorPolicy(..))
 import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy)
+import GraphQL.Client.Operation (OpQuery)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
 import GraphQL.Client.Types (class GqlQuery, class QueryClient, class SubscriptionClient, class WatchQueryClient, Client(..))
 
@@ -89,14 +90,14 @@ defMutationOpts =
 
 
 createClient ::
-  forall querySchema mutationSchema subscriptionSchema.
-  ApolloClientOptions -> Effect (Client ApolloClient querySchema mutationSchema subscriptionSchema)
+  forall directives querySchema mutationSchema subscriptionSchema.
+  ApolloClientOptions -> Effect (Client ApolloClient directives querySchema mutationSchema subscriptionSchema)
 createClient = clientOptsToForeign >>> createClientImpl >>> map Client
 
 createSubscriptionClient ::
-  forall querySchema mutationSchema subscriptionSchema.
+  forall directives querySchema mutationSchema subscriptionSchema.
   ApolloSubClientOptions ->
-  Effect (Client ApolloSubClient querySchema mutationSchema subscriptionSchema)
+  Effect (Client ApolloSubClient directives querySchema mutationSchema subscriptionSchema)
 createSubscriptionClient = clientOptsToForeign >>> createSubscriptionClientImpl >>> map Client
 
 clientOptsToForeign ::
@@ -198,22 +199,22 @@ instance isApolloSubClient :: IsApollo ApolloSubClient
 
 -- Update the query results in the cache, using default encoding and decoding
 updateCacheJson ::
-  forall s m q qSchema c res.
+  forall s directives m q qSchema c res.
   IsApollo c =>
-  GqlQuery qSchema q res =>
+  GqlQuery directives OpQuery qSchema q res =>
   EncodeJson res =>
   DecodeJson res =>
-  Client c qSchema m s -> q -> (res -> res) -> Effect Unit
+  Client c directives qSchema m s -> q -> (res -> res) -> Effect Unit
 updateCacheJson = updateCache encodeJson decodeJson
 
 -- Update the query results in the cache
 updateCache ::
-  forall c qSchema q m s res.
+  forall c directives qSchema q m s res.
   IsApollo c =>
-  GqlQuery qSchema q res =>
+  GqlQuery directives OpQuery qSchema q res =>
   (res -> Json) ->
   (Json -> Either JsonDecodeError res) ->
-  (Client c qSchema m s) ->
+  (Client c directives qSchema m s) ->
   q ->
   (res -> res) ->
   Effect Unit
@@ -225,10 +226,10 @@ updateCache encoder decoder client query f = do
 
 -- | read a query result from the cache
 readQuery ::
-  forall c qSchema q m s res.
+  forall c directives qSchema q m s res.
   IsApollo c =>
-  GqlQuery qSchema q res =>
-  (Json -> Either JsonDecodeError res) -> (Client c qSchema m s) -> q -> Effect (Maybe res)
+  GqlQuery directives OpQuery  qSchema q res =>
+  (Json -> Either JsonDecodeError res) -> (Client c directives  qSchema m s) -> q -> Effect (Maybe res)
 readQuery decoder client query = do
   json <- toMaybe <$> readQueryImpl (unsafeToForeign client) (toGqlQueryString query)
   case map decoder json of
@@ -238,10 +239,10 @@ readQuery decoder client query = do
 
 -- | write a query result to the cache
 writeQuery ::
-  forall c qSchema q m s res.
+  forall c directives qSchema q m s res.
   IsApollo c =>
-  GqlQuery qSchema q res =>
-  (res -> Json) -> (Client c qSchema m s) -> q -> res -> Effect Unit
+  GqlQuery directives OpQuery  qSchema q res =>
+  (res -> Json) -> (Client c directives qSchema m s) -> q -> res -> Effect Unit
 writeQuery encoder client query newData = do
   writeQueryImpl (unsafeToForeign client) (toGqlQueryString query) (encoder newData)
 
