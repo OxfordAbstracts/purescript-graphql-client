@@ -27,7 +27,7 @@ main =
 -- Run gql query
 queryGql ::
   forall query returns.
-  GqlQuery Query query returns =>
+  GqlQuery Nil' OpQuery Queryquery returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
 queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Query)

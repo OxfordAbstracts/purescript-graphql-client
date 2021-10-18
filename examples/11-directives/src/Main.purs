@@ -1,6 +1,7 @@
 module Main where
 
 import Prelude
+
 import Data.Argonaut.Decode (class DecodeJson)
 import Data.Newtype (unwrap)
 import Effect (Effect)
@@ -9,8 +10,10 @@ import Effect.Class.Console (logShow)
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (type (==>), (=>>))
+import GraphQL.Client.Operation (OpQuery)
 import GraphQL.Client.Query (query_)
 import GraphQL.Client.Types (class GqlQuery)
+import Type.Data.List (Nil')
 import Type.Proxy (Proxy(..))
 
 main :: Effect Unit
@@ -33,7 +36,7 @@ main =
 -- Run gql query
 queryGql ::
   forall query returns.
-  GqlQuery Schema query returns =>
+  GqlQuery Nil' OpQuery Schema query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
 queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Schema)
