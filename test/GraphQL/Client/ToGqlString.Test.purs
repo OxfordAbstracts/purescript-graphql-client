@@ -177,3 +177,14 @@ spec =
               """@cached(ttl: 10) {
   a
 }"""
+      it "handles top level directives with no arguments"
+        let 
+          cached = applyDir (Proxy :: _ "cached")
+        in
+         toGqlQueryStringFormatted
+             (cached {} { a: unit } )
+            
+            `shouldEqual`
+              """@cached {
+  a
+}"""

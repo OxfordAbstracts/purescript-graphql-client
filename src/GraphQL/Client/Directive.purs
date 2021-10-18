@@ -1,6 +1,7 @@
 module GraphQL.Client.Directive where
 
 import Data.Symbol (class IsSymbol)
+import GraphQL.Client.Args (class RecordArg)
 import GraphQL.Client.Directive.Definition (Directive)
 import GraphQL.Client.Directive.Location (MUTATION, QUERY, SUBSCRIPTION)
 import GraphQL.Client.Operation (class GqlOperation, OpMutation, OpQuery, OpSubscription)
@@ -40,11 +41,12 @@ class DirectivesTypeCheckTopLevelLocation :: forall k1 k2 k3 k4. k1 -> k2 -> k3 
 class DirectivesTypeCheckTopLevelLocation location directiveDeclarations q bool | location directiveDeclarations q -> bool
 
 instance directivesTypeCheckTopLevelLocationFound ::
-  IsMember location locations result =>
-  DirectivesTypeCheckTopLevelLocation location (Cons' (Directive name description args locations) tail) (ApplyDirective name args q) result
+  ( IsMember location locations result
+  , RecordArg params args u
+  ) =>
+  DirectivesTypeCheckTopLevelLocation location (Cons' (Directive name description {|params} locations) tail) (ApplyDirective name {|args} q) result
 else instance directivesTypeCheckTopLevelLocationNotFound ::
   DirectivesTypeCheckTopLevelLocation location tail q result =>
   DirectivesTypeCheckTopLevelLocation location (Cons' head tail) q result
 else instance directivesTypeCheckTopLevelLocationNil' ::
   DirectivesTypeCheckTopLevelLocation location Nil' q False
-

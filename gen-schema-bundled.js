@@ -28213,7 +28213,7 @@ var PS = {};
           if (v instanceof Data_GraphQL_AST.Type_NonNullType) {
               return wrapNotNull(argNotNullTypeToPurs(gqlScalarsToPursTypes)(v.value0));
           };
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Util (line 59, column 39 - line 62, column 109): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Util (line 64, column 39 - line 67, column 109): " + [ v.constructor.name ]);
       };
   };
   var argNotNullTypeToPurs = function (gqlScalarsToPursTypes) {
@@ -28224,7 +28224,7 @@ var PS = {};
           if (v instanceof Data_GraphQL_AST.NonNullType_ListType) {
               return argListTypeToPurs(gqlScalarsToPursTypes)(v.value0);
           };
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Util (line 65, column 46 - line 67, column 74): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Util (line 70, column 46 - line 72, column 74): " + [ v.constructor.name ]);
       };
   };
   var argListTypeToPurs = function (gqlScalarsToPursTypes) {
@@ -28232,20 +28232,30 @@ var PS = {};
           return "(Array " + (argTypeToPurs(gqlScalarsToPursTypes)(v) + ")");
       };
   };
-  var inputValueDefinitionsToPurs = function (gqlScalarsToPursTypes) {
+  var inputValueDefinitionToPurs = function (gqlScalarsToPursTypes) {
       return function (v) {
           return inlineComment(v.description) + (v.name + (" :: " + argTypeToPurs(gqlScalarsToPursTypes)(v.type)));
       };
   };
+  var inputValueDefinitionsToPurs = function (dictFoldable) {
+      return function (dictFunctor) {
+          return function (gqlScalarsToPursTypes) {
+              return function (inputValueDefinitions) {
+                  return "\x0a{ " + (Data_Foldable.intercalate(dictFoldable)(Data_Monoid.monoidString)("\x0a, ")(Data_Functor.map(dictFunctor)(inputValueDefinitionToPurs(gqlScalarsToPursTypes))(inputValueDefinitions)) + "\x0a}\x0a");
+              };
+          };
+      };
+  };
   var argumentsDefinitionToPurs = function (gqlScalarsToPursTypes) {
       return function (v) {
-          return GraphQL_Client_CodeGen_Lines.indent("\x0a{ " + (Data_Foldable.intercalate(Data_List_Types.foldableList)(Data_Monoid.monoidString)("\x0a, ")(Data_Functor.map(Data_List_Types.functorList)(inputValueDefinitionsToPurs(gqlScalarsToPursTypes))(v)) + "\x0a}\x0a==> "));
+          return GraphQL_Client_CodeGen_Lines.indent(inputValueDefinitionsToPurs(Data_List_Types.foldableList)(Data_List_Types.functorList)(gqlScalarsToPursTypes)(v) + "==> ");
       };
   };
   exports["namedTypeToPurs"] = namedTypeToPurs;
   exports["inlineComment"] = inlineComment;
   exports["typeName"] = typeName;
   exports["argumentsDefinitionToPurs"] = argumentsDefinitionToPurs;
+  exports["inputValueDefinitionsToPurs"] = inputValueDefinitionsToPurs;
   exports["argTypeToPurs"] = argTypeToPurs;
   exports["wrapNotNull"] = wrapNotNull;
 })(PS);
@@ -28258,12 +28268,14 @@ var PS = {};
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Bind = $PS["Control.Bind"];
   var Data_Foldable = $PS["Data.Foldable"];
+  var Data_Functor = $PS["Data.Functor"];
   var Data_GraphQL_AST = $PS["Data.GraphQL.AST"];
   var Data_List = $PS["Data.List"];
   var Data_List_Types = $PS["Data.List.Types"];
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Monoid = $PS["Data.Monoid"];
   var Data_Show = $PS["Data.Show"];
+  var GraphQL_Client_CodeGen_Lines = $PS["GraphQL.Client.CodeGen.Lines"];
   var GraphQL_Client_CodeGen_Util = $PS["GraphQL.Client.CodeGen.Util"];                
   var getDirectiveDefinitions = function (defs) {
       return Control_Bind.bind(Data_List_Types.bindList)(defs)(function (v) {
@@ -28295,23 +28307,27 @@ var PS = {};
       if (v instanceof Data_GraphQL_AST.INLINE_FRAGMENT) {
           return Data_Maybe.Nothing.value;
       };
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Directive (line 75, column 37 - line 82, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Directive (line 79, column 37 - line 86, column 33): " + [ v.constructor.name ]);
   };
   var directiveToApplierPurs = function (v) {
-      return v.name + (":: forall q args. args -> q -> ApplyDirective " + (Data_Show.show(Data_Show.showString)(v.name) + (" args q \x0a" + (v.name + ("= applyDir (Proxy :: _ " + (Data_Show.show(Data_Show.showString)(v.name) + ")"))))));
+      return "\x0a" + (v.name + (" :: forall q args. args -> q -> ApplyDirective " + (Data_Show.show(Data_Show.showString)(v.name) + (" args q \x0a" + (v.name + (" = applyDir (Proxy :: _ " + (Data_Show.show(Data_Show.showString)(v.name) + ")")))))));
   };
   var directiveLocationToPurs = function (v) {
       if (v instanceof Data_GraphQL_AST.DirectiveLocation_ExecutableDirectiveLocation) {
-          return executableDirectiveLocationtoPurs(v.value0);
+          return Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(executableDirectiveLocationtoPurs(v.value0))(function (v1) {
+              return v1 + " :> ";
+          });
       };
       return Data_Maybe.Nothing.value;
   };
   var directiveLocationsToPurs = function (v) {
-      return Data_Foldable.intercalate(Data_List_Types.foldableList)(Data_Monoid.monoidString)(" :> ")(Data_List.mapMaybe(directiveLocationToPurs)(v));
+      return Data_Foldable.fold(Data_List_Types.foldableList)(Data_Monoid.monoidString)(Data_List.mapMaybe(directiveLocationToPurs)(v));
   };
   var directiveToPurs = function (gqlScalarsToPursTypes) {
       return function (v) {
-          return "Directive " + (Data_Show.show(Data_Show.showString)(v.name) + (Data_Show.show(Data_Show.showString)(Data_Foldable.fold(Data_Foldable.foldableMaybe)(Data_Monoid.monoidString)(v.description)) + (Data_Foldable.foldMap(Data_Foldable.foldableMaybe)(Data_Monoid.monoidString)(GraphQL_Client_CodeGen_Util.argumentsDefinitionToPurs(gqlScalarsToPursTypes))(v.argumentsDefinition) + (" (" + (directiveLocationsToPurs(v.directiveLocations) + "Nil')\x0a  :> ")))));
+          return GraphQL_Client_CodeGen_Lines.indent("Directive " + (Data_Show.show(Data_Show.showString)(v.name) + (" " + (Data_Show.show(Data_Show.showString)(Data_Foldable.fold(Data_Foldable.foldableMaybe)(Data_Monoid.monoidString)(v.description)) + (Data_Foldable.foldMap(Data_Foldable.foldableMaybe)(Data_Monoid.monoidString)(function (v1) {
+              return GraphQL_Client_CodeGen_Util.inputValueDefinitionsToPurs(Data_List_Types.foldableList)(Data_List_Types.functorList)(gqlScalarsToPursTypes)(v1);
+          })(v.argumentsDefinition) + (" (" + (directiveLocationsToPurs(v.directiveLocations) + "Nil')\x0a  :> ")))))));
       };
   };
   var getDocumentDirectivesPurs = function (gqlScalarsToPursTypes) {
@@ -28319,7 +28335,7 @@ var PS = {};
           var directives = getDirectiveDefinitions(v);
           var directiveDefinitionsPurs = Data_Foldable.foldMap(Data_List_Types.foldableList)(Data_Monoid.monoidString)(directiveToPurs(gqlScalarsToPursTypes))(directives);
           var directiveAppliers = Data_Foldable.foldMap(Data_List_Types.foldableList)(Data_Monoid.monoidString)(directiveToApplierPurs)(directives);
-          return "\x0aimport Prelude\x0aimport GraphQL.Client.Directive (class DirectivesTypeCheckTopLevel, ApplyDirective, applyDir)\x0aimport GraphQL.Client.Directive.Definition (Directive)\x0aimport GraphQL.Client.Directive.Location (MUTATION, QUERY, SUBSCRIPTION)\x0aimport GraphQL.Client.Operation (OpMutation(..), OpQuery(..), OpSubscription(..))\x0aimport Type.Data.List (type (:>), Nil')\x0aimport Type.Proxy (Proxy(..))\x0a\x0atype Directives =  \x0a    ( " + (directiveDefinitionsPurs + ("Nil'\x0a    )\x0a" + directiveAppliers));
+          return "import Prelude\x0a\x0aimport GraphQL.Client.Args (NotNull)\x0aimport GraphQL.Client.Directive (ApplyDirective, applyDir)\x0aimport GraphQL.Client.Directive.Definition (Directive)\x0aimport GraphQL.Client.Directive.Location (MUTATION, QUERY, SUBSCRIPTION)\x0aimport GraphQL.Client.Operation (OpMutation(..), OpQuery(..), OpSubscription(..))\x0aimport Type.Data.List (type (:>), Nil')\x0aimport Type.Proxy (Proxy(..))\x0a\x0atype Directives =  \x0a    ( " + (directiveDefinitionsPurs + ("Nil'\x0a    )\x0a" + directiveAppliers));
       };
   };
   exports["getDocumentDirectivesPurs"] = getDocumentDirectivesPurs;
@@ -28466,8 +28482,7 @@ var PS = {};
   exports["template"] = template;
 })(PS);
 (function($PS) {
-  
-  // | Codegen functions to get purs schema code from graphQL schemas
+  // Generated by purs version 0.14.3
   "use strict";
   $PS["GraphQL.Client.CodeGen.Schema"] = $PS["GraphQL.Client.CodeGen.Schema"] || {};
   var exports = $PS["GraphQL.Client.CodeGen.Schema"];
@@ -28779,8 +28794,6 @@ var PS = {};
           });
       };
   };
-
-  // | Given a gql doc this will create the equivalent purs gql schema
   var schemaFromGqlToPursWithCache = function (opts) {
       return function (v) {
           var go = function (v1) {
@@ -28927,7 +28940,7 @@ var PS = {};
               })),
               directives: Data_Functor.mapFlipped(Data_Functor.functorArray)(pursGqls)(function (pg) {
                   return {
-                      code: pg.directives,
+                      code: "module " + (modulePrefix + (pg.moduleName + (".Directives where\x0a" + pg.directives))),
                       path: opts.dir + ("/Directives/" + (pg.moduleName + ".purs"))
                   };
               })

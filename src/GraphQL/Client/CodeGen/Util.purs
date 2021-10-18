@@ -2,7 +2,8 @@
 module GraphQL.Client.CodeGen.Util where
 
 import Prelude
-import Data.Foldable (foldMap, intercalate)
+
+import Data.Foldable (class Foldable, foldMap, intercalate)
 import Data.GraphQL.AST as AST
 import Data.Map (Map, lookup)
 import Data.Maybe (Maybe, fromMaybe')
@@ -38,13 +39,17 @@ typeName gqlScalarsToPursTypes str =
 
 argumentsDefinitionToPurs :: Map String String -> AST.ArgumentsDefinition -> String
 argumentsDefinitionToPurs gqlScalarsToPursTypes (AST.ArgumentsDefinition inputValueDefinitions) =
-  indent
-    $ "\n{ "
-    <> intercalate "\n, " (map (inputValueDefinitionsToPurs gqlScalarsToPursTypes) inputValueDefinitions)
-    <> "\n}\n==> "
+  indent $ inputValueDefinitionsToPurs gqlScalarsToPursTypes inputValueDefinitions <> "==> "
 
-inputValueDefinitionsToPurs :: Map String String -> AST.InputValueDefinition -> String
-inputValueDefinitionsToPurs gqlScalarsToPursTypes ( AST.InputValueDefinition
+inputValueDefinitionsToPurs :: forall f. Foldable f => Functor f => Map String String -> f AST.InputValueDefinition -> String
+inputValueDefinitionsToPurs gqlScalarsToPursTypes inputValueDefinitions = 
+   "\n{ "
+    <> intercalate "\n, " (map (inputValueDefinitionToPurs gqlScalarsToPursTypes) inputValueDefinitions)
+    <> "\n}\n"
+
+
+inputValueDefinitionToPurs :: Map String String -> AST.InputValueDefinition -> String
+inputValueDefinitionToPurs gqlScalarsToPursTypes ( AST.InputValueDefinition
     { description
   , name
   , type: tipe

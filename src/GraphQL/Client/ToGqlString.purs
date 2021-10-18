@@ -309,7 +309,14 @@ gqlArgStringRecordTopLevel ::
   HFoldlWithIndex PropToGqlArg String { | r } String =>
   { | r } ->
   String
-gqlArgStringRecordTopLevel r = "(" <> hfoldlWithIndex PropToGqlArg "" r <> ")"
+gqlArgStringRecordTopLevel r =
+  let
+    inside = hfoldlWithIndex PropToGqlArg "" r
+  in
+    if inside == "" then
+      ""
+    else
+      "(" <> inside <> ")"
 
 class IsIgnoreArg a where
   isIgnoreArg :: a -> Boolean

@@ -454,9 +454,10 @@ newtype SubscriptionRoot = SubscriptionRoot """
 
 
 noDirectives :: String
-noDirectives =  """
-import Prelude
-import GraphQL.Client.Directive (class DirectivesTypeCheckTopLevel, ApplyDirective, applyDir)
+noDirectives =  """import Prelude
+
+import GraphQL.Client.Args (NotNull)
+import GraphQL.Client.Directive (ApplyDirective, applyDir)
 import GraphQL.Client.Directive.Definition (Directive)
 import GraphQL.Client.Directive.Location (MUTATION, QUERY, SUBSCRIPTION)
 import GraphQL.Client.Operation (OpMutation(..), OpQuery(..), OpSubscription(..))

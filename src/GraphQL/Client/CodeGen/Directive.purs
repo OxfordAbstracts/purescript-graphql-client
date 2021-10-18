@@ -2,17 +2,20 @@
 module GraphQL.Client.CodeGen.Directive where
 
 import Prelude
+
 import Data.GraphQL.AST as AST
 import Data.List (List, fold, foldMap, intercalate, mapMaybe)
 import Data.Map (Map)
 import Data.Maybe (Maybe(..))
-import GraphQL.Client.CodeGen.Util (argumentsDefinitionToPurs)
+import GraphQL.Client.CodeGen.Lines (indent)
+import GraphQL.Client.CodeGen.Util (argumentsDefinitionToPurs, inputValueDefinitionsToPurs)
 
 getDocumentDirectivesPurs :: Map String String -> AST.Document -> String
 getDocumentDirectivesPurs gqlScalarsToPursTypes (AST.Document defs) =
-  """
-import Prelude
-import GraphQL.Client.Directive (class DirectivesTypeCheckTopLevel, ApplyDirective, applyDir)
+  """import Prelude
+
+import GraphQL.Client.Args (NotNull)
+import GraphQL.Client.Directive (ApplyDirective, applyDir)
 import GraphQL.Client.Directive.Definition (Directive)
 import GraphQL.Client.Directive.Location (MUTATION, QUERY, SUBSCRIPTION)
 import GraphQL.Client.Operation (OpMutation(..), OpQuery(..), OpSubscription(..))
@@ -45,30 +48,31 @@ getDirectiveDefinitions defs =
         _ -> mempty
 
 directiveToPurs :: Map String String -> AST.DirectiveDefinition -> String
-directiveToPurs gqlScalarsToPursTypes (AST.DirectiveDefinition { name, description, argumentsDefinition, directiveLocations }) =
-  "Directive " <> show name <> show (fold description)
-    <> foldMap (argumentsDefinitionToPurs gqlScalarsToPursTypes) argumentsDefinition
+directiveToPurs gqlScalarsToPursTypes (AST.DirectiveDefinition { name, description, argumentsDefinition, directiveLocations }) = indent $
+  "Directive " <> show name <> " " <> show (fold description)
+    <> foldMap (\(AST.ArgumentsDefinition inputs) ->  inputValueDefinitionsToPurs gqlScalarsToPursTypes inputs) argumentsDefinition
     <> " ("
     <> directiveLocationsToPurs directiveLocations
     <> "Nil')\n  :> "
 
 directiveToApplierPurs :: AST.DirectiveDefinition -> String
 directiveToApplierPurs (AST.DirectiveDefinition { name }) =
-  name
-    <> ":: forall q args. args -> q -> ApplyDirective "
+  "\n"
+    <> name
+    <> " :: forall q args. args -> q -> ApplyDirective "
     <> show name
     <> " args q \n"
     <> name
-    <> "= applyDir (Proxy :: _ "
+    <> " = applyDir (Proxy :: _ "
     <> show name
     <> ")"
 
 directiveLocationsToPurs :: AST.DirectiveLocations -> String
-directiveLocationsToPurs (AST.DirectiveLocations locations) = intercalate " :> " $ mapMaybe directiveLocationToPurs locations
+directiveLocationsToPurs (AST.DirectiveLocations locations) = fold $ mapMaybe directiveLocationToPurs locations
 
 directiveLocationToPurs :: AST.DirectiveLocation -> Maybe String
 directiveLocationToPurs = case _ of
-  AST.DirectiveLocation_ExecutableDirectiveLocation location -> executableDirectiveLocationtoPurs location
+  AST.DirectiveLocation_ExecutableDirectiveLocation location -> executableDirectiveLocationtoPurs location <#> (_ <> " :> ")
   _ -> Nothing
 
 executableDirectiveLocationtoPurs :: AST.ExecutableDirectiveLocation -> Maybe String
