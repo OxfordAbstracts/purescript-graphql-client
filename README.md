@@ -94,73 +94,10 @@ name = Proxy
 
 ### Installation
 
-Install purescript-graphql-client 
-
 Either use spago (recommended)
 
 ```
 spago install graphql-client
-```
-
-If you are using an older package set, you will have to add graphql-client to your project packages.dhall first
-```
-  in  upstream
-  with graphql-client =
-      { dependencies =
-          [ "aff"
-          , "aff-promise"
-          , "affjax"
-          , "argonaut-codecs"
-          , "argonaut-core"
-          , "arrays"
-          , "bifunctors"
-          , "control"
-          , "datetime"
-          , "effect"
-          , "either"
-          , "enums"
-          , "exceptions"
-          , "foldable-traversable"
-          , "foreign"
-          , "foreign-generic"
-          , "foreign-object"
-          , "functions"
-          , "halogen-subscriptions"
-          , "heterogeneous"
-          , "http-methods"
-          , "integers"
-          , "lists"
-          , "maybe"
-          , "media-types"
-          , "newtype"
-          , "node-buffer"
-          , "node-fs"
-          , "nullable"
-          , "numbers"
-          , "ordered-collections"
-          , "parsing"
-          , "prelude"
-          , "profunctor"
-          , "profunctor-lenses"
-          , "psci-support"
-          , "quickcheck"
-          , "record"
-          , "spec"
-          , "spec-discovery"
-          , "string-parsers"
-          , "strings"
-          , "strings-extra"
-          , "transformers"
-          , "tuples"
-          , "typelevel-prelude"
-          , "unicode"
-          ]
-      , repo =
-          "https://github.com/OxfordAbstracts/purescript-graphql-client.git"
-      , version =
-          {- set this to the version of graphql-client you want -}
-          "v4.0.12"
-      }
 ```
 
 or install with bower
