@@ -20,9 +20,8 @@ import Effect.Exception (throw)
 import Test.Spec (Spec, before, describe, it)
 import Test.Spec.Assertions (shouldEqual, fail)
 import Text.Parsing.Parser (runParser)
-import Text.Parsing.Parser.String (class StringLike)
 
-parseDocument ∷ ∀ s. StringLike s ⇒ s → Aff (AST.Document)
+parseDocument ∷ String → Aff (AST.Document)
 parseDocument t = liftEffect (either (throw <<< show) pure (runParser t GP.document))
 
 schema =
