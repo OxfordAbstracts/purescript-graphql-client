@@ -13,9 +13,8 @@ import Effect.Exception (Error)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual, fail)
 import Text.Parsing.Parser (runParser, Parser)
-import Text.Parsing.Parser.String (class StringLike)
 
-parseSuccess ∷ ∀ s t m. StringLike s ⇒ MonadThrow Error m ⇒ Show t ⇒ Eq t ⇒ Parser s t → s → t → m Unit
+parseSuccess ∷ ∀ t m. MonadThrow Error m ⇒ Show t ⇒ Eq t ⇒ Parser String t → String → t → m Unit
 parseSuccess parser toparse tocomp = either (fail <<< show) (shouldEqual tocomp) (runParser toparse parser)
 
 spec ∷ Spec Unit
