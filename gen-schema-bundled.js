@@ -28371,7 +28371,7 @@ var PS = {};
                   if (v1.operationType instanceof Data_GraphQL_AST.Subscription) {
                       return "Subscription";
                   };
-                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 192, column 13 - line 195, column 41): " + [ v1.operationType.constructor.name ]);
+                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 191, column 13 - line 194, column 41): " + [ v1.operationType.constructor.name ]);
               })();
               return "type " + (opStr + (" = " + namedTypeToPurs_(v1.namedType)));
           };
@@ -28391,7 +28391,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.Type_NonNullType) {
                   return notNullTypeToPurs(v1.value0);
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 390, column 16 - line 393, column 72): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 389, column 16 - line 392, column 72): " + [ v1.constructor.name ]);
           };
           var notNullTypeToPurs = function (v1) {
               if (v1 instanceof Data_GraphQL_AST.NonNullType_NamedType) {
@@ -28400,7 +28400,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.NonNullType_ListType) {
                   return listTypeToPurs(v1.value0);
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 404, column 23 - line 406, column 51): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 403, column 23 - line 405, column 51): " + [ v1.constructor.name ]);
           };
           var listTypeToPursNullable = function (t) {
               return wrapMaybe(listTypeToPurs(t));
@@ -28453,7 +28453,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.Type_NonNullType) {
                   return wrapNotNull(argNotNullTypeToPurs(v1.value0));
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 374, column 19 - line 377, column 89): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 373, column 19 - line 376, column 89): " + [ v1.constructor.name ]);
           };
           var argNotNullTypeToPurs = function (v1) {
               if (v1 instanceof Data_GraphQL_AST.NonNullType_NamedType) {
@@ -28462,7 +28462,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.NonNullType_ListType) {
                   return argListTypeToPurs(v1.value0);
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 380, column 26 - line 382, column 54): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 379, column 26 - line 381, column 54): " + [ v1.constructor.name ]);
           };
           var argListTypeToPurs = function (v1) {
               return "(Array " + (argTypeToPurs(v1) + ")");
@@ -28483,7 +28483,7 @@ var PS = {};
                           };
                           return v2.value0.moduleName + ("." + v2.value0.typeName);
                       };
-                      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 363, column 10 - line 368, column 55): " + [ v2.constructor.name ]);
+                      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 362, column 10 - line 367, column 55): " + [ v2.constructor.name ]);
                   })()));
               };
           };
@@ -28520,7 +28520,7 @@ var PS = {};
                           };
                           return wrapMaybe(v2.value0.moduleName + ("." + v2.value0.typeName));
                       };
-                      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 279, column 10 - line 284, column 67): " + [ v2.constructor.name ]);
+                      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 278, column 10 - line 283, column 67): " + [ v2.constructor.name ]);
                   })())));
               };
           };
@@ -28561,7 +28561,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.TypeDefinition_InputObjectTypeDefinition) {
                   return Data_Maybe.Just.create(inputObjectTypeDefinitionToPurs(v1.value0));
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 198, column 26 - line 204, column 143): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 197, column 26 - line 203, column 143): " + [ v1.constructor.name ]);
           };
           var typeSystemDefinitionToPurs = function (v1) {
               if (v1 instanceof Data_GraphQL_AST.TypeSystemDefinition_SchemaDefinition) {
@@ -28573,7 +28573,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.TypeSystemDefinition_DirectiveDefinition) {
                   return directiveDefinitionToPurs(v1.value0);
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 177, column 32 - line 180, column 118): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 176, column 32 - line 179, column 118): " + [ v1.constructor.name ]);
           };
           var definitionToPurs = function (v1) {
               if (v1 instanceof Data_GraphQL_AST.Definition_ExecutableDefinition) {
@@ -28585,7 +28585,7 @@ var PS = {};
               if (v1 instanceof Data_GraphQL_AST.Definition_TypeSystemExtension) {
                   return Data_Maybe.Nothing.value;
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 171, column 22 - line 174, column 52): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 170, column 22 - line 173, column 52): " + [ v1.constructor.name ]);
           };
           var mainCode = Data_Foldable.intercalate(Data_List_Types.foldableList)(Data_Monoid.monoidString)("\x0a\x0a")(removeDuplicateDefinitions(Data_List.mapMaybe(definitionToPurs)(Data_Newtype.unwrap()(doc))));
           var imports = Data_Foldable.fold(Data_Foldable.foldableArray)(Data_Monoid.monoidString)(Data_Array.nub(Data_Ord.ordString)(Data_Semigroup.append(Data_Semigroup.semigroupArray)(toImport(mainCode)(Data_Array.fromFoldable(Data_Map_Internal.foldableMap)(v.externalTypes)))(Data_Semigroup.append(Data_Semigroup.semigroupArray)(toImport(mainCode)(Data_Array.nub(Data_Ord.ordRecord()(Data_Ord.ordRecordCons(Data_Ord.ordRecordCons(Data_Ord.ordRecordNil)()({
@@ -28709,7 +28709,7 @@ var PS = {};
                           if (v2 instanceof Data_Maybe.Just) {
                               return Control_Applicative.pure(Effect_Aff.applicativeAff)(new Data_Either.Right(v2.value0));
                           };
-                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 106, column 13 - line 108, column 35): " + [ v2.constructor.name ]);
+                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 105, column 13 - line 107, column 35): " + [ v2.constructor.name ]);
                       })())(function (eVal) {
                           return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)((function () {
                               if (eVal instanceof Data_Either.Right) {
@@ -28753,7 +28753,7 @@ var PS = {};
                       });
                   });
               };
-              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 102, column 3 - line 102, column 70): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 101, column 3 - line 101, column 70): " + [ v1.constructor.name ]);
           };
           return go(opts.cache);
       };
