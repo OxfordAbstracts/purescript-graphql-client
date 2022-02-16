@@ -5,19 +5,20 @@ module GraphQL.Client.CodeGen.Schema
   ) where
 
 import Prelude
+
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Array (filter, notElem, nub, nubBy)
 import Data.Array as Array
 import Data.Either (Either(..), hush)
-import Data.Foldable (fold, foldMap, intercalate)
+import Data.Foldable (fold, foldMap, foldl, intercalate)
 import Data.Function (on)
 import Data.FunctorWithIndex (mapWithIndex)
 import Data.GraphQL.AST as AST
 import Data.GraphQL.Parser (document)
 import Data.List (List, mapMaybe)
 import Data.List as List
-import Data.Map (Map, lookup, unions)
+import Data.Map (Map, lookup)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe, fromMaybe', maybe)
 import Data.Monoid (guard)
@@ -148,9 +149,10 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
     <> mainCode
   where
   imports =
-    fold $ nub
+    fold 
+      $ nub
       $ toImport mainCode (Array.fromFoldable externalTypes)
-      <> toImport mainCode (Array.fromFoldable $ unions fieldTypeOverrides)
+      <> toImport mainCode (nub $ foldl (\res m -> res <> Array.fromFoldable m) [] fieldTypeOverrides)
       <> toImport mainCode [ { moduleName: "Data.Argonaut.Core" } ]
 
   mainCode = unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
