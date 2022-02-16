@@ -18,7 +18,7 @@ import Data.GraphQL.AST as AST
 import Data.GraphQL.Parser (document)
 import Data.List (List, mapMaybe)
 import Data.List as List
-import Data.Map (Map, empty, lookup, union, unionWith, unions)
+import Data.Map (Map, lookup)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe, fromMaybe', maybe)
 import Data.Monoid (guard)
@@ -29,7 +29,6 @@ import Data.String.CodePoints (takeWhile)
 import Data.String.Extra (pascalCase)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
-import Debug (spy)
 import Effect.Aff (Aff)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
 import GraphQL.Client.CodeGen.Lines (commentPrefix, docComment, fromLines, indent, toLines)
