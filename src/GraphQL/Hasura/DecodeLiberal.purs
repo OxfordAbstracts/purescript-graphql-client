@@ -10,6 +10,7 @@ import Data.Bifunctor (lmap)
 import Data.Either (Either(..), hush)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Symbol (class IsSymbol, reflectSymbol)
+import Data.Traversable (traverse)
 import Foreign.Object (Object)
 import Foreign.Object as Object
 import GraphQL.Hasura.Decode (class DecodeHasura, decodeHasura)
@@ -20,32 +21,58 @@ import Text.Parsing.StringParser (Parser)
 import Text.Parsing.StringParser as P
 import Type.Proxy (Proxy(..))
 
+type DecodeLiberalOptions
+  = { strict :: Boolean }
+
 -- | Decode json, with silent errors when possible
 class DecodeHasuraLiberal a where
-  decodeHasuraLiberal :: Json -> Either JsonDecodeError a
+  decodeHasuraLiberalImpl :: DecodeLiberalOptions -> Json -> Either JsonDecodeError a
 
-instance decodeHasuraLiberalArray :: DecodeHasuraLiberal a => DecodeHasuraLiberal (Array a) where
-  decodeHasuraLiberal = decodeJArray >>> map (mapMaybe (decodeHasuraLiberal >>> hush))
-else instance decodeHasuraLiberalMaybe :: DecodeHasuraLiberal a => DecodeHasuraLiberal (Maybe a) where
-  decodeHasuraLiberal json = (Just <$> decodeHasuraLiberal json) <|> pure Nothing
+decodeLiberal :: forall a. DecodeHasuraLiberal a => Json -> Either JsonDecodeError a
+decodeLiberal = decodeHasuraLiberalImpl { strict: false }
+
+decodeStrict :: forall a. DecodeHasuraLiberal a => Json -> Either JsonDecodeError a
+decodeStrict = decodeHasuraLiberalImpl { strict: true }
+
+
+instance decodeHasuraLiberalImplArray :: DecodeHasuraLiberal a => DecodeHasuraLiberal (Array a) where
+  decodeHasuraLiberalImpl opts j =
+    if opts.strict then
+      strict j
+    else
+      liberal j
+    where
+    liberal = decodeJArray >>> map (mapMaybe (decodeHasuraLiberalImpl opts >>> hush))
+
+    strict json = decodeJArray json >>= traverse (decodeHasuraLiberalImpl opts)
+else instance decodeHasuraLiberalImplMaybe :: DecodeHasuraLiberal a => DecodeHasuraLiberal (Maybe a) where
+  decodeHasuraLiberalImpl opts j =
+    if opts.strict then
+      strict j
+    else
+      liberal j
+    where
+    liberal json = (Just <$> decodeHasuraLiberalImpl opts json) <|> pure Nothing
+
+    strict = decodeHasuraLiberalImpl opts >=> traverse (decodeHasuraLiberalImpl opts)
 else instance decodeRecord ::
   ( DecodeHasuraLiberalFields row list
   , RL.RowToList row list
   ) =>
   DecodeHasuraLiberal (Record row) where
-  decodeHasuraLiberal json = case toObject json of
-    Just object -> decodeHasuraLiberalFields object (Proxy :: Proxy list)
+  decodeHasuraLiberalImpl opts json = case toObject json of
+    Just object -> decodeHasuraLiberalImplFields opts object (Proxy :: Proxy list)
     Nothing -> Left $ TypeMismatch "Object"
 else instance decodeOther :: DecodeHasura a => DecodeHasuraLiberal a where
-  decodeHasuraLiberal = decodeHasura
+  decodeHasuraLiberalImpl _ = decodeHasura
 
 class DecodeHasuraLiberalFields (row :: Row Type) (list :: RL.RowList Type) | list -> row where
-  decodeHasuraLiberalFields :: forall proxy. Object Json -> proxy list -> Either JsonDecodeError (Record row)
+  decodeHasuraLiberalImplFields :: forall proxy. DecodeLiberalOptions -> Object Json -> proxy list -> Either JsonDecodeError (Record row)
 
-instance decodeHasuraLiberalFieldsNil :: DecodeHasuraLiberalFields () RL.Nil where
-  decodeHasuraLiberalFields _ _ = Right {}
+instance decodeHasuraLiberalImplFieldsNil :: DecodeHasuraLiberalFields () RL.Nil where
+  decodeHasuraLiberalImplFields _ _ _ = Right {}
 
-instance decodeHasuraLiberalFieldsCons ::
+instance decodeHasuraLiberalImplFieldsCons ::
   ( DecodeHasuraLiberalField value
   , DecodeHasuraLiberalFields rowTail tail
   , IsSymbol field
@@ -53,32 +80,32 @@ instance decodeHasuraLiberalFieldsCons ::
   , Row.Lacks field rowTail
   ) =>
   DecodeHasuraLiberalFields row (RL.Cons field value tail) where
-  decodeHasuraLiberalFields object _ = do
+  decodeHasuraLiberalImplFields opts object _ = do
     let
       _field = Proxy :: Proxy field
 
       fieldName = reflectSymbol _field
 
       fieldValue = Object.lookup fieldName object
-    case decodeHasuraLiberalField fieldValue of
+    case decodeHasuraLiberalImplField opts fieldValue of
       Just fieldVal -> do
         val <- lmap (AtKey fieldName) fieldVal
-        rest <- decodeHasuraLiberalFields object (Proxy :: Proxy tail)
+        rest <- decodeHasuraLiberalImplFields opts object (Proxy :: Proxy tail)
         Right $ Record.insert _field val rest
       Nothing -> Left $ AtKey fieldName MissingValue
 
 class DecodeHasuraLiberalField a where
-  decodeHasuraLiberalField :: Maybe Json -> Maybe (Either JsonDecodeError a)
+  decodeHasuraLiberalImplField :: DecodeLiberalOptions -> Maybe Json -> Maybe (Either JsonDecodeError a)
 
 instance decodeFieldMaybe ::
   DecodeHasuraLiberal a =>
   DecodeHasuraLiberalField (Maybe a) where
-  decodeHasuraLiberalField Nothing = Just $ Right Nothing
-  decodeHasuraLiberalField (Just j) = Just $ decodeHasuraLiberal j
+  decodeHasuraLiberalImplField _ Nothing = Just $ Right Nothing
+  decodeHasuraLiberalImplField opts (Just j) = Just $ decodeHasuraLiberalImpl opts j
 else instance decodeFieldId ::
   DecodeHasuraLiberal a =>
   DecodeHasuraLiberalField a where
-  decodeHasuraLiberalField j = decodeHasuraLiberal <$> j
+  decodeHasuraLiberalImplField opts j = decodeHasuraLiberalImpl opts <$> j
 
 maybeFail :: forall a. String -> Maybe a -> Parser a
 maybeFail str = maybe (P.fail str) pure
