@@ -1,9 +1,10 @@
 module GraphQL.Hasura.DecodeLiberal where
 
 import Prelude
+
 import Control.Alt ((<|>))
 import Data.Argonaut.Core (Json, toObject)
-import Data.Argonaut.Decode (JsonDecodeError(..))
+import Data.Argonaut.Decode (JsonDecodeError(..), decodeJson)
 import Data.Argonaut.Decode.Decoders (decodeJArray)
 import Data.Array (mapMaybe)
 import Data.Bifunctor (lmap)
@@ -34,7 +35,6 @@ decodeLiberal = decodeHasuraLiberalImpl { strict: false }
 decodeStrict :: forall a. DecodeHasuraLiberal a => Json -> Either JsonDecodeError a
 decodeStrict = decodeHasuraLiberalImpl { strict: true }
 
-
 instance decodeHasuraLiberalImplArray :: DecodeHasuraLiberal a => DecodeHasuraLiberal (Array a) where
   decodeHasuraLiberalImpl opts j =
     if opts.strict then
@@ -54,7 +54,7 @@ else instance decodeHasuraLiberalImplMaybe :: DecodeHasuraLiberal a => DecodeHas
     where
     liberal json = (Just <$> decodeHasuraLiberalImpl opts json) <|> pure Nothing
 
-    strict = decodeHasuraLiberalImpl opts >=> traverse (decodeHasuraLiberalImpl opts)
+    strict = decodeJson >=> traverse (decodeHasuraLiberalImpl opts)
 else instance decodeRecord ::
   ( DecodeHasuraLiberalFields row list
   , RL.RowToList row list
