@@ -1,20 +1,22 @@
 module GraphQL.Hasura.Decode (class DecodeHasura, class DecodeHasuraFields, class DecodeHasuraField, decodeHasura, decodeHasuraFields, decodeHasuraField) where
 
 import Prelude
+
 import Control.Alt ((<|>))
 import Data.Argonaut.Core (Json, toObject)
 import Data.Argonaut.Decode (JsonDecodeError(..), decodeJson)
 import Data.Argonaut.Decode.Decoders (decodeJArray)
-import Data.Foldable (foldl)
 import Data.Bifunctor (lmap)
 import Data.Date (Date, canonicalDate)
 import Data.DateTime (DateTime(..), Time(..), adjust)
 import Data.Either (Either(..))
 import Data.Enum (class BoundedEnum, toEnum)
+import Data.Foldable (foldl)
 import Data.Int (toNumber)
 import Data.Int as Int
 import Data.List.NonEmpty as NonEmpty
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
+import Data.String (joinWith)
 import Data.String.CodeUnits (singleton)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Data.Time.Duration (Minutes(..))
@@ -40,7 +42,11 @@ instance decodeHasuraBoolean :: DecodeHasura Boolean where
   decodeHasura = decodeJson
 
 instance decodeHasuraString :: DecodeHasura String where
-  decodeHasura = decodeJson
+  decodeHasura json = case decodeJson json of
+    Right str -> Right str
+    Left err -> case decodeJson json of
+      Right arr -> Right $ "{" <> joinWith "," arr <> "}"
+      _ -> Left err
 
 instance decodeHasuraInt :: DecodeHasura Int where
   decodeHasura = decodeJson
