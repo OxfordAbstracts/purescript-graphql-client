@@ -28436,7 +28436,7 @@ var PS = {};
           var directiveDefinitionToPurs = function (v1) {
               return Data_Maybe.Nothing.value;
           };
-          var builtInTypes = [ "Int", "Number", "String", "Boolean" ];
+          var builtInTypes = [ "Int", "Number", "String", "Boolean", "GraphQL.Hasura.Array.Hasura_text" ];
           var scalarTypeDefinitionToPurs = function (v1) {
               var tName = typeName_(v1.name);
               var typeAndModule = Data_Maybe.fromMaybe({
