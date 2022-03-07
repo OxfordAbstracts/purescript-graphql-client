@@ -16,7 +16,6 @@ import Data.Int (toNumber)
 import Data.Int as Int
 import Data.List.NonEmpty as NonEmpty
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
-import Data.String (joinWith)
 import Data.String.CodeUnits (singleton)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Data.Time.Duration (Minutes(..))
@@ -42,11 +41,7 @@ instance decodeHasuraBoolean :: DecodeHasura Boolean where
   decodeHasura = decodeJson
 
 instance decodeHasuraString :: DecodeHasura String where
-  decodeHasura json = case decodeJson json of
-    Right str -> Right str
-    Left err -> case decodeJson json of
-      Right arr -> Right $ "{" <> joinWith "," arr <> "}"
-      _ -> Left err
+  decodeHasura = decodeJson
 
 instance decodeHasuraInt :: DecodeHasura Int where
   decodeHasura = decodeJson
