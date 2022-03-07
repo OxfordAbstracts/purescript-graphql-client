@@ -5,7 +5,6 @@ module GraphQL.Client.CodeGen.Schema
   ) where
 
 import Prelude
-
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Array (filter, notElem, nub, nubBy)
@@ -149,11 +148,14 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
     <> mainCode
   where
   imports =
-    fold 
+    fold
       $ nub
       $ toImport mainCode (Array.fromFoldable externalTypes)
       <> toImport mainCode (nub $ foldl (\res m -> res <> Array.fromFoldable m) [] fieldTypeOverrides)
-      <> toImport mainCode [ { moduleName: "Data.Argonaut.Core" } ]
+      <> toImport mainCode
+          [ { moduleName: "Data.Argonaut.Core" }
+          , { moduleName: "GraphQL.Hasura.Array" }
+          ]
 
   mainCode = unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
 
@@ -410,7 +412,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
   wrapArray s = "(Array " <> s <> ")"
 
   typeName_ = typeName gqlScalarsToPursTypes
-  
+
   namedTypeToPurs_ = namedTypeToPurs gqlScalarsToPursTypes
 
 gqlToPursEnums :: Map String String -> AST.Document -> Array GqlEnum
@@ -453,20 +455,22 @@ inlineComment = foldMap (\str -> "\n{- " <> str <> " -}\n")
 typeName :: Map String String -> String -> String
 typeName gqlScalarsToPursTypes str =
   lookup str gqlScalarsToPursTypes
-    # fromMaybe' \_ -> case pascalCase str of
-        "Id" -> "ID"
-        "Float" -> "Number"
-        "Numeric" -> "Number"
-        "Bigint" -> "Number"
-        "Smallint" -> "Int"
-        "Integer" -> "Int"
-        "Int" -> "Int"
-        "Int2" -> "Int"
-        "Int4" -> "Int"
-        "Int8" -> "Int"
-        "Text" -> "String"
-        "Citext" -> "String"
-        "Jsonb" -> "Json"
-        "Timestamp" -> "DateTime"
-        "Timestamptz" -> "DateTime"
-        s -> s
+    # fromMaybe' \_ -> case str of
+        "_text" -> "GraphQL.Hasura.Array.Hasura_text"
+        _ -> case pascalCase str of
+          "Id" -> "ID"
+          "Float" -> "Number"
+          "Numeric" -> "Number"
+          "Bigint" -> "Number"
+          "Smallint" -> "Int"
+          "Integer" -> "Int"
+          "Int" -> "Int"
+          "Int2" -> "Int"
+          "Int4" -> "Int"
+          "Int8" -> "Int"
+          "Text" -> "String"
+          "Citext" -> "String"
+          "Jsonb" -> "Json"
+          "Timestamp" -> "DateTime"
+          "Timestamptz" -> "DateTime"
+          s -> s
