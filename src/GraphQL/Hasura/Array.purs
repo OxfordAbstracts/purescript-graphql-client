@@ -4,6 +4,7 @@ import Prelude
 
 import Data.Newtype (class Newtype, unwrap)
 import Data.String (joinWith)
+import GraphQL.Client.Args (class ArgGql)
 import GraphQL.Client.ToGqlString (class GqlArgString)
 import GraphQL.Hasura.Decode (class DecodeHasura)
 import GraphQL.Hasura.Encode (class EncodeHasura)
@@ -26,3 +27,6 @@ instance Show Hasura_text where
 instance GqlArgString Hasura_text where 
   toGqlArgStringImpl = unwrap >>> map show >>> joinWith "," >>> \s -> "{" <> s <> "}"
 
+instance ArgGql Hasura_text Hasura_text
+
+instance ArgGql Hasura_text (Array String)
