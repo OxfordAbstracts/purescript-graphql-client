@@ -25,10 +25,10 @@ import Foreign.Object as Object
 import Prim.Row as Row
 import Prim.RowList as RL
 import Record as Record
-import Text.Parsing.StringParser (Parser, fail, runParser)
-import Text.Parsing.StringParser as P
-import Text.Parsing.StringParser.CodeUnits (anyDigit, char, eof)
-import Text.Parsing.StringParser.Combinators (many1, optionMaybe)
+import StringParser (Parser, fail, runParser)
+import StringParser as P
+import StringParser.CodeUnits (anyDigit, char, eof)
+import StringParser.Combinators (many1, optionMaybe)
 import Type.Proxy (Proxy(..))
 
 type Err a
