@@ -25,8 +25,6 @@ instance Show Hasura_text where
   show a = "(Hasura_text " <> show a <> ")"
 
 instance GqlArgString Hasura_text where 
-  toGqlArgStringImpl = unwrap >>> map show >>> joinWith "," >>> \s -> "{" <> s <> "}"
+  toGqlArgStringImpl = unwrap >>> map show >>> joinWith "," >>> (\s -> "{" <> s <> "}") >>> show
 
 instance ArgGql Hasura_text Hasura_text
-
-instance ArgGql Hasura_text (Array String)
