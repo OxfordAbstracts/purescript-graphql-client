@@ -1,7 +1,15 @@
 const { schemasFromGqlToPursJs } = require('../../gen-schema-bundled.js')
 const fs = require('fs')
 const { promisify } = require('util')
-const write = promisify(fs.writeFile)
+const getDirName = require('path').dirname;
+
+const writeFileRec =  promisify((path, contents, cb) => {
+  fs.mkdir(getDirName(path), { recursive: true}, function (err) {
+    if (err) return cb(err);
+
+    fs.writeFile(path, contents, cb);
+  });
+})
 
 exports.writePursSchemas = async (opts, gqlSchemas) => {
   const { argsTypeError, parseError, result } =
@@ -17,7 +25,7 @@ exports.writePursSchemas = async (opts, gqlSchemas) => {
 
   const { schemas, enums, symbols } = result
 
-  await Promise.all([...schemas, ...enums, symbols].map(({ path, code }) => write(path, code)))
+  await Promise.all([...schemas, ...enums, symbols].map(({ path, code }) => writeFileRec(path, code)))
 
   return result
 }

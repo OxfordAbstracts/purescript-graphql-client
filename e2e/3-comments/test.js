@@ -23,7 +23,7 @@ require('./server-fn')(async () => {
   }
 })
 
-setTimeout(() => {
-  console.error('Timeout')
-  process.exit(1)
-}, 60000)
+// setTimeout(() => {
+//   console.error('Timeout')
+//   process.exit(1)
+// }, 60000)
