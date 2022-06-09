@@ -10,8 +10,7 @@ const generateSchemas = async (opts, gqlEndpoints) => {
   }
   await rm(opts.dir)
   await mkdirp(opts.dir)
-  await mkdirp(opts.dir + '/Schema')
-  await mkdirp(opts.dir + '/Enum')
+  await mkdirp(opts.dir + '/Schema/Enum')
   const schemas = await Promise.all(gqlEndpoints.map(getGqlSchema))
 
   return await writePursSchemas(opts, schemas)
