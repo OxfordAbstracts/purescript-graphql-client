@@ -19,7 +19,7 @@ template ::
   } ->
   String
 template modulePrefix { name, schemaName, description, values, imports, customCode } =
-    """module """ <> modulePrefix <> schemaName <>""".Enum.""" <> name <> """ where
+    """module """ <> modulePrefix <> ".Schema." <> schemaName <> """.Enum.""" <> name <> """ where
 
 import Prelude
 

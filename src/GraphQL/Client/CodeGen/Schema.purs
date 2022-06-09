@@ -72,7 +72,8 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
               , path: opts.dir <> "/Schema/" <> pg.moduleName <> ".purs"
               }
     , enums:
-        pursGqls
+        nubBy (compare `on` _.path)
+          $ pursGqls
           >>= \pg ->
               pg.enums
                 <#> \{ name, values, description } ->
@@ -85,7 +86,7 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
                           , imports: opts.enumImports
                           , customCode: opts.customEnumCode
                           }
-                    , path: opts.dir <> "/Schema/" <> pg.moduleName <>  "/Enum/" <> name <> ".purs"
+                    , path: opts.dir <> "/Schema/" <> pg.moduleName <> "/Enum/" <> name <> ".purs"
                     }
     , symbols:
         pursGqls >>= _.symbols
