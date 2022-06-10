@@ -80,12 +80,13 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
                     { code:
                         Enum.template modulePrefix
                           { name
+                          , schemaName: pg.moduleName
                           , values
                           , description
                           , imports: opts.enumImports
                           , customCode: opts.customEnumCode
                           }
-                    , path: opts.dir <> "/Enum/" <> name <> ".purs"
+                    , path: opts.dir <> "/Schema/" <> pg.moduleName <> "/Enum/" <> name <> ".purs"
                     }
     , symbols:
         pursGqls >>= _.symbols

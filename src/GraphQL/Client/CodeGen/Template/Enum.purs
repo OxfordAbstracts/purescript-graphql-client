@@ -11,14 +11,15 @@ import GraphQL.Client.CodeGen.Lines (docComment)
 template ::
   String ->
   { name :: String
+  , schemaName ::String
   , description :: Maybe String
   , values :: Array String
   , imports :: Array String
   , customCode :: {name :: String, values :: Array String} ->  String 
   } ->
   String
-template modulePrefix { name, description, values, imports, customCode } =
-    """module """ <> modulePrefix <> """Enum.""" <> name <> """ where
+template modulePrefix { name, schemaName, description, values, imports, customCode } =
+    """module """ <> modulePrefix <> "Schema." <> schemaName <> """.Enum.""" <> name <> """ where
 
 import Prelude
 

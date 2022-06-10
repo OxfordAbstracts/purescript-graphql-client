@@ -27,7 +27,7 @@ import """ <> maybe defaultIdImport getImport idImport <> """
   where
   enumImports =
     enums 
-      <#> (\v -> "import " <> modulePrefix <> "Enum."<> v <> " ("<> v <> ")")
+      <#> (\v -> "import " <> modulePrefix <> """Schema.""" <> name <> ".Enum."<> v <> " ("<> v <> ")")
       # intercalate "\n"
 
   getImport {moduleName, typeName} = 
