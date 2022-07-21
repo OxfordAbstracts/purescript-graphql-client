@@ -37,6 +37,14 @@ else instance queryReturnsSpread ::
   ) =>
   QueryReturns {|schema} (Spread (Proxy alias) args q) (SpreadRes returns) where
   queryReturnsImpl _ _ =  undefined
+else instance queryReturnsSpreadNewtype ::
+  ( IsSymbol alias
+  , Row.Cons alias subSchema rest schema
+  , QueryReturns subSchema q returns
+  , Newtype newtypeSchema { | schema }
+  ) =>
+  QueryReturns newtypeSchema (Spread (Proxy alias) args q) (SpreadRes returns) where
+  queryReturnsImpl _ _ =  undefined
 else instance queryReturnsArray :: QueryReturns a q t => QueryReturns (Array a) q (Array t) where
   queryReturnsImpl _ q = pure $ queryReturnsImpl (undefined :: a) q
 else instance queryReturnsMaybe :: QueryReturns a q t => QueryReturns (Maybe a) q (Maybe t) where
