@@ -69,6 +69,13 @@ type TestNotNullParamsSchema
 testNotNullParamsSchemaProxy :: Proxy TestNotNullParamsSchema
 testNotNullParamsSchemaProxy = Proxy
 
+newtype NewtypeSchema = NewtypeSchema TestNotNullParamsSchema
+
+instance Newtype NewtypeSchema TestNotNullParamsSchema
+
+newtypeSchema :: Proxy NewtypeSchema
+newtypeSchema = Proxy
+
 testGet ::
   Proxy
     { users ::
@@ -147,6 +154,23 @@ testSpread = queryReturns testSchemaProxy query
       , { name: "oranges" }
       ]
       { user_id: unit }
+
+testSpreadWithNewtypeSchemaAndNonNullParams ::
+  Proxy
+    ( SpreadRes
+        _
+    )
+testSpreadWithNewtypeSchemaAndNonNullParams = queryReturns newtypeSchema query
+  where
+  query =
+    Spread
+      (Proxy :: _ "users")
+      [ { online: true }
+      , { online: false }
+      ]
+      { id: unit }
+
+
 
 testArgs ::
   Proxy
