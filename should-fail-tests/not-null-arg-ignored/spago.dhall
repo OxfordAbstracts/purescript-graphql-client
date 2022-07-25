@@ -24,6 +24,7 @@ You can edit this file as you like.
   , "strings"
   , "strings-extra"
   , "typelevel"
+  , "unsafe-coerce"
   , "variant"
   ]
 , packages = ./packages.dhall
