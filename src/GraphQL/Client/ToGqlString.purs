@@ -1,16 +1,49 @@
-module GraphQL.Client.ToGqlString where
+module GraphQL.Client.ToGqlString
+  ( KeyVals(..)
+  , KeyVals_
+  , PropToGqlArg(..)
+  , PropToGqlString(..)
+  , ToGqlQueryStringOptions
+  , class GqlAndArgsString
+  , class GqlArgString
+  , class GqlQueryString
+  , class IsIgnoreArg
+  , dateString
+  , emptyKeyVals
+  , gqlArgStringRecord
+  , gqlArgStringRecordBody
+  , gqlArgStringRecordTopLevel
+  , gqlQueryStringRecord
+  , indent
+  , padMilli
+  , padl
+  , padl'
+  , removeTrailingZeros
+  , showInt
+  , timeString
+  , toGqlArgString
+  , toGqlQueryString
+  , toGqlQueryStringFormatted
+  , toLines
+  , toGqlAndArgsStringImpl
+  , toGqlArgStringImpl
+  , toGqlQueryStringImpl
+  , isIgnoreArg
+  ) where
 
 import Prelude
-
-import Data.Array (elemIndex, fold, foldMap, intercalate, length, mapWithIndex)
+import Data.Array (fold, foldMap, intercalate, length, mapWithIndex)
 import Data.Array as Array
 import Data.Date (Date)
 import Data.DateTime (DateTime(..), Millisecond)
 import Data.DateTime as DT
 import Data.Enum (class BoundedEnum, fromEnum)
+import Data.FoldableWithIndex (foldlWithIndex)
 import Data.Function (on)
-import Data.List (List, sortBy)
+import Data.List (List)
 import Data.List as List
+import Data.Map (Map)
+import Data.Map as Map
 import Data.Maybe (Maybe(..), isJust, maybe)
 import Data.Monoid (guard, power)
 import Data.String (codePointFromChar, fromCodePointArray, joinWith, toCodePointArray)
@@ -100,7 +133,10 @@ data PropToGqlString
   = PropToGqlString ToGqlQueryStringOptions
 
 newtype KeyVals
-  = KeyVals (List { key :: String, val :: String })
+  = KeyVals KeyVals_
+
+type KeyVals_
+  = List { key :: String, val :: String }
 
 emptyKeyVals :: KeyVals
 emptyKeyVals = KeyVals List.Nil
@@ -145,8 +181,7 @@ gqlQueryStringRecord opts r = indent opts $ " {" <> body <> newline <> "}"
   (KeyVals kvs) = hfoldlWithIndex (PropToGqlString opts) emptyKeyVals r
 
   body =
-    kvs
-      # List.sortBy (compare `on` getKeyIndex)
+    sortByKeyIndex r kvs
       # List.foldMap (\{ key, val } -> nl <> key <> val)
 
   multiline = isJust opts.indentation
@@ -154,14 +189,6 @@ gqlQueryStringRecord opts r = indent opts $ " {" <> body <> newline <> "}"
   nl = if isJust opts.indentation then "\n" else " "
 
   newline = guard multiline "\n"
-
-  obj :: Object Foreign
-  obj = unsafeCoerce r
-
-  objKeys = Object.keys obj
-
-  getKeyIndex :: _ -> Maybe Int
-  getKeyIndex { key } = elemIndex key objKeys
 
 indent ::
   forall r.
@@ -345,20 +372,29 @@ gqlArgStringRecordBody ::
   { | r } ->
   String
 gqlArgStringRecordBody r =
-  kvs
-    # List.sortBy (compare `on` getKeyIndex)
+  sortByKeyIndex r kvs
     <#> (\{ key, val } -> key <> ": " <> val)
     # List.intercalate ", "
   where
   (KeyVals kvs) = hfoldlWithIndex PropToGqlArg emptyKeyVals r
 
+sortByKeyIndex :: forall r. { | r } -> KeyVals_ -> KeyVals_
+sortByKeyIndex record = List.sortBy (compare `on` getKeyIndex)
+  where
   obj :: Object Foreign
-  obj = unsafeCoerce r
+  obj = unsafeCoerce record
 
+  objKeys :: Array String
   objKeys = Object.keys obj
 
+  objIdxs :: Map String Int
+  objIdxs = foldlWithIndex getIdx Map.empty objKeys
+
+  getIdx :: Int -> Map String Int -> String -> Map String Int
+  getIdx idx idxs key = Map.insert key idx idxs
+
   getKeyIndex :: _ -> Maybe Int
-  getKeyIndex { key } = elemIndex key objKeys
+  getKeyIndex { key } = Map.lookup key objIdxs
 
 class IsIgnoreArg a where
   isIgnoreArg :: a -> Boolean
