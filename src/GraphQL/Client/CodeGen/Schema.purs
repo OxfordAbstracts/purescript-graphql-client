@@ -5,12 +5,14 @@ module GraphQL.Client.CodeGen.Schema
   ) where
 
 import Prelude
+
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Array (filter, notElem, nub, nubBy)
 import Data.Array as Array
+import Data.CodePoint.Unicode (isAlphaNum, isLower)
 import Data.Either (Either(..), hush)
-import Data.Foldable (fold, foldMap, foldl, intercalate)
+import Data.Foldable (all, fold, foldMap, foldl, intercalate)
 import Data.Function (on)
 import Data.FunctorWithIndex (mapWithIndex)
 import Data.GraphQL.AST as AST
@@ -25,6 +27,7 @@ import Data.Newtype (unwrap)
 import Data.String (Pattern(..), codePointFromChar, contains, take)
 import Data.String as String
 import Data.String.CodePoints (takeWhile)
+import Data.String.CodeUnits (charAt, toCharArray)
 import Data.String.Extra (pascalCase)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
@@ -276,7 +279,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
     }
   ) =
     inlineComment description
-      <> name
+      <> safeFieldname name
       <> " :: "
       <> foldMap argumentsDefinitionToPurs argumentsDefinition
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
@@ -301,7 +304,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
     }
   ) =
     inlineComment description
-      <> name
+      <> safeFieldname name
       <> " :: "
       <> argTypeToPurs tipe
 
@@ -361,7 +364,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
     }
   ) =
     inlineComment description
-      <> name
+      <> safeFieldname name
       <> " :: "
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
           Nothing -> argTypeToPurs tipe
@@ -476,3 +479,17 @@ typeName gqlScalarsToPursTypes str =
           "Timestamp" -> "DateTime"
           "Timestamptz" -> "DateTime"
           s -> s
+
+
+safeFieldname :: String -> String
+safeFieldname s = if isSafe then s else show s 
+  where 
+  chars = toCharArray s 
+  isSafe = 
+    not String.null s && allAlphaNum && isLowerHead  
+
+  
+  allAlphaNum = all (\c -> isAlphaNum (codePointFromChar c) || c == '_') chars
+
+  isLowerHead = maybe false (isLower <<< codePointFromChar) (charAt 0 s)
+  

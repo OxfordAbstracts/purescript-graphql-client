@@ -331,6 +331,22 @@ newtype X = X
 derive instance newtypeX :: Newtype X _
 instance argToGqlX :: (Newtype X {| p},  RecordArg p a u) => ArgGql X { | a }"""
         gql `shouldParseTo` result
+      it "handles unsafe fieldnames (some not to gql spec)" do
+        let
+          gql =
+            schemaGql
+              { query: "{ Prop: Int }"
+              , mutation: "{ _prop1: Int }"
+              , subscription: "{ prop: Int }"
+              }
+
+          result =
+            schemaPurs
+              { query: "\n  { \"Prop\" :: (Maybe Int)\n  }"
+              , mutation: "\n  { \"_prop1\" :: (Maybe Int)\n  }"
+              , subscription: "\n  { prop :: (Maybe Int)\n  }"
+              }
+        gql `shouldParseTo` result
   where
   mkMap :: forall v. Array (Tuple String (Array (Tuple String v))) -> Map String (Map String v)
   mkMap = Map.fromFoldable >>> map Map.fromFoldable
