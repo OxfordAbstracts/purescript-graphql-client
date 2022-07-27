@@ -5,7 +5,6 @@ module GraphQL.Client.CodeGen.Schema
   ) where
 
 import Prelude
-
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Array (filter, notElem, nub, nubBy)
@@ -480,9 +479,10 @@ typeName gqlScalarsToPursTypes str =
           "Timestamptz" -> "DateTime"
           s -> s
 
-
 safeFieldname :: String -> String
-safeFieldname s = if isSafe then s else show s 
-  where 
-  isSafe = charAt 0 s # maybe  false \c -> 
-     c == '_' || (isLower $ codePointFromChar c )
+safeFieldname s = if isSafe then s else show s
+  where
+  isSafe =
+    charAt 0 s
+      # maybe false \c ->
+          c == '_' || (isLower $ codePointFromChar c)
