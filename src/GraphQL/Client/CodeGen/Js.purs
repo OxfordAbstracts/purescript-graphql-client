@@ -2,7 +2,6 @@
 module GraphQL.Client.CodeGen.Js where
 
 import Prelude
-
 import Control.Promise (Promise, fromAff, toAff)
 import Data.Argonaut.Core (Json)
 import Data.Either (either)
@@ -35,12 +34,14 @@ schemasFromGqlToPursJs = mkFn2 go
       , enumImports: fromNullable [] optsJs.enumImports
       , customEnumCode: fromNullable (const "") optsJs.customEnumCode
       , idImport: toMaybe optsJs.idImport
+      , enumValueNameTransform: toMaybe optsJs.enumValueNameTransform
       , cache:
           toMaybe optsJs.cache
             <#> \{ get, set } ->
                 { get: map (toAff >>> map toMaybe) get
                 , set: map toAff set
                 }
+      
       }
 
     getError err =
@@ -80,10 +81,11 @@ type InputOptionsJs
     , isHasura :: Nullable Boolean
     , useNewtypesForRecords :: Nullable Boolean
     , enumImports :: Nullable (Array String)
-    , customEnumCode :: Nullable ({ name :: String, values :: Array String } -> String)
+    , customEnumCode :: Nullable ({ name :: String, values :: Array { gql :: String, transformed :: String} } -> String)
     , cache ::
         Nullable
           { get :: String -> Promise (Nullable Json)
           , set :: { key :: String, val :: Json } -> Promise Unit
           }
+    , enumValueNameTransform :: Nullable (String -> String)
     }
