@@ -484,12 +484,5 @@ typeName gqlScalarsToPursTypes str =
 safeFieldname :: String -> String
 safeFieldname s = if isSafe then s else show s 
   where 
-  chars = toCharArray s 
-  isSafe = 
-    not String.null s && allAlphaNum && isLowerHead  
-
-  
-  allAlphaNum = all (\c -> isAlphaNum (codePointFromChar c) || c == '_') chars
-
-  isLowerHead = maybe false (isLower <<< codePointFromChar) (charAt 0 s)
-  
+  isSafe = charAt 0 s # maybe  false \c -> 
+     c == '_' || (isLower $ codePointFromChar c )

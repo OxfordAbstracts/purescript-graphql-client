@@ -343,7 +343,7 @@ instance argToGqlX :: (Newtype X {| p},  RecordArg p a u) => ArgGql X { | a }"""
           result =
             schemaPurs
               { query: "\n  { \"Prop\" :: (Maybe Int)\n  }"
-              , mutation: "\n  { \"_prop1\" :: (Maybe Int)\n  }"
+              , mutation: "\n  { _prop1 :: (Maybe Int)\n  }"
               , subscription: "\n  { prop :: (Maybe Int)\n  }"
               }
         gql `shouldParseTo` result
