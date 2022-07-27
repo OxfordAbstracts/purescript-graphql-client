@@ -85,6 +85,7 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
                           , description
                           , imports: opts.enumImports
                           , customCode: opts.customEnumCode
+                          , enumValueNameTransform: opts.enumValueNameTransform
                           }
                     , path: opts.dir <> "/Schema/" <> pg.moduleName <> "/Enum/" <> name <> ".purs"
                     }
