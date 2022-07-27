@@ -5,7 +5,7 @@ import Prelude
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (IgnoreArg(..), (++), (+++), (=>>))
-import GraphQL.Client.ToGqlString (toGqlQueryString, toGqlQueryStringFormatted)
+import GraphQL.Client.ToGqlString (gqlArgStringRecordTopLevel, toGqlQueryString, toGqlQueryStringFormatted)
 import GraphQL.Client.Variable (Var(..))
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
@@ -27,6 +27,13 @@ spec =
               """ {
   a
   b
+}"""
+      it "converts 2 props ordered reverse alphabetically"
+        $ toGqlQueryStringFormatted { b: unit, a: unit }
+            `shouldEqual`
+              """ {
+  b
+  a
 }"""
       it "converts simple nested props"
         $ toGqlQueryStringFormatted { a: { nested: unit }, b: unit }
@@ -55,6 +62,12 @@ spec =
   }
   b
 }"""
+
+      it "converts 3 args and retains ordering"
+        $ gqlArgStringRecordTopLevel { c: "abc", b: 10, a: [ 1.0 ] }
+            `shouldEqual`
+              """(c: "abc", b: 10, a: [1.0])"""
+
       it "converts nested args"
         $ toGqlQueryStringFormatted { a: { arg: "abc", where: { id: { eq: 10 } } } =>> { nested: unit }, b: unit }
             `shouldEqual`
@@ -64,6 +77,8 @@ spec =
   }
   b
 }"""
+
+
       it "converts aliases"
         $ toGqlQueryStringFormatted { a_alias: (Proxy :: _ "a") : { nested_alias: (Proxy :: _ "nested") }, b: unit }
             `shouldEqual`

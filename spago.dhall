@@ -53,6 +53,7 @@ You can edit this file as you like.
   , "transformers"
   , "tuples"
   , "unicode"
+  , "unsafe-coerce"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
