@@ -1,6 +1,7 @@
 module GraphQL.Client.CodeGen.Template.Enum where
 
 import Prelude
+
 import Data.CodePoint.Unicode (isAlpha)
 import Data.Foldable (intercalate)
 import Data.Maybe (Maybe, fromMaybe, maybe)
@@ -8,6 +9,7 @@ import Data.Monoid (guard)
 import Data.String (codePointFromChar)
 import Data.String as String
 import Data.String.CodeUnits (charAt)
+import Data.String.Unicode (toUpper)
 import GraphQL.Client.CodeGen.Lines (docComment)
 
 template ::
@@ -152,7 +154,7 @@ instance show"""
   valuesAndTransforms = values <#> (\v -> {gql: v, transformed: enumValueName v})
 
 defaultEnumValueName :: String -> String
-defaultEnumValueName s = alphaStart <> String.take 1 s <> String.drop 1 s
+defaultEnumValueName s = alphaStart <> toUpper (String.take 1 s) <> String.drop 1 s
   where
   alphaStart =
     guard (maybe false (not isAlpha <<< codePointFromChar) $ charAt 0 s)
