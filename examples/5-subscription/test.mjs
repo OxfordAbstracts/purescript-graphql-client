@@ -1,4 +1,4 @@
-const { deepStrictEqual } = require('assert')
+import { deepStrictEqual } from 'assert'
 import execSh from 'exec-sh';
 const {promise: exec} = execSh;
 
@@ -9,9 +9,11 @@ console.log = (log) => {
   logs.push(log)
 }
 
-require('./server-fn')(async () => {
+import serverFn from './server-fn.js'
+serverFn(async () => {
   try {
-    await require('./generate-purs-schema')()
+    import gps from './generate-purs-schema.js'
+    await gps()
     await exec('npm run build', { stdio: 'pipe', stderr: 'pipe' })
     require('./output/Main').main()
     setTimeout(() => {

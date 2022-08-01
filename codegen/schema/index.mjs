@@ -1,9 +1,9 @@
-const { writePursSchemas } = require('./write-purs-schema.mjs')
-const { getGqlSchema } = require('./get-gql-schema.mjs')
-const { promisify } = require('util')
-import mkdirp from 'mkdirp';
-
-const rm = promisify(require('rimraf'))
+import { writePursSchemas } from './write-purs-schema.mjs'
+import { getGqlSchema } from './get-gql-schema.mjs'
+import { promisify } from 'util'
+import mkdirp from 'mkdirp'
+import rimraf from 'rimraf'
+const rm = promisify(rimraf)
 
 export async function generateSchemas  (opts, gqlEndpoints) {
   if (!Array.isArray(gqlEndpoints)) {
