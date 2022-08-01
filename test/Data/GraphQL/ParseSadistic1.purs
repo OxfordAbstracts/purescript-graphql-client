@@ -5,7 +5,7 @@ import Data.Either (either)
 import Data.GraphQL.Parser as GP
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual, fail)
-import Text.Parsing.Parser (runParser)
+import Parsing (runParser)
 
 query =
   """subscription Z9

@@ -8,7 +8,7 @@ import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
 import GraphQL.Client.Args (type (==>), (=>>))
-import GraphQL.Client.BaseClients.Affjax (AffjaxClient(..))
+import GraphQL.Client.BaseClients.Affjax.Node (AffjaxNodeClient(..))
 import GraphQL.Client.Query (query, queryFullRes)
 import GraphQL.Client.Types (class GqlQuery, Client(..))
 import Type.Proxy (Proxy(..))
@@ -36,8 +36,8 @@ queryGql ::
   String -> query -> Aff returns
 queryGql = query client 
 
-client :: Client AffjaxClient Schema Void Void
-client = (Client $ AffjaxClient "http://localhost:4000/graphql" []) 
+client :: Client AffjaxNodeClient Schema Void Void
+client = (Client $ AffjaxNodeClient "http://localhost:4000/graphql" []) 
 
 -- Schema
 type Schema

@@ -18,8 +18,8 @@ import GraphQL.Hasura.Decode (class DecodeHasura, decodeHasura)
 import Prim.Row as Row
 import Prim.RowList as RL
 import Record as Record
-import Text.Parsing.StringParser (Parser)
-import Text.Parsing.StringParser as P
+import StringParser (Parser)
+import StringParser as P
 import Type.Proxy (Proxy(..))
 
 type DecodeLiberalOptions

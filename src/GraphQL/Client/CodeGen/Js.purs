@@ -12,7 +12,7 @@ import Data.Nullable (Nullable, toMaybe)
 import Foreign.Object (Object)
 import GraphQL.Client.CodeGen.Schema (schemasFromGqlToPurs)
 import GraphQL.Client.CodeGen.Types (GqlInput, JsResult)
-import Text.Parsing.Parser (parseErrorMessage)
+import Parsing (parseErrorMessage)
 
 schemasFromGqlToPursJs :: Fn2 InputOptionsJs (Array GqlInput) JsResult
 schemasFromGqlToPursJs = mkFn2 go

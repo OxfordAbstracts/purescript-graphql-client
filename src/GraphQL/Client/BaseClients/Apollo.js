@@ -88,19 +88,19 @@ const createClientWithWebsockets = function (opts) {
   })
 }
 
-exports.createClientImpl = function (opts) {
+export function createClientImpl (opts) {
   return function () {
     return createClientWithoutWebsockets(opts)
   }
 }
 
-exports.createSubscriptionClientImpl = function (opts) {
+export function createSubscriptionClientImpl (opts) {
   return function () {
     return createClientWithWebsockets(opts)
   }
 }
 
-exports.queryImpl = function (opts) {
+export function queryImpl (opts) {
   const { gql } = require('@apollo/client/core')
 
   return function (client) {
@@ -130,7 +130,7 @@ exports.queryImpl = function (opts) {
   }
 }
 
-exports.mutationImpl = function (opts) {
+export function mutationImpl (opts) {
   return function (client) {
     return function (mutation) {
       return function (variables) {
@@ -165,7 +165,7 @@ exports.mutationImpl = function (opts) {
   }
 }
 
-exports.subscriptionImpl = function (opts) {
+export function subscriptionImpl (opts) {
   return function (client) {
     return function (query) {
       return function (variables) {
@@ -192,7 +192,7 @@ exports.subscriptionImpl = function (opts) {
   }
 }
 
-exports.watchQueryImpl = function (opts) {
+export function watchQueryImpl (opts) {
   return function (client) {
     return function (query) {
       return function (variables) {
@@ -222,7 +222,7 @@ exports.watchQueryImpl = function (opts) {
   }
 }
 
-exports.readQueryImpl = function (client) {
+export function readQueryImpl (client) {
   return function (query) {
     const { gql } = require('@apollo/client/core')
     return function () {
@@ -231,7 +231,7 @@ exports.readQueryImpl = function (client) {
   }
 }
 
-exports.writeQueryImpl = function (client) {
+export function writeQueryImpl (client) {
   return function (query) {
     return function (data) {
       const { gql } = require('@apollo/client/core')
