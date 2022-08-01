@@ -23,7 +23,7 @@ jobs:
         # have changed. If you do not want to cache compiled output, remove
         # the `output` path.
         with:
-          key: ${{ runner.os }}-spago-${{ hashFiles('**/*.dhall') }}
+          key: k1-${{ runner.os }}-spago-${{ hashFiles('**/*.dhall') }}
           path: |
             .spago
             output
