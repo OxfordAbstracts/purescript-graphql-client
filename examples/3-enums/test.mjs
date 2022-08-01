@@ -11,11 +11,12 @@ console.log = (log) => {
 
 import serverFn from './server-fn.js'
 import gps from './generate-purs-schema.mjs'
+import {main} from './output/Main/index.js'
 serverFn(async () => {
   try {
     await gps()
     await exec('npm run build', { stdio: 'pipe', stderr: 'pipe' })
-    require('./output/Main').main()
+    main()
     setTimeout(() => {
       deepStrictEqual(logs, ['[RED]'])
       console.info('tests passed')
