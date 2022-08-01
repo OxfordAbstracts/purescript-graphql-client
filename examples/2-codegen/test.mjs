@@ -14,8 +14,9 @@ import gps from './generate-purs-schema.mjs'
 serverFn(async () => {
   try {
     await gps()
-    const { main } = await import('./output/Main/index.js')
     await exec('npm run build', { stdio: 'pipe' })
+    const { main } = await import('./output/Main/index.js')
+
     main()
     setTimeout(() => {
       deepStrictEqual(logs, ['["one"]'])
