@@ -2,7 +2,7 @@
 // const { generateSchemas } = require('purescript-graphql-client')
 import { generateSchemas } from '../../codegen/schema/index.mjs'
 
-module.exports = () =>
+export default () =>
   generateSchemas({
     dir: './src/generated',
     modulePath: ['Generated', 'Gql'],
