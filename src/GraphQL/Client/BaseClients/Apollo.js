@@ -1,13 +1,11 @@
 import 'isomorphic-unfetch';
-import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client/core';
 import { setContext } from '@apollo/client/link/context';
 import { WebSocketLink } from '@apollo/client/link/ws';
-import { split, HttpLink, InMemoryCache, ApolloClient } from '@apollo/client/core';
+import { gql, split, HttpLink, createHttpLink, InMemoryCache, ApolloClient } from '@apollo/client/core';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { setContext } from '@apollo/client/link/context';
 import ws from 'isomorphic-ws';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
-import { gql } from '@apollo/client/core';
 
 const createClientWithoutWebsockets = function (opts) {
 
