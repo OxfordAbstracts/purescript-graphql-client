@@ -16,12 +16,15 @@
   "dependencies": {
     "@apollo/client": "3.6",
     "apollo-server": "^2.19.2",
+    "apollo-server-core": "3.6",
     "express": "4.17.1",
     "express-graphql": "0.12.0",
     "graphql": "15.4.0",
+    "graphql-ws": "^5.9.1",
     "isomorphic-ws": "^4.0.1",
     "mkdirp": "1.0.4",
     "rimraf": "3.0.2",
+    "ws": "^8.8.1",
     "xhr2": "0.2.0"
   },
   "devDependencies": {
