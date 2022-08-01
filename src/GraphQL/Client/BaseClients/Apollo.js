@@ -4,9 +4,9 @@ import { gql, split, HttpLink, createHttpLink, InMemoryCache, ApolloClient } fro
 import { getMainDefinition } from '@apollo/client/utilities/index.js';
 import { setContext } from '@apollo/client/link/context/index.js';
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions/index.js";
+import WebSocket from 'ws';
 
 const createClientWithoutWebsockets = function (opts) {
-
 
   const authLink = setContext(function (_, { headers }) {
     // get the authentication token from local storage if it exists
@@ -48,7 +48,8 @@ const createClientWithWebsockets = function (opts) {
 
   const wsLink = new GraphQLWsLink(
     createWsClient({
-      url: "ws://localhost:3000/subscriptions",
+      webSocketImpl: WebSocket,
+      url: opts.websocketUrl,
       timeout: 30000,
       connectionParams: {
         headers: {
