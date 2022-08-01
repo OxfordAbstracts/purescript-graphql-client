@@ -1,13 +1,13 @@
 import 'isomorphic-unfetch';
 import { createClient, defaultExchanges, subscriptionExchange } from '@urql/core';
-import graphqlWs from 'graphql-ws';
+import {createClient as createWsClient} from 'graphql-ws';
 
 const createClient_ = function (opts) {
 
   let wsClient = null
 
   if (opts.websocketUrl) {
-    wsClient = graphqlWs.createClient({
+    wsClient = createWsClient({
       url: opts.websocketUrl
     })
   }

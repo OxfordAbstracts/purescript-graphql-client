@@ -27,8 +27,8 @@
   "homepage": "https://github.com/OxfordAbstracts/purescript-graphql-client#readme",
   "dependencies": {
     "@urql/core": "^1.16.2",
-    "graphql": "^15.5.0",
-    "graphql-ws": "^4.1.2",
+    "graphql": "^16.5.0",
+    "graphql-ws": "^5.9.1",
     "isomorphic-unfetch": "^3.1.0",
     "mkdirp": "1.0.4",
     "rimraf": "3.0.2"

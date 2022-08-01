@@ -1,10 +1,9 @@
 import 'isomorphic-unfetch';
-import { WebSocketLink } from '@apollo/client/link/ws';
-import { gql, split, HttpLink, createHttpLink, InMemoryCache, ApolloClient } from '@apollo/client/core';
-import { getMainDefinition } from '@apollo/client/utilities';
-import { setContext } from '@apollo/client/link/context';
-import ws from 'isomorphic-ws';
-import { SubscriptionClient } from 'subscriptions-transport-ws';
+import { createClient as createWsClient } from "graphql-ws";
+import { gql, split, HttpLink, createHttpLink, InMemoryCache, ApolloClient } from '@apollo/client/core/index.js';
+import { getMainDefinition } from '@apollo/client/utilities/index.js';
+import { setContext } from '@apollo/client/link/context/index.js';
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions/index.js";
 
 const createClientWithoutWebsockets = function (opts) {
 
@@ -47,16 +46,16 @@ const createClientWithWebsockets = function (opts) {
     }
   })
 
-  const wsLink = new WebSocketLink(
-    new SubscriptionClient(opts.websocketUrl, {
-      reconnect: true,
+  const wsLink = new GraphQLWsLink(
+    createWsClient({
+      url: "ws://localhost:3000/subscriptions",
       timeout: 30000,
       connectionParams: {
         headers: {
           Authorization: 'Bearer ' + opts.authToken
         }
       }
-    }, ws)
+    })
   )
 
   const link = split(
@@ -220,7 +219,6 @@ export function watchQueryImpl (opts) {
 
 export function readQueryImpl (client) {
   return function (query) {
-    const { gql } = require('@apollo/client/core')
     return function () {
       return client.readQuery({ query: gql(query) })
     }
