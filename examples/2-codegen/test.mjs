@@ -11,10 +11,10 @@ console.log = (log) => {
 
 import serverFn from './server-fn.js'
 import gps from './generate-purs-schema.mjs'
-import {main} from './output/Main/index.js'
 serverFn(async () => {
   try {
     await gps()
+    const { main } = await import('./output/Main/index.js')
     await exec('npm run build', { stdio: 'pipe' })
     main()
     setTimeout(() => {
