@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: purescript-contrib/setup-purescript@main
+      - uses: purescript-contrib/setup-purescript@2.0.0
         with:
           purescript: "0.15.4"
           psa: "0.8.2"
