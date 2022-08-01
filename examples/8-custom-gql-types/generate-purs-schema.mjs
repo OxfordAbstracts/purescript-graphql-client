@@ -1,8 +1,8 @@
 // In your code replace this line with the npm package:
 // const { generateSchema } = require('purescript-graphql-client')
-const { generateSchema } = require('../../codegen/schema')
+import { generateSchema } from '../../codegen/schema/index.mjs'
 
-module.exports = () =>
+export default () =>
   generateSchema({
     dir: './src/generated',
     modulePath: ['Generated', 'Gql', 'Admin'],

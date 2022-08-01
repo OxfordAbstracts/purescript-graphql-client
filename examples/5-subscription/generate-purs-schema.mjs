@@ -1,6 +1,6 @@
 // In your code replace this line with the npm package:
 // const { generateSchemas } = require('purescript-graphql-client')
-const { generateSchemas } = require('../../codegen/schema')
+const { generateSchemas } = require('../../codegen/schema/index.mjs')
 
 module.exports = () =>
   generateSchemas({

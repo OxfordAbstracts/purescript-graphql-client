@@ -10,9 +10,9 @@ console.log = (log) => {
 }
 
 import serverFn from './server-fn.js'
+import gps from './generate-purs-schema.mjs'
 serverFn(async () => {
   try {
-    import gps from './generate-purs-schema.js'
     await gps()
     await exec('npm run build', { stdio: 'pipe', stderr: 'pipe' })
     require('./output/Main').main()
