@@ -1,4 +1,7 @@
-const { deepStrictEqual } = require('assert')
+import { deepStrictEqual } from 'assert'
+import serverFn from './server-fn.js';
+import {main} from './output/Main/index.js';
+
 const logs = []
 
 console.log = (log) => {
@@ -6,7 +9,7 @@ console.log = (log) => {
   logs.push(log)
 }
 
-require('./server-fn')(require('./output/Main').main)
+serverFn(main)
 
 setTimeout(() => {
   deepStrictEqual(

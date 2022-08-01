@@ -1,6 +1,6 @@
 const { readdirSync } = require('fs')
 const { promisify } = require('util')
-const exec = require('exec-sh').promise
+import {promise as exec} from 'exec-sh';
 const { ok } = require('assert')
 const read = promisify(require('fs').readFile)
 

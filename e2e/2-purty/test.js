@@ -1,4 +1,4 @@
-const exec = require('exec-sh').promise
+import {promise as exec} from 'exec-sh';
 const { writePursSchemas } = require('../../codegen/schema/write-purs-schema')
 const mkdirp = require('mkdirp')
 
