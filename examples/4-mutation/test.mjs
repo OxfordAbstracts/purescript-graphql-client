@@ -1,5 +1,7 @@
 const { deepStrictEqual } = require('assert')
-import {promise as exec} from 'exec-sh';
+import execSh from 'exec-sh';
+const {promise: exec} = execSh;
+
 const logs = []
 
 console.log = (log) => {

@@ -1,10 +1,11 @@
-const { writePursSchemas } = require('./write-purs-schema')
-const { getGqlSchema } = require('./get-gql-schema')
+const { writePursSchemas } = require('./write-purs-schema.mjs')
+const { getGqlSchema } = require('./get-gql-schema.mjs')
 const { promisify } = require('util')
-const mkdirp = require('mkdirp')
+import mkdirp from 'mkdirp';
+
 const rm = promisify(require('rimraf'))
 
-const generateSchemas = async (opts, gqlEndpoints) => {
+export async function generateSchemas  (opts, gqlEndpoints) {
   if (!Array.isArray(gqlEndpoints)) {
     gqlEndpoints = [gqlEndpoints]
   }
@@ -16,14 +17,9 @@ const generateSchemas = async (opts, gqlEndpoints) => {
   return await writePursSchemas(opts, schemas)
 }
 
-const generateSchema = (opts) => {
+export async function generateSchema (opts) {
   const { modulePath, url } = opts
   const moduleName = modulePath[modulePath.length - 1]
 
   return generateSchemas({ ...opts, modulePath: modulePath.slice(0, -1) }, [{ moduleName, url }])
-}
-
-module.exports = {
-  generateSchema,
-  generateSchemas
 }

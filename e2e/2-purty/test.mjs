@@ -1,6 +1,9 @@
-import {promise as exec} from 'exec-sh';
-const { writePursSchemas } = require('../../codegen/schema/write-purs-schema')
-const mkdirp = require('mkdirp')
+import execSh from 'exec-sh';
+const {promise: exec} = execSh;
+import { writePursSchemas } from '../../codegen/schema/write-purs-schema.mjs';
+import mkdirp from 'mkdirp';
+import { main } from './output/Main/index.js';
+
 
 const go = async () => {
   try {
@@ -45,7 +48,7 @@ const go = async () => {
     await exec('npm run format', { stdio: 'pipe', stderr: 'pipe' })
     await exec('npm run format', { stdio: 'pipe', stderr: 'pipe' })
     await exec('npm run build', { stdio: 'pipe', stderr: 'pipe' })
-    require('./output/Main').main()
+    main();
     process.exit(0)
   } catch (err) {
     console.error('test error', err)

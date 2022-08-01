@@ -1,11 +1,11 @@
-const fetch = require('node-fetch')
-const {
+import fetch from 'node-fetch';
+import {
   getIntrospectionQuery,
   printSchema,
   buildClientSchema
-} = require('graphql')
+} from 'graphql';
 
-exports.getGqlSchema = async ({ moduleName, cache, url, token }) => {
+export async function getGqlSchema ({ moduleName, cache, url, token }) {
   try {
     const introspectionQuery = getIntrospectionQuery()
 

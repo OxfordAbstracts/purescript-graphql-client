@@ -1,17 +1,17 @@
-const { schemasFromGqlToPursJs } = require('../../gen-schema-bundled.js')
-const fs = require('fs')
-const { promisify } = require('util')
-const getDirName = require('path').dirname;
+import { schemasFromGqlToPursJs } from '../../gen-schema-bundled.mjs';
+import fs from 'fs';
+import { promisify } from 'util';
+import {dirname} from 'path';
 
 const writeFileRec =  promisify((path, contents, cb) => {
-  fs.mkdir(getDirName(path), { recursive: true}, function (err) {
+  fs.mkdir(dirname(path), { recursive: true}, function (err) {
     if (err) return cb(err);
 
     fs.writeFile(path, contents, cb);
   });
 })
 
-exports.writePursSchemas = async (opts, gqlSchemas) => {
+export async function writePursSchemas (opts, gqlSchemas) {
   const { argsTypeError, parseError, result } =
     await schemasFromGqlToPursJs(opts, gqlSchemas)()
 

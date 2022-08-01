@@ -10,7 +10,7 @@
   "scripts": {
     "test": "spago test --no-install && node ./run-example-tests",
     "should-fail-tests": "node ./run-should-fail-tests",
-    "bundle": "spago bundle-module -m GraphQL.Client.CodeGen.Js -t 'gen-schema-bundled.js'",
+    "bundle": "spago bundle-module -m GraphQL.Client.CodeGen.Js -t 'gen-schema-bundled.mjs'",
     "patch": "npm run bundle && gcam 'update bundle' --allow-empty && npm version patch &&  npm publish && pulp publish",
     "npm-major-verson": "npm run bundle && gcam 'update bundle' --allow-empty && npm version major && npm publish",
     "patch-old": "npm run bundle && gcam 'update bundle' --allow-empty && npm version patch && pulp version patch && npm publish && pulp publish"
