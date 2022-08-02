@@ -26,17 +26,6 @@ main =
     -- Will log [ RED ] as there is one red widget
     logShow $ map _.colour widgets
 
-    { character } <- 
-      queryGql "HanSolo" 
-        { character: GqlUnion 
-            { "Human": { height: unit }
-            , "Droid": { name: unit }
-            }
-        }
-
-    -- Will log [ (inj @"Human" { height: 1.8 }) ] as the union is a human.
-    logShow $ unwrap character
-
 -- Run gql query
 queryGql ::
   forall query returns.
