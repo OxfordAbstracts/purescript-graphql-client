@@ -24,19 +24,6 @@ module.exports = (onListening) => {
       BLUE
       yellow
     }
-
-    type Human {
-      name: String!
-      height: Float!
-    }
-
-    type Droid {
-      name: String!
-      primaryFunction: String!
-    }
-
-    union Character = Human | Droid
-
     `)
 
   const root = {
@@ -44,12 +31,7 @@ module.exports = (onListening) => {
       return 'Hello world!'
     },
     widgets: ({ colour }) =>
-      widgets.filter(w => !colour || colour === w.colour),
-    character: () => { return {
-      __typename: "Human",
-      name: "Han Solo",
-      height: 1.8,
-    }},
+      widgets.filter(w => !colour || colour === w.colour)
   }
 
   const widgets = [

@@ -121,9 +121,9 @@ else instance gqlQueryStringArgsScalar ::
   toGqlQueryStringImpl _ (Args args _) = gqlArgStringRecordTopLevel args
 else instance gqlQueryStringArgs ::
   ( HFoldlWithIndex PropToGqlArg KeyVals (Record args) KeyVals
-  , GqlQueryString (Record body)
+  , GqlQueryString body
   ) =>
-  GqlQueryString (Args { | args } (Record body)) where
+  GqlQueryString (Args { | args } body) where
   toGqlQueryStringImpl opts (Args args body) =
     gqlArgStringRecordTopLevel args
       <> toGqlQueryStringImpl opts body
