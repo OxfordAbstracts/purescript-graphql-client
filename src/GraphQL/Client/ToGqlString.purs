@@ -15,23 +15,25 @@ module GraphQL.Client.ToGqlString
   , gqlArgStringRecordTopLevel
   , gqlQueryStringRecord
   , indent
+  , isIgnoreArg
   , padMilli
   , padl
   , padl'
   , removeTrailingZeros
   , showInt
   , timeString
+  , toGqlAndArgsStringImpl
   , toGqlArgString
+  , toGqlArgStringImpl
   , toGqlQueryString
   , toGqlQueryStringFormatted
-  , toLines
-  , toGqlAndArgsStringImpl
-  , toGqlArgStringImpl
   , toGqlQueryStringImpl
-  , isIgnoreArg
-  ) where
+  , toLines
+  )
+  where
 
 import Prelude
+
 import Data.Array (fold, foldMap, intercalate, length, mapWithIndex)
 import Data.Array as Array
 import Data.Date (Date)
@@ -59,6 +61,7 @@ import Foreign.Object as Object
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (AndArgs(AndArgs), Args(..), IgnoreArg, OrArg(..))
+import GraphQL.Client.Union (GqlUnion(..))
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars, getQuery)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
@@ -128,6 +131,10 @@ else instance gqlQueryStringEmptyRecord ::
   HFoldlWithIndex PropToGqlString KeyVals (Record r) KeyVals =>
   GqlQueryString (Record r) where
   toGqlQueryStringImpl r = gqlQueryStringRecord r
+else instance gqlQueryStringGqlUnion :: 
+  HFoldlWithIndex PropToGqlString KeyVals (Record r) KeyVals =>
+  GqlQueryString (GqlUnion r) where
+  toGqlQueryStringImpl opts (GqlUnion r) = gqlQueryStringUnion opts r
 
 data PropToGqlString
   = PropToGqlString ToGqlQueryStringOptions
@@ -189,6 +196,46 @@ gqlQueryStringRecord opts r = indent opts $ " {" <> body <> newline <> "}"
   nl = if isJust opts.indentation then "\n" else " "
 
   newline = guard multiline "\n"
+
+data UnionToGqlString
+  = UnionToGqlString ToGqlQueryStringOptions
+
+instance unionToGqlString ::
+  ( GqlQueryString a
+  , IsSymbol sym
+  ) =>
+  FoldingWithIndex UnionToGqlString (Proxy sym) KeyVals a KeyVals where
+  foldingWithIndex (UnionToGqlString opts) union (KeyVals kvs) a =
+    KeyVals
+      $ { key: reflectSymbol union
+        , val: toGqlQueryStringImpl opts a
+        }
+          `List.Cons`
+            kvs
+
+gqlQueryStringUnion ::
+  forall r.
+  ToGqlQueryStringOptions ->
+  HFoldlWithIndex PropToGqlString KeyVals { | r } KeyVals =>
+  { | r } ->
+  String
+gqlQueryStringUnion opts r = indent opts $ 
+  " {" <> newline <>
+  " __typename" <> newline <>
+   body <> newline 
+   <> "}"
+  where
+  (KeyVals kvs) = hfoldlWithIndex (PropToGqlString opts) emptyKeyVals r
+
+  body =
+    sortByKeyIndex r kvs
+      # List.foldMap (\{ key, val } -> nl <> "... on " <> key <> val)
+
+  multiline = isJust opts.indentation
+
+  nl = if multiline then "\n" else " "
+
+  newline = guard multiline "\n"            
 
 indent ::
   forall r.

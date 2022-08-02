@@ -8,6 +8,7 @@ module.exports = (onListening) => {
     type Query {
         prop: String
         widgets(colour: Colour): [Widget!]!
+        character: Character!
     }
     #Comment here
     type Widget {
@@ -24,6 +25,18 @@ module.exports = (onListening) => {
       yellow
     }
 
+    type Human {
+      name: String!
+      height: Float!
+    }
+
+    type Droid {
+      name: String!
+      primaryFunction: String!
+    }
+
+    union Character = Human | Droid
+
     `)
 
   const root = {
@@ -31,8 +44,12 @@ module.exports = (onListening) => {
       return 'Hello world!'
     },
     widgets: ({ colour }) =>
-      widgets.filter(w => !colour || colour === w.colour)
-
+      widgets.filter(w => !colour || colour === w.colour),
+    character: () => { return {
+      __typename: "Human",
+      name: "Han Solo",
+      height: 1.8,
+    }},
   }
 
   const widgets = [

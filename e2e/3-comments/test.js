@@ -13,7 +13,7 @@ require('./server-fn')(async () => {
     await exec('npm run build', { stdio: 'pipe', stderr: 'pipe' })
     require('./output/Main').main()
     setTimeout(() => {
-      deepStrictEqual(logs, ['[RED]'])
+      deepStrictEqual(logs, ['[RED]', '(inj @"Human" { height: 1.8 })'])
       console.info('tests passed')
       process.exit(0)
     }, 250)
