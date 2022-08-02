@@ -8,7 +8,6 @@ module.exports = (onListening) => {
     type Query {
         prop: String
         widgets(colour: Colour): [Widget!]!
-        character: Character!
     }
     #Comment here
     type Widget {
