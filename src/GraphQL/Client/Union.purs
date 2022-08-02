@@ -53,15 +53,19 @@ instance
   , Union r rd r'
   ) =>
   DecodeUnion (RL.Cons l ty rl) r' where
-  decodeUnion ty json _ = 
-    if reflectSymbol l == ty then map (inj l) $ decodeJson json
-    else map expand (decodeUnion ty json (Proxy :: Proxy rl) :: Either JsonDecodeError (Variant r))
-    where
-    l :: Proxy l
-    l = Proxy
+  decodeUnion = decodeUnionWith decodeUnion decodeJson
 
 instance DecodeUnion RL.Nil r where
   decodeUnion ty _ _ = Left $ AtKey __typename $ UnexpectedValue $ fromString ty
+
+decodeUnionWith :: forall r rl l ty r' rd. IsSymbol l => Cons l ty r r' => Cons l ty () rd => Union r rd r' =>
+  (String -> Json -> Proxy rl -> Either JsonDecodeError (Variant r)) -> (Json -> Either JsonDecodeError ty) -> String -> Json -> Proxy (RL.Cons l ty rl) -> Either JsonDecodeError (Variant r')
+decodeUnionWith decodeUnion' decodeJson' ty json _ = 
+  if reflectSymbol l == ty then map (inj l) $ decodeJson' json
+  else map expand (decodeUnion' ty json (Proxy :: Proxy rl) :: Either JsonDecodeError (Variant r))
+  where
+  l :: Proxy l
+  l = Proxy
 
 __typename :: String
 __typename = "__typename"
