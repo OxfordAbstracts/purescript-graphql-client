@@ -51,6 +51,7 @@ You can edit this file as you like.
   , "typelevel-prelude"
   , "unicode"
   , "unsafe-coerce"
+  , "variant"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs", "../../src/**/*.purs" ]

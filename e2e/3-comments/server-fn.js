@@ -23,7 +23,6 @@ module.exports = (onListening) => {
       BLUE
       yellow
     }
-
     `)
 
   const root = {
@@ -32,7 +31,6 @@ module.exports = (onListening) => {
     },
     widgets: ({ colour }) =>
       widgets.filter(w => !colour || colour === w.colour)
-
   }
 
   const widgets = [
