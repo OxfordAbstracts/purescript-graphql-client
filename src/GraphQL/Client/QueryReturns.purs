@@ -7,7 +7,7 @@ import Data.Newtype (class Newtype, unwrap)
 import Data.Symbol (class IsSymbol)
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Alias.Dynamic (Spread, SpreadRes)
-import GraphQL.Client.Args (class SatisifyNotNullParam, ArgPropToGql, Args(..), Params)
+import GraphQL.Client.Args (class SatisifyNotNullParam, ArgPropToGql, Args(..))
 import GraphQL.Client.Union (GqlUnion, UnionReturned)
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars)
@@ -58,13 +58,13 @@ else instance queryReturnsParamsArgs ::
   , HMapWithIndex (ArgPropToGql params) { | args } s
   , SatisifyNotNullParam { | params } { | args }
   ) =>
-  QueryReturns (Params { | params } t) (Args { | args } q) result where
+  QueryReturns ({ | params } -> t) (Args { | args } q) result where
   queryReturnsImpl _ (Args _ q) = queryReturnsImpl (undefined :: t) q
 else instance queryReturnsParamsNoArgs ::
   ( QueryReturns t q result
   , SatisifyNotNullParam { | params } {}
   ) =>
-  QueryReturns (Params { | params } t) q result where
+  QueryReturns ({ | params } -> t) q result where
   queryReturnsImpl _ q = queryReturnsImpl (undefined :: t) q
 else instance queryReturnsRecord ::
   HMapWithIndex (PropToSchemaType schema) query returns =>

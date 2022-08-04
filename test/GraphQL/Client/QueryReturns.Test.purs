@@ -6,7 +6,7 @@ import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..), SpreadRes)
-import GraphQL.Client.Args (type (==>), IgnoreArg(..), NotNull, OrArg(..), (++), (+++), (=>>))
+import GraphQL.Client.Args (IgnoreArg(..), NotNull, OrArg(..), (++), (+++), (=>>))
 import GraphQL.Client.QueryReturns (class QueryReturns, queryReturns)
 import Type.Proxy (Proxy(..))
 
@@ -25,24 +25,24 @@ type TestSchema
         , is_in :: Array Int
         , is_in_rec :: Array { int :: Int, string :: String }
         }
-          ==> Array
+          -> Array
             { id :: Int
             , name :: String
             , other_names :: Array String
             }
     , orders ::
         { name :: String }
-          ==> Array
+          -> Array
             { user_id :: Int }
     , obj_rel :: { id :: Int }
-    , nested1 :: { id :: Int } ==> N1
+    , nested1 :: { id :: Int } -> N1
     }
 
 newtype N1
   = N1
   { nested2 ::
       { id :: Int }
-        ==> N2
+        -> N2
   }
 
 derive instance newtypeN1 :: Newtype N1 _
@@ -59,7 +59,7 @@ type TestNotNullParamsSchema
   = { users ::
         { online :: NotNull Boolean
         }
-          ==> Array
+          -> Array
             { id :: Int
             , name :: String
             , other_names :: Array String
@@ -354,7 +354,7 @@ type TestNestedParamsSchema
         { online :: NotNull Boolean
         , nested :: { required :: NotNull Int, optional :: String }
         }
-          ==> Array
+          -> Array
             { id :: Int
             , name :: String
             , other_names :: Array String

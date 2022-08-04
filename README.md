@@ -25,7 +25,7 @@ import Data.Argonaut.Decode (class DecodeJson)
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
-import GraphQL.Client.Args (type (==>), (=>>))
+import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.Query (query_)
 import GraphQL.Client.Types (class GqlQuery)
 import Type.Proxy (Proxy(..))
@@ -49,7 +49,7 @@ queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Schema)
 -- Schema
 type Schema
   = { prop :: String
-    , widgets :: { id :: Int } ==> Array Widget
+    , widgets :: { id :: Int } -> Array Widget
     }
 
 type Widget

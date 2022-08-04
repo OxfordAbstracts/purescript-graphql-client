@@ -15,16 +15,9 @@ import Prim.Row as Row
 import Prim.TypeError as TE
 import Type.Proxy (Proxy)
 
-data Params :: forall k1 k2. k1 -> k2 -> Type
-data Params p t
-
-infixr 6 type Params as ==>
 
 newtype NotNull t
   = NotNull t
-
-newtype ParamNew t
-  = ParamNew t
 
 data Args a t
   = Args a t

@@ -7,7 +7,7 @@ import Data.Maybe (isJust)
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
-import GraphQL.Client.Args (type (==>), (=>>))
+import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.BaseClients.Affjax.Node (AffjaxNodeClient(..))
 import GraphQL.Client.Query (query, queryFullRes)
 import GraphQL.Client.Types (class GqlQuery, Client(..))
@@ -42,7 +42,7 @@ client = (Client $ AffjaxNodeClient "http://localhost:4000/graphql" [])
 -- Schema
 type Schema
   = { prop :: String
-    , widgets :: { id :: Int } ==> Array Widget
+    , widgets :: { id :: Int } -> Array Widget
     }
 
 type Widget
