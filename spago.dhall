@@ -9,6 +9,8 @@ You can edit this file as you like.
   [ "aff"
   , "aff-promise"
   , "affjax"
+  , "affjax-node"
+  , "affjax-web"
   , "argonaut-codecs"
   , "argonaut-core"
   , "arrays"

@@ -7,19 +7,21 @@
     "test": "test"
   },
   "scripts": {
-    "test": "npm i && spago install && node ./test.js",
+    "test": "npm i && spago install && node ./test.mjs",
     "build": "spago build",
     "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo/client": "^3.3.7",
+    "@apollo/client": "3.6",
     "express": "4.17.1",
     "express-graphql": "0.12.0",
-    "graphql": "15.4.0",
+    "graphql": "^16.5.0",
+    "graphql-ws": "^5.9.1",
     "mkdirp": "1.0.4",
     "rimraf": "3.0.2",
+    "subscriptions-transport-ws": "^0.11.0",
     "xhr2": "0.2.0"
   },
   "devDependencies": {

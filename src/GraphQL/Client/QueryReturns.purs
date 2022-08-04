@@ -15,6 +15,7 @@ import Heterogeneous.Mapping (class HMapWithIndex, class MappingWithIndex, hmapW
 import Prim.Row as Row
 import Record as Record
 import Type.Proxy (Proxy(..))
+import Unsafe.Coerce (unsafeCoerce)
 
 -- | Get the type that a query returns. 
 queryReturns ::
@@ -124,4 +125,5 @@ propToSchemaType ::
   Record schema -> query -> returns
 propToSchemaType schema query_ = hmapWithIndex (PropToSchemaType schema) query_
 
-foreign import undefined :: forall a. a
+undefined :: forall a. a
+undefined = unsafeCoerce unit

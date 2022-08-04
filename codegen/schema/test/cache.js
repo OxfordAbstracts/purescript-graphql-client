@@ -2,7 +2,8 @@ const fs = require('fs')
 const { promisify } = require('util')
 const write = promisify(fs.writeFile)
 const read = promisify(fs.readFile)
-const mkdirp = require('mkdirp')
+import mkdirp from 'mkdirp';
+
 
 mkdirp('./cache')
 

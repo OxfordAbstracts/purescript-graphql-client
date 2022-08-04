@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "npm i && spago install && node ./test",
+    "test": "npm i && spago install && spago build && node ./test.mjs",
     "format": "purty format ./src --write",
     "build": "spago build",
     "start": "node server.js"
