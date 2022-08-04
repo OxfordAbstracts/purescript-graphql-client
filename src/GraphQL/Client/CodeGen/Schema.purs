@@ -311,7 +311,25 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
   interfaceTypeDefinitionToPurs (AST.InterfaceTypeDefinition _) = Nothing
 
   unionTypeDefinitionToPurs :: AST.UnionTypeDefinition -> Maybe String
-  unionTypeDefinitionToPurs (AST.UnionTypeDefinition _) = Nothing
+  unionTypeDefinitionToPurs 
+    (AST.UnionTypeDefinition 
+      { description
+      , name
+      , directives: Nothing
+      , unionMemberTypes: Just (AST.UnionMemberTypes unionMemberTypes)
+      }) = Just $
+    docComment description
+      <> "type "
+      <> name
+      <> " = GqlUnion"
+      <> (indent
+        $ "\n( "
+        <> intercalate "\n, " (map (unionMemberTypeToPurs <<< unwrap) unionMemberTypes)
+        <> "\n)" )    
+  unionTypeDefinitionToPurs _ = Nothing
+  
+  unionMemberTypeToPurs :: String -> String
+  unionMemberTypeToPurs ty = "\"" <> ty <> "\" :: " <> ty
 
   enumTypeDefinitionToPurs :: AST.EnumTypeDefinition -> Maybe String
   enumTypeDefinitionToPurs (AST.EnumTypeDefinition _) = Nothing
