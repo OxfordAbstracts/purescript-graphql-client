@@ -2,7 +2,7 @@ module GraphQL.Client.BaseClients.Apollo.ErrorPolicy where
 
 import Prelude
 
-import Foreign.Generic (class Encode, encode)
+import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 
 data ErrorPolicy
   = None
@@ -11,8 +11,8 @@ data ErrorPolicy
 
 derive instance eqErrorPolicy :: Eq ErrorPolicy
 
-instance encodeErrorPolicy :: Encode ErrorPolicy where 
-  encode = errorPolicyToForeign >>> encode
+instance encodeJsonErrorPolicy :: EncodeJson ErrorPolicy where 
+  encodeJson = errorPolicyToForeign >>> encodeJson
 
 errorPolicyToForeign :: ErrorPolicy -> String
 errorPolicyToForeign = case _ of
