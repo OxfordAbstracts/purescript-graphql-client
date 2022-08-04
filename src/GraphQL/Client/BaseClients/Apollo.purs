@@ -185,28 +185,6 @@ mutationOptsToJson opts = opts
   , update = unsafeCoerce opts.update
   }
 
--- { errorPolicy :: Json
---      , refetchQueries :: Array String
---      , optimisticResponse :: Json
---      }
--- queryForeign
---   :: forall q m client
---    . QueryClient client q m
---   => Boolean
---   -> Foreign
---   -> client
---   -> String
---   -> String
---   -> Json
---   -> Aff Json
--- queryForeign isMutation opts client name q_ vars = fromEffectFnAff $ fn opts (unsafeToForeign client) q vars
---   where
---   fn = if isMutation then mutationImpl else queryImpl
-
---   opStr = if isMutation then "mutation" else "query"
-
--- q = opStr <> " " <> name <> " " <> q_
-
 class IsApollo :: forall k. k -> Constraint
 class IsApollo cl
 
