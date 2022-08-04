@@ -36,7 +36,6 @@ import GraphQL.Client.BaseClients.Apollo.ErrorPolicy (ErrorPolicy(..))
 import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
 import GraphQL.Client.Types (class GqlQuery, class QueryClient, class SubscriptionClient, class WatchQueryClient, Client(..))
-import Unsafe.Coerce (unsafeCoerce)
 
 type ApolloClientOptions =
   { url :: URL
@@ -169,7 +168,7 @@ instance subClientSubscription ::
     ApolloSubClient
     QueryOpts
   where
-  clientSubscription opts = subscriptionImpl (unsafeCoerce opts)
+  clientSubscription opts = subscriptionImpl (queryOptsToJson opts)
   defSubOpts = const defQueryOpts
 
 queryOptsToJson :: QueryOpts -> QueryJsonOpts
@@ -287,8 +286,8 @@ type MutationJsonOpts =
   }
 
 foreign import queryImpl
-  ::forall client
-  .  QueryJsonOpts
+  :: forall client
+   . QueryJsonOpts
   -> client
   -> String
   -> Json
@@ -316,8 +315,7 @@ foreign import writeQueryImpl
   -> Effect Unit
 
 foreign import subscriptionImpl
-  :: forall client
-   . client
+  :: QueryJsonOpts
   -> ApolloSubClient
   -> String
   -> Json
