@@ -102,7 +102,7 @@ spec =
     { id :: Int
     , str :: (NotNull String)
     }
-    ==> Int
+    -> Int
   , number_prop :: (Maybe Number)
   , string_prop :: String
   , ints_prop :: (Array Int)
@@ -136,12 +136,12 @@ spec =
   { int_prop :: 
     { id :: Int
     }
-    ==> Int
+    -> Int
   , number_prop :: 
     { str :: (NotNull String)
     , obj :: (NotNull (Array (NotNull MyType)))
     }
-    ==> (Maybe Number)
+    -> (Maybe Number)
   , string_prop :: String
   , ints_prop :: (Array Int)
   }"""
@@ -170,7 +170,7 @@ newtype QueryRoot = QueryRoot
   { prop :: 
     { id :: MyInputType
     }
-    ==> Int
+    -> Int
   }
 derive instance newtypeQueryRoot :: Newtype QueryRoot _
 instance argToGqlQueryRoot :: (Newtype QueryRoot {| p},  RecordArg p a u) => ArgGql QueryRoot { | a }
@@ -199,7 +199,7 @@ enum my_enum {
   { prop :: 
     { id :: MyEnum
     }
-    ==> Int
+    -> Int
   }"""
         gql
           `shouldParseToAll`
