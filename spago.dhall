@@ -24,7 +24,6 @@ You can edit this file as you like.
   , "exceptions"
   , "foldable-traversable"
   , "foreign"
-  , "foreign-generic"
   , "foreign-object"
   , "functions"
   , "halogen-subscriptions"
