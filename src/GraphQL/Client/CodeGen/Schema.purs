@@ -301,7 +301,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
     indent
       $ "\n{ "
           <> intercalate "\n, " (map inputValueDefinitionsToPurs inputValueDefinitions)
-          <> "\n}\n==> "
+          <> "\n}\n-> "
 
   inputValueDefinitionsToPurs :: AST.InputValueDefinition -> String
   inputValueDefinitionsToPurs
