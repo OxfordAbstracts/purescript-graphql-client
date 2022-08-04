@@ -42141,7 +42141,7 @@ var template2 = function(v) {
   var enumImports = intercalate6("\n")(mapFlipped3(v.enums)(function(v1) {
     return "import " + (v.modulePrefix + ("Schema." + (v.name + (".Enum." + (v1 + (" (" + (v1 + ")")))))));
   }));
-  return "module " + (v.modulePrefix + ("Schema." + (v.name + (" where\n\nimport Data.Maybe (Maybe)\nimport Data.Newtype (class Newtype)\nimport GraphQL.Client.Args (class ArgGql, class RecordArg, NotNull)\nimport GraphQL.Client.Union (GqlUnion)\nimport " + (maybe("GraphQL.Client.ID (ID)")(getImport)(v.idImport) + ("\n" + (enumImports + ("\n\n" + (v.mainSchemaCode + "\n")))))))));
+  return "module " + (v.modulePrefix + ("Schema." + (v.name + (" where\n\nimport Data.Maybe (Maybe)\nimport Data.Newtype (class Newtype)\nimport GraphQL.Client.Args (NotNull)\nimport GraphQL.Client.Union (GqlUnion)\nimport " + (maybe("GraphQL.Client.ID (ID)")(getImport)(v.idImport) + ("\n" + (enumImports + ("\n\n" + (v.mainSchemaCode + "\n")))))))));
 };
 
 // output/GraphQL.Client.CodeGen.Schema/index.js
@@ -42385,7 +42385,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return notNullTypeToPurs(v1.value0);
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 429, column 16 - line 432, column 72): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 416, column 16 - line 419, column 72): " + [v1.constructor.name]);
     };
     var notNullTypeToPurs = function(v1) {
       if (v1 instanceof NonNullType_NamedType) {
@@ -42396,7 +42396,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return listTypeToPurs(v1.value0);
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 443, column 23 - line 445, column 51): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 430, column 23 - line 432, column 51): " + [v1.constructor.name]);
     };
     var listTypeToPursNullable = function(t) {
       return wrapMaybe(listTypeToPurs(t));
@@ -42450,7 +42450,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return wrapNotNull(argNotNullTypeToPurs(v1.value0));
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 413, column 19 - line 416, column 89): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 400, column 19 - line 403, column 89): " + [v1.constructor.name]);
     };
     var argNotNullTypeToPurs = function(v1) {
       if (v1 instanceof NonNullType_NamedType) {
@@ -42461,7 +42461,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return argListTypeToPurs(v1.value0);
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 419, column 26 - line 421, column 54): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 406, column 26 - line 408, column 54): " + [v1.constructor.name]);
     };
     var argListTypeToPurs = function(v1) {
       return "(Array " + (argTypeToPurs(v1) + ")");
@@ -42486,7 +42486,7 @@ var gqlToPursMainSchemaCode = function(v) {
             return v2.value0.moduleName + ("." + v2.value0.typeName);
           }
           ;
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 402, column 10 - line 407, column 53): " + [v2.constructor.name]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 389, column 10 - line 394, column 53): " + [v2.constructor.name]);
         }()));
       };
     };
@@ -42499,7 +42499,7 @@ var gqlToPursMainSchemaCode = function(v) {
       var tName = typeName_(v1.name);
       return docComment3(v1.description) + ("newtype " + (tName + (" = " + (tName + (maybe("{}")(function(v2) {
         return inputValueToFieldsDefinitionToPurs(tName)(v2);
-      })(v1.inputFieldsDefinition) + ("\nderive instance newtype" + (tName + (" :: Newtype " + (tName + (" _" + ("\ninstance argToGql" + (tName + (" :: (Newtype " + (tName + (" {| p},  RecordArg p a u) => ArgGql " + (tName + " { | a }"))))))))))))))));
+      })(v1.inputFieldsDefinition) + ("\nderive instance newtype" + (tName + (" :: Newtype " + (tName + " _")))))))));
     };
     var inputValueDefinitionsToPurs = function(v1) {
       return inlineComment(v1.description) + (safeFieldname(v1.name) + (" :: " + argTypeToPurs(v1.type)));
@@ -42527,7 +42527,7 @@ var gqlToPursMainSchemaCode = function(v) {
             return wrapMaybe(v2.value0.moduleName + ("." + v2.value0.typeName));
           }
           ;
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 292, column 10 - line 297, column 65): " + [v2.constructor.name]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 285, column 10 - line 290, column 65): " + [v2.constructor.name]);
         }())));
       };
     };
@@ -42540,7 +42540,7 @@ var gqlToPursMainSchemaCode = function(v) {
       var tName = typeName_(v1.name);
       return docComment3(v1.description) + function() {
         if (v.useNewtypesForRecords) {
-          return "newtype " + (typeName_(v1.name) + (" = " + (typeName_(v1.name) + (" " + (maybe("{}")(fieldsDefinitionToPurs(tName))(v1.fieldsDefinition) + ("\nderive instance newtype" + (tName + (" :: Newtype " + (tName + (" _" + ("\ninstance argToGql" + (tName + (" :: (Newtype " + (tName + (" {| p},  RecordArg p a u) => ArgGql " + (tName + " { | a }"))))))))))))))));
+          return "newtype " + (typeName_(v1.name) + (" = " + (typeName_(v1.name) + (" " + (maybe("{}")(fieldsDefinitionToPurs(tName))(v1.fieldsDefinition) + ("\nderive instance newtype" + (tName + (" :: Newtype " + (tName + " _")))))))));
         }
         ;
         return "type " + (typeName_(v1.name) + foldMap5(function(fd) {

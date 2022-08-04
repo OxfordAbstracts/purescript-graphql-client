@@ -6,6 +6,7 @@ import Data.Bifunctor (class Bifunctor)
 import Data.Date (Date)
 import Data.DateTime (DateTime)
 import Data.Maybe (Maybe)
+import Data.Newtype (class Newtype)
 import Data.Symbol (class IsSymbol)
 import Data.Time (Time)
 import GraphQL.Client.Variable (Var)
@@ -73,7 +74,8 @@ else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
 else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
 else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
 else instance argVar :: ArgGql param arg => ArgGql param (Var sym arg)
-
+else instance argToGqlRecord :: RecordArg p a u => ArgGql { | p } { | a }
+else instance argToGqlNewtypeRecord :: (Newtype n {| p},  RecordArg p a u) => ArgGql n { | a }
 class IsNotNull :: forall k1 k2. k1 -> k2 -> Constraint
 class IsNotNull param arg 
 
@@ -125,7 +127,6 @@ instance argToGqlTime :: ArgGql Time Time
 
 instance argToGqlDateTime :: ArgGql DateTime DateTime
 
-instance argToGqlRecord :: RecordArg p a u => ArgGql { | p } { | a }
 
 class HMapWithIndex (ArgPropToGql p) { | a } u <= RecordArg p a u
 

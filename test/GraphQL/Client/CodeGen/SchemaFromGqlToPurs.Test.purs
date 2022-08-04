@@ -149,7 +149,6 @@ spec =
               , subscription: "\n  { prop :: Int\n  }"
               }
               <> "\n\nnewtype MyType = MyType \n  { prop :: (Maybe Int)\n  }\nderive instance newtypeMyType :: Newtype MyType _"
-              <> "\ninstance argToGqlMyType :: (Newtype MyType {| p},  RecordArg p a u) => ArgGql MyType { | a }"
         gql `shouldParseTo` result
       it "converts input types" do
         let
@@ -173,14 +172,12 @@ newtype QueryRoot = QueryRoot
     -> Int
   }
 derive instance newtypeQueryRoot :: Newtype QueryRoot _
-instance argToGqlQueryRoot :: (Newtype QueryRoot {| p},  RecordArg p a u) => ArgGql QueryRoot { | a }
 
 newtype MyInputType = MyInputType
   { id :: Int
   , username :: (NotNull String)
   }
-derive instance newtypeMyInputType :: Newtype MyInputType _
-instance argToGqlMyInputType :: (Newtype MyInputType {| p},  RecordArg p a u) => ArgGql MyInputType { | a }"""
+derive instance newtypeMyInputType :: Newtype MyInputType _"""
         gql `shouldParseTo` result
       it "converts enum types" do
         let
@@ -241,8 +238,7 @@ newtype Query = Query
   , my_type_b :: (Maybe MyModule.MyTypeB)
   , my_type_c :: (Array MyModule.MyTypeC)
   }
-derive instance newtypeQuery :: Newtype Query _
-instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }"""
+derive instance newtypeQuery :: Newtype Query _"""
         gql
           ` ( shouldParseToOpts
               defaultOpts
@@ -291,7 +287,6 @@ newtype Query = Query
   , my_type_c :: (Array AlsoUnkown)
   }
 derive instance newtypeQuery :: Newtype Query _
-instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
 
 type SomethingUnknown = Data.Argonaut.Core.Json -- Unknown scalar type. Add SomethingUnknown to externalTypes in codegen options to override this behaviour
 
@@ -323,13 +318,11 @@ newtype Query = Query
   { int :: Int
   }
 derive instance newtypeQuery :: Newtype Query _
-instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
 
 newtype X = X 
   { int :: Int
   }
-derive instance newtypeX :: Newtype X _
-instance argToGqlX :: (Newtype X {| p},  RecordArg p a u) => ArgGql X { | a }"""
+derive instance newtypeX :: Newtype X _"""
         gql `shouldParseTo` result
       it "handles unsafe fieldnames (some not to gql spec)" do
         let
@@ -389,7 +382,6 @@ type Query = QueryRoot
 newtype QueryRoot = QueryRoot """
     <> queryRoot
     <> "\nderive instance newtypeQueryRoot :: Newtype QueryRoot _"
-    <> "\ninstance argToGqlQueryRoot :: (Newtype QueryRoot {| p},  RecordArg p a u) => ArgGql QueryRoot { | a }"
 
 schemaGql :: { query :: String, mutation :: String, subscription :: String } -> String
 schemaGql { query, mutation, subscription } =
@@ -423,18 +415,15 @@ newtype QueryRoot = QueryRoot """
     <> query
     <> """
 derive instance newtypeQueryRoot :: Newtype QueryRoot _
-instance argToGqlQueryRoot :: (Newtype QueryRoot {| p},  RecordArg p a u) => ArgGql QueryRoot { | a }
 
 newtype MutationRoot = MutationRoot """
     <> mutation
     <> """
 derive instance newtypeMutationRoot :: Newtype MutationRoot _
-instance argToGqlMutationRoot :: (Newtype MutationRoot {| p},  RecordArg p a u) => ArgGql MutationRoot { | a }
 
 newtype SubscriptionRoot = SubscriptionRoot """
     <> subscription
     <> "\nderive instance newtypeSubscriptionRoot :: Newtype SubscriptionRoot _"
-    <> "\ninstance argToGqlSubscriptionRoot :: (Newtype SubscriptionRoot {| p},  RecordArg p a u) => ArgGql SubscriptionRoot { | a }"
 
 defaultOpts :: InputOptions
 defaultOpts =
