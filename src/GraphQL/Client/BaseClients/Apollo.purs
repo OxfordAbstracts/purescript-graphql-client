@@ -29,7 +29,7 @@ import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Aff (error, throwError)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
-import Foreign (Foreign, unsafeToForeign)
+import Foreign (unsafeToForeign)
 import Foreign.Object (Object)
 import Foreign.Object as Object
 import GraphQL.Client.BaseClients.Apollo.ErrorPolicy (ErrorPolicy(..))
@@ -182,7 +182,7 @@ mutationOptsToJson :: MutationOpts -> MutationJsonOpts
 mutationOptsToJson opts = opts
   { errorPolicy = encodeJson opts.errorPolicy
   , optimisticResponse = encodeJson opts.optimisticResponse
-  , update = unsafeCoerce opts.update
+  , update = toNullable opts.update
   }
 
 class IsApollo :: forall k. k -> Constraint
@@ -283,7 +283,7 @@ type MutationJsonOpts =
   { errorPolicy :: Json
   , refetchQueries :: Array String
   , optimisticResponse :: Json
-  , update :: Foreign
+  , update :: Nullable (Effect Unit)
   }
 
 foreign import queryImpl
