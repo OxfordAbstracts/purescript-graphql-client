@@ -4,7 +4,7 @@ import { gql, split, HttpLink, createHttpLink, InMemoryCache, ApolloClient } fro
 import { getMainDefinition } from '@apollo/client/utilities/index.js';
 import { setContext } from '@apollo/client/link/context/index.js';
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions/index.js";
-import WebSocket from 'ws';
+import WebSocket from 'isomorphic-ws';
 
 const createClientWithoutWebsockets = function (opts) {
 
