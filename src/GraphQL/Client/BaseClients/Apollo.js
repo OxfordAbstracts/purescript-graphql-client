@@ -12,7 +12,7 @@ const createClientWithoutWebsockets = function (opts) {
         {},
         headers,
         opts.headers,
-        { authorization: opts.authToken ? `Bearer ${opts.authToken}` : '' }
+        opts.authToken ? { authorization:`Bearer ${opts.authToken}` } : {}
       )
     }
   })
