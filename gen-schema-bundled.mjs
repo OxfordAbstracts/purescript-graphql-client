@@ -2611,7 +2611,7 @@ var Aff = function() {
       }
     };
   }();
-  function Supervisor(util2) {
+  function Supervisor(util) {
     var fibers = {};
     var fiberId = 0;
     var count = 0;
@@ -2645,9 +2645,9 @@ var Aff = function() {
               return function() {
                 delete kills[fid];
                 killCount--;
-                if (util2.isLeft(result) && util2.fromLeft(result)) {
+                if (util.isLeft(result) && util.fromLeft(result)) {
                   setTimeout(function() {
-                    throw util2.fromLeft(result);
+                    throw util.fromLeft(result);
                   }, 0);
                 }
                 if (killCount === 0) {
@@ -2685,7 +2685,7 @@ var Aff = function() {
   var PENDING = 4;
   var RETURN = 5;
   var COMPLETED = 6;
-  function Fiber(util2, supervisor, aff) {
+  function Fiber(util, supervisor, aff) {
     var runTick = 0;
     var status = SUSPENDED;
     var step2 = aff;
@@ -2717,12 +2717,12 @@ var Aff = function() {
               }
             } catch (e) {
               status = RETURN;
-              fail3 = util2.left(e);
+              fail3 = util.left(e);
               step2 = null;
             }
             break;
           case STEP_RESULT:
-            if (util2.isLeft(step2)) {
+            if (util.isLeft(step2)) {
               status = RETURN;
               fail3 = step2;
               step2 = null;
@@ -2730,7 +2730,7 @@ var Aff = function() {
               status = RETURN;
             } else {
               status = STEP_BIND;
-              step2 = util2.fromRight(step2);
+              step2 = util.fromRight(step2);
             }
             break;
           case CONTINUE:
@@ -2746,7 +2746,7 @@ var Aff = function() {
               case PURE:
                 if (bhead === null) {
                   status = RETURN;
-                  step2 = util2.right(step2._1);
+                  step2 = util.right(step2._1);
                 } else {
                   status = STEP_BIND;
                   step2 = step2._1;
@@ -2754,11 +2754,11 @@ var Aff = function() {
                 break;
               case SYNC:
                 status = STEP_RESULT;
-                step2 = runSync(util2.left, util2.right, step2._1);
+                step2 = runSync(util.left, util.right, step2._1);
                 break;
               case ASYNC:
                 status = PENDING;
-                step2 = runAsync(util2.left, step2._1, function(result2) {
+                step2 = runAsync(util.left, step2._1, function(result2) {
                   return function() {
                     if (runTick !== localRunTick) {
                       return;
@@ -2777,7 +2777,7 @@ var Aff = function() {
                 return;
               case THROW:
                 status = RETURN;
-                fail3 = util2.left(step2._1);
+                fail3 = util.left(step2._1);
                 step2 = null;
                 break;
               case CATCH:
@@ -2805,18 +2805,18 @@ var Aff = function() {
                 break;
               case FORK:
                 status = STEP_RESULT;
-                tmp = Fiber(util2, supervisor, step2._2);
+                tmp = Fiber(util, supervisor, step2._2);
                 if (supervisor) {
                   supervisor.register(tmp);
                 }
                 if (step2._1) {
                   tmp.run();
                 }
-                step2 = util2.right(tmp);
+                step2 = util.right(tmp);
                 break;
               case SEQ:
                 status = CONTINUE;
-                step2 = sequential2(util2, supervisor, step2._1);
+                step2 = sequential2(util, supervisor, step2._1);
                 break;
             }
             break;
@@ -2836,7 +2836,7 @@ var Aff = function() {
                     status = RETURN;
                   } else if (fail3) {
                     status = CONTINUE;
-                    step2 = attempt._2(util2.fromLeft(fail3));
+                    step2 = attempt._2(util.fromLeft(fail3));
                     fail3 = null;
                   }
                   break;
@@ -2847,13 +2847,13 @@ var Aff = function() {
                     bhead = attempt._1;
                     btail = attempt._2;
                     status = STEP_BIND;
-                    step2 = util2.fromRight(step2);
+                    step2 = util.fromRight(step2);
                   }
                   break;
                 case BRACKET:
                   bracketCount--;
                   if (fail3 === null) {
-                    result = util2.fromRight(step2);
+                    result = util.fromRight(step2);
                     attempts = new Aff2(CONS, new Aff2(RELEASE, attempt._2, result), attempts, tmp);
                     if (interrupt === tmp || bracketCount > 0) {
                       status = CONTINUE;
@@ -2865,11 +2865,11 @@ var Aff = function() {
                   attempts = new Aff2(CONS, new Aff2(FINALIZED, step2, fail3), attempts, interrupt);
                   status = CONTINUE;
                   if (interrupt && interrupt !== tmp && bracketCount === 0) {
-                    step2 = attempt._1.killed(util2.fromLeft(interrupt))(attempt._2);
+                    step2 = attempt._1.killed(util.fromLeft(interrupt))(attempt._2);
                   } else if (fail3) {
-                    step2 = attempt._1.failed(util2.fromLeft(fail3))(attempt._2);
+                    step2 = attempt._1.failed(util.fromLeft(fail3))(attempt._2);
                   } else {
-                    step2 = attempt._1.completed(util2.fromRight(step2))(attempt._2);
+                    step2 = attempt._1.completed(util.fromRight(step2))(attempt._2);
                   }
                   fail3 = null;
                   bracketCount++;
@@ -2899,12 +2899,12 @@ var Aff = function() {
             joins = null;
             if (interrupt && fail3) {
               setTimeout(function() {
-                throw util2.fromLeft(fail3);
+                throw util.fromLeft(fail3);
               }, 0);
-            } else if (util2.isLeft(step2) && rethrow) {
+            } else if (util.isLeft(step2) && rethrow) {
               setTimeout(function() {
                 if (rethrow) {
-                  throw util2.fromLeft(step2);
+                  throw util.fromLeft(step2);
                 }
               }, 0);
             }
@@ -2938,26 +2938,26 @@ var Aff = function() {
     function kill(error2, cb) {
       return function() {
         if (status === COMPLETED) {
-          cb(util2.right(void 0))();
+          cb(util.right(void 0))();
           return function() {
           };
         }
         var canceler = onComplete({
           rethrow: false,
           handler: function() {
-            return cb(util2.right(void 0));
+            return cb(util.right(void 0));
           }
         })();
         switch (status) {
           case SUSPENDED:
-            interrupt = util2.left(error2);
+            interrupt = util.left(error2);
             status = COMPLETED;
             step2 = interrupt;
             run3(runTick);
             break;
           case PENDING:
             if (interrupt === null) {
-              interrupt = util2.left(error2);
+              interrupt = util.left(error2);
             }
             if (bracketCount === 0) {
               if (status === PENDING) {
@@ -2971,7 +2971,7 @@ var Aff = function() {
             break;
           default:
             if (interrupt === null) {
-              interrupt = util2.left(error2);
+              interrupt = util.left(error2);
             }
             if (bracketCount === 0) {
               status = RETURN;
@@ -3014,7 +3014,7 @@ var Aff = function() {
       }
     };
   }
-  function runPar(util2, supervisor, par, cb) {
+  function runPar(util, supervisor, par, cb) {
     var fiberId = 0;
     var fibers = {};
     var killId = 0;
@@ -3070,7 +3070,7 @@ var Aff = function() {
           }
         }
       if (count === 0) {
-        cb2(util2.right(void 0))();
+        cb2(util.right(void 0))();
       } else {
         kid = 0;
         tmp = count;
@@ -3082,7 +3082,7 @@ var Aff = function() {
     }
     function join2(result, head4, tail2) {
       var fail3, step2, lhs, rhs, tmp, kid;
-      if (util2.isLeft(result)) {
+      if (util.isLeft(result)) {
         fail3 = result;
         step2 = null;
       } else {
@@ -3108,7 +3108,7 @@ var Aff = function() {
           switch (head4.tag) {
             case MAP:
               if (fail3 === null) {
-                head4._3 = util2.right(head4._1(util2.fromRight(step2)));
+                head4._3 = util.right(head4._1(util.fromRight(step2)));
                 step2 = head4._3;
               } else {
                 head4._3 = fail3;
@@ -3140,17 +3140,17 @@ var Aff = function() {
               } else if (lhs === EMPTY || rhs === EMPTY) {
                 return;
               } else {
-                step2 = util2.right(util2.fromRight(lhs)(util2.fromRight(rhs)));
+                step2 = util.right(util.fromRight(lhs)(util.fromRight(rhs)));
                 head4._3 = step2;
               }
               break;
             case ALT:
               lhs = head4._1._3;
               rhs = head4._2._3;
-              if (lhs === EMPTY && util2.isLeft(rhs) || rhs === EMPTY && util2.isLeft(lhs)) {
+              if (lhs === EMPTY && util.isLeft(rhs) || rhs === EMPTY && util.isLeft(lhs)) {
                 return;
               }
-              if (lhs !== EMPTY && util2.isLeft(lhs) && rhs !== EMPTY && util2.isLeft(rhs)) {
+              if (lhs !== EMPTY && util.isLeft(lhs) && rhs !== EMPTY && util.isLeft(rhs)) {
                 fail3 = step2 === lhs ? rhs : lhs;
                 step2 = null;
                 head4._3 = fail3;
@@ -3233,7 +3233,7 @@ var Aff = function() {
                   status = RETURN;
                   tmp = step2;
                   step2 = new Aff2(FORKED, fid, new Aff2(CONS, head4, tail2), EMPTY);
-                  tmp = Fiber(util2, supervisor, tmp);
+                  tmp = Fiber(util, supervisor, tmp);
                   tmp.onComplete({
                     rethrow: false,
                     handler: resolve(step2)
@@ -3271,7 +3271,7 @@ var Aff = function() {
       }
     }
     function cancel(error2, cb2) {
-      interrupt = util2.left(error2);
+      interrupt = util.left(error2);
       var innerKills;
       for (var kid in kills) {
         if (kills.hasOwnProperty(kid)) {
@@ -3307,10 +3307,10 @@ var Aff = function() {
       });
     };
   }
-  function sequential2(util2, supervisor, par) {
+  function sequential2(util, supervisor, par) {
     return new Aff2(ASYNC, function(cb) {
       return function() {
-        return runPar(util2, supervisor, par, cb);
+        return runPar(util, supervisor, par, cb);
       };
     });
   }
@@ -3368,9 +3368,9 @@ function _parAffApply(aff1) {
   };
 }
 var makeAff = Aff.Async;
-function _makeFiber(util2, aff) {
+function _makeFiber(util, aff) {
   return function() {
-    return Aff.Fiber(util2, null, aff);
+    return Aff.Fiber(util, null, aff);
   };
 }
 var _delay = function() {
@@ -42437,50 +42437,8 @@ var traversed = function(dictTraversable) {
   };
 };
 
-// output/Debug/foreign.js
-var req = typeof module === "undefined" ? void 0 : module.require;
-var util = function() {
-  try {
-    return req === void 0 ? void 0 : req("util");
-  } catch (e) {
-    return void 0;
-  }
-}();
-function _spy(tag, x) {
-  if (util !== void 0) {
-    console.log(tag + ":", util.inspect(x, { depth: null, colors: true }));
-  } else {
-    console.log(tag + ":", x);
-  }
-  return x;
-}
-var now = function() {
-  var perf;
-  if (typeof performance !== "undefined") {
-    perf = performance;
-  } else if (req) {
-    try {
-      perf = req("perf_hooks").performance;
-    } catch (e) {
-    }
-  }
-  return function() {
-    return (perf || Date).now();
-  };
-}();
-
-// output/Debug/index.js
-var spy = function() {
-  return function(tag) {
-    return function(a) {
-      return _spy(tag, a);
-    };
-  };
-};
-
 // output/GraphQL.Client.CodeGen.Transform.NullableOverrides/index.js
 var traversed2 = /* @__PURE__ */ traversed(traversableList);
-var spy2 = /* @__PURE__ */ spy();
 var lookup3 = /* @__PURE__ */ lookup(ordString);
 var _Newtype2 = /* @__PURE__ */ _Newtype()()(profunctorFn);
 var traversed1 = /* @__PURE__ */ traversed(traversableMaybe)(wanderFunction);
@@ -42509,26 +42467,26 @@ var setNullable = function(v) {
 };
 var objectTypeDefinitionLens = function(dictChoice) {
   return function(dictWander) {
-    var $101 = uPrism(_Document)(dictChoice);
-    var $102 = traversed2(dictWander);
-    var $103 = uPrism(_Definition_TypeSystemDefinition)(dictChoice);
-    var $104 = uPrism(_TypeSystemDefinition_TypeDefinition)(dictChoice);
-    var $105 = uPrism(_TypeDefinition_ObjectTypeDefinition)(dictChoice);
-    return function($106) {
-      return $101($102($103($104($105($106)))));
+    var $96 = uPrism(_Document)(dictChoice);
+    var $97 = traversed2(dictWander);
+    var $98 = uPrism(_Definition_TypeSystemDefinition)(dictChoice);
+    var $99 = uPrism(_TypeSystemDefinition_TypeDefinition)(dictChoice);
+    var $100 = uPrism(_TypeDefinition_ObjectTypeDefinition)(dictChoice);
+    return function($101) {
+      return $96($97($98($99($100($101)))));
     };
   };
 };
 var objectTypeDefinitionLens1 = /* @__PURE__ */ objectTypeDefinitionLens(choiceFn)(wanderFunction);
 var inputObjectTypeDefinitionLens = function(dictChoice) {
   return function(dictWander) {
-    var $107 = uPrism(_Document)(dictChoice);
-    var $108 = traversed2(dictWander);
-    var $109 = uPrism(_Definition_TypeSystemDefinition)(dictChoice);
-    var $110 = uPrism(_TypeSystemDefinition_TypeDefinition)(dictChoice);
-    var $111 = uPrism(_TypeDefinition_InputObjectTypeDefinition)(dictChoice);
-    return function($112) {
-      return $107($108($109($110($111($112)))));
+    var $102 = uPrism(_Document)(dictChoice);
+    var $103 = traversed2(dictWander);
+    var $104 = uPrism(_Definition_TypeSystemDefinition)(dictChoice);
+    var $105 = uPrism(_TypeSystemDefinition_TypeDefinition)(dictChoice);
+    var $106 = uPrism(_TypeDefinition_InputObjectTypeDefinition)(dictChoice);
+    return function($107) {
+      return $102($103($104($105($106($107)))));
     };
   };
 };
@@ -42536,115 +42494,112 @@ var inputObjectTypeDefinitionLens1 = /* @__PURE__ */ inputObjectTypeDefinitionLe
 var inputFieldsLens = function(dictTraversable) {
   var traversed3 = traversed(dictTraversable);
   return function(dictWander) {
-    var $113 = traversed3(dictWander);
-    var $114 = uPrism(_InputFieldsDefinition)(dictWander.Choice1());
-    var $115 = traversed2(dictWander);
-    return function($116) {
-      return $113($114($115($116)));
+    var $108 = traversed3(dictWander);
+    var $109 = uPrism(_InputFieldsDefinition)(dictWander.Choice1());
+    var $110 = traversed2(dictWander);
+    return function($111) {
+      return $108($109($110($111)));
     };
   };
 };
 var inputFieldsLens1 = /* @__PURE__ */ inputFieldsLens(traversableMaybe)(wanderFunction);
 var applyNullableOverrides = function(overrides) {
-  var v = spy2("overrides")(overrides);
-  var applyToInputFieldsDefinition = function(v1) {
-    return function(v2) {
-      var v3 = function(v4) {
-        return v2;
+  var applyToInputFieldsDefinition = function(v) {
+    return function(v1) {
+      var v2 = function(v3) {
+        return v1;
       };
-      var $65 = lookup3(v2.name)(v1);
-      if ($65 instanceof Just) {
-        var $66 = {};
-        for (var $67 in v2) {
-          if ({}.hasOwnProperty.call(v2, $67)) {
-            $66[$67] = v2[$67];
+      var $60 = lookup3(v1.name)(v);
+      if ($60 instanceof Just) {
+        var $61 = {};
+        for (var $62 in v1) {
+          if ({}.hasOwnProperty.call(v1, $62)) {
+            $61[$62] = v1[$62];
           }
           ;
         }
         ;
-        $66.type = setNullable($65.value0)(v2.type);
-        return $66;
+        $61.type = setNullable($60.value0)(v1.type);
+        return $61;
       }
       ;
-      return v3(true);
+      return v2(true);
     };
   };
-  var applyToInputDefinition = function(v1) {
-    var v2 = function(v3) {
-      return v1;
+  var applyToInputDefinition = function(v) {
+    var v1 = function(v2) {
+      return v;
     };
-    var $74 = lookup3(v1.name)(overrides);
-    if ($74 instanceof Just) {
-      var $75 = {};
-      for (var $76 in v1) {
-        if ({}.hasOwnProperty.call(v1, $76)) {
-          $75[$76] = v1[$76];
+    var $69 = lookup3(v.name)(overrides);
+    if ($69 instanceof Just) {
+      var $70 = {};
+      for (var $71 in v) {
+        if ({}.hasOwnProperty.call(v, $71)) {
+          $70[$71] = v[$71];
         }
         ;
       }
       ;
-      $75.inputFieldsDefinition = over2(function($117) {
-        return inputFieldsLens1(_Newtype2($117));
-      })(applyToInputFieldsDefinition($74.value0))(v1.inputFieldsDefinition);
-      return $75;
+      $70.inputFieldsDefinition = over2(function($112) {
+        return inputFieldsLens1(_Newtype2($112));
+      })(applyToInputFieldsDefinition($69.value0))(v.inputFieldsDefinition);
+      return $70;
     }
     ;
-    return v2(true);
+    return v1(true);
   };
-  var applyToFieldsDefinition = function(v1) {
-    return function(v2) {
-      var v3 = function(v4) {
-        return v2;
+  var applyToFieldsDefinition = function(v) {
+    return function(v1) {
+      var v2 = function(v3) {
+        return v1;
       };
-      var $85 = lookup3(v2.name)(v1);
-      if ($85 instanceof Just) {
-        var $86 = {};
-        for (var $87 in v2) {
-          if ({}.hasOwnProperty.call(v2, $87)) {
-            $86[$87] = v2[$87];
+      var $80 = lookup3(v1.name)(v);
+      if ($80 instanceof Just) {
+        var $81 = {};
+        for (var $82 in v1) {
+          if ({}.hasOwnProperty.call(v1, $82)) {
+            $81[$82] = v1[$82];
           }
           ;
         }
         ;
-        $86.type = setNullable(spy2("field nullable " + v2.name)($85.value0))(v2.type);
-        return $86;
+        $81.type = setNullable($80.value0)(v1.type);
+        return $81;
       }
       ;
-      return v3(true);
+      return v2(true);
     };
   };
-  var applyToTypeDefinition = function(v1) {
-    var v2 = function(v32) {
-      return v1;
+  var applyToTypeDefinition = function(v) {
+    var v1 = function(v2) {
+      return v;
     };
-    var $94 = lookup3(v1.name)(overrides);
-    if ($94 instanceof Just) {
-      var v3 = spy2("object name")(v1.name);
-      var v4 = spy2("objOverrides")($94.value0);
-      var $95 = {};
-      for (var $96 in v1) {
-        if ({}.hasOwnProperty.call(v1, $96)) {
-          $95[$96] = v1[$96];
+    var $89 = lookup3(v.name)(overrides);
+    if ($89 instanceof Just) {
+      var $90 = {};
+      for (var $91 in v) {
+        if ({}.hasOwnProperty.call(v, $91)) {
+          $90[$91] = v[$91];
         }
         ;
       }
       ;
-      $95.fieldsDefinition = over2(function($118) {
-        return traversed1(_Newtype2(traversed22(_Newtype2($118))));
-      })(applyToFieldsDefinition($94.value0))(v1.fieldsDefinition);
-      return $95;
+      $90.fieldsDefinition = over2(function($113) {
+        return traversed1(_Newtype2(traversed22(_Newtype2($113))));
+      })(applyToFieldsDefinition($89.value0))(v.fieldsDefinition);
+      return $90;
     }
     ;
-    return v2(true);
+    return v1(true);
   };
-  var $119 = over2(function($122) {
-    return objectTypeDefinitionLens1(_Newtype2($122));
+  var $114 = over2(function($117) {
+    return objectTypeDefinitionLens1(_Newtype2($117));
   })(applyToTypeDefinition);
-  var $120 = over2(function($123) {
-    return inputObjectTypeDefinitionLens1(_Newtype2($123));
+  var $115 = over2(function($118) {
+    return inputObjectTypeDefinitionLens1(_Newtype2($118));
   })(applyToInputDefinition);
-  return function($121) {
-    return $119($120($121));
+  return function($116) {
+    return $114($115($116));
   };
 };
 
