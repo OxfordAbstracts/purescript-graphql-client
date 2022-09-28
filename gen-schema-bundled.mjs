@@ -42155,6 +42155,7 @@ var template = function(modulePrefix) {
 // output/GraphQL.Client.CodeGen.Template.Schema/index.js
 var intercalate6 = /* @__PURE__ */ intercalate2(foldableArray)(monoidString);
 var mapFlipped3 = /* @__PURE__ */ mapFlipped(functorArray);
+var guard4 = /* @__PURE__ */ guard(monoidString);
 var template2 = function(v) {
   var getImport = function(v1) {
     return v1.moduleName + (" (" + (v1.typeName + ")"));
@@ -42162,13 +42163,13 @@ var template2 = function(v) {
   var enumImports = intercalate6("\n")(mapFlipped3(v.enums)(function(v1) {
     return "import " + (v.modulePrefix + ("Schema." + (v.name + (".Enum." + (v1 + (" (" + (v1 + ")")))))));
   }));
-  return "module " + (v.modulePrefix + ("Schema." + (v.name + (" where\n\nimport Data.Maybe (Maybe)\nimport Data.Newtype (class Newtype)\nimport GraphQL.Client.Args (class ArgGql, class RecordArg, NotNull)\nimport GraphQL.Client.Union (GqlUnion)\nimport " + (maybe("GraphQL.Client.ID (ID)")(getImport)(v.idImport) + ("\n" + (enumImports + ("\n\n" + (v.mainSchemaCode + "\n")))))))));
+  return "module " + (v.modulePrefix + ("Schema." + (v.name + (" where\n\nimport Data.Maybe (Maybe)\nimport Data.Newtype (class Newtype)\nimport GraphQL.Client.Args (class ArgGql, class RecordArg, NotNull)\n" + (guard4(contains("GqlUnion")(v.mainSchemaCode))("import GraphQL.Client.Union (GqlUnion)") + ("\nimport " + (maybe("GraphQL.Client.ID (ID)")(getImport)(v.idImport) + ("\n" + (enumImports + ("\n\n" + (v.mainSchemaCode + "\n")))))))))));
 };
 
 // output/GraphQL.Client.CodeGen.Schema/index.js
 var lookup3 = /* @__PURE__ */ lookup(ordString);
 var map15 = /* @__PURE__ */ map(functorArray);
-var guard4 = /* @__PURE__ */ guard(monoidString);
+var guard5 = /* @__PURE__ */ guard(monoidString);
 var show5 = /* @__PURE__ */ show(showString);
 var foldMap5 = /* @__PURE__ */ foldMap(foldableMaybe)(monoidString);
 var docComment3 = /* @__PURE__ */ docComment(foldableMaybe);
@@ -42324,7 +42325,7 @@ var typeName = function(gqlScalarsToPursTypes) {
 };
 var toImport = function(mainCode) {
   return map15(function(t) {
-    return guard4(contains(t.moduleName)(mainCode))("\nimport " + (t.moduleName + (" as " + t.moduleName)));
+    return guard5(contains(t.moduleName)(mainCode))("\nimport " + (t.moduleName + (" as " + t.moduleName)));
   });
 };
 var safeFieldname = function(s) {
@@ -42472,7 +42473,7 @@ var gqlToPursMainSchemaCode = function(v) {
         moduleName: "Data.Argonaut.Core",
         typeName: "Json -- Unknown scalar type. Add " + (tName + " to externalTypes in codegen options to override this behaviour")
       })(lookup3(tName)(v.externalTypes));
-      return guard4(notElem3(tName)(builtInTypes))(docComment3(v1.description) + ("type " + (tName + (" = " + (typeAndModule.moduleName + ("." + typeAndModule.typeName))))));
+      return guard5(notElem3(tName)(builtInTypes))(docComment3(v1.description) + ("type " + (tName + (" = " + (typeAndModule.moduleName + ("." + typeAndModule.typeName))))));
     };
     var argTypeToPurs = function(objectName) {
       return function(v1) {
@@ -42674,7 +42675,7 @@ var gqlToPursMainSchemaCode = function(v) {
     }, {
       moduleName: "GraphQL.Hasura.Array"
     }])))));
-    return imports + (guard4(imports !== "")("\n") + ("\n" + mainCode));
+    return imports + (guard5(imports !== "")("\n") + ("\n" + mainCode));
   };
 };
 var gqlToPursEnums = function(gqlScalarsToPursTypes) {

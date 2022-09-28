@@ -4,6 +4,8 @@ import Prelude
 
 import Data.Foldable (intercalate)
 import Data.Maybe (Maybe, maybe)
+import Data.Monoid (guard)
+import Data.String (Pattern(..), contains)
 
 template ::
   { name :: String
@@ -19,7 +21,7 @@ template { name, enums, idImport, mainSchemaCode, modulePrefix } =
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import GraphQL.Client.Args (class ArgGql, class RecordArg, NotNull)
-import GraphQL.Client.Union (GqlUnion)
+""" <> guard (contains (Pattern "GqlUnion") mainSchemaCode) "import GraphQL.Client.Union (GqlUnion)" <> """
 import """ <> maybe defaultIdImport getImport idImport <> """
 """ <> enumImports <> """
 
