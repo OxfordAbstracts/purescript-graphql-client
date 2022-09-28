@@ -366,10 +366,10 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, nullableOverrides, externalType
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
           Nothing -> argTypeToPurs objectName tipe
           Just out -> case tipe of
-            AST.Type_NonNullType (AST.NonNullType_NamedType namedType) | getNullable objectName namedType == Just false -> out.moduleName <> "." <> out.typeName
+            AST.Type_NonNullType (AST.NonNullType_NamedType namedType) | getNullable objectName namedType == Just true -> out.moduleName <> "." <> out.typeName
             AST.Type_NonNullType _ -> wrapNotNull $ out.moduleName <> "." <> out.typeName
             AST.Type_ListType _ -> wrapArray $ out.moduleName <> "." <> out.typeName
-            AST.Type_NamedType namedType  | getNullable objectName namedType == Just true -> wrapNotNull $ out.moduleName <> "." <> out.typeName
+            AST.Type_NamedType namedType  | getNullable objectName namedType == Just false -> wrapNotNull $ out.moduleName <> "." <> out.typeName
             _ -> out.moduleName <> "." <> out.typeName
 
   directiveDefinitionToPurs :: AST.DirectiveDefinition -> Maybe String
@@ -377,11 +377,11 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, nullableOverrides, externalType
 
   argTypeToPurs :: String -> AST.Type -> String
   argTypeToPurs objectName = case _ of
-    (AST.Type_NamedType namedType) | getNullable objectName namedType == Just true ->
+    (AST.Type_NamedType namedType) | getNullable objectName namedType == Just false ->
        wrapNotNull $ namedTypeToPurs_ namedType
     (AST.Type_NamedType namedType) -> namedTypeToPurs_ namedType
     (AST.Type_ListType listType) -> argListTypeToPurs objectName listType
-    (AST.Type_NonNullType notNullType@(AST.NonNullType_NamedType namedType)) | getNullable objectName namedType == Just false -> 
+    (AST.Type_NonNullType notNullType@(AST.NonNullType_NamedType namedType)) | getNullable objectName namedType == Just true -> 
        argNotNullTypeToPurs objectName notNullType
     (AST.Type_NonNullType notNullType) -> wrapNotNull $ argNotNullTypeToPurs objectName notNullType
 
@@ -393,7 +393,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, nullableOverrides, externalType
   argListTypeToPurs :: String -> AST.ListType -> String
   argListTypeToPurs objectName (AST.ListType t) = "(Array " <> argTypeToPurs objectName t <> ")"
 
-  wrapNotNull s = if startsWith "(NotNull " s then s else "(NotNull " <> s <> ")"
+  wrapNotNull s = if startsWith "(NotNull " (String.trim s) then s else "(NotNull " <> s <> ")"
 
   startsWith pre str = pre == take (String.length pre) str
 

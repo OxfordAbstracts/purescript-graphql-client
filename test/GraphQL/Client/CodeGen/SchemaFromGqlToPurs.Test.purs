@@ -248,6 +248,7 @@ instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Quer
               { dir: ""
               , cache: Nothing
               , gqlScalarsToPursTypes: Map.empty
+              , nullableOverrides: Map.empty
               , useNewtypesForRecords: true
               , isHasura: false
               , modulePath: []
@@ -358,6 +359,7 @@ instance argToGqlX :: (Newtype X {| p},  RecordArg p a u) => ArgGql X { | a }"""
       { dir: ""
       , cache: Nothing
       , gqlScalarsToPursTypes: Map.empty
+      , nullableOverrides: Map.empty
       , useNewtypesForRecords: true
       , isHasura: false
       , modulePath: []
@@ -373,6 +375,7 @@ instance argToGqlX :: (Newtype X {| p},  RecordArg p a u) => ArgGql X { | a }"""
       { dir: ""
       , cache: Nothing
       , gqlScalarsToPursTypes: Map.empty
+      , nullableOverrides: Map.empty
       , useNewtypesForRecords: true
       , isHasura: false
       , modulePath: []
