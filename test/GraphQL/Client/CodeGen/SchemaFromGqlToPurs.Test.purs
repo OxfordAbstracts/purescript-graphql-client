@@ -441,6 +441,7 @@ defaultOpts =
   { dir: ""
   , cache: Nothing
   , gqlScalarsToPursTypes: Map.empty
+  , nullableOverrides: Map.empty
   , useNewtypesForRecords: true
   , isHasura: false
   , modulePath: []
