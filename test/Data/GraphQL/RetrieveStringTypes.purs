@@ -9,14 +9,14 @@ import Data.Lens as L
 import Data.Lens.Record as LR
 import Data.List (List)
 import Data.Set as Set
-import Data.Symbol (SProxy(..))
+import Type.Proxy (Proxy(..))
 import Data.Tuple (uncurry)
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 import Effect.Exception (throw)
 import Test.Spec (Spec, before, describe, it)
 import Test.Spec.Assertions (shouldEqual)
-import Text.Parsing.Parser (runParser)
+import Parsing (runParser)
 
 parseDocument ∷ String → Aff (AST.Document)
 parseDocument t = liftEffect (either (throw <<< show) pure (runParser t GP.document))
@@ -365,7 +365,7 @@ getFieldNamesFromDocument =
     <<< uncurry L.prism' AST._TypeSystemDefinition_TypeDefinition
     <<< uncurry L.prism' AST._TypeDefinition_ObjectTypeDefinition
     <<< uncurry L.prism' AST._ObjectTypeDefinition
-    <<< LR.prop (SProxy :: SProxy "fieldsDefinition")
+    <<< LR.prop (Proxy :: Proxy "fieldsDefinition")
     <<< L._Just
     <<< uncurry L.prism' AST._FieldsDefinition
     <<< L.traversed
@@ -378,7 +378,7 @@ getFieldNamesFromDocument =
                     (AST.NonNullType_NamedType (AST.NamedType "String"))
                 )
         )
-    <<< LR.prop (SProxy :: SProxy "name")
+    <<< LR.prop (Proxy :: Proxy "name")
 
 spec ∷ Spec Unit
 spec =

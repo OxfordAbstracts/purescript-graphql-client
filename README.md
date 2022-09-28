@@ -25,7 +25,7 @@ import Data.Argonaut.Decode (class DecodeJson)
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
-import GraphQL.Client.Args (type (==>), (=>>))
+import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.Query (query_)
 import GraphQL.Client.Types (class GqlQuery)
 import Type.Proxy (Proxy(..))
@@ -49,7 +49,7 @@ queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Schema)
 -- Schema
 type Schema
   = { prop :: String
-    , widgets :: { id :: Int } ==> Array Widget
+    , widgets :: { id :: Int } -> Array Widget
     }
 
 type Widget
@@ -166,9 +166,9 @@ To use purescript-graphql-client in the browser you have a few options for a bas
 - Affjax (Queries and mutations only. No npm/external dependencies)
 - Urql (Supports subscriptions, small external dependency)
 
-You can also create your own base client by making your own data type an instance of `QueryClient`. Look in `GraphQL.Client.BaseClients.Affjax` for a simple example
+You can also create your own base client by making your own data type an instance of `QueryClient`. Look in `GraphQL.Client.BaseClients.Affjax.Node` for a simple example
 
-To use Affjax you can create a base client using the `AffjaxClient` data constructor and 
+To use Affjax you can create a base client using the `AffjaxNodeClient` data constructor and 
 pass it the url of your GraphQL endpoint and any request headers.
 
 To use Apollo you will have to install the Apollo npm module. 

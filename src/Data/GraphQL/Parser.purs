@@ -16,9 +16,10 @@ import Data.Number as DN
 import Data.String.CodePoints as CP
 import Data.String.CodeUnits (fromCharArray)
 import Data.Traversable (sequence)
-import Text.Parsing.Parser (Parser, ParserT, fail)
-import Text.Parsing.Parser.Combinators (between, lookAhead, option, optional, sepBy1, try, (<?>))
-import Text.Parsing.Parser.String (anyChar, char, noneOf, oneOf, string)
+import Parsing (Parser, ParserT, fail)
+import Parsing.Combinators (between, lookAhead, option, optional, sepBy1, try, (<?>))
+import Parsing.String (anyChar, char, string)
+import Parsing.String.Basic (noneOf, oneOf)
 
 -------
 -- util

@@ -18,7 +18,8 @@ template { name, enums, idImport, mainSchemaCode, modulePrefix } =
 
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
-import GraphQL.Client.Args (class ArgGql, class RecordArg, type (==>), NotNull)
+import GraphQL.Client.Args (class ArgGql, class RecordArg, NotNull)
+import GraphQL.Client.Union (GqlUnion)
 import """ <> maybe defaultIdImport getImport idImport <> """
 """ <> enumImports <> """
 

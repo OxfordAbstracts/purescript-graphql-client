@@ -7,13 +7,15 @@ import Data.Newtype (class Newtype, unwrap)
 import Data.Symbol (class IsSymbol)
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Alias.Dynamic (Spread, SpreadRes)
-import GraphQL.Client.Args (class SatisifyNotNullParam, ArgPropToGql, Args(..), Params)
+import GraphQL.Client.Args (class SatisifyNotNullParam, ArgPropToGql, Args(..))
+import GraphQL.Client.Union (GqlUnion, UnionReturned)
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars)
 import Heterogeneous.Mapping (class HMapWithIndex, class MappingWithIndex, hmapWithIndex)
 import Prim.Row as Row
 import Record as Record
 import Type.Proxy (Proxy(..))
+import Unsafe.Coerce (unsafeCoerce)
 
 -- | Get the type that a query returns. 
 queryReturns ::
@@ -47,18 +49,22 @@ else instance queryReturnsArray :: QueryReturns a q t => QueryReturns (Array a) 
   queryReturnsImpl _ q = pure $ queryReturnsImpl (undefined :: a) q
 else instance queryReturnsMaybe :: QueryReturns a q t => QueryReturns (Maybe a) q (Maybe t) where
   queryReturnsImpl _ q = pure $ queryReturnsImpl (undefined :: a) q
+else instance queryReturnsUnion ::
+  HMapWithIndex (PropToSchemaType schema) (Record query) (Record returns) =>
+  QueryReturns (GqlUnion schema) (GqlUnion query) (UnionReturned returns) where
+  queryReturnsImpl _ _ = undefined
 else instance queryReturnsParamsArgs ::
   ( QueryReturns t q result
   , HMapWithIndex (ArgPropToGql params) { | args } s
   , SatisifyNotNullParam { | params } { | args }
   ) =>
-  QueryReturns (Params { | params } t) (Args { | args } q) result where
+  QueryReturns ({ | params } -> t) (Args { | args } q) result where
   queryReturnsImpl _ (Args _ q) = queryReturnsImpl (undefined :: t) q
 else instance queryReturnsParamsNoArgs ::
   ( QueryReturns t q result
   , SatisifyNotNullParam { | params } {}
   ) =>
-  QueryReturns (Params { | params } t) q result where
+  QueryReturns ({ | params } -> t) q result where
   queryReturnsImpl _ q = queryReturnsImpl (undefined :: t) q
 else instance queryReturnsRecord ::
   HMapWithIndex (PropToSchemaType schema) query returns =>
@@ -119,4 +125,5 @@ propToSchemaType ::
   Record schema -> query -> returns
 propToSchemaType schema query_ = hmapWithIndex (PropToSchemaType schema) query_
 
-foreign import undefined :: forall a. a
+undefined :: forall a. a
+undefined = unsafeCoerce unit

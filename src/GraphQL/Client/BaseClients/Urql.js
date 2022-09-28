@@ -1,13 +1,13 @@
-require('isomorphic-unfetch')
+import 'isomorphic-unfetch';
+import { createClient, defaultExchanges, subscriptionExchange } from '@urql/core';
+import {createClient as createWsClient} from 'graphql-ws';
 
 const createClient_ = function (opts) {
-  const { createClient, defaultExchanges, subscriptionExchange } = require('@urql/core')
-  const { createClient: createWSClient } = require('graphql-ws')
 
   let wsClient = null
 
   if (opts.websocketUrl) {
-    wsClient = createWSClient({
+    wsClient = createWsClient({
       url: opts.websocketUrl
     })
   }
@@ -37,7 +37,7 @@ const createClient_ = function (opts) {
 }
 let globalClient
 
-exports.createGlobalClientUnsafeImpl = function (opts) {
+export function createGlobalClientUnsafeImpl (opts) {
   return function () {
     if (globalClient) {
       return globalClient
@@ -48,19 +48,19 @@ exports.createGlobalClientUnsafeImpl = function (opts) {
   }
 }
 
-exports.createClientImpl = function (opts) {
+export function createClientImpl (opts) {
   return function () {
     return createClient_(opts)
   }
 }
 
-exports.createSubscriptionClientImpl = function (opts) {
+export function createSubscriptionClientImpl (opts) {
   return function () {
     return createClient_(opts)
   }
 }
 
-exports.queryImpl = function (client) {
+export function queryImpl (client) {
   return function (query) {
     return function (variables) {
       return function (onError, onSuccess) {
@@ -82,7 +82,7 @@ exports.queryImpl = function (client) {
   }
 }
 
-exports.mutationImpl = function (client) {
+export function mutationImpl (client) {
   return function (mutation) {
     return function (variables) {
       return function (onError, onSuccess) {
@@ -103,7 +103,7 @@ exports.mutationImpl = function (client) {
   }
 }
 
-exports.subscriptionImpl = function (client) {
+export function subscriptionImpl (client) {
   const { subscribe, pipe } = require('wonka')
 
   return function (query) {

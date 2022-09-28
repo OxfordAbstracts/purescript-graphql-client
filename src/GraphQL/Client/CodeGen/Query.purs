@@ -11,7 +11,7 @@ import Data.Monoid (guard)
 import Data.Newtype (unwrap)
 import Data.String as String
 import GraphQL.Client.CodeGen.Lines (indent)
-import Text.Parsing.Parser (ParseError, runParser)
+import Parsing (ParseError, runParser)
 
 queryFromGqlToPurs :: String -> Either ParseError String
 queryFromGqlToPurs gql = runParser gql document <#> toPurs

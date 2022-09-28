@@ -1,16 +1,16 @@
 {
   "name": "purescript-graphql-client",
-  "version": "8.0.1",
+  "version": "9.1.1",
   "description": "A typesafe graphql client for purescript.",
-  "main": "codegen/schema/index.js",
+  "main": "codegen/schema/index.mjs",
   "directories": {
-    "main": "./codegen/schema/index.js",
+    "main": "./codegen/schema/index.mjs",
     "test": "test"
   },
   "scripts": {
     "test": "spago test --no-install && node ./run-example-tests",
     "should-fail-tests": "node ./run-should-fail-tests",
-    "bundle": "spago bundle-module -m GraphQL.Client.CodeGen.Js -t 'gen-schema-bundled.js'",
+    "bundle": "spago bundle-module -m GraphQL.Client.CodeGen.Js -t 'gen-schema-bundled.mjs'",
     "patch": "npm run bundle && gcam 'update bundle' --allow-empty && npm version patch &&  npm publish && pulp publish",
     "npm-major-verson": "npm run bundle && gcam 'update bundle' --allow-empty && npm version major && npm publish",
     "patch-old": "npm run bundle && gcam 'update bundle' --allow-empty && npm version patch && pulp version patch && npm publish && pulp publish"
@@ -27,14 +27,16 @@
   "homepage": "https://github.com/OxfordAbstracts/purescript-graphql-client#readme",
   "dependencies": {
     "@urql/core": "^1.16.2",
-    "graphql": "^15.5.0",
-    "graphql-ws": "^4.1.2",
+    "graphql": "^16.5.0",
+    "graphql-ws": "^5.9.1",
     "isomorphic-unfetch": "^3.1.0",
+    "isomorphic-ws": "^5.0.0",
     "mkdirp": "1.0.4",
     "rimraf": "3.0.2"
   },
   "devDependencies": {
-    "@apollo/client": "^3.3.7",
+    "@apollo/client": "3.6",
+    "esbuild": "^0.14.51",
     "exec-sh": "^0.4.0",
     "wonka": "^4.0.15"
   }

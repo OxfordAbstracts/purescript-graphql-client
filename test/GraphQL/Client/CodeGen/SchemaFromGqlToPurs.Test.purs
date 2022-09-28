@@ -1,13 +1,13 @@
 module GraphQL.Client.CodeGen.Schema.Test where
 
 import Prelude
-
 import Data.Either (Either(..))
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
 import GraphQL.Client.CodeGen.Schema (schemaFromGqlToPurs)
+import GraphQL.Client.CodeGen.Types (InputOptions)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
 
@@ -102,7 +102,7 @@ spec =
     { id :: Int
     , str :: (NotNull String)
     }
-    ==> Int
+    -> Int
   , number_prop :: (Maybe Number)
   , string_prop :: String
   , ints_prop :: (Array Int)
@@ -136,12 +136,12 @@ spec =
   { int_prop :: 
     { id :: Int
     }
-    ==> Int
+    -> Int
   , number_prop :: 
     { str :: (NotNull String)
     , obj :: (NotNull (Array (NotNull MyType)))
     }
-    ==> (Maybe Number)
+    -> (Maybe Number)
   , string_prop :: String
   , ints_prop :: (Array Int)
   }"""
@@ -170,7 +170,7 @@ newtype QueryRoot = QueryRoot
   { prop :: 
     { id :: MyInputType
     }
-    ==> Int
+    -> Int
   }
 derive instance newtypeQueryRoot :: Newtype QueryRoot _
 instance argToGqlQueryRoot :: (Newtype QueryRoot {| p},  RecordArg p a u) => ArgGql QueryRoot { | a }
@@ -199,7 +199,7 @@ enum my_enum {
   { prop :: 
     { id :: MyEnum
     }
-    ==> Int
+    -> Int
   }"""
         gql
           `shouldParseToAll`
@@ -245,16 +245,8 @@ derive instance newtypeQuery :: Newtype Query _
 instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }"""
         gql
           ` ( shouldParseToOpts
-              { dir: ""
-              , cache: Nothing
-              , gqlScalarsToPursTypes: Map.empty
-              , nullableOverrides: Map.empty
-              , useNewtypesForRecords: true
-              , isHasura: false
-              , modulePath: []
-              , enumImports: []
-              , customEnumCode: const ""
-              , fieldTypeOverrides:
+              defaultOpts
+                { fieldTypeOverrides =
                   mkMap
                     [ Tuple "Query"
                         [ Tuple "my_type_a" { moduleName: "MyModule", typeName: "MyTypeA" }
@@ -262,9 +254,7 @@ instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Quer
                         , Tuple "my_type_c" { moduleName: "MyModule", typeName: "MyTypeC" }
                         ]
                     ]
-              , externalTypes: Map.empty
-              , idImport: Nothing
-              }
+                }
           )
             `
             result
@@ -341,6 +331,22 @@ newtype X = X
 derive instance newtypeX :: Newtype X _
 instance argToGqlX :: (Newtype X {| p},  RecordArg p a u) => ArgGql X { | a }"""
         gql `shouldParseTo` result
+      it "handles unsafe fieldnames (some not to gql spec)" do
+        let
+          gql =
+            schemaGql
+              { query: "{ Prop: Int }"
+              , mutation: "{ _prop1: Int }"
+              , subscription: "{ prop: Int }"
+              }
+
+          result =
+            schemaPurs
+              { query: "\n  { \"Prop\" :: (Maybe Int)\n  }"
+              , mutation: "\n  { _prop1 :: (Maybe Int)\n  }"
+              , subscription: "\n  { prop :: (Maybe Int)\n  }"
+              }
+        gql `shouldParseTo` result
   where
   mkMap :: forall v. Array (Tuple String (Array (Tuple String v))) -> Map String (Map String v)
   mkMap = Map.fromFoldable >>> map Map.fromFoldable
@@ -356,35 +362,11 @@ instance argToGqlX :: (Newtype X {| p},  RecordArg p a u) => ArgGql X { | a }"""
 
   shouldParseTo =
     shouldParseToOpts
-      { dir: ""
-      , cache: Nothing
-      , gqlScalarsToPursTypes: Map.empty
-      , nullableOverrides: Map.empty
-      , useNewtypesForRecords: true
-      , isHasura: false
-      , modulePath: []
-      , enumImports: []
-      , customEnumCode: const ""
-      , fieldTypeOverrides: Map.empty
-      , externalTypes: Map.empty
-      , idImport: Nothing
-      }
+      defaultOpts
 
   shouldParseToAll schema r =
     schemaFromGqlToPurs
-      { dir: ""
-      , cache: Nothing
-      , gqlScalarsToPursTypes: Map.empty
-      , nullableOverrides: Map.empty
-      , useNewtypesForRecords: true
-      , isHasura: false
-      , modulePath: []
-      , enumImports: []
-      , customEnumCode: const ""
-      , fieldTypeOverrides: Map.empty
-      , externalTypes: Map.empty
-      , idImport: Nothing
-      }
+      defaultOpts
       { schema, moduleName: "Test" }
       `shouldEqual`
         Right r
@@ -453,3 +435,20 @@ newtype SubscriptionRoot = SubscriptionRoot """
     <> subscription
     <> "\nderive instance newtypeSubscriptionRoot :: Newtype SubscriptionRoot _"
     <> "\ninstance argToGqlSubscriptionRoot :: (Newtype SubscriptionRoot {| p},  RecordArg p a u) => ArgGql SubscriptionRoot { | a }"
+
+defaultOpts :: InputOptions
+defaultOpts =
+  { dir: ""
+  , cache: Nothing
+  , gqlScalarsToPursTypes: Map.empty
+  , nullableOverrides: Map.empty
+  , useNewtypesForRecords: true
+  , isHasura: false
+  , modulePath: []
+  , enumImports: []
+  , customEnumCode: const ""
+  , fieldTypeOverrides: Map.empty
+  , externalTypes: Map.empty
+  , idImport: Nothing
+  , enumValueNameTransform: Nothing
+  }
