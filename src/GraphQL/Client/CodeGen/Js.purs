@@ -2,6 +2,7 @@
 module GraphQL.Client.CodeGen.Js where
 
 import Prelude
+
 import Control.Promise (Promise, fromAff, toAff)
 import Data.Argonaut.Core (Json)
 import Data.Either (either)
@@ -10,6 +11,7 @@ import Data.Map as Map
 import Data.Maybe (fromMaybe)
 import Data.Nullable (Nullable, toMaybe)
 import Foreign.Object (Object)
+import Foreign.Object as Object
 import GraphQL.Client.CodeGen.Schema (schemasFromGqlToPurs)
 import GraphQL.Client.CodeGen.Types (GqlInput, JsResult)
 import Parsing (parseErrorMessage)
@@ -27,6 +29,7 @@ schemasFromGqlToPursJs = mkFn2 go
       { externalTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.externalTypes)
       , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (fromNullable mempty optsJs.fieldTypeOverrides)
       , gqlScalarsToPursTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.gqlScalarsToPursTypes)
+      , nullableOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (fromNullable Object.empty optsJs.nullableOverrides)
       , dir: fromNullable "" optsJs.dir
       , modulePath: fromNullable [] optsJs.modulePath
       , isHasura: fromNullable false optsJs.isHasura
@@ -71,6 +74,7 @@ type InputOptionsJs
                   }
               )
           )
+    , nullableOverrides :: Nullable (Object (Object Boolean))
     , idImport ::
         Nullable
           { moduleName :: String

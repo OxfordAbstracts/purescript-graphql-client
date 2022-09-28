@@ -5,6 +5,7 @@ module GraphQL.Client.CodeGen.Schema
   ) where
 
 import Prelude
+
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Array (filter, notElem, nub, nubBy)
@@ -35,6 +36,7 @@ import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
 import GraphQL.Client.CodeGen.Lines (commentPrefix, docComment, fromLines, indent, toLines)
 import GraphQL.Client.CodeGen.Template.Enum as Enum
 import GraphQL.Client.CodeGen.Template.Schema as Schema
+import GraphQL.Client.CodeGen.Transform.NullableOverrides (applyNullableOverrides)
 import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptions, PursGql)
 import Parsing (ParseError, runParser)
 
@@ -116,6 +118,7 @@ schemaFromGqlToPursWithCache opts { schema, moduleName } = go opts.cache
 schemaFromGqlToPurs :: InputOptions -> GqlInput -> Either ParseError PursGql
 schemaFromGqlToPurs opts { schema, moduleName } =
   runParser schema document
+    <#> applyNullableOverrides opts.nullableOverrides
     <#> \ast ->
         let
           symbols = Array.fromFoldable $ getSymbols ast

@@ -237,8 +237,8 @@ var semigroupRecordCons = function(dictIsSymbol) {
                 var tail2 = appendRecord1($$Proxy.value)(ra)(rb);
                 var key = reflectSymbol2($$Proxy.value);
                 var insert5 = unsafeSet(key);
-                var get2 = unsafeGet(key);
-                return insert5(append14(get2(ra))(get2(rb)))(tail2);
+                var get3 = unsafeGet(key);
+                return insert5(append14(get3(ra))(get3(rb)))(tail2);
               };
             };
           }
@@ -307,6 +307,17 @@ var applySecond = function(dictApply) {
   return function(a) {
     return function(b) {
       return apply1(map18($$const(identity2))(a))(b);
+    };
+  };
+};
+var lift2 = function(dictApply) {
+  var apply1 = apply(dictApply);
+  var map18 = map(dictApply.Functor0());
+  return function(f) {
+    return function(a) {
+      return function(b) {
+        return apply1(map18(f)(a))(b);
+      };
     };
   };
 };
@@ -475,8 +486,8 @@ var eqRowCons = function(dictEqRecord) {
               return function(rb) {
                 var tail2 = eqRecord1($$Proxy.value)(ra)(rb);
                 var key = reflectSymbol2($$Proxy.value);
-                var get2 = unsafeGet(key);
-                return eq32(get2(ra))(get2(rb)) && tail2;
+                var get3 = unsafeGet(key);
+                return eq32(get3(ra))(get3(rb)) && tail2;
               };
             };
           }
@@ -652,10 +663,10 @@ var ordRecordCons = function(dictOrdRecord) {
             return function(ra) {
               return function(rb) {
                 var key = reflectSymbol2($$Proxy.value);
-                var left = compare32(unsafeGet(key)(ra))(unsafeGet(key)(rb));
-                var $95 = notEq2(left)(EQ.value);
+                var left2 = compare32(unsafeGet(key)(ra))(unsafeGet(key)(rb));
+                var $95 = notEq2(left2)(EQ.value);
                 if ($95) {
-                  return left;
+                  return left2;
                 }
                 ;
                 return compareRecord1($$Proxy.value)(ra)(rb);
@@ -1500,6 +1511,13 @@ var uncurry = function(f) {
 var snd = function(v) {
   return v.value1;
 };
+var functorTuple = {
+  map: function(f) {
+    return function(m) {
+      return new Tuple(m.value0, f(m.value1));
+    };
+  }
+};
 var fst = function(v) {
   return v.value0;
 };
@@ -1649,6 +1667,17 @@ var coerce = function() {
 var coerce2 = /* @__PURE__ */ coerce();
 var unwrap = function() {
   return coerce2;
+};
+var alaF = function() {
+  return function() {
+    return function() {
+      return function() {
+        return function(v) {
+          return coerce2;
+        };
+      };
+    };
+  };
 };
 
 // output/Control.Monad.Except/index.js
@@ -1988,6 +2017,46 @@ var identity6 = /* @__PURE__ */ identity(categoryFn);
 var traverse = function(dict) {
   return dict.traverse;
 };
+var traversableMaybe = {
+  traverse: function(dictApplicative) {
+    var pure7 = pure(dictApplicative);
+    var map18 = map(dictApplicative.Apply0().Functor0());
+    return function(v) {
+      return function(v1) {
+        if (v1 instanceof Nothing) {
+          return pure7(Nothing.value);
+        }
+        ;
+        if (v1 instanceof Just) {
+          return map18(Just.create)(v(v1.value0));
+        }
+        ;
+        throw new Error("Failed pattern match at Data.Traversable (line 115, column 1 - line 119, column 33): " + [v.constructor.name, v1.constructor.name]);
+      };
+    };
+  },
+  sequence: function(dictApplicative) {
+    var pure7 = pure(dictApplicative);
+    var map18 = map(dictApplicative.Apply0().Functor0());
+    return function(v) {
+      if (v instanceof Nothing) {
+        return pure7(Nothing.value);
+      }
+      ;
+      if (v instanceof Just) {
+        return map18(Just.create)(v.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.Traversable (line 115, column 1 - line 119, column 33): " + [v.constructor.name]);
+    };
+  },
+  Functor0: function() {
+    return functorMaybe;
+  },
+  Foldable1: function() {
+    return foldableMaybe;
+  }
+};
 var sequenceDefault = function(dictTraversable) {
   var traverse22 = traverse(dictTraversable);
   return function(dictApplicative) {
@@ -2133,7 +2202,7 @@ var singleton2 = function(dictPlus) {
 };
 var foldableNonEmpty = function(dictFoldable) {
   var foldMap6 = foldMap(dictFoldable);
-  var foldl3 = foldl(dictFoldable);
+  var foldl4 = foldl(dictFoldable);
   var foldr4 = foldr(dictFoldable);
   return {
     foldMap: function(dictMonoid) {
@@ -2148,7 +2217,7 @@ var foldableNonEmpty = function(dictFoldable) {
     foldl: function(f) {
       return function(b) {
         return function(v) {
-          return foldl3(f)(f(b)(v.value0))(v.value1);
+          return foldl4(f)(f(b)(v.value0))(v.value1);
         };
       };
     },
@@ -2163,6 +2232,7 @@ var foldableNonEmpty = function(dictFoldable) {
 };
 
 // output/Data.List.Types/index.js
+var identity7 = /* @__PURE__ */ identity(categoryFn);
 var Nil = /* @__PURE__ */ function() {
   function Nil3() {
   }
@@ -2335,6 +2405,7 @@ var foldableList = {
     };
   }
 };
+var foldl2 = /* @__PURE__ */ foldl(foldableList);
 var foldr2 = /* @__PURE__ */ foldr(foldableList);
 var foldableNonEmptyList = /* @__PURE__ */ foldableNonEmpty(foldableList);
 var semigroupList = {
@@ -2358,6 +2429,35 @@ var semigroupNonEmptyList = {
     return function(as$prime) {
       return new NonEmpty(v.value0, append1(v.value1)(toList(as$prime)));
     };
+  }
+};
+var traversableList = {
+  traverse: function(dictApplicative) {
+    var Apply0 = dictApplicative.Apply0();
+    var map18 = map(Apply0.Functor0());
+    var lift22 = lift2(Apply0);
+    var pure1 = pure(dictApplicative);
+    return function(f) {
+      var $298 = map18(foldl2(flip(Cons.create))(Nil.value));
+      var $299 = foldl2(function(acc) {
+        var $301 = lift22(flip(Cons.create))(acc);
+        return function($302) {
+          return $301(f($302));
+        };
+      })(pure1(Nil.value));
+      return function($300) {
+        return $298($299($300));
+      };
+    };
+  },
+  sequence: function(dictApplicative) {
+    return traverse(traversableList)(dictApplicative)(identity7);
+  },
+  Functor0: function() {
+    return functorList;
+  },
+  Foldable1: function() {
+    return foldableList;
   }
 };
 var applyList = {
@@ -2459,18 +2559,18 @@ var Aff = function() {
       }, 0);
     }
   }
-  function runSync(left, right, eff) {
+  function runSync(left2, right2, eff) {
     try {
-      return right(eff());
+      return right2(eff());
     } catch (error2) {
-      return left(error2);
+      return left2(error2);
     }
   }
-  function runAsync(left, eff, k) {
+  function runAsync(left2, eff, k) {
     try {
       return eff(k)();
     } catch (error2) {
-      k(left(error2))();
+      k(left2(error2))();
       return nonCanceler2;
     }
   }
@@ -2511,7 +2611,7 @@ var Aff = function() {
       }
     };
   }();
-  function Supervisor(util) {
+  function Supervisor(util2) {
     var fibers = {};
     var fiberId = 0;
     var count = 0;
@@ -2545,9 +2645,9 @@ var Aff = function() {
               return function() {
                 delete kills[fid];
                 killCount--;
-                if (util.isLeft(result) && util.fromLeft(result)) {
+                if (util2.isLeft(result) && util2.fromLeft(result)) {
                   setTimeout(function() {
-                    throw util.fromLeft(result);
+                    throw util2.fromLeft(result);
                   }, 0);
                 }
                 if (killCount === 0) {
@@ -2585,7 +2685,7 @@ var Aff = function() {
   var PENDING = 4;
   var RETURN = 5;
   var COMPLETED = 6;
-  function Fiber(util, supervisor, aff) {
+  function Fiber(util2, supervisor, aff) {
     var runTick = 0;
     var status = SUSPENDED;
     var step2 = aff;
@@ -2617,12 +2717,12 @@ var Aff = function() {
               }
             } catch (e) {
               status = RETURN;
-              fail3 = util.left(e);
+              fail3 = util2.left(e);
               step2 = null;
             }
             break;
           case STEP_RESULT:
-            if (util.isLeft(step2)) {
+            if (util2.isLeft(step2)) {
               status = RETURN;
               fail3 = step2;
               step2 = null;
@@ -2630,7 +2730,7 @@ var Aff = function() {
               status = RETURN;
             } else {
               status = STEP_BIND;
-              step2 = util.fromRight(step2);
+              step2 = util2.fromRight(step2);
             }
             break;
           case CONTINUE:
@@ -2646,7 +2746,7 @@ var Aff = function() {
               case PURE:
                 if (bhead === null) {
                   status = RETURN;
-                  step2 = util.right(step2._1);
+                  step2 = util2.right(step2._1);
                 } else {
                   status = STEP_BIND;
                   step2 = step2._1;
@@ -2654,11 +2754,11 @@ var Aff = function() {
                 break;
               case SYNC:
                 status = STEP_RESULT;
-                step2 = runSync(util.left, util.right, step2._1);
+                step2 = runSync(util2.left, util2.right, step2._1);
                 break;
               case ASYNC:
                 status = PENDING;
-                step2 = runAsync(util.left, step2._1, function(result2) {
+                step2 = runAsync(util2.left, step2._1, function(result2) {
                   return function() {
                     if (runTick !== localRunTick) {
                       return;
@@ -2677,7 +2777,7 @@ var Aff = function() {
                 return;
               case THROW:
                 status = RETURN;
-                fail3 = util.left(step2._1);
+                fail3 = util2.left(step2._1);
                 step2 = null;
                 break;
               case CATCH:
@@ -2705,18 +2805,18 @@ var Aff = function() {
                 break;
               case FORK:
                 status = STEP_RESULT;
-                tmp = Fiber(util, supervisor, step2._2);
+                tmp = Fiber(util2, supervisor, step2._2);
                 if (supervisor) {
                   supervisor.register(tmp);
                 }
                 if (step2._1) {
                   tmp.run();
                 }
-                step2 = util.right(tmp);
+                step2 = util2.right(tmp);
                 break;
               case SEQ:
                 status = CONTINUE;
-                step2 = sequential2(util, supervisor, step2._1);
+                step2 = sequential2(util2, supervisor, step2._1);
                 break;
             }
             break;
@@ -2736,7 +2836,7 @@ var Aff = function() {
                     status = RETURN;
                   } else if (fail3) {
                     status = CONTINUE;
-                    step2 = attempt._2(util.fromLeft(fail3));
+                    step2 = attempt._2(util2.fromLeft(fail3));
                     fail3 = null;
                   }
                   break;
@@ -2747,13 +2847,13 @@ var Aff = function() {
                     bhead = attempt._1;
                     btail = attempt._2;
                     status = STEP_BIND;
-                    step2 = util.fromRight(step2);
+                    step2 = util2.fromRight(step2);
                   }
                   break;
                 case BRACKET:
                   bracketCount--;
                   if (fail3 === null) {
-                    result = util.fromRight(step2);
+                    result = util2.fromRight(step2);
                     attempts = new Aff2(CONS, new Aff2(RELEASE, attempt._2, result), attempts, tmp);
                     if (interrupt === tmp || bracketCount > 0) {
                       status = CONTINUE;
@@ -2765,11 +2865,11 @@ var Aff = function() {
                   attempts = new Aff2(CONS, new Aff2(FINALIZED, step2, fail3), attempts, interrupt);
                   status = CONTINUE;
                   if (interrupt && interrupt !== tmp && bracketCount === 0) {
-                    step2 = attempt._1.killed(util.fromLeft(interrupt))(attempt._2);
+                    step2 = attempt._1.killed(util2.fromLeft(interrupt))(attempt._2);
                   } else if (fail3) {
-                    step2 = attempt._1.failed(util.fromLeft(fail3))(attempt._2);
+                    step2 = attempt._1.failed(util2.fromLeft(fail3))(attempt._2);
                   } else {
-                    step2 = attempt._1.completed(util.fromRight(step2))(attempt._2);
+                    step2 = attempt._1.completed(util2.fromRight(step2))(attempt._2);
                   }
                   fail3 = null;
                   bracketCount++;
@@ -2799,12 +2899,12 @@ var Aff = function() {
             joins = null;
             if (interrupt && fail3) {
               setTimeout(function() {
-                throw util.fromLeft(fail3);
+                throw util2.fromLeft(fail3);
               }, 0);
-            } else if (util.isLeft(step2) && rethrow) {
+            } else if (util2.isLeft(step2) && rethrow) {
               setTimeout(function() {
                 if (rethrow) {
-                  throw util.fromLeft(step2);
+                  throw util2.fromLeft(step2);
                 }
               }, 0);
             }
@@ -2838,26 +2938,26 @@ var Aff = function() {
     function kill(error2, cb) {
       return function() {
         if (status === COMPLETED) {
-          cb(util.right(void 0))();
+          cb(util2.right(void 0))();
           return function() {
           };
         }
         var canceler = onComplete({
           rethrow: false,
           handler: function() {
-            return cb(util.right(void 0));
+            return cb(util2.right(void 0));
           }
         })();
         switch (status) {
           case SUSPENDED:
-            interrupt = util.left(error2);
+            interrupt = util2.left(error2);
             status = COMPLETED;
             step2 = interrupt;
             run3(runTick);
             break;
           case PENDING:
             if (interrupt === null) {
-              interrupt = util.left(error2);
+              interrupt = util2.left(error2);
             }
             if (bracketCount === 0) {
               if (status === PENDING) {
@@ -2871,7 +2971,7 @@ var Aff = function() {
             break;
           default:
             if (interrupt === null) {
-              interrupt = util.left(error2);
+              interrupt = util2.left(error2);
             }
             if (bracketCount === 0) {
               status = RETURN;
@@ -2914,7 +3014,7 @@ var Aff = function() {
       }
     };
   }
-  function runPar(util, supervisor, par, cb) {
+  function runPar(util2, supervisor, par, cb) {
     var fiberId = 0;
     var fibers = {};
     var killId = 0;
@@ -2970,7 +3070,7 @@ var Aff = function() {
           }
         }
       if (count === 0) {
-        cb2(util.right(void 0))();
+        cb2(util2.right(void 0))();
       } else {
         kid = 0;
         tmp = count;
@@ -2982,7 +3082,7 @@ var Aff = function() {
     }
     function join2(result, head4, tail2) {
       var fail3, step2, lhs, rhs, tmp, kid;
-      if (util.isLeft(result)) {
+      if (util2.isLeft(result)) {
         fail3 = result;
         step2 = null;
       } else {
@@ -3008,7 +3108,7 @@ var Aff = function() {
           switch (head4.tag) {
             case MAP:
               if (fail3 === null) {
-                head4._3 = util.right(head4._1(util.fromRight(step2)));
+                head4._3 = util2.right(head4._1(util2.fromRight(step2)));
                 step2 = head4._3;
               } else {
                 head4._3 = fail3;
@@ -3040,17 +3140,17 @@ var Aff = function() {
               } else if (lhs === EMPTY || rhs === EMPTY) {
                 return;
               } else {
-                step2 = util.right(util.fromRight(lhs)(util.fromRight(rhs)));
+                step2 = util2.right(util2.fromRight(lhs)(util2.fromRight(rhs)));
                 head4._3 = step2;
               }
               break;
             case ALT:
               lhs = head4._1._3;
               rhs = head4._2._3;
-              if (lhs === EMPTY && util.isLeft(rhs) || rhs === EMPTY && util.isLeft(lhs)) {
+              if (lhs === EMPTY && util2.isLeft(rhs) || rhs === EMPTY && util2.isLeft(lhs)) {
                 return;
               }
-              if (lhs !== EMPTY && util.isLeft(lhs) && rhs !== EMPTY && util.isLeft(rhs)) {
+              if (lhs !== EMPTY && util2.isLeft(lhs) && rhs !== EMPTY && util2.isLeft(rhs)) {
                 fail3 = step2 === lhs ? rhs : lhs;
                 step2 = null;
                 head4._3 = fail3;
@@ -3133,7 +3233,7 @@ var Aff = function() {
                   status = RETURN;
                   tmp = step2;
                   step2 = new Aff2(FORKED, fid, new Aff2(CONS, head4, tail2), EMPTY);
-                  tmp = Fiber(util, supervisor, tmp);
+                  tmp = Fiber(util2, supervisor, tmp);
                   tmp.onComplete({
                     rethrow: false,
                     handler: resolve(step2)
@@ -3171,7 +3271,7 @@ var Aff = function() {
       }
     }
     function cancel(error2, cb2) {
-      interrupt = util.left(error2);
+      interrupt = util2.left(error2);
       var innerKills;
       for (var kid in kills) {
         if (kills.hasOwnProperty(kid)) {
@@ -3207,10 +3307,10 @@ var Aff = function() {
       });
     };
   }
-  function sequential2(util, supervisor, par) {
+  function sequential2(util2, supervisor, par) {
     return new Aff2(ASYNC, function(cb) {
       return function() {
-        return runPar(util, supervisor, par, cb);
+        return runPar(util2, supervisor, par, cb);
       };
     });
   }
@@ -3268,9 +3368,9 @@ function _parAffApply(aff1) {
   };
 }
 var makeAff = Aff.Async;
-function _makeFiber(util, aff) {
+function _makeFiber(util2, aff) {
   return function() {
-    return Aff.Fiber(util, null, aff);
+    return Aff.Fiber(util2, null, aff);
   };
 }
 var _delay = function() {
@@ -3288,13 +3388,13 @@ var _delay = function() {
       return clearTimeout(t);
     }
   }
-  return function(right, ms) {
+  return function(right2, ms) {
     return Aff.Async(function(cb) {
       return function() {
-        var timer = setDelay(ms, cb(right()));
+        var timer = setDelay(ms, cb(right2()));
         return function() {
           return Aff.Sync(function() {
-            return right(clearDelay(ms, timer));
+            return right2(clearDelay(ms, timer));
           });
         };
       };
@@ -3302,6 +3402,29 @@ var _delay = function() {
   };
 }();
 var _sequential = Aff.Seq;
+
+// output/Data.Profunctor/index.js
+var identity8 = /* @__PURE__ */ identity(categoryFn);
+var profunctorFn = {
+  dimap: function(a2b) {
+    return function(c2d) {
+      return function(b2c) {
+        return function($18) {
+          return c2d(b2c(a2b($18)));
+        };
+      };
+    };
+  }
+};
+var dimap = function(dict) {
+  return dict.dimap;
+};
+var rmap = function(dictProfunctor) {
+  var dimap1 = dimap(dictProfunctor);
+  return function(b2c) {
+    return dimap1(identity8)(b2c);
+  };
+};
 
 // output/Control.Parallel.Class/index.js
 var sequential = function(dict) {
@@ -3312,7 +3435,7 @@ var parallel = function(dict) {
 };
 
 // output/Control.Parallel/index.js
-var identity7 = /* @__PURE__ */ identity(categoryFn);
+var identity9 = /* @__PURE__ */ identity(categoryFn);
 var parTraverse_ = function(dictParallel) {
   var sequential2 = sequential(dictParallel);
   var traverse_2 = traverse_(dictParallel.Applicative1());
@@ -3332,7 +3455,7 @@ var parTraverse_ = function(dictParallel) {
 var parSequence_ = function(dictParallel) {
   var parTraverse_1 = parTraverse_(dictParallel);
   return function(dictFoldable) {
-    return parTraverse_1(dictFoldable)(identity7);
+    return parTraverse_1(dictFoldable)(identity9);
   };
 };
 
@@ -4399,7 +4522,7 @@ var readString = function(dictMonad) {
 // output/Control.Promise/index.js
 var voidRight2 = /* @__PURE__ */ voidRight(functorEffect);
 var mempty2 = /* @__PURE__ */ mempty(monoidCanceler);
-var identity8 = /* @__PURE__ */ identity(categoryFn);
+var identity10 = /* @__PURE__ */ identity(categoryFn);
 var alt2 = /* @__PURE__ */ alt(/* @__PURE__ */ altExceptT(semigroupNonEmptyList)(monadIdentity));
 var unsafeReadTagged2 = /* @__PURE__ */ unsafeReadTagged(monadIdentity);
 var map6 = /* @__PURE__ */ map(/* @__PURE__ */ functorExceptT(functorIdentity));
@@ -4425,7 +4548,7 @@ var fromAff = function(aff) {
 var coerce3 = function(fn) {
   return either(function(v) {
     return error("Promise failed, couldn't extract JS Error or String");
-  })(identity8)(runExcept(alt2(unsafeReadTagged2("Error")(fn))(map6(error)(readString2(fn)))));
+  })(identity10)(runExcept(alt2(unsafeReadTagged2("Error")(fn))(map6(error)(readString2(fn)))));
 };
 var toAff = /* @__PURE__ */ toAff$prime(coerce3);
 
@@ -7037,12 +7160,12 @@ var gEncodeJsonCons = function(dictEncodeJson) {
     var gEncodeJson1 = gEncodeJson(dictGEncodeJson);
     return function(dictIsSymbol) {
       var reflectSymbol2 = reflectSymbol(dictIsSymbol);
-      var get2 = get(dictIsSymbol)();
+      var get3 = get(dictIsSymbol)();
       return function() {
         return {
           gEncodeJson: function(row) {
             return function(v) {
-              return insert2(reflectSymbol2($$Proxy.value))(encodeJson1(get2($$Proxy.value)(row)))(gEncodeJson1(row)($$Proxy.value));
+              return insert2(reflectSymbol2($$Proxy.value))(encodeJson1(get3($$Proxy.value)(row)))(gEncodeJson1(row)($$Proxy.value));
             };
           }
         };
@@ -40478,6 +40601,52 @@ var Definition_TypeSystemExtension = /* @__PURE__ */ function() {
 var Document = function(x) {
   return x;
 };
+var _TypeSystemDefinition_TypeDefinition = /* @__PURE__ */ function() {
+  return new Tuple(TypeSystemDefinition_TypeDefinition.create, function(v) {
+    if (v instanceof TypeSystemDefinition_TypeDefinition) {
+      return new Just(v.value0);
+    }
+    ;
+    return Nothing.value;
+  });
+}();
+var _TypeDefinition_ObjectTypeDefinition = /* @__PURE__ */ function() {
+  return new Tuple(TypeDefinition_ObjectTypeDefinition.create, function(v) {
+    if (v instanceof TypeDefinition_ObjectTypeDefinition) {
+      return new Just(v.value0);
+    }
+    ;
+    return Nothing.value;
+  });
+}();
+var _TypeDefinition_InputObjectTypeDefinition = /* @__PURE__ */ function() {
+  return new Tuple(TypeDefinition_InputObjectTypeDefinition.create, function(v) {
+    if (v instanceof TypeDefinition_InputObjectTypeDefinition) {
+      return new Just(v.value0);
+    }
+    ;
+    return Nothing.value;
+  });
+}();
+var _InputFieldsDefinition = /* @__PURE__ */ function() {
+  return new Tuple(InputFieldsDefinition, function(v) {
+    return new Just(v);
+  });
+}();
+var _Document = /* @__PURE__ */ function() {
+  return new Tuple(Document, function(v) {
+    return new Just(v);
+  });
+}();
+var _Definition_TypeSystemDefinition = /* @__PURE__ */ function() {
+  return new Tuple(Definition_TypeSystemDefinition.create, function(v) {
+    if (v instanceof Definition_TypeSystemDefinition) {
+      return new Just(v.value0);
+    }
+    ;
+    return Nothing.value;
+  });
+}();
 
 // output/Parsing/index.js
 var $runtime_lazy6 = function(name3, moduleName, init3) {
@@ -40876,14 +41045,14 @@ var between = function(open) {
 };
 
 // output/Data.String.Regex/foreign.js
-var regexImpl = function(left) {
-  return function(right) {
+var regexImpl = function(left2) {
+  return function(right2) {
     return function(s1) {
       return function(s2) {
         try {
-          return right(new RegExp(s1, s2));
+          return right2(new RegExp(s1, s2));
         } catch (e) {
-          return left(e.message);
+          return left2(e.message);
         }
       };
     };
@@ -41883,10 +42052,10 @@ var definition = /* @__PURE__ */ function() {
 var document = /* @__PURE__ */ map12(Document)(/* @__PURE__ */ applySecond3(ignoreMe)(/* @__PURE__ */ _listish(definition)));
 
 // output/Data.String.Regex.Unsafe/index.js
-var identity9 = /* @__PURE__ */ identity(categoryFn);
+var identity11 = /* @__PURE__ */ identity(categoryFn);
 var unsafeRegex = function(s) {
   return function(f) {
-    return either(unsafeCrashWith)(identity9)(regex(s)(f));
+    return either(unsafeCrashWith)(identity11)(regex(s)(f));
   };
 };
 
@@ -42144,8 +42313,343 @@ var template2 = function(v) {
   return "module " + (v.modulePrefix + ("Schema." + (v.name + (" where\n\nimport Data.Maybe (Maybe)\nimport Data.Newtype (class Newtype)\nimport GraphQL.Client.Args (class ArgGql, class RecordArg, type (==>), NotNull)\nimport " + (maybe("GraphQL.Client.ID (ID)")(getImport)(v.idImport) + ("\n" + (enumImports + ("\n\n" + (v.mainSchemaCode + "\n")))))))));
 };
 
-// output/GraphQL.Client.CodeGen.Schema/index.js
+// output/Data.Profunctor.Choice/index.js
+var right = function(dict) {
+  return dict.right;
+};
+var choiceFn = {
+  left: function(v) {
+    return function(v1) {
+      if (v1 instanceof Left) {
+        return new Left(v(v1.value0));
+      }
+      ;
+      if (v1 instanceof Right) {
+        return new Right(v1.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.Profunctor.Choice (line 32, column 1 - line 35, column 16): " + [v.constructor.name, v1.constructor.name]);
+    };
+  },
+  right: /* @__PURE__ */ map(functorEither),
+  Profunctor0: function() {
+    return profunctorFn;
+  }
+};
+
+// output/Data.Profunctor.Strong/index.js
+var strongFn = {
+  first: function(a2b) {
+    return function(v) {
+      return new Tuple(a2b(v.value0), v.value1);
+    };
+  },
+  second: /* @__PURE__ */ map(functorTuple),
+  Profunctor0: function() {
+    return profunctorFn;
+  }
+};
+
+// output/Data.Lens.Internal.Wander/index.js
+var alaF2 = /* @__PURE__ */ alaF()()()();
+var wanderFunction = {
+  wander: function(t) {
+    return alaF2(Identity)(t(applicativeIdentity));
+  },
+  Strong0: function() {
+    return strongFn;
+  },
+  Choice1: function() {
+    return choiceFn;
+  }
+};
+var wander = function(dict) {
+  return dict.wander;
+};
+
+// output/Data.Lens.Iso/index.js
+var coerce4 = /* @__PURE__ */ coerce();
+var iso = function(f) {
+  return function(g) {
+    return function(dictProfunctor) {
+      var dimap2 = dimap(dictProfunctor);
+      return function(pab) {
+        return dimap2(f)(g)(pab);
+      };
+    };
+  };
+};
+var coerced = function() {
+  return function() {
+    return function(dictProfunctor) {
+      return iso(coerce4)(coerce4)(dictProfunctor);
+    };
+  };
+};
+
+// output/Data.Lens.Iso.Newtype/index.js
+var coerced2 = /* @__PURE__ */ coerced()();
+var _Newtype = function() {
+  return function() {
+    return function(dictProfunctor) {
+      return coerced2(dictProfunctor);
+    };
+  };
+};
+
+// output/Data.Lens.Prism/index.js
+var identity12 = /* @__PURE__ */ identity(categoryFn);
+var prism = function(to) {
+  return function(fro) {
+    return function(dictChoice) {
+      var Profunctor0 = dictChoice.Profunctor0();
+      var dimap2 = dimap(Profunctor0);
+      var right2 = right(dictChoice);
+      var rmap2 = rmap(Profunctor0);
+      return function(pab) {
+        return dimap2(fro)(either(identity12)(identity12))(right2(rmap2(to)(pab)));
+      };
+    };
+  };
+};
+var prism$prime = function(to) {
+  return function(fro) {
+    return function(dictChoice) {
+      return prism(to)(function(s) {
+        return maybe(new Left(s))(Right.create)(fro(s));
+      })(dictChoice);
+    };
+  };
+};
+
+// output/Data.Lens.Setter/index.js
+var over2 = function(l) {
+  return l;
+};
+
+// output/Data.Lens.Traversal/index.js
+var traversed = function(dictTraversable) {
+  var traverse3 = traverse(dictTraversable);
+  return function(dictWander) {
+    return wander(dictWander)(function(dictApplicative) {
+      return traverse3(dictApplicative);
+    });
+  };
+};
+
+// output/Debug/foreign.js
+var req = typeof module === "undefined" ? void 0 : module.require;
+var util = function() {
+  try {
+    return req === void 0 ? void 0 : req("util");
+  } catch (e) {
+    return void 0;
+  }
+}();
+function _spy(tag, x) {
+  if (util !== void 0) {
+    console.log(tag + ":", util.inspect(x, { depth: null, colors: true }));
+  } else {
+    console.log(tag + ":", x);
+  }
+  return x;
+}
+var now = function() {
+  var perf;
+  if (typeof performance !== "undefined") {
+    perf = performance;
+  } else if (req) {
+    try {
+      perf = req("perf_hooks").performance;
+    } catch (e) {
+    }
+  }
+  return function() {
+    return (perf || Date).now();
+  };
+}();
+
+// output/Debug/index.js
+var spy = function() {
+  return function(tag) {
+    return function(a) {
+      return _spy(tag, a);
+    };
+  };
+};
+
+// output/GraphQL.Client.CodeGen.Transform.NullableOverrides/index.js
+var traversed2 = /* @__PURE__ */ traversed(traversableList);
+var spy2 = /* @__PURE__ */ spy();
 var lookup3 = /* @__PURE__ */ lookup(ordString);
+var _Newtype2 = /* @__PURE__ */ _Newtype()()(profunctorFn);
+var traversed1 = /* @__PURE__ */ traversed(traversableMaybe)(wanderFunction);
+var traversed22 = /* @__PURE__ */ traversed2(wanderFunction);
+var uPrism = /* @__PURE__ */ uncurry(prism$prime);
+var setNullable = function(v) {
+  return function(v1) {
+    if (v && (v1 instanceof Type_NonNullType && v1.value0 instanceof NonNullType_NamedType)) {
+      return new Type_NamedType(v1.value0.value0);
+    }
+    ;
+    if (v && (v1 instanceof Type_NonNullType && v1.value0 instanceof NonNullType_ListType)) {
+      return new Type_ListType(v1.value0.value0);
+    }
+    ;
+    if (!v && v1 instanceof Type_NamedType) {
+      return new Type_NonNullType(new NonNullType_NamedType(v1.value0));
+    }
+    ;
+    if (!v && v1 instanceof Type_ListType) {
+      return new Type_NonNullType(new NonNullType_ListType(v1.value0));
+    }
+    ;
+    return v1;
+  };
+};
+var objectTypeDefinitionLens = function(dictChoice) {
+  return function(dictWander) {
+    var $101 = uPrism(_Document)(dictChoice);
+    var $102 = traversed2(dictWander);
+    var $103 = uPrism(_Definition_TypeSystemDefinition)(dictChoice);
+    var $104 = uPrism(_TypeSystemDefinition_TypeDefinition)(dictChoice);
+    var $105 = uPrism(_TypeDefinition_ObjectTypeDefinition)(dictChoice);
+    return function($106) {
+      return $101($102($103($104($105($106)))));
+    };
+  };
+};
+var objectTypeDefinitionLens1 = /* @__PURE__ */ objectTypeDefinitionLens(choiceFn)(wanderFunction);
+var inputObjectTypeDefinitionLens = function(dictChoice) {
+  return function(dictWander) {
+    var $107 = uPrism(_Document)(dictChoice);
+    var $108 = traversed2(dictWander);
+    var $109 = uPrism(_Definition_TypeSystemDefinition)(dictChoice);
+    var $110 = uPrism(_TypeSystemDefinition_TypeDefinition)(dictChoice);
+    var $111 = uPrism(_TypeDefinition_InputObjectTypeDefinition)(dictChoice);
+    return function($112) {
+      return $107($108($109($110($111($112)))));
+    };
+  };
+};
+var inputObjectTypeDefinitionLens1 = /* @__PURE__ */ inputObjectTypeDefinitionLens(choiceFn)(wanderFunction);
+var inputFieldsLens = function(dictTraversable) {
+  var traversed3 = traversed(dictTraversable);
+  return function(dictWander) {
+    var $113 = traversed3(dictWander);
+    var $114 = uPrism(_InputFieldsDefinition)(dictWander.Choice1());
+    var $115 = traversed2(dictWander);
+    return function($116) {
+      return $113($114($115($116)));
+    };
+  };
+};
+var inputFieldsLens1 = /* @__PURE__ */ inputFieldsLens(traversableMaybe)(wanderFunction);
+var applyNullableOverrides = function(overrides) {
+  var v = spy2("overrides")(overrides);
+  var applyToInputFieldsDefinition = function(v1) {
+    return function(v2) {
+      var v3 = function(v4) {
+        return v2;
+      };
+      var $65 = lookup3(v2.name)(v1);
+      if ($65 instanceof Just) {
+        var $66 = {};
+        for (var $67 in v2) {
+          if ({}.hasOwnProperty.call(v2, $67)) {
+            $66[$67] = v2[$67];
+          }
+          ;
+        }
+        ;
+        $66.type = setNullable($65.value0)(v2.type);
+        return $66;
+      }
+      ;
+      return v3(true);
+    };
+  };
+  var applyToInputDefinition = function(v1) {
+    var v2 = function(v3) {
+      return v1;
+    };
+    var $74 = lookup3(v1.name)(overrides);
+    if ($74 instanceof Just) {
+      var $75 = {};
+      for (var $76 in v1) {
+        if ({}.hasOwnProperty.call(v1, $76)) {
+          $75[$76] = v1[$76];
+        }
+        ;
+      }
+      ;
+      $75.inputFieldsDefinition = over2(function($117) {
+        return inputFieldsLens1(_Newtype2($117));
+      })(applyToInputFieldsDefinition($74.value0))(v1.inputFieldsDefinition);
+      return $75;
+    }
+    ;
+    return v2(true);
+  };
+  var applyToFieldsDefinition = function(v1) {
+    return function(v2) {
+      var v3 = function(v4) {
+        return v2;
+      };
+      var $85 = lookup3(v2.name)(v1);
+      if ($85 instanceof Just) {
+        var $86 = {};
+        for (var $87 in v2) {
+          if ({}.hasOwnProperty.call(v2, $87)) {
+            $86[$87] = v2[$87];
+          }
+          ;
+        }
+        ;
+        $86.type = setNullable(spy2("field nullable " + v2.name)($85.value0))(v2.type);
+        return $86;
+      }
+      ;
+      return v3(true);
+    };
+  };
+  var applyToTypeDefinition = function(v1) {
+    var v2 = function(v32) {
+      return v1;
+    };
+    var $94 = lookup3(v1.name)(overrides);
+    if ($94 instanceof Just) {
+      var v3 = spy2("object name")(v1.name);
+      var v4 = spy2("objOverrides")($94.value0);
+      var $95 = {};
+      for (var $96 in v1) {
+        if ({}.hasOwnProperty.call(v1, $96)) {
+          $95[$96] = v1[$96];
+        }
+        ;
+      }
+      ;
+      $95.fieldsDefinition = over2(function($118) {
+        return traversed1(_Newtype2(traversed22(_Newtype2($118))));
+      })(applyToFieldsDefinition($94.value0))(v1.fieldsDefinition);
+      return $95;
+    }
+    ;
+    return v2(true);
+  };
+  var $119 = over2(function($122) {
+    return objectTypeDefinitionLens1(_Newtype2($122));
+  })(applyToTypeDefinition);
+  var $120 = over2(function($123) {
+    return inputObjectTypeDefinitionLens1(_Newtype2($123));
+  })(applyToInputDefinition);
+  return function($121) {
+    return $119($120($121));
+  };
+};
+
+// output/GraphQL.Client.CodeGen.Schema/index.js
+var lookup4 = /* @__PURE__ */ lookup(ordString);
 var map15 = /* @__PURE__ */ map(functorArray);
 var guard4 = /* @__PURE__ */ guard(monoidString);
 var show5 = /* @__PURE__ */ show(showString);
@@ -42174,7 +42678,7 @@ var nub12 = /* @__PURE__ */ nub2(/* @__PURE__ */ ordRecord()(/* @__PURE__ */ ord
     return "typeName";
   }
 })(ordString))()(moduleNameIsSymbol)(ordString)));
-var foldl2 = /* @__PURE__ */ foldl(foldableMap);
+var foldl3 = /* @__PURE__ */ foldl(foldableMap);
 var mapFlipped4 = /* @__PURE__ */ mapFlipped(functorList);
 var mapFlipped1 = /* @__PURE__ */ mapFlipped(functorEither);
 var pure6 = /* @__PURE__ */ pure(applicativeAff);
@@ -42297,7 +42801,7 @@ var typeName = function(gqlScalarsToPursTypes) {
       }
       ;
       return v1;
-    })(lookup3(str)(gqlScalarsToPursTypes));
+    })(lookup4(str)(gqlScalarsToPursTypes));
   };
 };
 var toImport = function(mainCode) {
@@ -42353,7 +42857,7 @@ var gqlToPursMainSchemaCode = function(v) {
           return "Subscription";
         }
         ;
-        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 197, column 13 - line 200, column 41): " + [v1.operationType.constructor.name]);
+        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 200, column 13 - line 203, column 41): " + [v1.operationType.constructor.name]);
       }();
       return "type " + (opStr + (" = " + namedTypeToPurs_(v1.namedType)));
     };
@@ -42376,7 +42880,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return notNullTypeToPurs(v1.value0);
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 395, column 16 - line 398, column 72): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 398, column 16 - line 401, column 72): " + [v1.constructor.name]);
     };
     var notNullTypeToPurs = function(v1) {
       if (v1 instanceof NonNullType_NamedType) {
@@ -42387,7 +42891,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return listTypeToPurs(v1.value0);
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 409, column 23 - line 411, column 51): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 412, column 23 - line 414, column 51): " + [v1.constructor.name]);
     };
     var listTypeToPursNullable = function(t) {
       return wrapMaybe(listTypeToPurs(t));
@@ -42425,7 +42929,7 @@ var gqlToPursMainSchemaCode = function(v) {
       var typeAndModule = fromMaybe({
         moduleName: "Data.Argonaut.Core",
         typeName: "Json -- Unknown scalar type. Add " + (tName + " to externalTypes in codegen options to override this behaviour")
-      })(lookup3(tName)(v.externalTypes));
+      })(lookup4(tName)(v.externalTypes));
       return guard4(notElem3(tName)(builtInTypes))(docComment3(v1.description) + ("type " + (tName + (" = " + (typeAndModule.moduleName + ("." + typeAndModule.typeName))))));
     };
     var argTypeToPurs = function(v1) {
@@ -42441,7 +42945,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return wrapNotNull(argNotNullTypeToPurs(v1.value0));
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 379, column 19 - line 382, column 89): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 382, column 19 - line 385, column 89): " + [v1.constructor.name]);
     };
     var argNotNullTypeToPurs = function(v1) {
       if (v1 instanceof NonNullType_NamedType) {
@@ -42452,7 +42956,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return argListTypeToPurs(v1.value0);
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 385, column 26 - line 387, column 54): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 388, column 26 - line 390, column 54): " + [v1.constructor.name]);
     };
     var argListTypeToPurs = function(v1) {
       return "(Array " + (argTypeToPurs(v1) + ")");
@@ -42460,7 +42964,7 @@ var gqlToPursMainSchemaCode = function(v) {
     var inputValueDefinitionToPurs = function(objectName) {
       return function(v1) {
         return inlineComment(v1.description) + (safeFieldname(v1.name) + (" :: " + function() {
-          var v2 = bind6(lookup3(objectName)(v.fieldTypeOverrides))(lookup3(v1.name));
+          var v2 = bind6(lookup4(objectName)(v.fieldTypeOverrides))(lookup4(v1.name));
           if (v2 instanceof Nothing) {
             return argTypeToPurs(v1.type);
           }
@@ -42477,7 +42981,7 @@ var gqlToPursMainSchemaCode = function(v) {
             return v2.value0.moduleName + ("." + v2.value0.typeName);
           }
           ;
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 368, column 10 - line 373, column 55): " + [v2.constructor.name]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 371, column 10 - line 376, column 55): " + [v2.constructor.name]);
         }()));
       };
     };
@@ -42501,7 +43005,7 @@ var gqlToPursMainSchemaCode = function(v) {
     var fieldDefinitionToPurs = function(objectName) {
       return function(v1) {
         return inlineComment(v1.description) + (safeFieldname(v1.name) + (" :: " + (foldMap5(argumentsDefinitionToPurs)(v1.argumentsDefinition) + function() {
-          var v2 = bind6(lookup3(objectName)(v.fieldTypeOverrides))(lookup3(v1.name));
+          var v2 = bind6(lookup4(objectName)(v.fieldTypeOverrides))(lookup4(v1.name));
           if (v2 instanceof Nothing) {
             return typeToPurs(v1.type);
           }
@@ -42518,7 +43022,7 @@ var gqlToPursMainSchemaCode = function(v) {
             return wrapMaybe(v2.value0.moduleName + ("." + v2.value0.typeName));
           }
           ;
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 284, column 10 - line 289, column 67): " + [v2.constructor.name]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 287, column 10 - line 292, column 67): " + [v2.constructor.name]);
         }())));
       };
     };
@@ -42566,7 +43070,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return new Just(inputObjectTypeDefinitionToPurs(v1.value0));
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 203, column 26 - line 209, column 143): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 206, column 26 - line 212, column 143): " + [v1.constructor.name]);
     };
     var typeSystemDefinitionToPurs = function(v1) {
       if (v1 instanceof TypeSystemDefinition_SchemaDefinition) {
@@ -42581,7 +43085,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return directiveDefinitionToPurs(v1.value0);
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 182, column 32 - line 185, column 118): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 185, column 32 - line 188, column 118): " + [v1.constructor.name]);
     };
     var definitionToPurs = function(v1) {
       if (v1 instanceof Definition_ExecutableDefinition) {
@@ -42596,10 +43100,10 @@ var gqlToPursMainSchemaCode = function(v) {
         return Nothing.value;
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 176, column 22 - line 179, column 52): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 179, column 22 - line 182, column 52): " + [v1.constructor.name]);
     };
     var mainCode = intercalate7("\n\n")(removeDuplicateDefinitions(mapMaybe(definitionToPurs)(unwrap5(doc))));
-    var imports = fold5(nub4(append13(toImport(mainCode)(fromFoldable22(v.externalTypes)))(append13(toImport(mainCode)(nub12(foldl2(function(res) {
+    var imports = fold5(nub4(append13(toImport(mainCode)(fromFoldable22(v.externalTypes)))(append13(toImport(mainCode)(nub12(foldl3(function(res) {
       return function(m) {
         return append13(res)(fromFoldable22(m));
       };
@@ -42650,7 +43154,7 @@ var gqlToPursEnums = function(gqlScalarsToPursTypes) {
 };
 var schemaFromGqlToPurs = function(opts) {
   return function(v) {
-    return mapFlipped1(runParser(v.schema)(document))(function(ast) {
+    return mapFlipped1(mapFlipped1(runParser(v.schema)(document))(applyNullableOverrides(opts.nullableOverrides)))(function(ast) {
       var symbols = fromFoldable7(getSymbols(ast));
       return {
         mainSchemaCode: gqlToPursMainSchemaCode(opts)(ast),
@@ -42685,7 +43189,7 @@ var schemaFromGqlToPursWithCache = function(opts) {
               return pure6(new Right(v2.value0));
             }
             ;
-            throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 108, column 13 - line 110, column 35): " + [v2.constructor.name]);
+            throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 110, column 13 - line 112, column 35): " + [v2.constructor.name]);
           }())(function(eVal) {
             return discard2(function() {
               if (eVal instanceof Right) {
@@ -42703,7 +43207,7 @@ var schemaFromGqlToPursWithCache = function(opts) {
         });
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 104, column 3 - line 104, column 70): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 106, column 3 - line 106, column 70): " + [v1.constructor.name]);
     };
     return go(opts.cache);
   };
@@ -42731,6 +43235,7 @@ var schemasFromGqlToPurs = function(opts_) {
     idImport: opts_.idImport,
     isHasura: opts_.isHasura,
     modulePath: opts_.modulePath,
+    nullableOverrides: opts_.nullableOverrides,
     useNewtypesForRecords: opts_.useNewtypesForRecords
   };
   var modulePrefix = foldMap13(function(v) {
@@ -42841,6 +43346,7 @@ var schemasFromGqlToPursJs = /* @__PURE__ */ function() {
       externalTypes: fromFoldableWithIndex2(fromNullable(mempty4)(optsJs.externalTypes)),
       fieldTypeOverrides: map16(fromFoldableWithIndex2)(fromFoldableWithIndex2(fromNullable(mempty1)(optsJs.fieldTypeOverrides))),
       gqlScalarsToPursTypes: fromFoldableWithIndex2(fromNullable(mempty22)(optsJs.gqlScalarsToPursTypes)),
+      nullableOverrides: map16(fromFoldableWithIndex2)(fromFoldableWithIndex2(fromNullable(empty3)(optsJs.nullableOverrides))),
       dir: fromNullable("")(optsJs.dir),
       modulePath: fromNullable([])(optsJs.modulePath),
       isHasura: fromNullable(false)(optsJs.isHasura),

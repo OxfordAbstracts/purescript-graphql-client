@@ -447,6 +447,7 @@ defaultOpts =
   , enumImports: []
   , customEnumCode: const ""
   , fieldTypeOverrides: Map.empty
+  , nullableOverrides: Map.empty
   , externalTypes: Map.empty
   , idImport: Nothing
   , enumValueNameTransform: Nothing
