@@ -11,6 +11,7 @@ import Data.Map as Map
 import Data.Maybe (fromMaybe)
 import Data.Nullable (Nullable, toMaybe)
 import Foreign.Object (Object)
+import Foreign.Object as Object
 import GraphQL.Client.CodeGen.Schema (schemasFromGqlToPurs)
 import GraphQL.Client.CodeGen.Types (GqlInput, JsResult)
 import Text.Parsing.Parser (parseErrorMessage)
@@ -28,6 +29,7 @@ schemasFromGqlToPursJs = mkFn2 go
       { externalTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.externalTypes)
       , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (fromNullable mempty optsJs.fieldTypeOverrides)
       , gqlScalarsToPursTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.gqlScalarsToPursTypes)
+      , nullableOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (fromNullable Object.empty optsJs.nullableOverrides)
       , dir: fromNullable "" optsJs.dir
       , modulePath: fromNullable [] optsJs.modulePath
       , isHasura: fromNullable false optsJs.isHasura
@@ -38,9 +40,9 @@ schemasFromGqlToPursJs = mkFn2 go
       , cache:
           toMaybe optsJs.cache
             <#> \{ get, set } ->
-                { get: map (toAff >>> map toMaybe) get
-                , set: map toAff set
-                }
+              { get: map (toAff >>> map toMaybe) get
+              , set: map toAff set
+              }
       }
 
     getError err =
@@ -52,38 +54,39 @@ schemasFromGqlToPursJs = mkFn2 go
 fromNullable :: forall a. a -> Nullable a -> a
 fromNullable a = fromMaybe a <<< toMaybe
 
-type InputOptionsJs
-  = { gqlScalarsToPursTypes :: Nullable (Object String)
-    , externalTypes ::
-        Nullable
-          ( Object
-              { moduleName :: String
-              , typeName :: String
-              }
-          )
-    , fieldTypeOverrides ::
-        Nullable
-          ( Object
-              ( Object
-                  { moduleName :: String
-                  , typeName :: String
-                  }
-              )
-          )
-    , idImport ::
-        Nullable
-          { moduleName :: String
-          , typeName :: String
-          }
-    , dir :: Nullable String
-    , modulePath :: Nullable (Array String)
-    , isHasura :: Nullable Boolean
-    , useNewtypesForRecords :: Nullable Boolean
-    , enumImports :: Nullable (Array String)
-    , customEnumCode :: Nullable ({ name :: String, values :: Array String } -> String)
-    , cache ::
-        Nullable
-          { get :: String -> Promise (Nullable Json)
-          , set :: { key :: String, val :: Json } -> Promise Unit
-          }
-    }
+type InputOptionsJs =
+  { gqlScalarsToPursTypes :: Nullable (Object String)
+  , externalTypes ::
+      Nullable
+        ( Object
+            { moduleName :: String
+            , typeName :: String
+            }
+        )
+  , fieldTypeOverrides ::
+      Nullable
+        ( Object
+            ( Object
+                { moduleName :: String
+                , typeName :: String
+                }
+            )
+        )
+  , nullableOverrides :: Nullable (Object (Object Boolean))
+  , idImport ::
+      Nullable
+        { moduleName :: String
+        , typeName :: String
+        }
+  , dir :: Nullable String
+  , modulePath :: Nullable (Array String)
+  , isHasura :: Nullable Boolean
+  , useNewtypesForRecords :: Nullable Boolean
+  , enumImports :: Nullable (Array String)
+  , customEnumCode :: Nullable ({ name :: String, values :: Array String } -> String)
+  , cache ::
+      Nullable
+        { get :: String -> Promise (Nullable Json)
+        , set :: { key :: String, val :: Json } -> Promise Unit
+        }
+  }

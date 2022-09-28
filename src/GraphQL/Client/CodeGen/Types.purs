@@ -33,6 +33,7 @@ type InputOptions
               , typeName :: String
               }
           )
+    , nullableOverrides :: Map String (Map String Boolean)
     , idImport ::
         Maybe
           { moduleName :: String
@@ -56,6 +57,7 @@ defaultInputOptions =
   { externalTypes: Map.empty
   , gqlScalarsToPursTypes: Map.empty
   , fieldTypeOverrides: Map.empty
+  , nullableOverrides: Map.empty
   , idImport: Nothing
   , dir: ""
   , isHasura: false
