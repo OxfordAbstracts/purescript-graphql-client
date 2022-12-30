@@ -42177,12 +42177,12 @@ var intercalate7 = /* @__PURE__ */ intercalate2(foldableList)(monoidString);
 var map1 = /* @__PURE__ */ map(functorList);
 var unwrap5 = /* @__PURE__ */ unwrap();
 var bind6 = /* @__PURE__ */ bind(bindMaybe);
+var eq22 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(eqBoolean));
 var notEq5 = /* @__PURE__ */ notEq(eqCodePoint);
 var fromFoldable7 = /* @__PURE__ */ fromFoldable3(foldableList);
 var compare4 = /* @__PURE__ */ compare(ordString);
 var fromFoldable12 = /* @__PURE__ */ fromFoldable(foldableArray);
 var notElem3 = /* @__PURE__ */ notElem2(eqString);
-var eq22 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(eqBoolean));
 var fold5 = /* @__PURE__ */ fold(foldableArray)(monoidString);
 var nub4 = /* @__PURE__ */ nub2(ordString);
 var append13 = /* @__PURE__ */ append(semigroupArray);
@@ -42348,9 +42348,6 @@ var inlineComment = /* @__PURE__ */ foldMap5(function(str) {
 });
 var gqlToPursMainSchemaCode = function(v) {
   return function(doc) {
-    var wrapMaybe = function(s) {
-      return "(Maybe " + (s + ")");
-    };
     var wrapArray = function(s) {
       return "(Array " + (s + ")");
     };
@@ -42359,8 +42356,8 @@ var gqlToPursMainSchemaCode = function(v) {
     };
     var unionTypeDefinitionToPurs = function(v1) {
       if (v1.directives instanceof Nothing && v1.unionMemberTypes instanceof Just) {
-        return new Just(docComment3(v1.description) + ("type " + (v1.name + (" = GqlUnion" + indent("\n( " + (intercalate7("\n, ")(map1(function($327) {
-          return unionMemberTypeToPurs(unwrap5($327));
+        return new Just(docComment3(v1.description) + ("type " + (v1.name + (" = GqlUnion" + indent("\n( " + (intercalate7("\n, ")(map1(function($332) {
+          return unionMemberTypeToPurs(unwrap5($332));
         })(v1.unionMemberTypes.value0)) + "\n)"))))));
       }
       ;
@@ -42372,9 +42369,17 @@ var gqlToPursMainSchemaCode = function(v) {
         return pre === take4(length4(pre))(str);
       };
     };
-    var wrapNotNull = function(s) {
-      var $206 = startsWith("(NotNull ")(trim(s));
+    var wrapMaybe = function(s) {
+      var $206 = startsWith("(Maybe ")(s);
       if ($206) {
+        return s;
+      }
+      ;
+      return "(Maybe " + (s + ")");
+    };
+    var wrapNotNull = function(s) {
+      var $207 = startsWith("(NotNull ")(trim(s));
+      if ($207) {
         return s;
       }
       ;
@@ -42402,40 +42407,8 @@ var gqlToPursMainSchemaCode = function(v) {
     var schemaDefinitionToPurs = function(v1) {
       return intercalate7("\n\n")(map1(rootOperationTypeDefinitionToPurs)(v1.rootOperationTypeDefinition));
     };
-    var namedTypeToPursNullable = function($328) {
-      return wrapMaybe(namedTypeToPurs_($328));
-    };
-    var typeToPurs = function(v1) {
-      if (v1 instanceof Type_NamedType) {
-        return namedTypeToPursNullable(v1.value0);
-      }
-      ;
-      if (v1 instanceof Type_ListType) {
-        return listTypeToPursNullable(v1.value0);
-      }
-      ;
-      if (v1 instanceof Type_NonNullType) {
-        return notNullTypeToPurs(v1.value0);
-      }
-      ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 440, column 16 - line 443, column 72): " + [v1.constructor.name]);
-    };
-    var notNullTypeToPurs = function(v1) {
-      if (v1 instanceof NonNullType_NamedType) {
-        return namedTypeToPurs_(v1.value0);
-      }
-      ;
-      if (v1 instanceof NonNullType_ListType) {
-        return listTypeToPurs(v1.value0);
-      }
-      ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 454, column 23 - line 456, column 51): " + [v1.constructor.name]);
-    };
-    var listTypeToPursNullable = function(t) {
-      return wrapMaybe(listTypeToPurs(t));
-    };
-    var listTypeToPurs = function(v1) {
-      return wrapArray(typeToPurs(v1));
+    var namedTypeToPursNullable = function($333) {
+      return wrapMaybe(namedTypeToPurs_($333));
     };
     var interfaceTypeDefinitionToPurs = function(v1) {
       return Nothing.value;
@@ -42445,19 +42418,67 @@ var gqlToPursMainSchemaCode = function(v) {
         return bind6(lookup3(objectName)(v.nullableOverrides))(lookup3(unwrap5(namedType2)));
       };
     };
+    var typeToPurs = function(objectName) {
+      return function(v1) {
+        if (v1 instanceof Type_NamedType && eq22(getNullable(objectName)(v1.value0))(new Just(false))) {
+          return notNullTypeToPurs(objectName)(new NonNullType_NamedType(v1.value0));
+        }
+        ;
+        if (v1 instanceof Type_NamedType) {
+          return namedTypeToPursNullable(v1.value0);
+        }
+        ;
+        if (v1 instanceof Type_ListType) {
+          return listTypeToPursNullable(objectName)(v1.value0);
+        }
+        ;
+        if (v1 instanceof Type_NonNullType && (v1.value0 instanceof NonNullType_NamedType && eq22(getNullable(objectName)(v1.value0.value0))(new Just(true)))) {
+          return namedTypeToPursNullable(v1.value0.value0);
+        }
+        ;
+        if (v1 instanceof Type_NonNullType) {
+          return notNullTypeToPurs(objectName)(v1.value0);
+        }
+        ;
+        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 441, column 27 - line 448, column 83): " + [v1.constructor.name]);
+      };
+    };
+    var notNullTypeToPurs = function(objectName) {
+      return function(v1) {
+        if (v1 instanceof NonNullType_NamedType) {
+          return namedTypeToPurs_(v1.value0);
+        }
+        ;
+        if (v1 instanceof NonNullType_ListType) {
+          return listTypeToPurs(objectName)(v1.value0);
+        }
+        ;
+        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 460, column 34 - line 462, column 62): " + [v1.constructor.name]);
+      };
+    };
+    var listTypeToPursNullable = function(objectName) {
+      return function(t) {
+        return wrapMaybe(listTypeToPurs(objectName)(t));
+      };
+    };
+    var listTypeToPurs = function(objectName) {
+      return function(v1) {
+        return wrapArray(typeToPurs(objectName)(v1));
+      };
+    };
     var getDefinitionTypeName = function() {
-      var $329 = filter3(function(l) {
+      var $334 = filter3(function(l) {
         return take4(length4(commentPrefix))(l) !== commentPrefix;
       });
-      var $330 = takeWhile3(notEq5(codePointFromChar("=")));
-      return function($331) {
-        return fromLines($329(toLines($330($331))));
+      var $335 = takeWhile3(notEq5(codePointFromChar("=")));
+      return function($336) {
+        return fromLines($334(toLines($335($336))));
       };
     }();
     var removeDuplicateDefinitions = function() {
-      var $332 = nubBy2(on(compare4)(getDefinitionTypeName));
-      return function($333) {
-        return fromFoldable12($332(fromFoldable7($333)));
+      var $337 = nubBy2(on(compare4)(getDefinitionTypeName));
+      return function($338) {
+        return fromFoldable12($337(fromFoldable7($338)));
       };
     }();
     var enumTypeDefinitionToPurs = function(v1) {
@@ -42572,7 +42593,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return inlineComment(v1.description) + (safeFieldname(v1.name) + (" :: " + (foldMap5(argumentsDefinitionToPurs)(v1.argumentsDefinition) + function() {
           var v2 = bind6(lookup3(objectName)(v.fieldTypeOverrides))(lookup3(v1.name));
           if (v2 instanceof Nothing) {
-            return typeToPurs(v1.type);
+            return typeToPurs(objectName)(v1.type);
           }
           ;
           if (v2 instanceof Just) {
@@ -42710,9 +42731,9 @@ var gqlToPursEnums = function(gqlScalarsToPursTypes) {
     ;
     return Nothing.value;
   };
-  var $334 = mapMaybe(definitionToEnum);
-  return function($335) {
-    return fromFoldable7($334(unwrap5($335)));
+  var $339 = mapMaybe(definitionToEnum);
+  return function($340) {
+    return fromFoldable7($339(unwrap5($340)));
   };
 };
 var schemaFromGqlToPurs = function(opts) {
@@ -42741,8 +42762,8 @@ var schemaFromGqlToPursWithCache = function(opts) {
       if (v1 instanceof Just) {
         return bind1(v1.value0.get(v.schema))(function(jsonMay) {
           return bind1(function() {
-            var v2 = bind6(jsonMay)(function($336) {
-              return hush(decodeJson2($336));
+            var v2 = bind6(jsonMay)(function($341) {
+              return hush(decodeJson2($341));
             });
             if (v2 instanceof Nothing) {
               return go(Nothing.value);
@@ -42848,11 +42869,11 @@ var schemasFromGqlToPurs = function(opts_) {
       }))
     };
   };
-  var $337 = map32(map42(collectSchemas));
-  var $338 = map32(sequence3);
-  var $339 = traverse2(schemaFromGqlToPursWithCache(opts));
-  return function($340) {
-    return $337($338($339($340)));
+  var $342 = map32(map42(collectSchemas));
+  var $343 = map32(sequence3);
+  var $344 = traverse2(schemaFromGqlToPursWithCache(opts));
+  return function($345) {
+    return $342($343($344($345)));
   };
 };
 
