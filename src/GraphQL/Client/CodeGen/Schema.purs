@@ -146,7 +146,7 @@ toImport mainCode =
     )
 
 gqlToPursMainSchemaCode :: InputOptions -> AST.Document -> String
-gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrides, useNewtypesForRecords } doc =
+gqlToPursMainSchemaCode { gqlScalarsToPursTypes, nullableOverrides, externalTypes, fieldTypeOverrides, useNewtypesForRecords } doc =
   imports
     <> guard (imports /= "") "\n"
     <> "\n"
@@ -314,7 +314,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
     inlineComment description
       <> safeFieldname name
       <> " :: "
-      <> argTypeToPurs tipe
+      <> argTypeToPurs name tipe
 
   interfaceTypeDefinitionToPurs :: AST.InterfaceTypeDefinition -> Maybe String
   interfaceTypeDefinitionToPurs (AST.InterfaceTypeDefinition _) = Nothing
@@ -400,30 +400,41 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
       <> safeFieldname name
       <> " :: "
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
-        Nothing -> argTypeToPurs tipe
+        Nothing -> argTypeToPurs objectName tipe
         Just out -> case tipe of
+          AST.Type_NonNullType (AST.NonNullType_NamedType namedType) | getNullable objectName namedType == Just true -> out.moduleName <> "." <> out.typeName
           AST.Type_NonNullType _ -> wrapNotNull $ out.moduleName <> "." <> out.typeName
           AST.Type_ListType _ -> wrapArray $ out.moduleName <> "." <> out.typeName
+          AST.Type_NamedType namedType | getNullable objectName namedType == Just false -> wrapNotNull $ out.moduleName <> "." <> out.typeName
           _ -> out.moduleName <> "." <> out.typeName
 
   directiveDefinitionToPurs :: AST.DirectiveDefinition -> Maybe String
   directiveDefinitionToPurs _ = Nothing
 
-  argTypeToPurs :: AST.Type -> String
-  argTypeToPurs = case _ of
+  argTypeToPurs :: String -> AST.Type -> String
+  argTypeToPurs objectName = case _ of
+    (AST.Type_NamedType namedType) | getNullable objectName namedType == Just false ->
+      wrapNotNull $ namedTypeToPurs_ namedType
     (AST.Type_NamedType namedType) -> namedTypeToPurs_ namedType
-    (AST.Type_ListType listType) -> argListTypeToPurs listType
-    (AST.Type_NonNullType notNullType) -> wrapNotNull $ argNotNullTypeToPurs notNullType
+    (AST.Type_ListType listType) -> argListTypeToPurs objectName listType
+    (AST.Type_NonNullType notNullType@(AST.NonNullType_NamedType namedType)) | getNullable objectName namedType == Just true ->
+      argNotNullTypeToPurs objectName notNullType
+    (AST.Type_NonNullType notNullType) -> wrapNotNull $ argNotNullTypeToPurs objectName notNullType
 
-  argNotNullTypeToPurs :: AST.NonNullType -> String
-  argNotNullTypeToPurs = case _ of
+  argNotNullTypeToPurs :: String -> AST.NonNullType -> String
+  argNotNullTypeToPurs objectName = case _ of
     AST.NonNullType_NamedType t -> namedTypeToPurs_ t
-    AST.NonNullType_ListType t -> argListTypeToPurs t
+    AST.NonNullType_ListType t -> argListTypeToPurs objectName t
 
-  argListTypeToPurs :: AST.ListType -> String
-  argListTypeToPurs (AST.ListType t) = "(Array " <> argTypeToPurs t <> ")"
+  argListTypeToPurs :: String -> AST.ListType -> String
+  argListTypeToPurs objectName (AST.ListType t) = "(Array " <> argTypeToPurs objectName t <> ")"
 
-  wrapNotNull s = "(NotNull " <> s <> ")"
+  wrapNotNull s = if startsWith "(NotNull " (String.trim s) then s else "(NotNull " <> s <> ")"
+
+  startsWith pre str = pre == take (String.length pre) str
+
+  getNullable :: String -> AST.NamedType -> Maybe Boolean
+  getNullable objectName namedType = lookup objectName nullableOverrides >>= lookup (unwrap namedType)
 
   typeToPurs :: AST.Type -> String
   typeToPurs = case _ of
