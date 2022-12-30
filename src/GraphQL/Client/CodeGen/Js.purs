@@ -2,6 +2,7 @@
 module GraphQL.Client.CodeGen.Js where
 
 import Prelude
+
 import Control.Promise (Promise, fromAff, toAff)
 import Data.Argonaut.Core (Json)
 import Data.Either (either)

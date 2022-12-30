@@ -33,7 +33,7 @@ type InputOptions
               , typeName :: String
               }
           )
-    , nullableOverrides :: Map String (Map String Boolean)
+    , nullableOverrides  :: Map String (Map String Boolean)
     , idImport ::
         Maybe
           { moduleName :: String

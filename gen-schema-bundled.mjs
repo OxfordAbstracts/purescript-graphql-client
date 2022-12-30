@@ -237,8 +237,8 @@ var semigroupRecordCons = function(dictIsSymbol) {
                 var tail2 = appendRecord1($$Proxy.value)(ra)(rb);
                 var key = reflectSymbol2($$Proxy.value);
                 var insert5 = unsafeSet(key);
-                var get2 = unsafeGet(key);
-                return insert5(append14(get2(ra))(get2(rb)))(tail2);
+                var get3 = unsafeGet(key);
+                return insert5(append14(get3(ra))(get3(rb)))(tail2);
               };
             };
           }
@@ -307,6 +307,17 @@ var applySecond = function(dictApply) {
   return function(a) {
     return function(b) {
       return apply1(map18($$const(identity2))(a))(b);
+    };
+  };
+};
+var lift2 = function(dictApply) {
+  var apply1 = apply(dictApply);
+  var map18 = map(dictApply.Functor0());
+  return function(f) {
+    return function(a) {
+      return function(b) {
+        return apply1(map18(f)(a))(b);
+      };
     };
   };
 };
@@ -475,8 +486,8 @@ var eqRowCons = function(dictEqRecord) {
               return function(rb) {
                 var tail2 = eqRecord1($$Proxy.value)(ra)(rb);
                 var key = reflectSymbol2($$Proxy.value);
-                var get2 = unsafeGet(key);
-                return eq32(get2(ra))(get2(rb)) && tail2;
+                var get3 = unsafeGet(key);
+                return eq32(get3(ra))(get3(rb)) && tail2;
               };
             };
           }
@@ -652,10 +663,10 @@ var ordRecordCons = function(dictOrdRecord) {
             return function(ra) {
               return function(rb) {
                 var key = reflectSymbol2($$Proxy.value);
-                var left = compare32(unsafeGet(key)(ra))(unsafeGet(key)(rb));
-                var $95 = notEq2(left)(EQ.value);
+                var left2 = compare32(unsafeGet(key)(ra))(unsafeGet(key)(rb));
+                var $95 = notEq2(left2)(EQ.value);
                 if ($95) {
-                  return left;
+                  return left2;
                 }
                 ;
                 return compareRecord1($$Proxy.value)(ra)(rb);
@@ -1518,6 +1529,13 @@ var uncurry = function(f) {
 var snd = function(v) {
   return v.value1;
 };
+var functorTuple = {
+  map: function(f) {
+    return function(m) {
+      return new Tuple(m.value0, f(m.value1));
+    };
+  }
+};
 var fst = function(v) {
   return v.value0;
 };
@@ -1667,6 +1685,17 @@ var coerce = function() {
 var coerce2 = /* @__PURE__ */ coerce();
 var unwrap = function() {
   return coerce2;
+};
+var alaF = function() {
+  return function() {
+    return function() {
+      return function() {
+        return function(v) {
+          return coerce2;
+        };
+      };
+    };
+  };
 };
 
 // output/Control.Monad.Except/index.js
@@ -2006,6 +2035,46 @@ var identity6 = /* @__PURE__ */ identity(categoryFn);
 var traverse = function(dict) {
   return dict.traverse;
 };
+var traversableMaybe = {
+  traverse: function(dictApplicative) {
+    var pure7 = pure(dictApplicative);
+    var map18 = map(dictApplicative.Apply0().Functor0());
+    return function(v) {
+      return function(v1) {
+        if (v1 instanceof Nothing) {
+          return pure7(Nothing.value);
+        }
+        ;
+        if (v1 instanceof Just) {
+          return map18(Just.create)(v(v1.value0));
+        }
+        ;
+        throw new Error("Failed pattern match at Data.Traversable (line 115, column 1 - line 119, column 33): " + [v.constructor.name, v1.constructor.name]);
+      };
+    };
+  },
+  sequence: function(dictApplicative) {
+    var pure7 = pure(dictApplicative);
+    var map18 = map(dictApplicative.Apply0().Functor0());
+    return function(v) {
+      if (v instanceof Nothing) {
+        return pure7(Nothing.value);
+      }
+      ;
+      if (v instanceof Just) {
+        return map18(Just.create)(v.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.Traversable (line 115, column 1 - line 119, column 33): " + [v.constructor.name]);
+    };
+  },
+  Functor0: function() {
+    return functorMaybe;
+  },
+  Foldable1: function() {
+    return foldableMaybe;
+  }
+};
 var sequenceDefault = function(dictTraversable) {
   var traverse22 = traverse(dictTraversable);
   return function(dictApplicative) {
@@ -2151,7 +2220,7 @@ var singleton2 = function(dictPlus) {
 };
 var foldableNonEmpty = function(dictFoldable) {
   var foldMap6 = foldMap(dictFoldable);
-  var foldl3 = foldl(dictFoldable);
+  var foldl4 = foldl(dictFoldable);
   var foldr4 = foldr(dictFoldable);
   return {
     foldMap: function(dictMonoid) {
@@ -2166,7 +2235,7 @@ var foldableNonEmpty = function(dictFoldable) {
     foldl: function(f) {
       return function(b) {
         return function(v) {
-          return foldl3(f)(f(b)(v.value0))(v.value1);
+          return foldl4(f)(f(b)(v.value0))(v.value1);
         };
       };
     },
@@ -2181,6 +2250,7 @@ var foldableNonEmpty = function(dictFoldable) {
 };
 
 // output/Data.List.Types/index.js
+var identity7 = /* @__PURE__ */ identity(categoryFn);
 var Nil = /* @__PURE__ */ function() {
   function Nil3() {
   }
@@ -2353,6 +2423,7 @@ var foldableList = {
     };
   }
 };
+var foldl2 = /* @__PURE__ */ foldl(foldableList);
 var foldr2 = /* @__PURE__ */ foldr(foldableList);
 var foldableNonEmptyList = /* @__PURE__ */ foldableNonEmpty(foldableList);
 var semigroupList = {
@@ -2376,6 +2447,35 @@ var semigroupNonEmptyList = {
     return function(as$prime) {
       return new NonEmpty(v.value0, append1(v.value1)(toList(as$prime)));
     };
+  }
+};
+var traversableList = {
+  traverse: function(dictApplicative) {
+    var Apply0 = dictApplicative.Apply0();
+    var map18 = map(Apply0.Functor0());
+    var lift22 = lift2(Apply0);
+    var pure1 = pure(dictApplicative);
+    return function(f) {
+      var $298 = map18(foldl2(flip(Cons.create))(Nil.value));
+      var $299 = foldl2(function(acc) {
+        var $301 = lift22(flip(Cons.create))(acc);
+        return function($302) {
+          return $301(f($302));
+        };
+      })(pure1(Nil.value));
+      return function($300) {
+        return $298($299($300));
+      };
+    };
+  },
+  sequence: function(dictApplicative) {
+    return traverse(traversableList)(dictApplicative)(identity7);
+  },
+  Functor0: function() {
+    return functorList;
+  },
+  Foldable1: function() {
+    return foldableList;
   }
 };
 var applyList = {
@@ -2477,18 +2577,18 @@ var Aff = function() {
       }, 0);
     }
   }
-  function runSync(left, right, eff) {
+  function runSync(left2, right2, eff) {
     try {
-      return right(eff());
+      return right2(eff());
     } catch (error2) {
-      return left(error2);
+      return left2(error2);
     }
   }
-  function runAsync(left, eff, k) {
+  function runAsync(left2, eff, k) {
     try {
       return eff(k)();
     } catch (error2) {
-      k(left(error2))();
+      k(left2(error2))();
       return nonCanceler2;
     }
   }
@@ -3306,13 +3406,13 @@ var _delay = function() {
       return clearTimeout(t);
     }
   }
-  return function(right, ms) {
+  return function(right2, ms) {
     return Aff.Async(function(cb) {
       return function() {
-        var timer = setDelay(ms, cb(right()));
+        var timer = setDelay(ms, cb(right2()));
         return function() {
           return Aff.Sync(function() {
-            return right(clearDelay(ms, timer));
+            return right2(clearDelay(ms, timer));
           });
         };
       };
@@ -3320,6 +3420,29 @@ var _delay = function() {
   };
 }();
 var _sequential = Aff.Seq;
+
+// output/Data.Profunctor/index.js
+var identity8 = /* @__PURE__ */ identity(categoryFn);
+var profunctorFn = {
+  dimap: function(a2b) {
+    return function(c2d) {
+      return function(b2c) {
+        return function($18) {
+          return c2d(b2c(a2b($18)));
+        };
+      };
+    };
+  }
+};
+var dimap = function(dict) {
+  return dict.dimap;
+};
+var rmap = function(dictProfunctor) {
+  var dimap1 = dimap(dictProfunctor);
+  return function(b2c) {
+    return dimap1(identity8)(b2c);
+  };
+};
 
 // output/Control.Parallel.Class/index.js
 var sequential = function(dict) {
@@ -3330,7 +3453,7 @@ var parallel = function(dict) {
 };
 
 // output/Control.Parallel/index.js
-var identity7 = /* @__PURE__ */ identity(categoryFn);
+var identity9 = /* @__PURE__ */ identity(categoryFn);
 var parTraverse_ = function(dictParallel) {
   var sequential2 = sequential(dictParallel);
   var traverse_2 = traverse_(dictParallel.Applicative1());
@@ -3350,7 +3473,7 @@ var parTraverse_ = function(dictParallel) {
 var parSequence_ = function(dictParallel) {
   var parTraverse_1 = parTraverse_(dictParallel);
   return function(dictFoldable) {
-    return parTraverse_1(dictFoldable)(identity7);
+    return parTraverse_1(dictFoldable)(identity9);
   };
 };
 
@@ -4417,7 +4540,7 @@ var readString = function(dictMonad) {
 // output/Control.Promise/index.js
 var voidRight2 = /* @__PURE__ */ voidRight(functorEffect);
 var mempty2 = /* @__PURE__ */ mempty(monoidCanceler);
-var identity8 = /* @__PURE__ */ identity(categoryFn);
+var identity10 = /* @__PURE__ */ identity(categoryFn);
 var alt2 = /* @__PURE__ */ alt(/* @__PURE__ */ altExceptT(semigroupNonEmptyList)(monadIdentity));
 var unsafeReadTagged2 = /* @__PURE__ */ unsafeReadTagged(monadIdentity);
 var map6 = /* @__PURE__ */ map(/* @__PURE__ */ functorExceptT(functorIdentity));
@@ -4443,7 +4566,7 @@ var fromAff = function(aff) {
 var coerce3 = function(fn) {
   return either(function(v) {
     return error("Promise failed, couldn't extract JS Error or String");
-  })(identity8)(runExcept(alt2(unsafeReadTagged2("Error")(fn))(map6(error)(readString2(fn)))));
+  })(identity10)(runExcept(alt2(unsafeReadTagged2("Error")(fn))(map6(error)(readString2(fn)))));
 };
 var toAff = /* @__PURE__ */ toAff$prime(coerce3);
 
@@ -7058,12 +7181,12 @@ var gEncodeJsonCons = function(dictEncodeJson) {
     var gEncodeJson1 = gEncodeJson(dictGEncodeJson);
     return function(dictIsSymbol) {
       var reflectSymbol2 = reflectSymbol(dictIsSymbol);
-      var get2 = get(dictIsSymbol)();
+      var get3 = get(dictIsSymbol)();
       return function() {
         return {
           gEncodeJson: function(row) {
             return function(v) {
-              return insert2(reflectSymbol2($$Proxy.value))(encodeJson1(get2($$Proxy.value)(row)))(gEncodeJson1(row)($$Proxy.value));
+              return insert2(reflectSymbol2($$Proxy.value))(encodeJson1(get3($$Proxy.value)(row)))(gEncodeJson1(row)($$Proxy.value));
             };
           }
         };
@@ -40499,6 +40622,52 @@ var Definition_TypeSystemExtension = /* @__PURE__ */ function() {
 var Document = function(x) {
   return x;
 };
+var _TypeSystemDefinition_TypeDefinition = /* @__PURE__ */ function() {
+  return new Tuple(TypeSystemDefinition_TypeDefinition.create, function(v) {
+    if (v instanceof TypeSystemDefinition_TypeDefinition) {
+      return new Just(v.value0);
+    }
+    ;
+    return Nothing.value;
+  });
+}();
+var _TypeDefinition_ObjectTypeDefinition = /* @__PURE__ */ function() {
+  return new Tuple(TypeDefinition_ObjectTypeDefinition.create, function(v) {
+    if (v instanceof TypeDefinition_ObjectTypeDefinition) {
+      return new Just(v.value0);
+    }
+    ;
+    return Nothing.value;
+  });
+}();
+var _TypeDefinition_InputObjectTypeDefinition = /* @__PURE__ */ function() {
+  return new Tuple(TypeDefinition_InputObjectTypeDefinition.create, function(v) {
+    if (v instanceof TypeDefinition_InputObjectTypeDefinition) {
+      return new Just(v.value0);
+    }
+    ;
+    return Nothing.value;
+  });
+}();
+var _InputFieldsDefinition = /* @__PURE__ */ function() {
+  return new Tuple(InputFieldsDefinition, function(v) {
+    return new Just(v);
+  });
+}();
+var _Document = /* @__PURE__ */ function() {
+  return new Tuple(Document, function(v) {
+    return new Just(v);
+  });
+}();
+var _Definition_TypeSystemDefinition = /* @__PURE__ */ function() {
+  return new Tuple(Definition_TypeSystemDefinition.create, function(v) {
+    if (v instanceof Definition_TypeSystemDefinition) {
+      return new Just(v.value0);
+    }
+    ;
+    return Nothing.value;
+  });
+}();
 
 // output/Parsing/index.js
 var $runtime_lazy6 = function(name3, moduleName, init3) {
@@ -40897,14 +41066,14 @@ var between = function(open) {
 };
 
 // output/Data.String.Regex/foreign.js
-var regexImpl = function(left) {
-  return function(right) {
+var regexImpl = function(left2) {
+  return function(right2) {
     return function(s1) {
       return function(s2) {
         try {
-          return right(new RegExp(s1, s2));
+          return right2(new RegExp(s1, s2));
         } catch (e) {
-          return left(e.message);
+          return left2(e.message);
         }
       };
     };
@@ -41904,10 +42073,10 @@ var definition = /* @__PURE__ */ function() {
 var document = /* @__PURE__ */ map12(Document)(/* @__PURE__ */ applySecond3(ignoreMe)(/* @__PURE__ */ _listish(definition)));
 
 // output/Data.String.Regex.Unsafe/index.js
-var identity9 = /* @__PURE__ */ identity(categoryFn);
+var identity11 = /* @__PURE__ */ identity(categoryFn);
 var unsafeRegex = function(s) {
   return function(f) {
-    return either(unsafeCrashWith)(identity9)(regex(s)(f));
+    return either(unsafeCrashWith)(identity11)(regex(s)(f));
   };
 };
 
@@ -42166,8 +42335,298 @@ var template2 = function(v) {
   return "module " + (v.modulePrefix + ("Schema." + (v.name + (" where\n\nimport Data.Maybe (Maybe)\nimport Data.Newtype (class Newtype)\nimport GraphQL.Client.Args (class ArgGql, class RecordArg, NotNull)\n" + (guard4(contains("GqlUnion")(v.mainSchemaCode))("import GraphQL.Client.Union (GqlUnion)") + ("\nimport " + (maybe("GraphQL.Client.ID (ID)")(getImport)(v.idImport) + ("\n" + (enumImports + ("\n\n" + (v.mainSchemaCode + "\n")))))))))));
 };
 
-// output/GraphQL.Client.CodeGen.Schema/index.js
+// output/Data.Profunctor.Choice/index.js
+var right = function(dict) {
+  return dict.right;
+};
+var choiceFn = {
+  left: function(v) {
+    return function(v1) {
+      if (v1 instanceof Left) {
+        return new Left(v(v1.value0));
+      }
+      ;
+      if (v1 instanceof Right) {
+        return new Right(v1.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.Profunctor.Choice (line 32, column 1 - line 35, column 16): " + [v.constructor.name, v1.constructor.name]);
+    };
+  },
+  right: /* @__PURE__ */ map(functorEither),
+  Profunctor0: function() {
+    return profunctorFn;
+  }
+};
+
+// output/Data.Profunctor.Strong/index.js
+var strongFn = {
+  first: function(a2b) {
+    return function(v) {
+      return new Tuple(a2b(v.value0), v.value1);
+    };
+  },
+  second: /* @__PURE__ */ map(functorTuple),
+  Profunctor0: function() {
+    return profunctorFn;
+  }
+};
+
+// output/Data.Lens.Internal.Wander/index.js
+var alaF2 = /* @__PURE__ */ alaF()()()();
+var wanderFunction = {
+  wander: function(t) {
+    return alaF2(Identity)(t(applicativeIdentity));
+  },
+  Strong0: function() {
+    return strongFn;
+  },
+  Choice1: function() {
+    return choiceFn;
+  }
+};
+var wander = function(dict) {
+  return dict.wander;
+};
+
+// output/Data.Lens.Iso/index.js
+var coerce4 = /* @__PURE__ */ coerce();
+var iso = function(f) {
+  return function(g) {
+    return function(dictProfunctor) {
+      var dimap2 = dimap(dictProfunctor);
+      return function(pab) {
+        return dimap2(f)(g)(pab);
+      };
+    };
+  };
+};
+var coerced = function() {
+  return function() {
+    return function(dictProfunctor) {
+      return iso(coerce4)(coerce4)(dictProfunctor);
+    };
+  };
+};
+
+// output/Data.Lens.Iso.Newtype/index.js
+var coerced2 = /* @__PURE__ */ coerced()();
+var _Newtype = function() {
+  return function() {
+    return function(dictProfunctor) {
+      return coerced2(dictProfunctor);
+    };
+  };
+};
+
+// output/Data.Lens.Prism/index.js
+var identity12 = /* @__PURE__ */ identity(categoryFn);
+var prism = function(to) {
+  return function(fro) {
+    return function(dictChoice) {
+      var Profunctor0 = dictChoice.Profunctor0();
+      var dimap2 = dimap(Profunctor0);
+      var right2 = right(dictChoice);
+      var rmap2 = rmap(Profunctor0);
+      return function(pab) {
+        return dimap2(fro)(either(identity12)(identity12))(right2(rmap2(to)(pab)));
+      };
+    };
+  };
+};
+var prism$prime = function(to) {
+  return function(fro) {
+    return function(dictChoice) {
+      return prism(to)(function(s) {
+        return maybe(new Left(s))(Right.create)(fro(s));
+      })(dictChoice);
+    };
+  };
+};
+
+// output/Data.Lens.Setter/index.js
+var over2 = function(l) {
+  return l;
+};
+
+// output/Data.Lens.Traversal/index.js
+var traversed = function(dictTraversable) {
+  var traverse3 = traverse(dictTraversable);
+  return function(dictWander) {
+    return wander(dictWander)(function(dictApplicative) {
+      return traverse3(dictApplicative);
+    });
+  };
+};
+
+// output/GraphQL.Client.CodeGen.Transform.NullableOverrides/index.js
+var traversed2 = /* @__PURE__ */ traversed(traversableList);
 var lookup3 = /* @__PURE__ */ lookup(ordString);
+var _Newtype2 = /* @__PURE__ */ _Newtype()()(profunctorFn);
+var traversed1 = /* @__PURE__ */ traversed(traversableMaybe)(wanderFunction);
+var traversed22 = /* @__PURE__ */ traversed2(wanderFunction);
+var uPrism = /* @__PURE__ */ uncurry(prism$prime);
+var setNullable = function(v) {
+  return function(v1) {
+    if (v && (v1 instanceof Type_NonNullType && v1.value0 instanceof NonNullType_NamedType)) {
+      return new Type_NamedType(v1.value0.value0);
+    }
+    ;
+    if (v && (v1 instanceof Type_NonNullType && v1.value0 instanceof NonNullType_ListType)) {
+      return new Type_ListType(v1.value0.value0);
+    }
+    ;
+    if (!v && v1 instanceof Type_NamedType) {
+      return new Type_NonNullType(new NonNullType_NamedType(v1.value0));
+    }
+    ;
+    if (!v && v1 instanceof Type_ListType) {
+      return new Type_NonNullType(new NonNullType_ListType(v1.value0));
+    }
+    ;
+    return v1;
+  };
+};
+var objectTypeDefinitionLens = function(dictChoice) {
+  return function(dictWander) {
+    var $96 = uPrism(_Document)(dictChoice);
+    var $97 = traversed2(dictWander);
+    var $98 = uPrism(_Definition_TypeSystemDefinition)(dictChoice);
+    var $99 = uPrism(_TypeSystemDefinition_TypeDefinition)(dictChoice);
+    var $100 = uPrism(_TypeDefinition_ObjectTypeDefinition)(dictChoice);
+    return function($101) {
+      return $96($97($98($99($100($101)))));
+    };
+  };
+};
+var objectTypeDefinitionLens1 = /* @__PURE__ */ objectTypeDefinitionLens(choiceFn)(wanderFunction);
+var inputObjectTypeDefinitionLens = function(dictChoice) {
+  return function(dictWander) {
+    var $102 = uPrism(_Document)(dictChoice);
+    var $103 = traversed2(dictWander);
+    var $104 = uPrism(_Definition_TypeSystemDefinition)(dictChoice);
+    var $105 = uPrism(_TypeSystemDefinition_TypeDefinition)(dictChoice);
+    var $106 = uPrism(_TypeDefinition_InputObjectTypeDefinition)(dictChoice);
+    return function($107) {
+      return $102($103($104($105($106($107)))));
+    };
+  };
+};
+var inputObjectTypeDefinitionLens1 = /* @__PURE__ */ inputObjectTypeDefinitionLens(choiceFn)(wanderFunction);
+var inputFieldsLens = function(dictTraversable) {
+  var traversed3 = traversed(dictTraversable);
+  return function(dictWander) {
+    var $108 = traversed3(dictWander);
+    var $109 = uPrism(_InputFieldsDefinition)(dictWander.Choice1());
+    var $110 = traversed2(dictWander);
+    return function($111) {
+      return $108($109($110($111)));
+    };
+  };
+};
+var inputFieldsLens1 = /* @__PURE__ */ inputFieldsLens(traversableMaybe)(wanderFunction);
+var applyNullableOverrides = function(overrides) {
+  var applyToInputFieldsDefinition = function(v) {
+    return function(v1) {
+      var v2 = function(v3) {
+        return v1;
+      };
+      var $60 = lookup3(v1.name)(v);
+      if ($60 instanceof Just) {
+        var $61 = {};
+        for (var $62 in v1) {
+          if ({}.hasOwnProperty.call(v1, $62)) {
+            $61[$62] = v1[$62];
+          }
+          ;
+        }
+        ;
+        $61.type = setNullable($60.value0)(v1.type);
+        return $61;
+      }
+      ;
+      return v2(true);
+    };
+  };
+  var applyToInputDefinition = function(v) {
+    var v1 = function(v2) {
+      return v;
+    };
+    var $69 = lookup3(v.name)(overrides);
+    if ($69 instanceof Just) {
+      var $70 = {};
+      for (var $71 in v) {
+        if ({}.hasOwnProperty.call(v, $71)) {
+          $70[$71] = v[$71];
+        }
+        ;
+      }
+      ;
+      $70.inputFieldsDefinition = over2(function($112) {
+        return inputFieldsLens1(_Newtype2($112));
+      })(applyToInputFieldsDefinition($69.value0))(v.inputFieldsDefinition);
+      return $70;
+    }
+    ;
+    return v1(true);
+  };
+  var applyToFieldsDefinition = function(v) {
+    return function(v1) {
+      var v2 = function(v3) {
+        return v1;
+      };
+      var $80 = lookup3(v1.name)(v);
+      if ($80 instanceof Just) {
+        var $81 = {};
+        for (var $82 in v1) {
+          if ({}.hasOwnProperty.call(v1, $82)) {
+            $81[$82] = v1[$82];
+          }
+          ;
+        }
+        ;
+        $81.type = setNullable($80.value0)(v1.type);
+        return $81;
+      }
+      ;
+      return v2(true);
+    };
+  };
+  var applyToTypeDefinition = function(v) {
+    var v1 = function(v2) {
+      return v;
+    };
+    var $89 = lookup3(v.name)(overrides);
+    if ($89 instanceof Just) {
+      var $90 = {};
+      for (var $91 in v) {
+        if ({}.hasOwnProperty.call(v, $91)) {
+          $90[$91] = v[$91];
+        }
+        ;
+      }
+      ;
+      $90.fieldsDefinition = over2(function($113) {
+        return traversed1(_Newtype2(traversed22(_Newtype2($113))));
+      })(applyToFieldsDefinition($89.value0))(v.fieldsDefinition);
+      return $90;
+    }
+    ;
+    return v1(true);
+  };
+  var $114 = over2(function($117) {
+    return objectTypeDefinitionLens1(_Newtype2($117));
+  })(applyToTypeDefinition);
+  var $115 = over2(function($118) {
+    return inputObjectTypeDefinitionLens1(_Newtype2($118));
+  })(applyToInputDefinition);
+  return function($116) {
+    return $114($115($116));
+  };
+};
+
+// output/GraphQL.Client.CodeGen.Schema/index.js
+var lookup4 = /* @__PURE__ */ lookup(ordString);
 var map15 = /* @__PURE__ */ map(functorArray);
 var guard5 = /* @__PURE__ */ guard(monoidString);
 var show5 = /* @__PURE__ */ show(showString);
@@ -42197,7 +42656,7 @@ var nub12 = /* @__PURE__ */ nub2(/* @__PURE__ */ ordRecord()(/* @__PURE__ */ ord
     return "typeName";
   }
 })(ordString))()(moduleNameIsSymbol)(ordString)));
-var foldl2 = /* @__PURE__ */ foldl(foldableMap);
+var foldl3 = /* @__PURE__ */ foldl(foldableMap);
 var mapFlipped4 = /* @__PURE__ */ mapFlipped(functorList);
 var mapFlipped1 = /* @__PURE__ */ mapFlipped(functorEither);
 var pure6 = /* @__PURE__ */ pure(applicativeAff);
@@ -42320,7 +42779,7 @@ var typeName = function(gqlScalarsToPursTypes) {
       }
       ;
       return v1;
-    })(lookup3(str)(gqlScalarsToPursTypes));
+    })(lookup4(str)(gqlScalarsToPursTypes));
   };
 };
 var toImport = function(mainCode) {
@@ -42542,7 +43001,7 @@ var gqlToPursMainSchemaCode = function(v) {
     var inputValueDefinitionToPurs = function(objectName) {
       return function(v1) {
         return inlineComment(v1.description) + (safeFieldname(v1.name) + (" :: " + function() {
-          var v2 = bind6(lookup3(objectName)(v.fieldTypeOverrides))(lookup3(v1.name));
+          var v2 = bind6(lookup4(objectName)(v.fieldTypeOverrides))(lookup4(v1.name));
           if (v2 instanceof Nothing) {
             return argTypeToPurs(objectName)(v1.type);
           }
@@ -42591,7 +43050,7 @@ var gqlToPursMainSchemaCode = function(v) {
     var fieldDefinitionToPurs = function(objectName) {
       return function(v1) {
         return inlineComment(v1.description) + (safeFieldname(v1.name) + (" :: " + (foldMap5(argumentsDefinitionToPurs)(v1.argumentsDefinition) + function() {
-          var v2 = bind6(lookup3(objectName)(v.fieldTypeOverrides))(lookup3(v1.name));
+          var v2 = bind6(lookup4(objectName)(v.fieldTypeOverrides))(lookup4(v1.name));
           if (v2 instanceof Nothing) {
             return typeToPurs(objectName)(v1.type);
           }
@@ -42687,7 +43146,7 @@ var gqlToPursMainSchemaCode = function(v) {
       throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 177, column 22 - line 180, column 52): " + [v1.constructor.name]);
     };
     var mainCode = intercalate7("\n\n")(removeDuplicateDefinitions(mapMaybe(definitionToPurs)(unwrap5(doc))));
-    var imports = fold5(nub4(append13(toImport(mainCode)(fromFoldable22(v.externalTypes)))(append13(toImport(mainCode)(nub12(foldl2(function(res) {
+    var imports = fold5(nub4(append13(toImport(mainCode)(fromFoldable22(v.externalTypes)))(append13(toImport(mainCode)(nub12(foldl3(function(res) {
       return function(m) {
         return append13(res)(fromFoldable22(m));
       };
@@ -42738,7 +43197,7 @@ var gqlToPursEnums = function(gqlScalarsToPursTypes) {
 };
 var schemaFromGqlToPurs = function(opts) {
   return function(v) {
-    return mapFlipped1(runParser(v.schema)(document))(function(ast) {
+    return mapFlipped1(mapFlipped1(runParser(v.schema)(document))(applyNullableOverrides(opts.nullableOverrides)))(function(ast) {
       var symbols = fromFoldable7(getSymbols(ast));
       return {
         mainSchemaCode: gqlToPursMainSchemaCode(opts)(ast),
