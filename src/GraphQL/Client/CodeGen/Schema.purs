@@ -290,7 +290,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, nullableOverrides, externalType
       <> " :: "
       <> foldMap argumentsDefinitionToPurs argumentsDefinition
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
-        Nothing -> typeToPurs tipe
+        Nothing -> typeToPurs objectName tipe
         Just out -> case tipe of
           AST.Type_NonNullType _ -> out.moduleName <> "." <> out.typeName
           AST.Type_ListType _ -> wrapArray $ out.moduleName <> "." <> out.typeName
@@ -436,27 +436,33 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, nullableOverrides, externalType
   getNullable :: String -> AST.NamedType -> Maybe Boolean
   getNullable objectName namedType = lookup objectName nullableOverrides >>= lookup (unwrap namedType)
 
-  typeToPurs :: AST.Type -> String
-  typeToPurs = case _ of
+
+  typeToPurs :: String -> AST.Type -> String
+  typeToPurs objectName = case _ of
+    (AST.Type_NamedType namedType) | getNullable objectName namedType == Just false -> 
+      notNullTypeToPurs objectName (AST.NonNullType_NamedType namedType)
     (AST.Type_NamedType namedType) -> namedTypeToPursNullable namedType
-    (AST.Type_ListType listType) -> listTypeToPursNullable listType
-    (AST.Type_NonNullType notNullType) -> notNullTypeToPurs notNullType
+    (AST.Type_ListType listType) -> listTypeToPursNullable objectName listType
+    (AST.Type_NonNullType (AST.NonNullType_NamedType namedType)) | getNullable objectName namedType == Just true  -> 
+      namedTypeToPursNullable namedType
+    (AST.Type_NonNullType notNullType) -> notNullTypeToPurs objectName notNullType
+
 
   namedTypeToPursNullable :: AST.NamedType -> String
   namedTypeToPursNullable = wrapMaybe <<< namedTypeToPurs_
 
-  listTypeToPursNullable :: AST.ListType -> String
-  listTypeToPursNullable t = wrapMaybe $ listTypeToPurs t
+  listTypeToPursNullable :: String -> AST.ListType -> String
+  listTypeToPursNullable objectName t = wrapMaybe $ listTypeToPurs  objectName t
 
-  wrapMaybe s = "(Maybe " <> s <> ")"
+  wrapMaybe s = if startsWith "(Maybe " s then s else "(Maybe " <> s <> ")"
 
-  notNullTypeToPurs :: AST.NonNullType -> String
-  notNullTypeToPurs = case _ of
+  notNullTypeToPurs :: String -> AST.NonNullType -> String
+  notNullTypeToPurs objectName = case _ of
     AST.NonNullType_NamedType t -> namedTypeToPurs_ t
-    AST.NonNullType_ListType t -> listTypeToPurs t
+    AST.NonNullType_ListType t -> listTypeToPurs objectName t
 
-  listTypeToPurs :: AST.ListType -> String
-  listTypeToPurs (AST.ListType t) = wrapArray $ typeToPurs t
+  listTypeToPurs :: String -> AST.ListType -> String
+  listTypeToPurs objectName (AST.ListType t) = wrapArray $ typeToPurs objectName t
 
   wrapArray s = "(Array " <> s <> ")"
 
