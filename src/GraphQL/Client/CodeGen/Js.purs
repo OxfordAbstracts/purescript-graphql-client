@@ -11,9 +11,10 @@ import Data.Map as Map
 import Data.Maybe (fromMaybe)
 import Data.Nullable (Nullable, toMaybe)
 import Foreign.Object (Object)
+import Foreign.Object as Object
 import GraphQL.Client.CodeGen.Schema (schemasFromGqlToPurs)
 import GraphQL.Client.CodeGen.Types (GqlInput, JsResult)
-import Text.Parsing.Parser (parseErrorMessage)
+import Parsing (parseErrorMessage)
 
 schemasFromGqlToPursJs :: Fn2 InputOptionsJs (Array GqlInput) JsResult
 schemasFromGqlToPursJs = mkFn2 go
@@ -28,6 +29,7 @@ schemasFromGqlToPursJs = mkFn2 go
       { externalTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.externalTypes)
       , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (fromNullable mempty optsJs.fieldTypeOverrides)
       , gqlScalarsToPursTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.gqlScalarsToPursTypes)
+      , nullableOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (fromNullable Object.empty optsJs.nullableOverrides)
       , dir: fromNullable "" optsJs.dir
       , modulePath: fromNullable [] optsJs.modulePath
       , isHasura: fromNullable false optsJs.isHasura
@@ -35,12 +37,14 @@ schemasFromGqlToPursJs = mkFn2 go
       , enumImports: fromNullable [] optsJs.enumImports
       , customEnumCode: fromNullable (const "") optsJs.customEnumCode
       , idImport: toMaybe optsJs.idImport
+      , enumValueNameTransform: toMaybe optsJs.enumValueNameTransform
       , cache:
           toMaybe optsJs.cache
             <#> \{ get, set } ->
                 { get: map (toAff >>> map toMaybe) get
                 , set: map toAff set
                 }
+      
       }
 
     getError err =
@@ -70,6 +74,7 @@ type InputOptionsJs
                   }
               )
           )
+    , nullableOverrides :: Nullable (Object (Object Boolean))
     , idImport ::
         Nullable
           { moduleName :: String
@@ -80,10 +85,11 @@ type InputOptionsJs
     , isHasura :: Nullable Boolean
     , useNewtypesForRecords :: Nullable Boolean
     , enumImports :: Nullable (Array String)
-    , customEnumCode :: Nullable ({ name :: String, values :: Array String } -> String)
+    , customEnumCode :: Nullable ({ name :: String, values :: Array { gql :: String, transformed :: String} } -> String)
     , cache ::
         Nullable
           { get :: String -> Promise (Nullable Json)
           , set :: { key :: String, val :: Json } -> Promise Unit
           }
+    , enumValueNameTransform :: Nullable (String -> String)
     }

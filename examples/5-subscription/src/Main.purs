@@ -22,7 +22,7 @@ main = do
       { url: "http://localhost:4000/graphql"
       , authToken: Nothing
       , headers: []
-      , websocketUrl: "ws://localhost:4000/subscriptions"
+      , websocketUrl: "ws://localhost:4000/graphql"
       }
   let
     event = subscription client "get_props" { postAdded: { author: unit, comment: unit } }

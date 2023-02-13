@@ -3,17 +3,19 @@ module Main where
 import Prelude
 
 import Data.Argonaut.Decode (class DecodeJson)
+import Data.Newtype (unwrap)
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
-import Generated.Gql.Enum.Colour (Colour(..))
 import Generated.Gql.Schema.Admin (Query)
+import Generated.Gql.Schema.Admin.Enum.Colour (Colour(..))
 import Generated.Gql.Symbols (colour)
 import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.Operation (OpQuery)
 import GraphQL.Client.Query (query_)
 import GraphQL.Client.Types (class GqlQuery)
 import Type.Data.List (Nil')
+import GraphQL.Client.Union (GqlUnion(..))
 import Type.Proxy (Proxy(..))
 
 main :: Effect Unit
@@ -22,7 +24,7 @@ main =
     { widgets } <-
       queryGql "WidgetColoursWithId1"
         { widgets: { colour: RED } =>> { colour } }
-        
+
     -- Will log [ RED ] as there is one red widget
     logShow $ map _.colour widgets
 

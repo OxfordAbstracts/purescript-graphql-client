@@ -1,12 +1,51 @@
-module GraphQL.Client.ToGqlString where
+module GraphQL.Client.ToGqlString
+  ( KeyVals(..)
+  , KeyVals_
+  , PropToGqlArg(..)
+  , PropToGqlString(..)
+  , ToGqlQueryStringOptions
+  , class GqlAndArgsString
+  , class GqlArgString
+  , class GqlQueryString
+  , class IsIgnoreArg
+  , dateString
+  , emptyKeyVals
+  , gqlArgStringRecord
+  , gqlArgStringRecordBody
+  , gqlArgStringRecordTopLevel
+  , gqlQueryStringRecord
+  , indent
+  , isIgnoreArg
+  , padMilli
+  , padl
+  , padl'
+  , removeTrailingZeros
+  , showInt
+  , timeString
+  , toGqlAndArgsStringImpl
+  , toGqlArgString
+  , toGqlArgStringImpl
+  , toGqlQueryString
+  , toGqlQueryStringFormatted
+  , toGqlQueryStringImpl
+  , toLines
+  )
+  where
 
 import Prelude
+
 import Data.Array (fold, foldMap, intercalate, length, mapWithIndex)
 import Data.Array as Array
 import Data.Date (Date)
 import Data.DateTime (DateTime(..), Millisecond)
 import Data.DateTime as DT
 import Data.Enum (class BoundedEnum, fromEnum)
+import Data.FoldableWithIndex (foldlWithIndex)
+import Data.Function (on)
+import Data.List (List)
+import Data.List as List
+import Data.Map (Map)
+import Data.Map as Map
 import Data.Maybe (Maybe(..), isJust, maybe)
 import Data.Monoid (guard, power)
 import Data.String (codePointFromChar, fromCodePointArray, joinWith, toCodePointArray)
@@ -16,14 +55,19 @@ import Data.String.Regex.Flags (global)
 import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Data.Time (Time)
+import Foreign (Foreign)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (AndArgs(AndArgs), Args(..), IgnoreArg, OrArg(..))
 import GraphQL.Client.Directive (ApplyDirective(..))
+import GraphQL.Client.Union (GqlUnion(..))
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars, getQuery)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
 import Type.Proxy (Proxy(..))
+import Unsafe.Coerce (unsafeCoerce)
 
 -- | Generate a GraphQL query from its purs representation
 toGqlQueryString :: forall q. GqlQueryString q => q -> String
@@ -52,10 +96,10 @@ else instance gqlQueryStringWithVars :: GqlQueryString query => GqlQueryString (
   toGqlQueryStringImpl opts withVars = toGqlQueryStringImpl opts $ getQuery withVars
 else instance gqlQueryStringApplyDirective ::
   ( IsSymbol name
-  , HFoldlWithIndex PropToGqlArg String { | args } String
+  , HFoldlWithIndex PropToGqlArg KeyVals (Record args) KeyVals
   , GqlQueryString query
   ) =>
-  GqlQueryString (ApplyDirective name { | args } query) where
+  GqlQueryString (ApplyDirective name (Record args) query) where
   toGqlQueryStringImpl opts (ApplyDirective args q) =
     "@"
       <> reflectSymbol (Proxy :: Proxy name)
@@ -83,63 +127,127 @@ else instance gqlQueryStringSpread ::
               <> reflectSymbol alias
               <> toGqlQueryStringImpl opts (Args arg fields)
 else instance gqlQueryStringArgsScalar ::
-  ( HFoldlWithIndex PropToGqlArg String (Record args) String
+  ( HFoldlWithIndex PropToGqlArg KeyVals (Record args) KeyVals
     ) =>
   GqlQueryString (Args { | args } Unit) where
   toGqlQueryStringImpl _ (Args args _) = gqlArgStringRecordTopLevel args
 else instance gqlQueryStringArgs ::
-  ( HFoldlWithIndex PropToGqlArg String (Record args) String
-  , GqlQueryString (Record body)
+  ( HFoldlWithIndex PropToGqlArg KeyVals (Record args) KeyVals
+  , GqlQueryString body
   ) =>
-  GqlQueryString (Args { | args } (Record body)) where
+  GqlQueryString (Args { | args } body) where
   toGqlQueryStringImpl opts (Args args body) =
     gqlArgStringRecordTopLevel args
       <> toGqlQueryStringImpl opts body
 else instance gqlQueryStringEmptyRecord ::
-  HFoldlWithIndex PropToGqlString String (Record r) String =>
+  HFoldlWithIndex PropToGqlString KeyVals (Record r) KeyVals =>
   GqlQueryString (Record r) where
   toGqlQueryStringImpl r = gqlQueryStringRecord r
+else instance gqlQueryStringGqlUnion ::
+  HFoldlWithIndex PropToGqlString KeyVals (Record r) KeyVals =>
+  GqlQueryString (GqlUnion r) where
+  toGqlQueryStringImpl opts (GqlUnion r) = gqlQueryStringUnion opts r
 
 data PropToGqlString
   = PropToGqlString ToGqlQueryStringOptions
+
+newtype KeyVals
+  = KeyVals KeyVals_
+
+type KeyVals_
+  = List { key :: String, val :: String }
+
+emptyKeyVals :: KeyVals
+emptyKeyVals = KeyVals List.Nil
 
 instance propToGqlStringAlias ::
   ( GqlQueryString a
   , IsSymbol sym
   , IsSymbol alias
   ) =>
-  FoldingWithIndex PropToGqlString (Proxy sym) String (Alias (Proxy alias) a) String where
-  foldingWithIndex (PropToGqlString opts) prop str (Alias alias a) =
-    str <> nl
-      <> reflectSymbol prop
-      <> ": "
-      <> reflectSymbol alias
-      <> toGqlQueryStringImpl opts a
-    where
-    nl = if isJust opts.indentation then "\n" else " "
+  FoldingWithIndex PropToGqlString (Proxy sym) KeyVals (Alias (Proxy alias) a) KeyVals where
+  foldingWithIndex (PropToGqlString opts) prop (KeyVals kvs) (Alias alias a) =
+    KeyVals
+      $ { key: reflectSymbol prop
+        , val:
+            ": "
+              <> reflectSymbol alias
+              <> toGqlQueryStringImpl opts a
+        }
+          `List.Cons`
+            kvs
 else instance propToGqlString ::
   ( GqlQueryString a
   , IsSymbol sym
   ) =>
-  FoldingWithIndex PropToGqlString (Proxy sym) String a String where
-  foldingWithIndex (PropToGqlString opts) prop str a =
-    str <> nl
-      <> reflectSymbol prop
-      <> toGqlQueryStringImpl opts a
-    where
-    nl = if isJust opts.indentation then "\n" else " "
+  FoldingWithIndex PropToGqlString (Proxy sym) KeyVals a KeyVals where
+  foldingWithIndex (PropToGqlString opts) prop (KeyVals kvs) a =
+    KeyVals
+      $ { key: reflectSymbol prop
+        , val: toGqlQueryStringImpl opts a
+        }
+          `List.Cons`
+            kvs
 
 gqlQueryStringRecord ::
   forall r.
   ToGqlQueryStringOptions ->
-  HFoldlWithIndex PropToGqlString String { | r } String =>
+  HFoldlWithIndex PropToGqlString KeyVals { | r } KeyVals =>
   { | r } ->
   String
-gqlQueryStringRecord opts r = indent opts $ " {" <> hfoldlWithIndex (PropToGqlString opts) "" r <> nl <> "}"
+gqlQueryStringRecord opts r = indent opts $ " {" <> body <> newline <> "}"
   where
+  (KeyVals kvs) = hfoldlWithIndex (PropToGqlString opts) emptyKeyVals r
+
+  body =
+    sortByKeyIndex r kvs
+      # List.foldMap (\{ key, val } -> nl <> key <> val)
+
   multiline = isJust opts.indentation
 
-  nl = guard multiline "\n"
+  nl = if isJust opts.indentation then "\n" else " "
+
+  newline = guard multiline "\n"
+
+data UnionToGqlString
+  = UnionToGqlString ToGqlQueryStringOptions
+
+instance unionToGqlString ::
+  ( GqlQueryString a
+  , IsSymbol sym
+  ) =>
+  FoldingWithIndex UnionToGqlString (Proxy sym) KeyVals a KeyVals where
+  foldingWithIndex (UnionToGqlString opts) union (KeyVals kvs) a =
+    KeyVals
+      $ { key: reflectSymbol union
+        , val: toGqlQueryStringImpl opts a
+        }
+          `List.Cons`
+            kvs
+
+gqlQueryStringUnion ::
+  forall r.
+  ToGqlQueryStringOptions ->
+  HFoldlWithIndex PropToGqlString KeyVals { | r } KeyVals =>
+  { | r } ->
+  String
+gqlQueryStringUnion opts r = indent opts $
+  " {" <> newline <>
+  " __typename" <> newline <>
+   body <> newline
+   <> "}"
+  where
+  (KeyVals kvs) = hfoldlWithIndex (PropToGqlString opts) emptyKeyVals r
+
+  body =
+    sortByKeyIndex r kvs
+      # List.foldMap (\{ key, val } -> nl <> "... on " <> key <> val)
+
+  multiline = isJust opts.indentation
+
+  nl = if multiline then "\n" else " "
+
+  newline = guard multiline "\n"
 
 indent ::
   forall r.
@@ -203,7 +311,7 @@ else instance gqlArgStringAndArgs ::
     ) =>
   GqlArgString (AndArgs a1 a2) where
   toGqlArgStringImpl andArg = "[" <> toGqlAndArgsStringImpl andArg <> "]"
-else instance gqlArgStringRecord_ :: HFoldlWithIndex PropToGqlArg String (Record r) String => GqlArgString (Record r) where
+else instance gqlArgStringRecord_ :: HFoldlWithIndex PropToGqlArg KeyVals (Record r) KeyVals => GqlArgString (Record r) where
   toGqlArgStringImpl r = gqlArgStringRecord r
 
 dateString :: Date -> String
@@ -288,35 +396,71 @@ instance propToGqlArg ::
   , IsSymbol sym
   , IsIgnoreArg a
   ) =>
-  FoldingWithIndex PropToGqlArg (Proxy sym) String a String where
-  foldingWithIndex PropToGqlArg prop str a =
-    if isIgnoreArg a then
-      str
-    else
-      pre <> reflectSymbol prop <> ": " <> toGqlArgStringImpl a
-    where
-    pre = if str == "" then "" else str <> ", "
+  FoldingWithIndex PropToGqlArg (Proxy sym) KeyVals a KeyVals where
+  foldingWithIndex PropToGqlArg prop (KeyVals kvs) a =
+    KeyVals
+      if isIgnoreArg a then
+        kvs
+      else
+        { key: reflectSymbol prop
+        , val: toGqlArgStringImpl a
+        }
+          `List.Cons`
+            kvs
 
+-- pre <> reflectSymbol prop <> ": " <> toGqlArgStringImpl a
+-- where
+-- pre = if str == "" then "" else str <> ", "
 gqlArgStringRecord ::
   forall r.
-  HFoldlWithIndex PropToGqlArg String { | r } String =>
+  HFoldlWithIndex PropToGqlArg KeyVals { | r } KeyVals =>
   { | r } ->
   String
-gqlArgStringRecord r = "{" <> hfoldlWithIndex PropToGqlArg "" r <> "}"
+gqlArgStringRecord r = "{" <> gqlArgStringRecordBody r <> "}"
 
 gqlArgStringRecordTopLevel ::
   forall r.
-  HFoldlWithIndex PropToGqlArg String { | r } String =>
+  HFoldlWithIndex PropToGqlArg KeyVals { | r } KeyVals =>
   { | r } ->
   String
 gqlArgStringRecordTopLevel r =
   let
-    inside = hfoldlWithIndex PropToGqlArg "" r
+    inside = gqlArgStringRecordBody r
   in
     if inside == "" then
       ""
     else
       "(" <> inside <> ")"
+
+gqlArgStringRecordBody ::
+  forall r.
+  HFoldlWithIndex PropToGqlArg KeyVals { | r } KeyVals =>
+  { | r } ->
+  String
+gqlArgStringRecordBody r =
+  sortByKeyIndex r kvs
+    <#> (\{ key, val } -> key <> ": " <> val)
+    # List.intercalate ", "
+  where
+  (KeyVals kvs) = hfoldlWithIndex PropToGqlArg emptyKeyVals r
+
+sortByKeyIndex :: forall r. { | r } -> KeyVals_ -> KeyVals_
+sortByKeyIndex record = List.sortBy (compare `on` getKeyIndex)
+  where
+  obj :: Object Foreign
+  obj = unsafeCoerce record
+
+  objKeys :: Array String
+  objKeys = Object.keys obj
+
+  objIdxs :: Map String Int
+  objIdxs = foldlWithIndex getIdx Map.empty objKeys
+
+  getIdx :: Int -> Map String Int -> String -> Map String Int
+  getIdx idx idxs key = Map.insert key idx idxs
+
+  getKeyIndex :: _ -> Maybe Int
+  getKeyIndex { key } = Map.lookup key objIdxs
 
 class IsIgnoreArg a where
   isIgnoreArg :: a -> Boolean

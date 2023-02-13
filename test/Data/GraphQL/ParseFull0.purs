@@ -12,17 +12,16 @@ import Data.Lens.Record as LR
 import Data.List (List, length)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Profunctor.Choice (class Choice)
-import Data.Symbol (SProxy(..))
+import Type.Proxy (Proxy(..))
 import Data.Tuple (uncurry)
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 import Effect.Exception (throw)
 import Test.Spec (Spec, before, describe, it)
 import Test.Spec.Assertions (shouldEqual, fail)
-import Text.Parsing.Parser (runParser)
-import Text.Parsing.Parser.String (class StringLike)
+import Parsing (runParser)
 
-parseDocument ∷ ∀ s. StringLike s ⇒ s → Aff (AST.Document)
+parseDocument ∷ String → Aff (AST.Document)
 parseDocument t = liftEffect (either (throw <<< show) pure (runParser t GP.document))
 
 schema =
@@ -100,7 +99,7 @@ getTweetName =
   L.preview
     $ ( lensToTweetObjectTypeDefinition
           <<< uncurry L.prism' AST._ObjectTypeDefinition
-          <<< LR.prop (SProxy ∷ SProxy "name")
+          <<< LR.prop (Proxy ∷ Proxy "name")
       )
 
 getTweetFieldDefinitionList ∷ AST.Document → Maybe (List AST.FieldDefinition)
@@ -108,7 +107,7 @@ getTweetFieldDefinitionList =
   L.preview
     $ ( lensToTweetObjectTypeDefinition
           <<< uncurry L.prism' AST._ObjectTypeDefinition
-          <<< LR.prop (SProxy ∷ SProxy "fieldsDefinition")
+          <<< LR.prop (Proxy ∷ Proxy "fieldsDefinition")
           <<< L._Just
           <<< uncurry L.prism' AST._FieldsDefinition
       )
@@ -118,12 +117,12 @@ getTweetIdArgName =
   L.preview
     $ ( lensToTweetObjectTypeDefinition
           <<< uncurry L.prism' AST._ObjectTypeDefinition
-          <<< LR.prop (SProxy ∷ SProxy "fieldsDefinition")
+          <<< LR.prop (Proxy ∷ Proxy "fieldsDefinition")
           <<< L._Just
           <<< uncurry L.prism' AST._FieldsDefinition
           <<< LI.ix 0
           <<< uncurry L.prism' AST._FieldDefinition
-          <<< LR.prop (SProxy ∷ SProxy "name")
+          <<< LR.prop (Proxy ∷ Proxy "name")
       )
 
 lensToUserObjectTypeDefinition ∷ ∀ m. Choice m ⇒ Wander m ⇒ m AST.ObjectTypeDefinition AST.ObjectTypeDefinition → m AST.Document AST.Document
@@ -140,7 +139,7 @@ getUserFieldDefinitionList =
   L.preview
     $ ( lensToUserObjectTypeDefinition
           <<< uncurry L.prism' AST._ObjectTypeDefinition
-          <<< LR.prop (SProxy ∷ SProxy "fieldsDefinition")
+          <<< LR.prop (Proxy ∷ Proxy "fieldsDefinition")
           <<< L._Just
           <<< uncurry L.prism' AST._FieldsDefinition
       )

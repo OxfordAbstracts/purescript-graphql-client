@@ -7,6 +7,7 @@ const getDirectories = source =>
     .filter(dirent => dirent.isDirectory())
     .map(dirent => dirent.name)
 
+
 const go = async () => {
   const e2e = getDirectories('./e2e')
 

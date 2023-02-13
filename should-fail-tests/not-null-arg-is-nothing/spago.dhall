@@ -53,6 +53,7 @@ You can edit this file as you like.
   , "typelevel-lists"
   , "typelevel-prelude"
   , "unicode"
+  , "unsafe-coerce"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs", "../../src/**/*.purs" ]

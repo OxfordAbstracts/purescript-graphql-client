@@ -13,8 +13,7 @@ module GraphQL.Client.BaseClients.Apollo
   , updateCache
   , readQuery
   , writeQuery
-  )
-   where
+  ) where
 
 import Prelude
 
@@ -28,10 +27,9 @@ import Data.Maybe (Maybe(..))
 import Data.Nullable (Nullable, toMaybe, toNullable)
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
-import Effect.Aff (Aff, error, throwError)
+import Effect.Aff (error, throwError)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
-import Foreign (Foreign, unsafeToForeign)
-import Foreign.Generic (encode)
+import Foreign (unsafeToForeign)
 import Foreign.Object (Object)
 import Foreign.Object as Object
 import GraphQL.Client.BaseClients.Apollo.ErrorPolicy (ErrorPolicy(..))
@@ -40,32 +38,32 @@ import GraphQL.Client.Operation (OpQuery)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
 import GraphQL.Client.Types (class GqlQuery, class QueryClient, class SubscriptionClient, class WatchQueryClient, Client(..))
 
-type ApolloClientOptions
-  = { url :: URL
-    , authToken :: Maybe String
-    , headers :: Array RequestHeader
-    }
+type ApolloClientOptions =
+  { url :: URL
+  , authToken :: Maybe String
+  , headers :: Array RequestHeader
+  }
 
-type ApolloSubClientOptions
-  = { url :: URL
-    , websocketUrl :: URL
-    , authToken :: Maybe String
-    , headers :: Array RequestHeader
-    }
+type ApolloSubClientOptions =
+  { url :: URL
+  , websocketUrl :: URL
+  , authToken :: Maybe String
+  , headers :: Array RequestHeader
+  }
 
--- | Apollo client to make graphQL queries and mutations. 
+-- | Apollo client to make graphQL queries and mutations.
 -- | From the @apollo/client npm module
 foreign import data ApolloClient :: Type
 
--- | Apollo client to make graphQL queries, mutations and subscriptions. 
--- | Requires a web socket graphQL server. 
--- | From the @apollo/client npm module 
+-- | Apollo client to make graphQL queries, mutations and subscriptions.
+-- | Requires a web socket graphQL server.
+-- | From the @apollo/client npm module
 foreign import data ApolloSubClient :: Type
 
-type QueryOpts
-  = { fetchPolicy :: Maybe FetchPolicy
-    , errorPolicy :: ErrorPolicy
-    }
+type QueryOpts =
+  { fetchPolicy :: Maybe FetchPolicy
+  , errorPolicy :: ErrorPolicy
+  }
 
 defQueryOpts :: QueryOpts
 defQueryOpts =
@@ -73,12 +71,12 @@ defQueryOpts =
   , errorPolicy: All
   }
 
-type MutationOpts
-  = { errorPolicy :: ErrorPolicy
-    , refetchQueries :: Array String
-    , update :: Maybe (Effect Unit)
-    , optimisticResponse :: Maybe Json
-    }
+type MutationOpts =
+  { errorPolicy :: ErrorPolicy
+  , refetchQueries :: Array String
+  , update :: Maybe (Effect Unit)
+  , optimisticResponse :: Maybe Json
+  }
 
 defMutationOpts :: MutationOpts
 defMutationOpts =
@@ -100,51 +98,49 @@ createSubscriptionClient ::
   Effect (Client ApolloSubClient directives querySchema mutationSchema subscriptionSchema)
 createSubscriptionClient = clientOptsToForeign >>> createSubscriptionClientImpl >>> map Client
 
-clientOptsToForeign ::
-  forall r.
-  { authToken :: Maybe String
-  , headers :: Array RequestHeader
-  | r
-  } ->
-  { authToken :: Nullable String
-  , headers :: Object String
-  | r
-  }
+clientOptsToForeign
+  :: forall r
+   . { authToken :: Maybe String
+     , headers :: Array RequestHeader
+     | r
+     }
+  -> { authToken :: Nullable String
+     , headers :: Object String
+     | r
+     }
 clientOptsToForeign opts =
   opts
     { authToken = toNullable opts.authToken
     , headers = Object.fromFoldable $ opts.headers <#> \h -> Tuple (name h) (value h)
     }
 
-type ApolloClientOptionsForeign
-  = { url :: URL
-    , authToken :: Nullable String
-    , headers :: Object String
-    }
+type ApolloClientOptionsForeign =
+  { url :: URL
+  , authToken :: Nullable String
+  , headers :: Object String
+  }
 
-type ApolloSubApolloClientOptionsForeign
-  = { url :: URL
-    , websocketUrl :: URL
-    , authToken :: Nullable String
-    , headers :: Object String
-    }
+type ApolloSubApolloClientOptionsForeign =
+  { url :: URL
+  , websocketUrl :: URL
+  , authToken :: Nullable String
+  , headers :: Object String
+  }
 
 instance queryClient ::
   QueryClient
     ApolloClient
     QueryOpts
     MutationOpts
+  where
+  clientQuery opts client name q_ vars =
+    fromEffectFnAff $ queryImpl (queryOptsToJson opts) client q vars
     where
-  clientQuery opts = queryForeign false (encode opts)
-  clientMutation opts =
-    queryForeign true
-      ( unsafeToForeign
-          { errorPolicy: encode opts.errorPolicy
-          , refetchQueries: encode opts.refetchQueries
-          , update: toNullable opts.update
-          , optimisticResponse: toNullable opts.optimisticResponse
-          }
-      )
+    q = "query " <> name <> " " <> q_
+  clientMutation opts client name q_ vars =
+    fromEffectFnAff $ mutationImpl (mutationOptsToJson opts) client q vars
+    where
+    q = "mutation " <> name <> " " <> q_
   defQueryOpts = const defQueryOpts
   defMutationOpts = const defMutationOpts
 
@@ -155,17 +151,16 @@ instance queryClientSubscription ::
     , errorPolicy :: ErrorPolicy
     }
     MutationOpts
+  where
+  clientQuery opts client name q_ vars =
+    fromEffectFnAff $ queryImpl (queryOptsToJson opts) client q vars
     where
-  clientQuery opts = queryForeign false (encode opts)
-  clientMutation opts =
-    queryForeign true
-      ( unsafeToForeign
-          { errorPolicy: encode opts.errorPolicy
-          , refetchQueries: encode opts.refetchQueries
-          , update: toNullable opts.update
-          , optimisticResponse: toNullable opts.optimisticResponse
-          }
-      )
+    q = "query " <> name <> " " <> q_
+  clientMutation opts client name q_ vars =
+    fromEffectFnAff $ mutationImpl (mutationOptsToJson opts) client q vars
+    where
+    q = "mutation " <> name <> " " <> q_
+
   defQueryOpts = const defQueryOpts
   defMutationOpts = const defMutationOpts
 
@@ -173,22 +168,22 @@ instance subClientSubscription ::
   SubscriptionClient
     ApolloSubClient
     QueryOpts
-    where
-  clientSubscription opts = subscriptionImpl (encode opts)
+  where
+  clientSubscription opts = subscriptionImpl (queryOptsToJson opts)
   defSubOpts = const defQueryOpts
 
+queryOptsToJson :: QueryOpts -> QueryJsonOpts
+queryOptsToJson opts =
+  { errorPolicy: encodeJson opts.errorPolicy
+  , fetchPolicy: encodeJson opts.fetchPolicy
+  }
 
-queryForeign ::
-  forall q m client.
-  QueryClient client q m =>
-  Boolean -> Foreign -> client -> String -> String ->  Json ->  Aff Json
-queryForeign isMutation opts client name q_ vars = fromEffectFnAff $ fn opts (unsafeToForeign client) q vars
-  where
-  fn = if isMutation then mutationImpl else queryImpl
-
-  opStr = if isMutation then "mutation" else "query"
-
-  q = opStr <> " " <> name <> " " <> q_
+mutationOptsToJson :: MutationOpts -> MutationJsonOpts
+mutationOptsToJson opts = opts
+  { errorPolicy = encodeJson opts.errorPolicy
+  , optimisticResponse = encodeJson opts.optimisticResponse
+  , update = toNullable opts.update
+  }
 
 class IsApollo :: forall k. k -> Constraint
 class IsApollo cl
@@ -231,7 +226,7 @@ readQuery ::
   GqlQuery directives OpQuery  qSchema q res =>
   (Json -> Either JsonDecodeError res) -> (Client c directives  qSchema m s) -> q -> Effect (Maybe res)
 readQuery decoder client query = do
-  json <- toMaybe <$> readQueryImpl (unsafeToForeign client) (toGqlQueryString query)
+  json <- toMaybe <$> readQueryImpl client (toGqlQueryString query)
   case map decoder json of
     Nothing -> pure Nothing
     Just (Left err) -> throwError $ error $ printJsonDecodeError err
@@ -244,49 +239,85 @@ writeQuery ::
   GqlQuery directives OpQuery  qSchema q res =>
   (res -> Json) -> (Client c directives qSchema m s) -> q -> res -> Effect Unit
 writeQuery encoder client query newData = do
-  writeQueryImpl (unsafeToForeign client) (toGqlQueryString query) (encoder newData)
+  writeQueryImpl client (toGqlQueryString query) (encoder newData)
 
 instance clientWatchQuery ::
   WatchQueryClient
     ApolloClient
     QueryOpts
-    where
-  clientWatchQuery opts c = watchQueryImpl (encode opts) (unsafeToForeign c)
+  where
+  clientWatchQuery opts c = watchQueryImpl (queryOptsToJson opts) (unsafeToForeign c)
   defWatchOpts = const defQueryOpts
 
-instance subClientWatchQuery :: 
+instance subClientWatchQuery ::
   WatchQueryClient
     ApolloSubClient
-    QueryOpts 
-    where
-  clientWatchQuery opts c = watchQueryImpl (encode opts) (unsafeToForeign c)
+    QueryOpts
+  where
+  clientWatchQuery opts = watchQueryImpl
+    { errorPolicy: encodeJson opts.errorPolicy
+    , fetchPolicy: encodeJson opts.fetchPolicy
+    }
   defWatchOpts = const defQueryOpts
 
 foreign import createClientImpl :: ApolloClientOptionsForeign -> Effect ApolloClient
 
 foreign import createSubscriptionClientImpl :: ApolloSubApolloClientOptionsForeign -> Effect ApolloSubClient
 
-foreign import queryImpl :: Foreign -> Foreign -> String ->    Json -> EffectFnAff Json
+type QueryJsonOpts =
+  { errorPolicy :: Json
+  , fetchPolicy :: Json
+  }
 
-foreign import mutationImpl :: Foreign -> Foreign -> String ->  Json ->  EffectFnAff Json
+type MutationJsonOpts =
+  { errorPolicy :: Json
+  , refetchQueries :: Array String
+  , optimisticResponse :: Json
+  , update :: Nullable (Effect Unit)
+  }
 
-foreign import readQueryImpl :: Foreign -> String -> Effect (Nullable Json)
+foreign import queryImpl
+  :: forall client
+   . QueryJsonOpts
+  -> client
+  -> String
+  -> Json
+  -> EffectFnAff Json
 
-foreign import writeQueryImpl :: Foreign -> String -> Json -> Effect Unit
+foreign import mutationImpl
+  :: forall client
+   . MutationJsonOpts
+  -> client
+  -> String
+  -> Json
+  -> EffectFnAff Json
 
-foreign import subscriptionImpl ::
-  Foreign ->
-  ApolloSubClient ->
-  String ->
-  Json ->
-  (Json -> Effect Unit) ->
-  Effect (Effect Unit)
+foreign import readQueryImpl
+  :: forall client
+   . client
+  -> String
+  -> Effect (Nullable Json)
 
-foreign import watchQueryImpl ::
-  Foreign ->
-  Foreign ->
-  String ->
-    Json ->
+foreign import writeQueryImpl
+  :: forall client
+   . client
+  -> String
+  -> Json
+  -> Effect Unit
 
-  (Json -> Effect Unit) ->
-  Effect (Effect Unit)
+foreign import subscriptionImpl
+  :: QueryJsonOpts
+  -> ApolloSubClient
+  -> String
+  -> Json
+  -> (Json -> Effect Unit)
+  -> Effect (Effect Unit)
+
+foreign import watchQueryImpl
+  :: forall client
+   . QueryJsonOpts
+  -> client
+  -> String
+  -> Json
+  -> (Json -> Effect Unit)
+  -> Effect (Effect Unit)

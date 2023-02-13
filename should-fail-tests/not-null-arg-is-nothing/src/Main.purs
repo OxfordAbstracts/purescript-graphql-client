@@ -4,7 +4,7 @@ import Prelude
 
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import GraphQL.Client.Args (type (==>), NotNull, (=>>))
+import GraphQL.Client.Args (NotNull, (=>>))
 import GraphQL.Client.QueryReturns (queryReturns)
 import Type.Proxy (Proxy(..))
 
@@ -18,7 +18,7 @@ type TestNotNullParamsSchema
   = { users ::
         { online :: NotNull Boolean
         }
-          ==> Array
+          -> Array
             { id :: Int
             }
     }

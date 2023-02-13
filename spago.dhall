@@ -9,6 +9,8 @@ You can edit this file as you like.
   [ "aff"
   , "aff-promise"
   , "affjax"
+  , "affjax-node"
+  , "affjax-web"
   , "argonaut-codecs"
   , "argonaut-core"
   , "arrays"
@@ -22,7 +24,6 @@ You can edit this file as you like.
   , "exceptions"
   , "foldable-traversable"
   , "foreign"
-  , "foreign-generic"
   , "foreign-object"
   , "functions"
   , "halogen-subscriptions"
@@ -54,6 +55,8 @@ You can edit this file as you like.
   , "tuples"
   , "typelevel-lists"
   , "unicode"
+  , "unsafe-coerce"
+  , "variant"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

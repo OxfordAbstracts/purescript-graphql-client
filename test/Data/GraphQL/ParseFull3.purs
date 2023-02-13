@@ -11,7 +11,7 @@ import Data.Lens.Record (prop)
 import Data.List (List(..), length, (:))
 import Data.Maybe (Maybe(..))
 import Data.Profunctor.Choice (class Choice)
-import Data.Symbol (SProxy(..))
+import Type.Proxy (Proxy(..))
 import Data.Tuple (Tuple(..), uncurry)
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
@@ -20,7 +20,7 @@ import Node.Encoding (Encoding(..))
 import Node.FS.Sync (readTextFile)
 import Test.Spec (SpecT, before, describe, it)
 import Test.Spec.Assertions (shouldEqual)
-import Text.Parsing.Parser (runParser)
+import Parsing (runParser)
 
 parseDocument :: String -> Aff AST.Document
 parseDocument t = do
@@ -62,7 +62,7 @@ testSwapi =
                   <<< uncurry prism' AST._TypeSystemDefinition_TypeDefinition
                   <<< uncurry prism' AST._TypeDefinition_ObjectTypeDefinition
                   <<< simple _Newtype
-                  <<< (prop (SProxy :: SProxy "implementsInterfaces"))
+                  <<< (prop (Proxy :: Proxy "implementsInterfaces"))
                   <<< _Just
               )
               doc

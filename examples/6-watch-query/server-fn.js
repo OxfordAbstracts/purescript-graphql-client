@@ -1,13 +1,15 @@
 
-module.exports = (onListening) => {
+module.exports = async (onListening) => {
   const express = require('express')
   const bodyParser = require('body-parser')
   const { ApolloServer, gql, makeExecutableSchema } = require('apollo-server-express')
   const { createServer } = require('http')
   const { execute, subscribe } = require('graphql')
   const { PubSub } = require('graphql-subscriptions')
-  const { SubscriptionServer } = require('subscriptions-transport-ws')
-  // const { myGraphQLSchema } = require('./my-schema')
+  const { WebSocketServer } = require('ws');
+  const { useServer } =  require("graphql-ws/lib/use/ws");
+  const { ApolloServerPluginDrainHttpServer } = require("apollo-server-core");
+
   const typeDefs = gql(`
   type Subscription {
     postAdded: Post!
@@ -56,29 +58,46 @@ module.exports = (onListening) => {
     }
   }
 
+
   const schema = makeExecutableSchema({ typeDefs, resolvers })
 
-  const apolloServer = new ApolloServer({ schema })
-  apolloServer.applyMiddleware({ app })
+  const httpServer = createServer(app);
 
-  const server = createServer(app)
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: "/graphql"
+  });
 
-  server.listen(PORT, () => {
-    new SubscriptionServer({
-      execute,
-      subscribe,
-      schema,
-      resolvers
-    }, {
-      server: server,
-      path: '/subscriptions'
-    })
+  const serverCleanup = useServer({ schema, onMessage: (s) => console.log(s) }, wsServer);
 
-    setTimeout(() => onListening(server, apolloServer, PORT), 500)
-  })
+  const server = new ApolloServer({
+    schema,
+    plugins: [
+      // Proper shutdown for the HTTP server.
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+  
+      // Proper shutdown for the WebSocket server.
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    ],
+  });
+
+  await server.start();
+  server.applyMiddleware({ app });
+
+  httpServer.listen(PORT, () => {
+    onListening(server, server, PORT)
+  });
 }
 
 const posts =
-  [{ author: 'author 1', comment: 'comment 1' },
+  [ { author: 'author 1', comment: 'comment 1' },
     { author: 'author 2', comment: 'comment 2' }
   ]

@@ -8,10 +8,9 @@ import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 import Effect.Exception (throw)
 import Test.Spec (SpecT, before, describe, it)
-import Text.Parsing.Parser (runParser)
-import Text.Parsing.Parser.String (class StringLike)
+import Parsing (runParser)
 
-parseDocument ∷ ∀ s. StringLike s ⇒ s → Aff (AST.Document)
+parseDocument ∷ String → Aff (AST.Document)
 parseDocument t = liftEffect (either (throw <<< show) pure (runParser t GP.document))
 
 -- uses a more full featured schema

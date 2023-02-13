@@ -6,7 +6,7 @@ import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (IgnoreArg(..), (++), (+++), (=>>))
 import GraphQL.Client.Directive (applyDir)
-import GraphQL.Client.ToGqlString (toGqlQueryString, toGqlQueryStringFormatted)
+import GraphQL.Client.ToGqlString (gqlArgStringRecordTopLevel, toGqlQueryString, toGqlQueryStringFormatted)
 import GraphQL.Client.Variable (Var(..))
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
@@ -28,6 +28,13 @@ spec =
               """ {
   a
   b
+}"""
+      it "converts 2 props ordered reverse alphabetically"
+        $ toGqlQueryStringFormatted { b: unit, a: unit }
+            `shouldEqual`
+              """ {
+  b
+  a
 }"""
       it "converts simple nested props"
         $ toGqlQueryStringFormatted { a: { nested: unit }, b: unit }
@@ -56,6 +63,12 @@ spec =
   }
   b
 }"""
+
+      it "converts 3 args and retains ordering"
+        $ gqlArgStringRecordTopLevel { c: "abc", b: 10, a: [ 1.0 ] }
+            `shouldEqual`
+              """(c: "abc", b: 10, a: [1.0])"""
+
       it "converts nested args"
         $ toGqlQueryStringFormatted { a: { arg: "abc", where: { id: { eq: 10 } } } =>> { nested: unit }, b: unit }
             `shouldEqual`
@@ -65,6 +78,8 @@ spec =
   }
   b
 }"""
+
+
       it "converts aliases"
         $ toGqlQueryStringFormatted { a_alias: (Proxy :: _ "a") : { nested_alias: (Proxy :: _ "nested") }, b: unit }
             `shouldEqual`
@@ -108,7 +123,7 @@ spec =
             { a:
                 { a: [ 1, 2, 3 ]
                 , b: 1 ++ 2 ++ 3 ++ 4
-                , c: ["a", "b"] +++ [1, 2] 
+                , c: ["a", "b"] +++ [1, 2]
                 , d: ([] :: Array Int) +++ ["a", "b"] +++ [1, 2] +++ ([] :: Array Int) +++ [ "c", "d"] +++ ([] :: Array Int)
                 }
                   =>> { nested: unit }
@@ -153,7 +168,7 @@ spec =
       it "handles dynamic aliases"
         $ toGqlQueryStringFormatted
              (Spread (Proxy :: _ "b") [ { arg: 10}, { arg: 20}, { arg: 30}] { field: unit })
-            
+
             `shouldEqual`
               """ {
   _0: b(arg: 10) {
@@ -167,23 +182,23 @@ spec =
   }
 }"""
       it "handles top level directives"
-        let 
+        let
           cached = applyDir (Proxy :: _ "cached")
         in
          toGqlQueryStringFormatted
              (cached {ttl: 10} { a: unit } )
-            
+
             `shouldEqual`
               """@cached(ttl: 10) {
   a
 }"""
       it "handles top level directives with no arguments"
-        let 
+        let
           cached = applyDir (Proxy :: _ "cached")
         in
          toGqlQueryStringFormatted
              (cached {} { a: unit } )
-            
+
             `shouldEqual`
               """@cached {
   a

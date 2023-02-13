@@ -1,8 +1,12 @@
-require('isomorphic-unfetch')
+import 'isomorphic-unfetch';
+import { createClient as createWsClient } from "graphql-ws";
+import { gql, split, HttpLink, createHttpLink, InMemoryCache, ApolloClient } from '@apollo/client/core/index.js';
+import { getMainDefinition } from '@apollo/client/utilities/index.js';
+import { setContext } from '@apollo/client/link/context/index.js';
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions/index.js";
+import WebSocket from 'isomorphic-ws';
 
 const createClientWithoutWebsockets = function (opts) {
-  const { ApolloClient, InMemoryCache, createHttpLink } = require('@apollo/client/core')
-  const { setContext } = require('@apollo/client/link/context')
 
   const authLink = setContext(function (_, { headers }) {
     // get the authentication token from local storage if it exists
@@ -12,7 +16,7 @@ const createClientWithoutWebsockets = function (opts) {
         {},
         headers,
         opts.headers,
-        { authorization: opts.authToken ? `Bearer ${opts.authToken}` : '' }
+        opts.authToken ? { authorization:`Bearer ${opts.authToken}` } : {}
       )
     }
   })
@@ -32,12 +36,7 @@ const createClientWithoutWebsockets = function (opts) {
 }
 
 const createClientWithWebsockets = function (opts) {
-  const { WebSocketLink } = require('@apollo/client/link/ws')
-  const { split, HttpLink, InMemoryCache, ApolloClient } = require('@apollo/client/core')
-  const { getMainDefinition } = require('@apollo/client/utilities')
-  const { setContext } = require('@apollo/client/link/context')
-  const ws = require('isomorphic-ws')
-  const { SubscriptionClient } = require('subscriptions-transport-ws')
+
 
   const httpLink = new HttpLink({
     uri: opts.url,
@@ -47,16 +46,15 @@ const createClientWithWebsockets = function (opts) {
     }
   })
 
-  const wsLink = new WebSocketLink(
-    new SubscriptionClient(opts.websocketUrl, {
-      reconnect: true,
+  const wsLink = new GraphQLWsLink(
+    createWsClient({
+      webSocketImpl: WebSocket,
+      url: opts.websocketUrl,
       timeout: 30000,
       connectionParams: {
-        headers: {
-          Authorization: 'Bearer ' + opts.authToken
-        }
+        headers: opts.authToken ? { Authorization:`Bearer ${opts.authToken}` } : {}
       }
-    }, ws)
+    })
   )
 
   const link = split(
@@ -76,8 +74,8 @@ const createClientWithWebsockets = function (opts) {
       headers: Object.assign(
         {},
         headers,
-        opts.headers,
-        { authorization: opts.authToken ? `Bearer ${opts.authToken}` : '' }
+        opts.headers,  
+        opts.authToken ? { authorization:`Bearer ${opts.authToken}` } : {}
       )
     }
   })
@@ -88,20 +86,19 @@ const createClientWithWebsockets = function (opts) {
   })
 }
 
-exports.createClientImpl = function (opts) {
+export function createClientImpl (opts) {
   return function () {
     return createClientWithoutWebsockets(opts)
   }
 }
 
-exports.createSubscriptionClientImpl = function (opts) {
+export function createSubscriptionClientImpl (opts) {
   return function () {
     return createClientWithWebsockets(opts)
   }
 }
 
-exports.queryImpl = function (opts) {
-  const { gql } = require('@apollo/client/core')
+export function queryImpl (opts) {
 
   return function (client) {
     return function (query) {
@@ -130,12 +127,11 @@ exports.queryImpl = function (opts) {
   }
 }
 
-exports.mutationImpl = function (opts) {
+export function mutationImpl (opts) {
   return function (client) {
     return function (mutation) {
       return function (variables) {
         return function (onError, onSuccess) {
-          const { gql } = require('@apollo/client/core')
 
           try {
             client
@@ -165,13 +161,12 @@ exports.mutationImpl = function (opts) {
   }
 }
 
-exports.subscriptionImpl = function (opts) {
+export function subscriptionImpl (opts) {
   return function (client) {
     return function (query) {
       return function (variables) {
         return function (onData) {
           return function () {
-            const { gql } = require('@apollo/client/core')
 
             const subscription = client
               .subscribe({
@@ -192,13 +187,12 @@ exports.subscriptionImpl = function (opts) {
   }
 }
 
-exports.watchQueryImpl = function (opts) {
+export function watchQueryImpl (opts) {
   return function (client) {
     return function (query) {
       return function (variables) {
         return function (onData) {
           return function () {
-            const { gql } = require('@apollo/client/core')
 
             const subscription = client
               .watchQuery({
@@ -222,19 +216,18 @@ exports.watchQueryImpl = function (opts) {
   }
 }
 
-exports.readQueryImpl = function (client) {
+export function readQueryImpl (client) {
   return function (query) {
-    const { gql } = require('@apollo/client/core')
     return function () {
       return client.readQuery({ query: gql(query) })
     }
   }
 }
 
-exports.writeQueryImpl = function (client) {
+export function writeQueryImpl (client) {
   return function (query) {
     return function (data) {
-      const { gql } = require('@apollo/client/core')
+
       return function () {
         client.writeQuery({
           query: gql(query),

@@ -4,7 +4,7 @@ const widgets = [
   { id: 2, name: 'two', colour: 'GREEN' }
 ]
 
-module.exports = (onListening) => {
+module.exports = (onListening) => { 
   const express = require('express')
   const { graphqlHTTP } = require('express-graphql')
   const { buildSchema } = require('graphql')

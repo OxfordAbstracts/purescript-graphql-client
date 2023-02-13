@@ -1,16 +1,17 @@
 module GraphQL.Hasura.Decode (class DecodeHasura, class DecodeHasuraFields, class DecodeHasuraField, decodeHasura, decodeHasuraFields, decodeHasuraField) where
 
 import Prelude
+
 import Control.Alt ((<|>))
 import Data.Argonaut.Core (Json, toObject)
 import Data.Argonaut.Decode (JsonDecodeError(..), decodeJson)
 import Data.Argonaut.Decode.Decoders (decodeJArray)
-import Data.Foldable (foldl)
 import Data.Bifunctor (lmap)
 import Data.Date (Date, canonicalDate)
 import Data.DateTime (DateTime(..), Time(..), adjust)
 import Data.Either (Either(..))
 import Data.Enum (class BoundedEnum, toEnum)
+import Data.Foldable (foldl)
 import Data.Int (toNumber)
 import Data.Int as Int
 import Data.List.NonEmpty as NonEmpty
@@ -24,10 +25,10 @@ import Foreign.Object as Object
 import Prim.Row as Row
 import Prim.RowList as RL
 import Record as Record
-import Text.Parsing.StringParser (Parser, fail, runParser)
-import Text.Parsing.StringParser as P
-import Text.Parsing.StringParser.CodeUnits (anyDigit, char, eof)
-import Text.Parsing.StringParser.Combinators (many1, optionMaybe)
+import StringParser (Parser, fail, runParser)
+import StringParser as P
+import StringParser.CodeUnits (anyDigit, char, eof)
+import StringParser.Combinators (many1, optionMaybe)
 import Type.Proxy (Proxy(..))
 
 type Err a

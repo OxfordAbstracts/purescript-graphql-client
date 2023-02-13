@@ -15,7 +15,7 @@ Argument for generateSchema
 -- | Extra imports for the generated enums
 , enumImports :: Nullable (Array String) 
 -- | Custom code to add to the generated enums
-, customEnumCode :: Nullable ({name :: String, values :: Array String} ->  String)
+, customEnumCode :: Nullable ({name :: String, values :: Array {gql :: String, tranformed :: String}} ->  String)
 -- | A getter and setter functions for caching transpiled graphql.
 -- | You will have to add the caching functionality yourself
 -- | This will make rebuilds on large schemas faster
@@ -56,6 +56,8 @@ Argument for generateSchema
         )
 -- | Whether the extra Hasura types should be generated
 , isHasura :: Nullable Boolean 
+-- | how to convert gql enum contructors to purescript strings. Will default to making their 1st character capital
+, enumValueNameTransform :: Nullable (String -> String)
 }
 ```
 
@@ -69,6 +71,7 @@ Argument for generateSchema
 -- | Whether the schema should use newtypes. Necessary for circular/recursive schemas
 , useNewtypesForRecords :: Nullable Boolean 
 -- | How to map graphQL types to Purescript types. The keys are graphql types and the values are purescript types you want them to be decoded as. Reasonable defaults are provided if you don't specify
+
 , gqlScalarsToPursTypes :: Nullable (Object String) 
 -- | Extra imports for the generated enums
 , enumImports :: Nullable (Array String) 
@@ -113,6 +116,8 @@ Argument for generateSchema
         )
 -- | Whether the extra Hasura types should be generated
 , isHasura :: Nullable Boolean 
+-- | how to convert gql enum contructors to purescript strings. Will default to making their 1st character capital
+, enumValueNameTransform :: Nullable (String -> String)
 }
 ```
 

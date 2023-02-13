@@ -33,6 +33,7 @@ type InputOptions
               , typeName :: String
               }
           )
+    , nullableOverrides  :: Map String (Map String Boolean)
     , idImport ::
         Maybe
           { moduleName :: String
@@ -43,12 +44,13 @@ type InputOptions
     , useNewtypesForRecords :: Boolean 
     , modulePath :: Array String
     , enumImports :: Array String 
-    , customEnumCode :: {name :: String, values :: Array String} ->  String
+    , customEnumCode :: { name :: String, values :: Array { gql :: String, transformed :: String} } -> String
     , cache ::
         Maybe
           { get :: String -> Aff (Maybe Json)
           , set :: { key :: String, val :: Json } -> Aff Unit
           }
+    , enumValueNameTransform :: Maybe (String -> String)
     }
 
 defaultInputOptions :: InputOptions
@@ -56,6 +58,7 @@ defaultInputOptions =
   { externalTypes: Map.empty
   , gqlScalarsToPursTypes: Map.empty
   , fieldTypeOverrides: Map.empty
+  , nullableOverrides: Map.empty
   , idImport: Nothing
   , dir: ""
   , isHasura: false
@@ -64,6 +67,7 @@ defaultInputOptions =
   , enumImports: []
   , customEnumCode: const ""
   , cache: Nothing
+  , enumValueNameTransform: Nothing
   }
 
 

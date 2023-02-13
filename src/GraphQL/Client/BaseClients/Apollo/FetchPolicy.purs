@@ -2,7 +2,8 @@ module GraphQL.Client.BaseClients.Apollo.FetchPolicy where
 
 import Prelude
 
-import Foreign.Generic (class Encode, encode)
+import Data.Argonaut.Encode (class EncodeJson, encodeJson)
+
 
 data FetchPolicy
   = CacheFirst
@@ -14,8 +15,8 @@ data FetchPolicy
 
 derive instance eqFetchPolicy :: Eq FetchPolicy
 
-instance encodeFetchPolicy :: Encode FetchPolicy where 
-  encode = fetchPolicyToForeign >>> encode
+instance encodeJsonFetchPolicy :: EncodeJson FetchPolicy where 
+  encodeJson = fetchPolicyToForeign >>> encodeJson
 
 fetchPolicyToForeign :: FetchPolicy -> String
 fetchPolicyToForeign = case _ of

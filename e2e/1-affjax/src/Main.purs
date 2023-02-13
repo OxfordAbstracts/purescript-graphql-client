@@ -8,8 +8,9 @@ import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
 import GraphQL.Client.Args (type (==>), (=>>))
-import GraphQL.Client.BaseClients.Affjax (AffjaxClient(..))
 import GraphQL.Client.Operation (OpQuery)
+import GraphQL.Client.Args ((=>>))
+import GraphQL.Client.BaseClients.Affjax.Node (AffjaxNodeClient(..))
 import GraphQL.Client.Query (query, queryFullRes)
 import GraphQL.Client.Types (class GqlQuery, Client(..))
 import Type.Data.List (Nil')
@@ -36,15 +37,15 @@ queryGql ::
   GqlQuery Nil' OpQuery Schema query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
-queryGql = query client 
+queryGql = query client
 
-client :: Client AffjaxClient Nil' Schema Void Void
-client = (Client $ AffjaxClient "http://localhost:4000/graphql" []) 
+client :: Client AffjaxNodeClient Nil' Schema Void Void
+client = (Client $ AffjaxNodeClient "http://localhost:4000/graphql" [])
 
 -- Schema
 type Schema
   = { prop :: String
-    , widgets :: { id :: Int } ==> Array Widget
+    , widgets :: { id :: Int } -> Array Widget
     }
 
 type Widget
@@ -52,7 +53,7 @@ type Widget
     , id :: Int
     }
 
--- Symbols 
+-- Symbols
 prop :: Proxy "prop"
 prop = Proxy
 

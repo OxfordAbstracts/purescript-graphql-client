@@ -22,7 +22,7 @@ import GraphQL.Client.Operation (OpMutation(..), OpQuery(..), OpSubscription(..)
 import Type.Data.List (type (:>), Nil')
 import Type.Proxy (Proxy(..))
 
-type Directives =  
+type Directives =
     ( """
     <> directiveDefinitionsPurs
     <> """Nil'

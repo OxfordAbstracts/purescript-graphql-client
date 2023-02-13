@@ -27,12 +27,12 @@ queryGql ::
   GqlQuery Nil' OpQuery Schema query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
-queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Schema) 
+queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Schema)
 
 -- Schema
 type Schema
   = { prop :: String
-    , widgets :: { id :: Int } ==> Array Widget
+    , widgets :: { id :: Int } -> Array Widget
     }
 
 type Widget
@@ -40,7 +40,7 @@ type Widget
     , id :: Int
     }
 
--- Symbols 
+-- Symbols
 prop :: Proxy "prop"
 prop = Proxy
 
