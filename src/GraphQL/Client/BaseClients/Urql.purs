@@ -4,9 +4,11 @@ module GraphQL.Client.BaseClients.Urql
   , UrqlSubClientOptions
   , UrqlClient
   , UrqlSubClient
+  , UrqlLiveQueryClient
   , createClient
   , createGlobalClientUnsafe
   , createSubscriptionClient
+  , createLiveQueryClient
   ) where
 
 import Prelude
@@ -21,7 +23,7 @@ import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
 import Foreign (Foreign, unsafeToForeign)
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import GraphQL.Client.Types (class QueryClient, class SubscriptionClient, Client(..))
+import GraphQL.Client.Types (class QueryClient, class SubscriptionClient, class LiveQueryClient, Client(..))
 
 type UrqlClientOptions
   = { url :: URL
@@ -45,6 +47,14 @@ foreign import data UrqlClient :: Type
 -- | See https://github.com/enisdenjo/graphql-ws details
 foreign import data UrqlSubClient :: Type
 
+-- | A client to make graphQL live queries, mutations and subscriptions. 
+-- | Requires an SSE capable graphQL server like GraphQL Helix or Yoga
+-- | or Mesh with the https://the-guild.dev/graphql/mesh/docs/plugins/live-queries plugin .
+-- | From the `@grafbase/url-exchange` npm module 
+-- | Could be extended to provide more transports.
+-- | See https://github.com/n1ru4l/graphql-live-query#list-of-compatible-transportsservers details
+foreign import data UrqlLiveQueryClient :: Type
+
 createClient ::
   forall directives querySchema mutationSchema subscriptionSchema.
   UrqlClientOptions -> Effect (Client UrqlClient directives querySchema mutationSchema subscriptionSchema)
@@ -60,6 +70,13 @@ createSubscriptionClient ::
   UrqlSubClientOptions ->
   Effect (Client UrqlSubClient directives querySchema mutationSchema subscriptionSchema)
 createSubscriptionClient = clientOptsToForeign >>> createSubscriptionClientImpl >>> map Client
+
+createLiveQueryClient ::
+  forall directives querySchema mutationSchema subscriptionSchema.
+  UrqlClientOptions ->
+  Effect (Client UrqlLiveQueryClient directives querySchema mutationSchema subscriptionSchema)
+createLiveQueryClient = clientOptsToForeign >>> createLiveQueryClientImpl >>> map Client
+
 
 clientOptsToForeign ::
   forall r.
@@ -92,6 +109,8 @@ foreign import createClientImpl :: UrqlClientOptionsForeign -> Effect UrqlClient
 foreign import createGlobalClientUnsafeImpl :: UrqlClientOptionsForeign -> Effect UrqlClient
 
 foreign import createSubscriptionClientImpl :: UrqlSubUrqlClientOptionsForeign -> Effect UrqlSubClient
+
+foreign import createLiveQueryClientImpl :: UrqlClientOptionsForeign -> Effect UrqlLiveQueryClient
 
 instance queryClient :: QueryClient UrqlClient Unit Unit where
   clientQuery _ c = queryForeign false c
@@ -126,6 +145,16 @@ instance subcriptionClient :: SubscriptionClient UrqlSubClient Unit where
   defSubOpts _ = unit
 foreign import subscriptionImpl ::
   UrqlSubClient ->
+  String ->
+  Json ->
+  (Json -> Effect Unit) ->
+  Effect (Effect Unit)
+
+instance liveQueryClient :: LiveQueryClient UrqlLiveQueryClient Unit where
+  clientLiveQuery _ = liveQueryImpl
+  defLiveOpts _ = unit
+foreign import liveQueryImpl ::
+  UrqlLiveQueryClient ->
   String ->
   Json ->
   (Json -> Effect Unit) ->

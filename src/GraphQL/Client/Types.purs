@@ -91,6 +91,30 @@ watchQueryEventOpts optsF client query vars = makeEmitter (clientWatchQuery (opt
 watchQueryEvent :: forall opts c. WatchQueryClient c opts => c -> String -> Json -> Emitter Json
 watchQueryEvent = watchQueryEventOpts identity
 
+-- | A type class for making graphql live queries (observable queries). 
+-- | If you wish to use a different underlying client, 
+-- | you can create your own client, 
+-- | make it an instance of `LiveQueryClient`
+-- | and pass it to `liveQuery`
+-- | TODO: This is actually exactly like WatchQueryClient
+-- | but given that the implementations of watch and live queries 
+-- | are different, they are separate for now. 
+class LiveQueryClient baseClient opts | baseClient -> opts where
+  clientLiveQuery ::
+    opts ->
+    baseClient ->
+    String ->
+    Json ->
+    (Json -> Effect Unit) ->
+    Effect (Effect Unit)
+  defLiveOpts :: baseClient -> opts
+
+liveQueryEventOpts :: forall opts c. LiveQueryClient c opts => (opts -> opts) -> c -> String -> Json -> Emitter Json
+liveQueryEventOpts optsF client query vars = makeEmitter (clientLiveQuery (optsF (defLiveOpts client)) client query vars)
+
+liveQueryEvent :: forall opts c. LiveQueryClient c opts => c -> String -> Json -> Emitter Json
+liveQueryEvent = liveQueryEventOpts identity
+
 -- Full response types 
 -- Full responses 
 -- | The full graphql query response,
