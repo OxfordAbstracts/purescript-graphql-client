@@ -12,7 +12,7 @@ import gps from './generate-purs-schema.mjs'
 serverFn(async () => {
   try {
     await gps()
-    await exec('npm run build', { stdio: 'pipe', stderr: 'pipe' })
+        await exec('npm run build', { stdio: 'pipe', stderr: 'pipe' })
     const { main } = await import('./output/Main/index.js')
 
     main()
