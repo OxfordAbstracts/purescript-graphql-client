@@ -1,29 +1,37 @@
 -- | Creates GraphQL clients
 module GraphQL.Client.BaseClients.Urql
-  ( UrqlClientOptions
-  , UrqlSubClientOptions
-  , UrqlClient
-  , UrqlSubClient
+  ( UrqlClient
+  , UrqlClientOptions
   , UrqlLiveQueryClient
+  , UrqlSubClient
+  , UrqlSubClientOptions
   , createClient
   , createGlobalClientUnsafe
-  , createSubscriptionClient
   , createLiveQueryClient
-  ) where
+  , createSubscriptionClient
+  , mutation_
+  , query_
+  )
+  where
 
 import Prelude
 
 import Affjax (URL)
 import Affjax.RequestHeader (RequestHeader, name, value)
 import Data.Argonaut.Core (Json)
+import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError, decodeJson, printJsonDecodeError)
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
+import Effect.Class (liftEffect)
 import Foreign (Foreign, unsafeToForeign)
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import GraphQL.Client.Types (class QueryClient, class SubscriptionClient, class LiveQueryClient, Client(..))
+import GraphQL.Client.Operation (OpMutation, OpQuery)
+import GraphQL.Client.Query (query, mutation)
+import GraphQL.Client.Types (class QueryClient, class SubscriptionClient, class LiveQueryClient, class GqlQuery, Client(..))
+import Type.Proxy (Proxy(..))
 
 type UrqlClientOptions
   = { url :: URL
@@ -159,3 +167,34 @@ foreign import liveQueryImpl ::
   Json ->
   (Json -> Effect Unit) ->
   Effect (Effect Unit)
+
+
+-- | A create client and query shortcut that creates a global client and caches it for future calls. 
+-- | `query` is a safer option for production environments and should generally be used
+query_ ::
+  forall directives schema query returns.
+  GqlQuery directives OpQuery schema query returns =>
+  DecodeJson returns =>
+  URL -> Proxy schema -> String -> query -> Aff returns
+query_ url _ name q = do
+  client <-
+    liftEffect
+      $ createGlobalClientUnsafe
+          { url
+          , headers: []
+          }
+  query (client :: Client UrqlClient directives schema _ _) name q
+
+mutation_ ::
+  forall directives schema mutation returns.
+  GqlQuery directives OpMutation schema mutation returns =>
+  DecodeJson returns =>
+  URL -> Proxy schema -> String -> mutation -> Aff returns
+mutation_ url _ name q = do
+  client <-
+    liftEffect
+      $ createGlobalClientUnsafe
+          { url
+          , headers: []
+          }
+  mutation (client :: Client UrqlClient directives _ schema _) name q

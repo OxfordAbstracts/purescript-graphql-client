@@ -1,14 +1,12 @@
 module GraphQL.Client.Query  
-( query
+ ( query
  , queryWithDecoder
  , queryOptsWithDecoder
  , queryOpts
- , query_
  , mutation
  , mutationWithDecoder
  , mutationOptsWithDecoder
  , mutationOpts
- , mutation_
  , decodeGqlRes
  , queryFullRes
  , mutationFullRes
@@ -34,7 +32,6 @@ import Data.Traversable (traverse)
 import Effect.Aff (Aff, Error, error, message, throwError)
 import Effect.Class (liftEffect)
 import Foreign.Object (Object)
-import GraphQL.Client.BaseClients.Urql (UrqlClient, createGlobalClientUnsafe)
 import GraphQL.Client.Operation (OpMutation, OpQuery)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (class GqlQueryString, toGqlQueryString, toGqlQueryStringFormatted)
@@ -96,22 +93,6 @@ query ::
   Aff returns
 query = queryWithDecoder decodeJson
 
--- | A create client and query shortcut that creates a global client and caches it for future calls. 
--- | `query` is a safer option for production environments and should generally be used
-query_ ::
-  forall directives schema query returns.
-  GqlQuery directives OpQuery schema query returns =>
-  DecodeJson returns =>
-  URL -> Proxy schema -> String -> query -> Aff returns
-query_ url _ name q = do
-  client <-
-    liftEffect
-      $ createGlobalClientUnsafe
-          { url
-          , headers: []
-          }
-  query (client :: Client UrqlClient directives schema _ _) name q
-
 mutationWithDecoder ::
   forall client directives schema mutation returns a b queryOpts mutationOpts.
   QueryClient client queryOpts mutationOpts =>
@@ -160,20 +141,6 @@ mutationOpts ::
   query ->
   Aff returns
 mutationOpts = mutationOptsWithDecoder decodeJson
-
-mutation_ ::
-  forall directives schema mutation returns.
-  GqlQuery directives OpMutation schema mutation returns =>
-  DecodeJson returns =>
-  URL -> Proxy schema -> String -> mutation -> Aff returns
-mutation_ url _ name q = do
-  client <-
-    liftEffect
-      $ createGlobalClientUnsafe
-          { url
-          , headers: []
-          }
-  mutation (client :: Client UrqlClient directives _ schema _) name q
 
 runQuery ::
   forall client directives schema query returns qOpts mOpts.
