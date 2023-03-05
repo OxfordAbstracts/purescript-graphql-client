@@ -8,10 +8,10 @@ module.exports = (onListening) => {
 
     directive @cached(
       """measured in seconds"""
-      ttl: Int! = 60
+      ttl: Int = 60
     
       """refresh the cache entry"""
-      refresh: Boolean! = false
+      refresh: Boolean = false
     ) on QUERY
 
     type Query {
