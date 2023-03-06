@@ -12,7 +12,7 @@ import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
 import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.BaseClients.Urql (UrqlClient, createClient)
-import GraphQL.Client.ErrorBoundary (BoundaryResult(..), ErrorBoundary(..), putErrorsInPath)
+import GraphQL.Client.ErrorBoundary (BoundaryResult(..), ErrorBoundary(..), putErrorsInPaths)
 import GraphQL.Client.Operation (OpQuery)
 import GraphQL.Client.Query (queryFullRes)
 import GraphQL.Client.Types (class GqlQuery, Client, GqlRes)
@@ -37,7 +37,7 @@ main =
     logShow data_ -- will log the data with tge decode error at the error boundary but without error details
 
     let
-      withErrors = putErrorsInPath (fold errors) data_ -- will contain the data with the decode error and gql error details at the error boundaries
+      withErrors = putErrorsInPaths (fold errors) data_ -- will contain the data with the decode error and gql error details at the error boundaries
 
       errorPath = case withErrors of
         Right { widgets: [ { contains_bad_type: Error _ [ { path } ] } ] } -> path

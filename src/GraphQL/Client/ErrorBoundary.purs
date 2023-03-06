@@ -4,7 +4,7 @@ module GraphQL.Client.ErrorBoundary
   , PropPutErrorsInPaths(..)
   , class PutErrorsInPaths
   , decodeWith
-  , putErrorsInPath
+  , putErrorsInPaths
   , putErrorsInPathsImpl
   , toEither
   )
@@ -53,8 +53,8 @@ derive instance Generic (BoundaryResult err a) _
 instance (Show err, Show a) => Show (BoundaryResult err a) where
   show = genericShow
 
-putErrorsInPath :: forall a b. PutErrorsInPaths a b => Array GqlError -> a -> b
-putErrorsInPath = putErrorsInPathsImpl []
+putErrorsInPaths :: forall a b. PutErrorsInPaths a b => Array GqlError -> a -> b
+putErrorsInPaths = putErrorsInPathsImpl []
 
 class PutErrorsInPaths a b | a -> b where
   putErrorsInPathsImpl :: (Array (Either Int String)) -> Array GqlError -> a -> b
