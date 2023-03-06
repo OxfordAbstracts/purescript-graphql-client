@@ -13,6 +13,9 @@ class VarTypeName :: forall k. k -> Constraint
 class VarTypeName var where
   varTypeName :: Proxy var -> String
 
+instance varTypeNameBoolean :: VarTypeName Boolean where
+  varTypeName _ = "Boolean!"
+
 instance varTypeNameInt :: VarTypeName Int where
   varTypeName _ = "Int!"
 

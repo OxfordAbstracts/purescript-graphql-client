@@ -440,7 +440,7 @@ If you wish to get the full response as json use the "Json" versions of the quer
 - `mutationJson`
 - `subscriptionJson`
 
-These will the raw json returned by the server inside a newtype `GqlResJson` with phanton types for the schema, query and response. These can be useful for creating your own abstractions using that require the unchanged json response.
+These will return the raw json returned by the server inside a newtype `GqlResJson` with phanton types for the schema, query and response. These can be useful for creating your own abstractions using that require the unchanged json response.
 
 ### Apollo only features 
 

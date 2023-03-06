@@ -62,6 +62,7 @@ import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (AndArgs(AndArgs), Args(..), IgnoreArg, OrArg(..))
 import GraphQL.Client.Directive (ApplyDirective(..))
 import GraphQL.Client.ErrorBoundary (ErrorBoundary(..))
+import GraphQL.Client.NullArray (NullArray)
 import GraphQL.Client.Union (GqlUnion(..))
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars, getQuery)
@@ -300,6 +301,8 @@ else instance gqlArgStringDateTime :: GqlArgString DateTime where
   toGqlArgStringImpl (DateTime d t) = show $ dateString d <> "T" <> timeString t
 else instance gqlArgStringMaybe :: GqlArgString a => GqlArgString (Maybe a) where
   toGqlArgStringImpl = maybe "null" toGqlArgStringImpl
+else instance gqlArgStringNullArray :: GqlArgString NullArray where
+  toGqlArgStringImpl _ = "[]"
 else instance gqlArgStringArray :: GqlArgString a => GqlArgString (Array a) where
   toGqlArgStringImpl = map toGqlArgStringImpl >>> \as -> "[" <> intercalate ", " as <> "]"
 else instance gqlArgStringErrorBoundary :: GqlArgString a => GqlArgString (ErrorBoundary a) where
