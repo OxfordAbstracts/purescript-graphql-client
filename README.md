@@ -41,7 +41,7 @@ main =
 -- Run gql query
 queryGql ::
   forall query returns.
-  GqlQuery Schema query returns =>
+  GqlQuery Nil' OpQuery Schema query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
 queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Schema) 
@@ -182,9 +182,11 @@ import MySchema (Query, Mutation)
 import GraphQL.Client.BaseClients.Apollo (createClient)
 import GraphQL.Client.Query (query)
 import GraphQL.Client.Types (Client)
+import Type.Data.List (Nil')
+
 ...
 
-    client  :: Client _ Query Mutation Void <- createClient
+    client  :: Client _ Nil' Query Mutation Void <- createClient
       { url: "http://localhost:4000/graphql"
       , authToken: Nothing
       , headers: []
@@ -209,9 +211,11 @@ import MySchema (Query, Subscription, Mutation)
 import GraphQL.Client.BaseClients.Apollo (createSubscriptionClient)
 import GraphQL.Client.Subscription (subscription)
 import GraphQL.Client.Types (Client)
+import Type.Data.List (Nil')
+
 ...
 
-  client :: Client _ Query Mutation Subscription <-
+  client :: Client _ Nil' Query Mutation Subscription <-
     createSubscriptionClient
       { url: "http://localhost:4000/graphql"
       , authToken: Nothing
@@ -410,6 +414,13 @@ To provide custom types as variables you will have to make them an instance of `
 This type class specifies their graphql type. 
 
 There is a full example in the examples directory.
+
+### Directives
+
+Only top level directives, that have a query, mutation or subscription location are currently supported. 
+
+Please look in the example/12-directives to see an example of this.
+
 
 ### Full responses 
 

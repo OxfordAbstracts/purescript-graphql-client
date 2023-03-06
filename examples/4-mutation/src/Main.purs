@@ -14,10 +14,11 @@ import GraphQL.Client.BaseClients.Apollo (createClient, updateCacheJson)
 import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy(..))
 import GraphQL.Client.Query (mutationOpts, query, queryOpts)
 import GraphQL.Client.Types (Client)
+import Type.Data.List (Nil')
 
 main :: Effect Unit
 main = do
-  client :: Client _ Query Mutation Void <-
+  client :: Client _ Nil' Query Mutation Void <-
     createClient
       { url: "http://localhost:4000/graphql"
       , authToken: Nothing

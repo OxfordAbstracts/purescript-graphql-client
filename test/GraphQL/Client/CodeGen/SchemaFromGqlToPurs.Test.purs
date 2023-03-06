@@ -1,10 +1,12 @@
 module GraphQL.Client.CodeGen.Schema.Test where
 
 import Prelude
+
 import Data.Either (Either(..))
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
+import Data.String (take)
 import Data.Tuple (Tuple(..))
 import GraphQL.Client.CodeGen.Schema (schemaFromGqlToPurs)
 import GraphQL.Client.CodeGen.Types (InputOptions)
@@ -56,7 +58,7 @@ spec =
           gql =
             schemaGql
               { query:
-                  """{ 
+                  """{
   int_prop: Int!
   number_prop: Number
   string_prop: String!
@@ -84,7 +86,7 @@ spec =
           gql =
             schemaGql
               { query:
-                  """{ 
+                  """{
   int_prop(id: Int str: String!): Int!
   number_prop: Number
   string_prop: String!
@@ -116,7 +118,7 @@ spec =
           gql =
             schemaGql
               { query:
-                  """{ 
+                  """{
   int_prop(id: Int): Int!
   number_prop(str: String! obj: [my_type!]!): Number
   string_prop: String!
@@ -148,7 +150,7 @@ spec =
               , mutation: "\n  { prop :: Int\n  }"
               , subscription: "\n  { prop :: Int\n  }"
               }
-              <> "\n\nnewtype MyType = MyType \n  { prop :: (Maybe Int)\n  }\nderive instance newtypeMyType :: Newtype MyType _"
+              <> "\n\nnewtype MyType = MyType\n  { prop :: (Maybe Int)\n  }\nderive instance newtypeMyType :: Newtype MyType _"
               <> "\ninstance argToGqlMyType :: (Newtype MyType {| p},  RecordArg p a u) => ArgGql MyType { | a }"
         gql `shouldParseTo` result
       it "converts input types" do
@@ -166,7 +168,7 @@ input MyInputType {
             """
 type Query = QueryRoot
 
-newtype QueryRoot = QueryRoot 
+newtype QueryRoot = QueryRoot
   { prop :: 
     { id :: MyInputType
     }
@@ -212,6 +214,7 @@ enum my_enum {
                   , values: [ "enum_val1", "enum_val2" ]
                   }
                 ]
+            , directives: noDirectives
             }
       it "handles type overrides " do
         let
@@ -235,7 +238,7 @@ import MyModule as MyModule
 
 type Query = Query
 
-newtype Query = Query 
+newtype Query = Query
   { int :: (Maybe Int)
   , my_type_a :: MyModule.MyTypeA
   , my_type_b :: (Maybe MyModule.MyTypeB)
@@ -284,7 +287,7 @@ import Data.Argonaut.Core as Data.Argonaut.Core
 
 type Query = Query
 
-newtype Query = Query 
+newtype Query = Query
   { int :: (Maybe Int)
   , my_type_a :: SomethingUnknown
   , my_type_b :: (Maybe SomethingElseUnknown)
@@ -319,13 +322,13 @@ type X { int: Int! }
             """
 type Query = Query
 
-newtype Query = Query 
+newtype Query = Query
   { int :: Int
   }
 derive instance newtypeQuery :: Newtype Query _
 instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
 
-newtype X = X 
+newtype X = X
   { int :: Int
   }
 derive instance newtypeX :: Newtype X _
@@ -358,7 +361,7 @@ instance argToGqlX :: (Newtype X {| p},  RecordArg p a u) => ArgGql X { | a }"""
           opts
           { schema, moduleName: "" }
     in
-      map _.mainSchemaCode purs `shouldEqual` Right r
+      (map _.mainSchemaCode purs) `shouldEqual` Right r
 
   shouldParseTo =
     shouldParseToOpts
@@ -386,7 +389,7 @@ queryOnlySchemaPurs queryRoot =
   """
 type Query = QueryRoot
 
-newtype QueryRoot = QueryRoot """
+newtype QueryRoot = QueryRoot"""
     <> queryRoot
     <> "\nderive instance newtypeQueryRoot :: Newtype QueryRoot _"
     <> "\ninstance argToGqlQueryRoot :: (Newtype QueryRoot {| p},  RecordArg p a u) => ArgGql QueryRoot { | a }"
@@ -419,23 +422,39 @@ type Mutation = MutationRoot
 
 type Subscription = SubscriptionRoot
 
-newtype QueryRoot = QueryRoot """
+newtype QueryRoot = QueryRoot"""
     <> query
     <> """
 derive instance newtypeQueryRoot :: Newtype QueryRoot _
 instance argToGqlQueryRoot :: (Newtype QueryRoot {| p},  RecordArg p a u) => ArgGql QueryRoot { | a }
 
-newtype MutationRoot = MutationRoot """
+newtype MutationRoot = MutationRoot"""
     <> mutation
     <> """
 derive instance newtypeMutationRoot :: Newtype MutationRoot _
 instance argToGqlMutationRoot :: (Newtype MutationRoot {| p},  RecordArg p a u) => ArgGql MutationRoot { | a }
 
-newtype SubscriptionRoot = SubscriptionRoot """
+newtype SubscriptionRoot = SubscriptionRoot"""
     <> subscription
     <> "\nderive instance newtypeSubscriptionRoot :: Newtype SubscriptionRoot _"
     <> "\ninstance argToGqlSubscriptionRoot :: (Newtype SubscriptionRoot {| p},  RecordArg p a u) => ArgGql SubscriptionRoot { | a }"
 
+
+noDirectives :: String
+noDirectives =  """import Prelude
+
+import GraphQL.Client.Args (NotNull)
+import GraphQL.Client.Directive (ApplyDirective, applyDir)
+import GraphQL.Client.Directive.Definition (Directive)
+import GraphQL.Client.Directive.Location (MUTATION, QUERY, SUBSCRIPTION)
+import GraphQL.Client.Operation (OpMutation(..), OpQuery(..), OpSubscription(..))
+import Type.Data.List (type (:>), Nil')
+import Type.Proxy (Proxy(..))
+
+type Directives =
+    ( Nil'
+    )
+"""
 defaultOpts :: InputOptions
 defaultOpts =
   { dir: ""

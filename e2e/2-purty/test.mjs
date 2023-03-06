@@ -8,6 +8,7 @@ import { main } from './output/Main/index.js';
 const go = async () => {
   try {
     await mkdirp('./src/generated/Schema')
+    await mkdirp('./src/generated/Directives')
     await writePursSchemas({
       dir: './src/generated',
       modulePath: ['Generated', 'Gql'],

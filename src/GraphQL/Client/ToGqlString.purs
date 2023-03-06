@@ -61,6 +61,7 @@ import Foreign.Object as Object
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (AndArgs(AndArgs), Args(..), IgnoreArg, OrArg(..))
+import GraphQL.Client.Directive (ApplyDirective(..))
 import GraphQL.Client.Union (GqlUnion(..))
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars, getQuery)
@@ -93,6 +94,17 @@ instance gqlQueryStringUnit :: GqlQueryString Unit where
   toGqlQueryStringImpl _ _ = ""
 else instance gqlQueryStringWithVars :: GqlQueryString query => GqlQueryString (WithVars query vars) where
   toGqlQueryStringImpl opts withVars = toGqlQueryStringImpl opts $ getQuery withVars
+else instance gqlQueryStringApplyDirective ::
+  ( IsSymbol name
+  , HFoldlWithIndex PropToGqlArg KeyVals (Record args) KeyVals
+  , GqlQueryString query
+  ) =>
+  GqlQueryString (ApplyDirective name (Record args) query) where
+  toGqlQueryStringImpl opts (ApplyDirective args q) =
+    "@"
+      <> reflectSymbol (Proxy :: Proxy name)
+      <> gqlArgStringRecordTopLevel args
+      <> toGqlQueryStringImpl opts q
 else instance gqlQueryStringSymbol :: IsSymbol s => GqlQueryString (Proxy s) where
   toGqlQueryStringImpl _ _ = ": " <> reflectSymbol (Proxy :: Proxy s)
 else instance gqlQueryStringVar :: IsSymbol s => GqlQueryString (Var s a) where
@@ -131,7 +143,7 @@ else instance gqlQueryStringEmptyRecord ::
   HFoldlWithIndex PropToGqlString KeyVals (Record r) KeyVals =>
   GqlQueryString (Record r) where
   toGqlQueryStringImpl r = gqlQueryStringRecord r
-else instance gqlQueryStringGqlUnion :: 
+else instance gqlQueryStringGqlUnion ::
   HFoldlWithIndex PropToGqlString KeyVals (Record r) KeyVals =>
   GqlQueryString (GqlUnion r) where
   toGqlQueryStringImpl opts (GqlUnion r) = gqlQueryStringUnion opts r
@@ -219,10 +231,10 @@ gqlQueryStringUnion ::
   HFoldlWithIndex PropToGqlString KeyVals { | r } KeyVals =>
   { | r } ->
   String
-gqlQueryStringUnion opts r = indent opts $ 
+gqlQueryStringUnion opts r = indent opts $
   " {" <> newline <>
   " __typename" <> newline <>
-   body <> newline 
+   body <> newline
    <> "}"
   where
   (KeyVals kvs) = hfoldlWithIndex (PropToGqlString opts) emptyKeyVals r
@@ -235,7 +247,7 @@ gqlQueryStringUnion opts r = indent opts $
 
   nl = if multiline then "\n" else " "
 
-  newline = guard multiline "\n"            
+  newline = guard multiline "\n"
 
 indent ::
   forall r.
@@ -411,7 +423,14 @@ gqlArgStringRecordTopLevel ::
   HFoldlWithIndex PropToGqlArg KeyVals { | r } KeyVals =>
   { | r } ->
   String
-gqlArgStringRecordTopLevel r = "(" <> gqlArgStringRecordBody r <> ")"
+gqlArgStringRecordTopLevel r =
+  let
+    inside = gqlArgStringRecordBody r
+  in
+    if inside == "" then
+      ""
+    else
+      "(" <> inside <> ")"
 
 gqlArgStringRecordBody ::
   forall r.
