@@ -432,6 +432,16 @@ If you wish to get the full response, as per the [GraphQL Spec](https://spec.gra
 
 These will include all errors and extensions in the response, even if a response of the correct type has been returned. 
 
+### Full responses as Json
+
+If you wish to get the full response as json use the "Json" versions of the query functions
+
+- `queryJson`
+- `mutationJson`
+- `subscriptionJson`
+
+These will the raw json returned by the server inside a newtype `GqlResJson` with phanton types for the schema, query and response. These can be useful for creating your own abstractions using that require the unchanged json response.
+
 ### Apollo only features 
 
 With apollo you can make type checked cache updates. To see examples of this look at `examples/6-watch-query` and `examples/7-watch-query-optimistic`. You can also set many options for queries, mutations and subscriptions using , `queryOpts` , `mutationOpts`, `subscriptionOpts` respectively.
