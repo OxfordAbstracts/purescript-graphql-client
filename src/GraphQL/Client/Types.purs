@@ -15,6 +15,7 @@ import GraphQL.Client.QueryReturns (class QueryReturns)
 import GraphQL.Client.ToGqlString (class GqlQueryString)
 import GraphQL.Client.Variables (class VarsTypeChecked)
 import Halogen.Subscription (Emitter, makeEmitter)
+import GraphQL.Client.GqlError (GqlError)
 
 class GqlQuery :: forall k1 k2. k1 -> k2 -> Type -> Type -> Type -> Constraint
 class
@@ -25,7 +26,8 @@ class
   , DirectivesTypeCheckTopLevel directives op query
   ) <=
   GqlQuery directives op schema query returns
-  | schema query -> returns, schema -> directives
+  | schema query -> returns
+  , schema -> directives
 
 instance queriable ::
   ( QueryReturns schema query returns
@@ -104,17 +106,6 @@ type GqlRes res =
   , errors_json :: Maybe (Array Json) -- For deprecated error responses where custom props are not in extensions
   , extensions :: Maybe (Object Json)
   }
-
-
-
-type GqlError =
-  { message :: String
-  , locations :: ErrorLocations
-  , path :: Maybe (Array (Either Int String))
-  , extensions :: Maybe (Object Json)
-  }
-
-type ErrorLocations = Maybe (Array { line :: Int, column :: Int })
 
 -- The gql response as json with phantom types for the schema, query and result
 newtype GqlResJson :: Type -> Type -> Type -> Type

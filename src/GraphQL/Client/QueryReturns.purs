@@ -9,6 +9,8 @@ import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Alias.Dynamic (Spread, SpreadRes)
 import GraphQL.Client.Args (class SatisifyNotNullParam, ArgPropToGql, Args(..))
 import GraphQL.Client.Directive (ApplyDirective)
+import GraphQL.Client.ErrorBoundary (BoundaryResult, ErrorBoundary)
+import GraphQL.Client.ErrorBoundary as ErrorBoundary
 import GraphQL.Client.Union (GqlUnion, UnionReturned)
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars)
@@ -19,10 +21,12 @@ import Type.Proxy (Proxy(..))
 import Unsafe.Coerce (unsafeCoerce)
 
 -- | Get the type that a query returns.
-queryReturns ::
-  forall schema query returns.
-  QueryReturns schema query returns =>
-  Proxy schema -> query -> Proxy returns
+queryReturns
+  :: forall schema query returns
+   . QueryReturns schema query returns
+  => Proxy schema
+  -> query
+  -> Proxy returns
 queryReturns _ _ = Proxy
 
 class QueryReturns schema query returns | schema query -> returns where
@@ -36,19 +40,21 @@ else instance queryReturnsVar :: QueryReturns a q t => QueryReturns a (Var name 
   queryReturnsImpl a _ = queryReturnsImpl a (undefined :: q)
 else instance queryReturnsApplyDirective :: QueryReturns a q t => QueryReturns a (ApplyDirective name args q) t where
   queryReturnsImpl a _ = queryReturnsImpl a (undefined :: q)
+else instance queryReturnErrorBoundary :: QueryReturns a q t => QueryReturns a (ErrorBoundary q) (BoundaryResult Unit t) where
+  queryReturnsImpl a _ = ErrorBoundary.Result $ queryReturnsImpl a (undefined :: q)
 else instance queryReturnsSpread ::
   ( IsSymbol alias
   , Row.Cons alias subSchema rest schema
   , QueryReturns subSchema (Args args q) returns
   ) =>
-  QueryReturns {|schema} (Spread (Proxy alias) args q) (SpreadRes returns) where
-  queryReturnsImpl _ _ =  undefined
+  QueryReturns { | schema } (Spread (Proxy alias) args q) (SpreadRes returns) where
+  queryReturnsImpl _ _ = undefined
 else instance queryReturnsSpreadNewtype ::
-  ( QueryReturns {|schema} (Spread (Proxy alias) args q) (SpreadRes returns)
+  ( QueryReturns { | schema } (Spread (Proxy alias) args q) (SpreadRes returns)
   , Newtype newtypeSchema { | schema }
   ) =>
   QueryReturns newtypeSchema (Spread (Proxy alias) args q) (SpreadRes returns) where
-  queryReturnsImpl _ _ =  undefined
+  queryReturnsImpl _ _ = undefined
 else instance queryReturnsArray :: QueryReturns a q t => QueryReturns (Array a) q (Array t) where
   queryReturnsImpl _ q = pure $ queryReturnsImpl (undefined :: a) q
 else instance queryReturnsMaybe :: QueryReturns a q t => QueryReturns (Maybe a) q (Maybe t) where
@@ -84,8 +90,7 @@ else instance queryReturnsAll :: QueryReturns a q a where
   queryReturnsImpl a _ = a
 
 -- | For internal use only but must be exported for other modules to compile
-newtype PropToSchemaType schema
-  = PropToSchemaType { | schema }
+newtype PropToSchemaType schema = PropToSchemaType { | schema }
 
 instance propToSchemaTypeAlias ::
   ( IsSymbol sym
@@ -123,10 +128,12 @@ else instance propToSchemaType_ ::
     in
       queryReturnsImpl subSchema val
 
-propToSchemaType ::
-  forall query returns schema.
-  HMapWithIndex (PropToSchemaType schema) query returns =>
-  Record schema -> query -> returns
+propToSchemaType
+  :: forall query returns schema
+   . HMapWithIndex (PropToSchemaType schema) query returns
+  => Record schema
+  -> query
+  -> returns
 propToSchemaType schema query_ = hmapWithIndex (PropToSchemaType schema) query_
 
 undefined :: forall a. a
