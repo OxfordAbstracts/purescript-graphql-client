@@ -415,6 +415,13 @@ This type class specifies their graphql type.
 
 There is a full example in the examples directory.
 
+### Directives
+
+Only top level directives, that have a query, mutation or subscription location are currently supported. 
+
+Please look in the example/12-directives to see an example of this.
+
+
 ### Full responses 
 
 If you wish to get the full response, as per the [GraphQL Spec](https://spec.graphql.org/June2018/#sec-Response) use the "FullRes" versions of the query functions
