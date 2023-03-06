@@ -1,6 +1,7 @@
 module GraphQL.Client.Subscription where
 
 import Prelude
+
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError, decodeJson)
 import Data.Either (Either)
@@ -8,7 +9,7 @@ import GraphQL.Client.Operation (OpSubscription)
 import GraphQL.Client.Query (decodeGqlRes, getFullRes)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
-import GraphQL.Client.Types (class GqlQuery, class SubscriptionClient, Client(..), GqlRes, subscriptionEventOpts)
+import GraphQL.Client.Types (class GqlQuery, class SubscriptionClient, Client(..), GqlRes, GqlResJson(..), subscriptionEventOpts)
 import GraphQL.Client.Variables (getVarsJson)
 import Halogen.Subscription (Emitter)
 
@@ -63,7 +64,6 @@ subscriptionFullRes ::
   forall client directives schema subscription returns a b subOpts.
   SubscriptionClient client subOpts =>
   GqlQuery directives OpSubscription schema subscription returns =>
-  DecodeJson returns =>
   (Json -> Either JsonDecodeError returns) ->
   (subOpts -> subOpts) ->
   (Client client directives a b schema) ->
@@ -71,9 +71,25 @@ subscriptionFullRes ::
   subscription ->
   Emitter (Either JsonDecodeError (GqlRes returns))
 subscriptionFullRes decodeFn optsF (Client client) queryNameUnsafe q = ado
-  json <- subscriptionEventOpts optsF client query (getVarsJson q)
+  (GqlResJson json) :: GqlResJson schema subscription returns <- subscriptionJson optsF (Client client) queryNameUnsafe q
   in pure $ getFullRes decodeFn json
+  
+-- | Run a graphQL subcription, returning the response as json with phantom types
+-- | The json will be of the format: https://spec.graphql.org/June2018/#sec-Response-Format
+subscriptionJson ::
+  forall client directives schema subscription returns a b subOpts.
+  SubscriptionClient client subOpts =>
+  GqlQuery directives OpSubscription schema subscription returns =>
+  (subOpts -> subOpts) ->
+  (Client client directives a b schema) ->
+  String ->
+  subscription ->
+  Emitter (GqlResJson schema subscription returns)
+subscriptionJson optsF (Client client) queryNameUnsafe q = 
+  GqlResJson <$> subscriptionEventOpts optsF client query (getVarsJson q)
   where
   queryName = safeQueryName queryNameUnsafe
 
   query = "subscription " <> queryName <> " " <> toGqlQueryString q
+
+
