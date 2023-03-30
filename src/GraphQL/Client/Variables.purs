@@ -17,6 +17,7 @@ import Prelude
 import Control.Apply (lift2)
 import Data.Argonaut.Core (Json, jsonEmptyObject)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
+import Data.Maybe (Maybe)
 import Data.Symbol (class IsSymbol)
 import GraphQL.Client.Alias (Alias)
 import GraphQL.Client.Alias.Dynamic (Spread)
@@ -44,6 +45,17 @@ else instance getVarAlias ::
   ) =>
   GetVar (Alias name query) var where
   getVar _ = getVar (Proxy :: _ query)
+
+else instance getVarMaybe ::
+  ( GetVar a { | vars }
+  ) =>
+  GetVar (Maybe a) { | vars } where
+  getVar _ = getVar (Proxy :: _ a)
+else instance getVarArray ::
+  ( GetVar a { | vars }
+  ) =>
+  GetVar (Array a) { | vars } where
+  getVar _ = getVar (Proxy :: _ a)
 else instance getVarApplyDirective ::
   ( GetVar query var
   ) =>
