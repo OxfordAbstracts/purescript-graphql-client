@@ -32,6 +32,7 @@ import Data.String.Extra (pascalCase)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
+import GraphQL.Client.CodeGen.Directive (getDocumentDirectivesPurs)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
 import GraphQL.Client.CodeGen.Lines (commentPrefix, docComment, fromLines, indent, toLines)
 import GraphQL.Client.CodeGen.Template.Enum as Enum
@@ -97,6 +98,12 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
         pursGqls >>= _.symbols
           # \syms ->
               { path: opts.dir <> "/Symbols.purs", code: symbolsToCode modulePrefix syms }
+    , directives:
+        pursGqls
+          <#> \pg ->
+              { code: "module " <> modulePrefix <> "Directives." <> pg.moduleName <> " where\n" <> pg.directives
+              , path: opts.dir <> "/Directives/" <> pg.moduleName <> ".purs"
+              }
     }
 
 -- | Given a gql doc this will create the equivalent purs gql schema
@@ -120,14 +127,15 @@ schemaFromGqlToPurs opts { schema, moduleName } =
   runParser schema document
     <#> applyNullableOverrides opts.nullableOverrides
     <#> \ast ->
-      let
-        symbols = Array.fromFoldable $ getSymbols ast
-      in
-        { mainSchemaCode: gqlToPursMainSchemaCode opts ast
-        , enums: gqlToPursEnums opts.gqlScalarsToPursTypes ast
-        , symbols
-        , moduleName
-        }
+        let
+          symbols = Array.fromFoldable $ getSymbols ast
+        in
+          { mainSchemaCode: gqlToPursMainSchemaCode opts ast
+          , enums: gqlToPursEnums opts.gqlScalarsToPursTypes ast
+          , directives: getDocumentDirectivesPurs opts.gqlScalarsToPursTypes ast
+          , symbols
+          , moduleName
+          }
 
 toImport
   :: forall r
@@ -251,7 +259,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
               <> typeName_ name
               <> " = "
               <> typeName_ name
-              <> " "
+              -- <> " "
               <> (fieldsDefinition # maybe "{}" (fieldsDefinitionToPurs tName))
               <> "\nderive instance newtype"
               <> tName

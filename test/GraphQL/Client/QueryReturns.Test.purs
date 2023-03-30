@@ -7,64 +7,64 @@ import Data.Newtype (class Newtype)
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..), SpreadRes)
 import GraphQL.Client.Args (IgnoreArg(..), NotNull, OrArg(..), (++), (+++), (=>>))
+import GraphQL.Client.Directive (applyDir)
+import GraphQL.Client.NullArray (NullArray(..))
 import GraphQL.Client.QueryReturns (class QueryReturns, queryReturns)
 import Type.Proxy (Proxy(..))
 
 -- TYPE LEVEL TESTS
-type TestSchema
-  = { users ::
-        { online :: Boolean
-        , id :: Int
-        , where ::
-            { created_at ::
-                { eq :: Int
-                , lt :: Int
-                , gt :: Int
-                }
-            }
-        , is_in :: Array Int
-        , is_in_rec :: Array { int :: Int, string :: String }
-        }
-          -> Array
-            { id :: Int
-            , name :: String
-            , other_names :: Array String
-            }
-    , orders ::
-        { name :: String }
-          -> Array
-            { user_id :: Int }
-    , obj_rel :: { id :: Int }
-    , nested1 :: { id :: Int } -> N1
-    }
+type TestSchema =
+  { users ::
+      { online :: Boolean
+      , id :: Int
+      , where ::
+          { created_at ::
+              { eq :: Int
+              , lt :: Int
+              , gt :: Int
+              }
+          }
+      , is_in :: Array Int
+      , is_in_rec :: Array { int :: Int, string :: String }
+      }
+      -> Array
+           { id :: Int
+           , name :: String
+           , other_names :: Array String
+           }
+  , orders ::
+      { name :: String }
+      -> Array
+           { user_id :: Int }
+  , obj_rel :: { id :: Int }
+  , nested1 :: { id :: Int } -> N1
+  }
 
-newtype N1
-  = N1
+newtype N1 = N1
   { nested2 ::
       { id :: Int }
-        -> N2
+      -> N2
   }
 
 derive instance newtypeN1 :: Newtype N1 _
 
-newtype N2
-  = N2 { val :: String }
+newtype N2 = N2 { val :: String }
 
 derive instance newtypeN2 :: Newtype N2 _
 
 testSchemaProxy :: Proxy TestSchema
 testSchemaProxy = Proxy
 
-type TestNotNullParamsSchema
-  = { users ::
-        { online :: NotNull Boolean
-        }
-          -> Array
-            { id :: Int
-            , name :: String
-            , other_names :: Array String
-            }
-    }
+type TestNotNullParamsSchema =
+  { users ::
+      { online :: NotNull Boolean
+      }
+      -> Array
+           { id :: Int
+           , name :: String
+           , other_names :: Array String
+           }
+  }
 
 testNotNullParamsSchemaProxy :: Proxy TestNotNullParamsSchema
 testNotNullParamsSchemaProxy = Proxy
@@ -76,42 +76,55 @@ instance Newtype NewtypeSchema TestNotNullParamsSchema
 newtypeSchema :: Proxy NewtypeSchema
 newtypeSchema = Proxy
 
-testGet ::
-  Proxy
-    { users ::
-        Array
-          { id :: Int
-          }
-    }
+testGet
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             }
+       }
 testGet = queryReturns testSchemaProxy query
   where
   query =
     { users: { id }
     }
 
-testGetEmptyArgs ::
-  Proxy
-    { users ::
-        Array
-          { id :: Int
-          }
-    }
+testGetEmptyArgs
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             }
+       }
 testGetEmptyArgs = queryReturns testSchemaProxy query
   where
   query =
     { users: {} =>> { id }
     }
 
-testGetWithName ::
-  Proxy
-    { users ::
-        Array
-          { id :: Int
-          , name :: String
-          , other_names :: Array String
-          }
-    , obj_rel :: { id :: Int }
+testNullArrayArgs
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             }
+       }
+testNullArrayArgs = queryReturns testSchemaProxy query
+  where
+  query =
+    { users: { is_in: NullArray } =>> { id }
     }
+
+testGetWithName
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             , name :: String
+             , other_names :: Array String
+             }
+       , obj_rel :: { id :: Int }
+       }
 testGetWithName = queryReturns testSchemaProxy query
   where
   query =
@@ -119,17 +132,17 @@ testGetWithName = queryReturns testSchemaProxy query
     , obj_rel: { id }
     }
 
-testAlias ::
-  Boolean ->
-  Proxy
-    { obj_rel :: { id :: Int }
-    , usersRenamed ::
-        Array
-          { idRenamed :: Int
-          , name :: String
-          , other_names :: Array String
-          }
-    }
+testAlias
+  :: Boolean
+  -> Proxy
+       { obj_rel :: { id :: Int }
+       , usersRenamed ::
+           Array
+             { idRenamed :: Int
+             , name :: String
+             , other_names :: Array String
+             }
+       }
 testAlias online = queryReturns testSchemaProxy query
   where
   query =
@@ -137,14 +150,14 @@ testAlias online = queryReturns testSchemaProxy query
     , obj_rel: { id }
     }
 
-testSpread ::
-  Proxy
-    ( SpreadRes
-        ( Array
-            { user_id :: Int
-            }
-        )
-    )
+testSpread
+  :: Proxy
+       ( SpreadRes
+           ( Array
+               { user_id :: Int
+               }
+           )
+       )
 testSpread = queryReturns testSchemaProxy query
   where
   query =
@@ -155,11 +168,11 @@ testSpread = queryReturns testSchemaProxy query
       ]
       { user_id: unit }
 
-testSpreadWithNewtypeSchemaAndNonNullParams ::
-  Proxy
-    ( SpreadRes
-        _
-    )
+testSpreadWithNewtypeSchemaAndNonNullParams
+  :: Proxy
+       ( SpreadRes
+           _
+       )
 testSpreadWithNewtypeSchemaAndNonNullParams = queryReturns newtypeSchema query
   where
   query =
@@ -170,21 +183,19 @@ testSpreadWithNewtypeSchemaAndNonNullParams = queryReturns newtypeSchema query
       ]
       { id: unit }
 
-
-
-testArgs ::
-  Proxy
-    { users ::
-        Array
-          { id :: Int
-          , name :: String
-          , other_names :: Array String
-          }
-    , obj_rel :: { id :: Int }
-    , nested1 ::
-        { nested2 :: { val :: String }
-        }
-    }
+testArgs
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             , name :: String
+             , other_names :: Array String
+             }
+       , obj_rel :: { id :: Int }
+       , nested1 ::
+           { nested2 :: { val :: String }
+           }
+       }
 testArgs = queryReturns testSchemaProxy query
   where
   query =
@@ -198,15 +209,15 @@ testArgs = queryReturns testSchemaProxy query
     , nested1: { id: 10 } =>> { nested2: { id: 20 } =>> { val: unit } }
     }
 
-testNotNullArgs ::
-  Proxy
-    { users ::
-        Array
-          { id :: Int
-          , name :: String
-          , other_names :: Array String
-          }
-    }
+testNotNullArgs
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             , name :: String
+             , other_names :: Array String
+             }
+       }
 testNotNullArgs = queryReturns testNotNullParamsSchemaProxy query
   where
   query =
@@ -216,49 +227,49 @@ testNotNullArgs = queryReturns testNotNullParamsSchemaProxy query
           =>> { id, name, other_names }
     }
 
-testArrayArgs ::
-  Proxy
-    { users ::
-        Array
-          { id :: Int
-          }
-    }
+testArrayArgs
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             }
+       }
 testArrayArgs =
   queryReturns testSchemaProxy
     { users: { is_in: [ 1, 2, 3 ] } =>> { id }
     }
 
-testArrayArgsOne ::
-  Proxy
-    { users ::
-        Array
-          { id :: Int
-          }
-    }
+testArrayArgsOne
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             }
+       }
 testArrayArgsOne =
   queryReturns testSchemaProxy
     { users: { is_in: 1 } =>> { id }
     }
 
-testArrayArgsAnd ::
-  Proxy
-    { users ::
-        Array
-          { id :: Int
-          }
-    }
+testArrayArgsAnd
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             }
+       }
 testArrayArgsAnd =
   queryReturns testSchemaProxy
     { users: { is_in: 1 ++ 2 ++ 3 } =>> { id }
     }
 
-testArrayArgsAndRec ::
-  Proxy
-    { users ::
-        Array
-          { id :: Int
-          }
-    }
+testArrayArgsAndRec
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             }
+       }
 testArrayArgsAndRec =
   queryReturns testSchemaProxy
     { users:
@@ -268,13 +279,13 @@ testArrayArgsAndRec =
           =>> { id }
     }
 
-testArrayArgsAndOrRec ::
-  Proxy
-    { users ::
-        Array
-          { id :: Int
-          }
-    }
+testArrayArgsAndOrRec
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             }
+       }
 testArrayArgsAndOrRec =
   queryReturns testSchemaProxy
     { users:
@@ -284,13 +295,13 @@ testArrayArgsAndOrRec =
           =>> { id }
     }
 
-testArrayArgsAndsRec ::
-  Proxy
-    { users ::
-        Array
-          { id :: Int
-          }
-    }
+testArrayArgsAndsRec
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             }
+       }
 testArrayArgsAndsRec =
   queryReturns testSchemaProxy
     { users:
@@ -300,11 +311,28 @@ testArrayArgsAndsRec =
           =>> { id }
     }
 
-ignoreOrStr ::
-  Boolean ->
-  OrArg IgnoreArg
-    { string :: String
-    }
+testDirective
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             }
+       }
+testDirective =
+  queryReturns testSchemaProxy
+    $ applyDir (Proxy :: _ "cache") {}
+        { users:
+            { is_in_rec:
+                [ { int: 0 } ] +++ ((ArgR [ ignoreOrStr true, ignoreOrStr false ]) :: OrArg IgnoreArg _)
+            }
+              =>> { id }
+        }
+
+ignoreOrStr
+  :: Boolean
+  -> OrArg IgnoreArg
+       { string :: String
+       }
 ignoreOrStr false = ArgL IgnoreArg
 
 ignoreOrStr true = ArgR { string: "" }
@@ -333,7 +361,7 @@ class QueryReturnsTypeChecks schema query where
 
 instance queryReturnsTypeChecks ::
   ( QueryReturns schema query returns
-    ) =>
+  ) =>
   QueryReturnsTypeChecks schema query where
   typeChecks _ _ = unit
 
@@ -349,17 +377,17 @@ passing2 =
     { users: { online: false } =>> { id }
     }
 
-type TestNestedParamsSchema
-  = { users ::
-        { online :: NotNull Boolean
-        , nested :: { required :: NotNull Int, optional :: String }
-        }
-          -> Array
-            { id :: Int
-            , name :: String
-            , other_names :: Array String
-            }
-    }
+type TestNestedParamsSchema =
+  { users ::
+      { online :: NotNull Boolean
+      , nested :: { required :: NotNull Int, optional :: String }
+      }
+      -> Array
+           { id :: Int
+           , name :: String
+           , other_names :: Array String
+           }
+  }
 
 testNestedParamsSchemaProxy :: Proxy TestNestedParamsSchema
 testNestedParamsSchemaProxy = Proxy
@@ -376,18 +404,16 @@ passingTestNestedParamsSchema2 =
     { users: { online: false, nested: { required: 1 } } =>> { id }
     }
 
-type TestCircularNewtypeSchema
-  = { top :: TopLevel
-    }
+type TestCircularNewtypeSchema =
+  { top :: TopLevel
+  }
 
-newtype TopLevel
-  = TopLevel
+newtype TopLevel = TopLevel
   { child :: ChildLevel }
 
 derive instance newTypeTopLevel :: Newtype TopLevel _
 
-newtype ChildLevel
-  = ChildLevel
+newtype ChildLevel = ChildLevel
   { top :: TopLevel
   , val :: Int
   }
