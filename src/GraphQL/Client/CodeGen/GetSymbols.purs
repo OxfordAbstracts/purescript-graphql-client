@@ -8,6 +8,7 @@ import Data.GraphQL.AST as AST
 import Data.List (List, foldMap, nub, sort, (:))
 import Data.Maybe (maybe)
 import Data.Newtype (unwrap)
+import Debug (traceTime)
 
 
 symbolsToCode :: forall f. Foldable f => String -> f String -> String
@@ -26,7 +27,7 @@ import Type.Proxy (Proxy(..))
           )
 
 getSymbols :: AST.Document -> List String
-getSymbols doc = unwrap doc >>= definitionToSymbols # nub # sort
+getSymbols doc = traceTime "getSymbols" \_ -> unwrap doc >>= definitionToSymbols # nub # sort
   where
   definitionToSymbols :: AST.Definition -> List String
   definitionToSymbols = case _ of

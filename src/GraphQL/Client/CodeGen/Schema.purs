@@ -12,7 +12,7 @@ import Data.Array (filter, notElem, nub, nubBy)
 import Data.Array as Array
 import Data.CodePoint.Unicode (isLower)
 import Data.Either (Either(..), hush)
-import Data.Foldable (fold, foldMap, foldl, intercalate)
+import Data.Foldable (foldMap, foldl, intercalate)
 import Data.Function (on)
 import Data.FunctorWithIndex (mapWithIndex)
 import Data.GraphQL.AST as AST
@@ -24,7 +24,7 @@ import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe, fromMaybe', maybe)
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
-import Data.String (Pattern(..), codePointFromChar, contains, take)
+import Data.String (codePointFromChar, joinWith, take)
 import Data.String as String
 import Data.String.CodePoints (takeWhile)
 import Data.String.CodeUnits (charAt)
@@ -107,44 +107,41 @@ schemaFromGqlToPursWithCache opts { schema, moduleName } = go opts.cache
 
   go (Just { get, set }) = do
     jsonMay <- get schema
-    eVal <- case jsonMay >>= decodeJson >>> hush of
-      Nothing -> go Nothing
+    case jsonMay >>= decodeJson >>> hush of
+      Nothing -> do
+        eVal <- go Nothing
+        case schemaFromGqlToPurs opts { schema, moduleName } of
+          Right val -> set { key: schema, val: encodeJson val }
+          _ -> pure unit
+        pure eVal
       Just res -> pure $ Right res
-    case eVal of
-      Right val -> set { key: schema, val: encodeJson val }
-      _ -> pure unit
-    pure $ eVal
 
 schemaFromGqlToPurs :: InputOptions -> GqlInput -> Either ParseError PursGql
 schemaFromGqlToPurs opts { schema, moduleName } =
-  runParser schema document
+  document
+    # runParser schema
     <#> applyNullableOverrides opts.nullableOverrides
-    <#> \ast ->
-      let
-        symbols = Array.fromFoldable $ getSymbols ast
-      in
-        { mainSchemaCode: gqlToPursMainSchemaCode opts ast
-        , enums: gqlToPursEnums opts.gqlScalarsToPursTypes ast
-        , symbols
-        , moduleName
-        }
+    <#>
+      ( \ast ->
+          let
+            symbols = Array.fromFoldable $ getSymbols ast
+          in
+            { mainSchemaCode: gqlToPursMainSchemaCode opts ast
+            , enums: gqlToPursEnums opts.gqlScalarsToPursTypes ast
+            , symbols
+            , moduleName
+            }
+      )
 
-toImport
-  :: forall r
-   . String
-  -> Array
-       { moduleName :: String
-       | r
-       }
+toImports
+  :: Array String
   -> Array String
-toImport mainCode =
+toImports =
   map
-    ( \t ->
-        guard (contains (Pattern t.moduleName) mainCode)
-          $ "\nimport "
-              <> t.moduleName
-              <> " as "
-              <> t.moduleName
+    ( \t -> "import "
+        <> t
+        <> " as "
+        <> t
     )
 
 gqlToPursMainSchemaCode :: InputOptions -> AST.Document -> String
@@ -155,18 +152,20 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
     <> mainCode
   where
   imports =
-    fold
+    joinWith "\n"
+      $ toImports
       $ nub
-      $ toImport mainCode (Array.fromFoldable externalTypes)
-          <> toImport mainCode (nub $ foldl (\res m -> res <> Array.fromFoldable m) [] fieldTypeOverrides)
-          <> toImport mainCode
-            [ { moduleName: "Data.Argonaut.Core" }
-            , { moduleName: "GraphQL.Hasura.Array" }
+      $ map _.moduleName (Array.fromFoldable externalTypes)
+          <> map _.moduleName (foldl (\res m -> res <> Array.fromFoldable m) [] fieldTypeOverrides)
+          <>
+            [ "Data.Argonaut.Core"
+            , "GraphQL.Hasura.Array"
             ]
 
-  mainCode = unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
+  mainCode =
+    unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
 
-  removeDuplicateDefinitions = Array.fromFoldable >>> nubBy (compare `on` getDefinitionTypeName) >>> List.fromFoldable
+  removeDuplicateDefinitions = List.nubBy (compare `on` getDefinitionTypeName)
 
   getDefinitionTypeName :: String -> String
   getDefinitionTypeName =

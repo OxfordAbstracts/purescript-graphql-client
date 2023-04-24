@@ -436,25 +436,6 @@ var eqArrayImpl = function(f) {
 var eqString = {
   eq: eqStringImpl
 };
-var eqRowNil = {
-  eqRecord: function(v) {
-    return function(v1) {
-      return function(v2) {
-        return true;
-      };
-    };
-  }
-};
-var eqRecord = function(dict) {
-  return dict.eqRecord;
-};
-var eqRec = function() {
-  return function(dictEqRecord) {
-    return {
-      eq: eqRecord(dictEqRecord)($$Proxy.value)
-    };
-  };
-};
 var eqInt = {
   eq: eqIntImpl
 };
@@ -471,29 +452,6 @@ var eq2 = /* @__PURE__ */ eq(eqBoolean);
 var eqArray = function(dictEq) {
   return {
     eq: eqArrayImpl(eq(dictEq))
-  };
-};
-var eqRowCons = function(dictEqRecord) {
-  var eqRecord1 = eqRecord(dictEqRecord);
-  return function() {
-    return function(dictIsSymbol) {
-      var reflectSymbol2 = reflectSymbol(dictIsSymbol);
-      return function(dictEq) {
-        var eq32 = eq(dictEq);
-        return {
-          eqRecord: function(v) {
-            return function(ra) {
-              return function(rb) {
-                var tail2 = eqRecord1($$Proxy.value)(ra)(rb);
-                var key = reflectSymbol2($$Proxy.value);
-                var get3 = unsafeGet(key);
-                return eq32(get3(ra))(get3(rb)) && tail2;
-              };
-            };
-          }
-        };
-      };
-    };
   };
 };
 var notEq = function(dictEq) {
@@ -583,8 +541,6 @@ var ringInt = {
 };
 
 // output/Data.Ord/index.js
-var eqRec2 = /* @__PURE__ */ eqRec();
-var notEq2 = /* @__PURE__ */ notEq(eqOrdering);
 var ordString = /* @__PURE__ */ function() {
   return {
     compare: ordStringImpl(LT.value)(EQ.value)(GT.value),
@@ -593,18 +549,6 @@ var ordString = /* @__PURE__ */ function() {
     }
   };
 }();
-var ordRecordNil = {
-  compareRecord: function(v) {
-    return function(v1) {
-      return function(v2) {
-        return EQ.value;
-      };
-    };
-  },
-  EqRecord0: function() {
-    return eqRowNil;
-  }
-};
 var ordInt = /* @__PURE__ */ function() {
   return {
     compare: ordIntImpl(LT.value)(EQ.value)(GT.value),
@@ -621,20 +565,6 @@ var ordChar = /* @__PURE__ */ function() {
     }
   };
 }();
-var compareRecord = function(dict) {
-  return dict.compareRecord;
-};
-var ordRecord = function() {
-  return function(dictOrdRecord) {
-    var eqRec1 = eqRec2(dictOrdRecord.EqRecord0());
-    return {
-      compare: compareRecord(dictOrdRecord)($$Proxy.value),
-      Eq0: function() {
-        return eqRec1;
-      }
-    };
-  };
-};
 var compare = function(dict) {
   return dict.compare;
 };
@@ -644,39 +574,6 @@ var comparing = function(dictOrd) {
     return function(x) {
       return function(y) {
         return compare32(f(x))(f(y));
-      };
-    };
-  };
-};
-var ordRecordCons = function(dictOrdRecord) {
-  var compareRecord1 = compareRecord(dictOrdRecord);
-  var eqRowCons2 = eqRowCons(dictOrdRecord.EqRecord0())();
-  return function() {
-    return function(dictIsSymbol) {
-      var reflectSymbol2 = reflectSymbol(dictIsSymbol);
-      var eqRowCons1 = eqRowCons2(dictIsSymbol);
-      return function(dictOrd) {
-        var compare32 = compare(dictOrd);
-        var eqRowCons22 = eqRowCons1(dictOrd.Eq0());
-        return {
-          compareRecord: function(v) {
-            return function(ra) {
-              return function(rb) {
-                var key = reflectSymbol2($$Proxy.value);
-                var left2 = compare32(unsafeGet(key)(ra))(unsafeGet(key)(rb));
-                var $95 = notEq2(left2)(EQ.value);
-                if ($95) {
-                  return left2;
-                }
-                ;
-                return compareRecord1($$Proxy.value)(ra)(rb);
-              };
-            };
-          },
-          EqRecord0: function() {
-            return eqRowCons22;
-          }
-        };
       };
     };
   };
@@ -2611,7 +2508,7 @@ var Aff = function() {
       }
     };
   }();
-  function Supervisor(util) {
+  function Supervisor(util2) {
     var fibers = {};
     var fiberId = 0;
     var count = 0;
@@ -2645,9 +2542,9 @@ var Aff = function() {
               return function() {
                 delete kills[fid];
                 killCount--;
-                if (util.isLeft(result) && util.fromLeft(result)) {
+                if (util2.isLeft(result) && util2.fromLeft(result)) {
                   setTimeout(function() {
-                    throw util.fromLeft(result);
+                    throw util2.fromLeft(result);
                   }, 0);
                 }
                 if (killCount === 0) {
@@ -2685,7 +2582,7 @@ var Aff = function() {
   var PENDING = 4;
   var RETURN = 5;
   var COMPLETED = 6;
-  function Fiber(util, supervisor, aff) {
+  function Fiber(util2, supervisor, aff) {
     var runTick = 0;
     var status = SUSPENDED;
     var step2 = aff;
@@ -2717,12 +2614,12 @@ var Aff = function() {
               }
             } catch (e) {
               status = RETURN;
-              fail3 = util.left(e);
+              fail3 = util2.left(e);
               step2 = null;
             }
             break;
           case STEP_RESULT:
-            if (util.isLeft(step2)) {
+            if (util2.isLeft(step2)) {
               status = RETURN;
               fail3 = step2;
               step2 = null;
@@ -2730,7 +2627,7 @@ var Aff = function() {
               status = RETURN;
             } else {
               status = STEP_BIND;
-              step2 = util.fromRight(step2);
+              step2 = util2.fromRight(step2);
             }
             break;
           case CONTINUE:
@@ -2746,7 +2643,7 @@ var Aff = function() {
               case PURE:
                 if (bhead === null) {
                   status = RETURN;
-                  step2 = util.right(step2._1);
+                  step2 = util2.right(step2._1);
                 } else {
                   status = STEP_BIND;
                   step2 = step2._1;
@@ -2754,11 +2651,11 @@ var Aff = function() {
                 break;
               case SYNC:
                 status = STEP_RESULT;
-                step2 = runSync(util.left, util.right, step2._1);
+                step2 = runSync(util2.left, util2.right, step2._1);
                 break;
               case ASYNC:
                 status = PENDING;
-                step2 = runAsync(util.left, step2._1, function(result2) {
+                step2 = runAsync(util2.left, step2._1, function(result2) {
                   return function() {
                     if (runTick !== localRunTick) {
                       return;
@@ -2777,7 +2674,7 @@ var Aff = function() {
                 return;
               case THROW:
                 status = RETURN;
-                fail3 = util.left(step2._1);
+                fail3 = util2.left(step2._1);
                 step2 = null;
                 break;
               case CATCH:
@@ -2805,18 +2702,18 @@ var Aff = function() {
                 break;
               case FORK:
                 status = STEP_RESULT;
-                tmp = Fiber(util, supervisor, step2._2);
+                tmp = Fiber(util2, supervisor, step2._2);
                 if (supervisor) {
                   supervisor.register(tmp);
                 }
                 if (step2._1) {
                   tmp.run();
                 }
-                step2 = util.right(tmp);
+                step2 = util2.right(tmp);
                 break;
               case SEQ:
                 status = CONTINUE;
-                step2 = sequential2(util, supervisor, step2._1);
+                step2 = sequential2(util2, supervisor, step2._1);
                 break;
             }
             break;
@@ -2836,7 +2733,7 @@ var Aff = function() {
                     status = RETURN;
                   } else if (fail3) {
                     status = CONTINUE;
-                    step2 = attempt._2(util.fromLeft(fail3));
+                    step2 = attempt._2(util2.fromLeft(fail3));
                     fail3 = null;
                   }
                   break;
@@ -2847,13 +2744,13 @@ var Aff = function() {
                     bhead = attempt._1;
                     btail = attempt._2;
                     status = STEP_BIND;
-                    step2 = util.fromRight(step2);
+                    step2 = util2.fromRight(step2);
                   }
                   break;
                 case BRACKET:
                   bracketCount--;
                   if (fail3 === null) {
-                    result = util.fromRight(step2);
+                    result = util2.fromRight(step2);
                     attempts = new Aff2(CONS, new Aff2(RELEASE, attempt._2, result), attempts, tmp);
                     if (interrupt === tmp || bracketCount > 0) {
                       status = CONTINUE;
@@ -2865,11 +2762,11 @@ var Aff = function() {
                   attempts = new Aff2(CONS, new Aff2(FINALIZED, step2, fail3), attempts, interrupt);
                   status = CONTINUE;
                   if (interrupt && interrupt !== tmp && bracketCount === 0) {
-                    step2 = attempt._1.killed(util.fromLeft(interrupt))(attempt._2);
+                    step2 = attempt._1.killed(util2.fromLeft(interrupt))(attempt._2);
                   } else if (fail3) {
-                    step2 = attempt._1.failed(util.fromLeft(fail3))(attempt._2);
+                    step2 = attempt._1.failed(util2.fromLeft(fail3))(attempt._2);
                   } else {
-                    step2 = attempt._1.completed(util.fromRight(step2))(attempt._2);
+                    step2 = attempt._1.completed(util2.fromRight(step2))(attempt._2);
                   }
                   fail3 = null;
                   bracketCount++;
@@ -2899,12 +2796,12 @@ var Aff = function() {
             joins = null;
             if (interrupt && fail3) {
               setTimeout(function() {
-                throw util.fromLeft(fail3);
+                throw util2.fromLeft(fail3);
               }, 0);
-            } else if (util.isLeft(step2) && rethrow) {
+            } else if (util2.isLeft(step2) && rethrow) {
               setTimeout(function() {
                 if (rethrow) {
-                  throw util.fromLeft(step2);
+                  throw util2.fromLeft(step2);
                 }
               }, 0);
             }
@@ -2938,26 +2835,26 @@ var Aff = function() {
     function kill(error2, cb) {
       return function() {
         if (status === COMPLETED) {
-          cb(util.right(void 0))();
+          cb(util2.right(void 0))();
           return function() {
           };
         }
         var canceler = onComplete({
           rethrow: false,
           handler: function() {
-            return cb(util.right(void 0));
+            return cb(util2.right(void 0));
           }
         })();
         switch (status) {
           case SUSPENDED:
-            interrupt = util.left(error2);
+            interrupt = util2.left(error2);
             status = COMPLETED;
             step2 = interrupt;
             run3(runTick);
             break;
           case PENDING:
             if (interrupt === null) {
-              interrupt = util.left(error2);
+              interrupt = util2.left(error2);
             }
             if (bracketCount === 0) {
               if (status === PENDING) {
@@ -2971,7 +2868,7 @@ var Aff = function() {
             break;
           default:
             if (interrupt === null) {
-              interrupt = util.left(error2);
+              interrupt = util2.left(error2);
             }
             if (bracketCount === 0) {
               status = RETURN;
@@ -3014,7 +2911,7 @@ var Aff = function() {
       }
     };
   }
-  function runPar(util, supervisor, par, cb) {
+  function runPar(util2, supervisor, par, cb) {
     var fiberId = 0;
     var fibers = {};
     var killId = 0;
@@ -3070,7 +2967,7 @@ var Aff = function() {
           }
         }
       if (count === 0) {
-        cb2(util.right(void 0))();
+        cb2(util2.right(void 0))();
       } else {
         kid = 0;
         tmp = count;
@@ -3082,7 +2979,7 @@ var Aff = function() {
     }
     function join2(result, head4, tail2) {
       var fail3, step2, lhs, rhs, tmp, kid;
-      if (util.isLeft(result)) {
+      if (util2.isLeft(result)) {
         fail3 = result;
         step2 = null;
       } else {
@@ -3108,7 +3005,7 @@ var Aff = function() {
           switch (head4.tag) {
             case MAP:
               if (fail3 === null) {
-                head4._3 = util.right(head4._1(util.fromRight(step2)));
+                head4._3 = util2.right(head4._1(util2.fromRight(step2)));
                 step2 = head4._3;
               } else {
                 head4._3 = fail3;
@@ -3140,17 +3037,17 @@ var Aff = function() {
               } else if (lhs === EMPTY || rhs === EMPTY) {
                 return;
               } else {
-                step2 = util.right(util.fromRight(lhs)(util.fromRight(rhs)));
+                step2 = util2.right(util2.fromRight(lhs)(util2.fromRight(rhs)));
                 head4._3 = step2;
               }
               break;
             case ALT:
               lhs = head4._1._3;
               rhs = head4._2._3;
-              if (lhs === EMPTY && util.isLeft(rhs) || rhs === EMPTY && util.isLeft(lhs)) {
+              if (lhs === EMPTY && util2.isLeft(rhs) || rhs === EMPTY && util2.isLeft(lhs)) {
                 return;
               }
-              if (lhs !== EMPTY && util.isLeft(lhs) && rhs !== EMPTY && util.isLeft(rhs)) {
+              if (lhs !== EMPTY && util2.isLeft(lhs) && rhs !== EMPTY && util2.isLeft(rhs)) {
                 fail3 = step2 === lhs ? rhs : lhs;
                 step2 = null;
                 head4._3 = fail3;
@@ -3233,7 +3130,7 @@ var Aff = function() {
                   status = RETURN;
                   tmp = step2;
                   step2 = new Aff2(FORKED, fid, new Aff2(CONS, head4, tail2), EMPTY);
-                  tmp = Fiber(util, supervisor, tmp);
+                  tmp = Fiber(util2, supervisor, tmp);
                   tmp.onComplete({
                     rethrow: false,
                     handler: resolve(step2)
@@ -3271,7 +3168,7 @@ var Aff = function() {
       }
     }
     function cancel(error2, cb2) {
-      interrupt = util.left(error2);
+      interrupt = util2.left(error2);
       var innerKills;
       for (var kid in kills) {
         if (kills.hasOwnProperty(kid)) {
@@ -3307,10 +3204,10 @@ var Aff = function() {
       });
     };
   }
-  function sequential2(util, supervisor, par) {
+  function sequential2(util2, supervisor, par) {
     return new Aff2(ASYNC, function(cb) {
       return function() {
-        return runPar(util, supervisor, par, cb);
+        return runPar(util2, supervisor, par, cb);
       };
     });
   }
@@ -3368,9 +3265,9 @@ function _parAffApply(aff1) {
   };
 }
 var makeAff = Aff.Async;
-function _makeFiber(util, aff) {
+function _makeFiber(util2, aff) {
   return function() {
-    return Aff.Fiber(util, null, aff);
+    return Aff.Fiber(util2, null, aff);
   };
 }
 var _delay = function() {
@@ -4107,7 +4004,7 @@ var emptySet = /* @__PURE__ */ function() {
 
 // output/Data.List/index.js
 var eq3 = /* @__PURE__ */ eq(eqOrdering);
-var notEq3 = /* @__PURE__ */ notEq(eqOrdering);
+var notEq2 = /* @__PURE__ */ notEq(eqOrdering);
 var bimap2 = /* @__PURE__ */ bimap(bifunctorStep);
 var singleton3 = function(a) {
   return new Cons(a, Nil.value);
@@ -4214,7 +4111,7 @@ var sortBy = function(cmp) {
         var $tco_done2 = false;
         var $tco_result;
         function $tco_loop(v, v1, v2) {
-          if (v2 instanceof Cons && notEq3(cmp(v)(v2.value0))(GT.value)) {
+          if (v2 instanceof Cons && notEq2(cmp(v)(v2.value0))(GT.value)) {
             $tco_var_v = v2.value0;
             $tco_var_v1 = function(ys) {
               return v1(new Cons(v, ys));
@@ -4561,6 +4458,13 @@ var mkFn2 = function(fn) {
 var mkFn5 = function(fn) {
   return function(a, b, c, d, e) {
     return fn(a)(b)(c)(d)(e);
+  };
+};
+var runFn2 = function(fn) {
+  return function(a) {
+    return function(b) {
+      return fn(a, b);
+    };
   };
 };
 var runFn4 = function(fn) {
@@ -5958,7 +5862,7 @@ var when2 = /* @__PURE__ */ when(applicativeST);
 var $$void3 = /* @__PURE__ */ $$void(functorST);
 var map22 = /* @__PURE__ */ map(functorArray);
 var fromJust4 = /* @__PURE__ */ fromJust();
-var notEq4 = /* @__PURE__ */ notEq(eqOrdering);
+var notEq3 = /* @__PURE__ */ notEq(eqOrdering);
 var append2 = /* @__PURE__ */ append(semigroupArray);
 var unsafeIndex = function() {
   return unsafeIndexImpl;
@@ -6032,7 +5936,7 @@ var nubBy2 = function(comp) {
                 return snd($181($182));
               };
             }())(unsafeFreeze(result))();
-            return when2(notEq4(comp(lst)(v1.value1))(EQ.value))($$void3(push(v1)(result)))();
+            return when2(notEq3(comp(lst)(v1.value1))(EQ.value))($$void3(push(v1)(result)))();
           };
         })();
         return unsafeFreeze(result)();
@@ -42143,6 +42047,40 @@ var pascalCase = /* @__PURE__ */ function() {
   };
 }();
 
+// output/Debug/foreign.js
+var req = typeof module === "undefined" ? void 0 : module.require;
+var util = function() {
+  try {
+    return req === void 0 ? void 0 : req("util");
+  } catch (e) {
+    return void 0;
+  }
+}();
+var now = function() {
+  var perf;
+  if (typeof performance !== "undefined") {
+    perf = performance;
+  } else if (req) {
+    try {
+      perf = req("perf_hooks").performance;
+    } catch (e) {
+    }
+  }
+  return function() {
+    return (perf || Date).now();
+  };
+}();
+function _traceTime(name3, f) {
+  var start = now();
+  var res = f();
+  var end = now();
+  console.log(name3 + " took " + (end - start) + "ms");
+  return res;
+}
+
+// output/Debug/index.js
+var traceTime = /* @__PURE__ */ runFn2(_traceTime);
+
 // output/GraphQL.Client.CodeGen.GetSymbols/index.js
 var foldMap4 = /* @__PURE__ */ foldMap(foldableArray)(monoidString);
 var show3 = /* @__PURE__ */ show(showString);
@@ -42203,7 +42141,7 @@ var getSymbols = function(doc) {
       return mempty3;
     }
     ;
-    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 44, column 29 - line 50, column 61): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 45, column 29 - line 51, column 61): " + [v.constructor.name]);
   };
   var typeSystemDefinitionToSymbols = function(v) {
     if (v instanceof TypeSystemDefinition_SchemaDefinition) {
@@ -42218,7 +42156,7 @@ var getSymbols = function(doc) {
       return mempty3;
     }
     ;
-    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 38, column 35 - line 41, column 61): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 39, column 35 - line 42, column 61): " + [v.constructor.name]);
   };
   var definitionToSymbols = function(v) {
     if (v instanceof Definition_ExecutableDefinition) {
@@ -42233,9 +42171,11 @@ var getSymbols = function(doc) {
       return mempty3;
     }
     ;
-    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 32, column 25 - line 35, column 51): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 33, column 25 - line 36, column 51): " + [v.constructor.name]);
   };
-  return sort3(nub1(bind5(unwrap4(doc))(definitionToSymbols)));
+  return traceTime("getSymbols")(function(v) {
+    return sort3(nub1(bind5(unwrap4(doc))(definitionToSymbols)));
+  });
 };
 
 // output/GraphQL.Client.CodeGen.Lines/index.js
@@ -42610,34 +42550,22 @@ var applyNullableOverrides = function(overrides) {
 // output/GraphQL.Client.CodeGen.Schema/index.js
 var lookup4 = /* @__PURE__ */ lookup(ordString);
 var map15 = /* @__PURE__ */ map(functorArray);
-var guard5 = /* @__PURE__ */ guard(monoidString);
 var show5 = /* @__PURE__ */ show(showString);
 var foldMap5 = /* @__PURE__ */ foldMap(foldableMaybe)(monoidString);
 var docComment3 = /* @__PURE__ */ docComment(foldableMaybe);
 var intercalate7 = /* @__PURE__ */ intercalate2(foldableList)(monoidString);
 var map1 = /* @__PURE__ */ map(functorList);
 var unwrap5 = /* @__PURE__ */ unwrap();
-var notEq5 = /* @__PURE__ */ notEq(eqCodePoint);
-var fromFoldable7 = /* @__PURE__ */ fromFoldable3(foldableList);
-var compare4 = /* @__PURE__ */ compare(ordString);
-var fromFoldable12 = /* @__PURE__ */ fromFoldable(foldableArray);
-var notElem3 = /* @__PURE__ */ notElem2(eqString);
-var bind6 = /* @__PURE__ */ bind(bindMaybe);
-var fold5 = /* @__PURE__ */ fold(foldableArray)(monoidString);
 var nub4 = /* @__PURE__ */ nub2(ordString);
 var append13 = /* @__PURE__ */ append(semigroupArray);
-var fromFoldable22 = /* @__PURE__ */ fromFoldable3(foldableMap);
-var moduleNameIsSymbol = {
-  reflectSymbol: function() {
-    return "moduleName";
-  }
-};
-var nub12 = /* @__PURE__ */ nub2(/* @__PURE__ */ ordRecord()(/* @__PURE__ */ ordRecordCons(/* @__PURE__ */ ordRecordCons(ordRecordNil)()({
-  reflectSymbol: function() {
-    return "typeName";
-  }
-})(ordString))()(moduleNameIsSymbol)(ordString)));
+var fromFoldable7 = /* @__PURE__ */ fromFoldable3(foldableMap);
 var foldl3 = /* @__PURE__ */ foldl(foldableMap);
+var notEq4 = /* @__PURE__ */ notEq(eqCodePoint);
+var compare4 = /* @__PURE__ */ compare(ordString);
+var guard5 = /* @__PURE__ */ guard(monoidString);
+var notElem3 = /* @__PURE__ */ notElem2(eqString);
+var bind6 = /* @__PURE__ */ bind(bindMaybe);
+var fromFoldable12 = /* @__PURE__ */ fromFoldable3(foldableList);
 var mapFlipped4 = /* @__PURE__ */ mapFlipped(functorList);
 var mapFlipped1 = /* @__PURE__ */ mapFlipped(functorEither);
 var pure6 = /* @__PURE__ */ pure(applicativeAff);
@@ -42664,6 +42592,11 @@ var symbolsIsSymbol = {
     return "symbols";
   }
 };
+var moduleNameIsSymbol = {
+  reflectSymbol: function() {
+    return "moduleName";
+  }
+};
 var mainSchemaCodeIsSymbol = {
   reflectSymbol: function() {
     return "mainSchemaCode";
@@ -42681,7 +42614,7 @@ var gEncodeJsonCons1 = /* @__PURE__ */ gEncodeJsonCons(/* @__PURE__ */ encodeJso
 var encodeJson2 = /* @__PURE__ */ encodeJson(/* @__PURE__ */ encodeRecord(/* @__PURE__ */ gEncodeJsonCons(/* @__PURE__ */ encodeJsonArray(/* @__PURE__ */ encodeRecord(/* @__PURE__ */ gEncodeJsonCons(/* @__PURE__ */ encodeJsonMaybe(encodeJsonJString))(/* @__PURE__ */ gEncodeJsonCons2(/* @__PURE__ */ gEncodeJsonCons1(valuesIsSymbol)())(nameIsSymbol)())(descriptionIsSymbol)())()))(/* @__PURE__ */ gEncodeJsonCons2(/* @__PURE__ */ gEncodeJsonCons2(/* @__PURE__ */ gEncodeJsonCons1(symbolsIsSymbol)())(moduleNameIsSymbol)())(mainSchemaCodeIsSymbol)())(enumsIsSymbol)())());
 var unions2 = /* @__PURE__ */ unions(ordString)(foldableMap);
 var mapWithIndex4 = /* @__PURE__ */ mapWithIndex(functorWithIndexMap);
-var fromFoldable32 = /* @__PURE__ */ fromFoldable2(ordString)(foldableArray);
+var fromFoldable22 = /* @__PURE__ */ fromFoldable2(ordString)(foldableArray);
 var map23 = /* @__PURE__ */ map(functorMap);
 var foldMap13 = /* @__PURE__ */ foldMap(foldableArray)(monoidString);
 var mapFlipped22 = /* @__PURE__ */ mapFlipped(functorArray);
@@ -42763,11 +42696,9 @@ var typeName = function(gqlScalarsToPursTypes) {
     })(lookup4(str)(gqlScalarsToPursTypes));
   };
 };
-var toImport = function(mainCode) {
-  return map15(function(t) {
-    return guard5(contains(t.moduleName)(mainCode))("\nimport " + (t.moduleName + (" as " + t.moduleName)));
-  });
-};
+var toImports = /* @__PURE__ */ map15(function(t) {
+  return "import " + (t + (" as " + t));
+});
 var safeFieldname = function(s) {
   var isSafe = maybe(false)(function(c) {
     return c === "_" || isLower(codePointFromChar(c));
@@ -42796,8 +42727,8 @@ var gqlToPursMainSchemaCode = function(v) {
     };
     var unionTypeDefinitionToPurs = function(v1) {
       if (v1.directives instanceof Nothing && v1.unionMemberTypes instanceof Just) {
-        return new Just(docComment3(v1.description) + ("type " + (v1.name + (" = GqlUnion" + indent("\n( " + (intercalate7("\n, ")(map1(function($318) {
-          return unionMemberTypeToPurs(unwrap5($318));
+        return new Just(docComment3(v1.description) + ("type " + (v1.name + (" = GqlUnion" + indent("\n( " + (intercalate7("\n, ")(map1(function($306) {
+          return unionMemberTypeToPurs(unwrap5($306));
         })(v1.unionMemberTypes.value0)) + "\n)"))))));
       }
       ;
@@ -42810,16 +42741,16 @@ var gqlToPursMainSchemaCode = function(v) {
       };
     };
     var wrapMaybe = function(s) {
-      var $204 = startsWith("(Maybe ")(s);
-      if ($204) {
+      var $192 = startsWith("(Maybe ")(s);
+      if ($192) {
         return s;
       }
       ;
       return "(Maybe " + (s + ")");
     };
     var wrapNotNull = function(s) {
-      var $205 = startsWith("(NotNull ")(trim(s));
-      if ($205) {
+      var $193 = startsWith("(NotNull ")(trim(s));
+      if ($193) {
         return s;
       }
       ;
@@ -42840,15 +42771,15 @@ var gqlToPursMainSchemaCode = function(v) {
           return "Subscription";
         }
         ;
-        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 200, column 13 - line 203, column 41): " + [v1.operationType.constructor.name]);
+        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 199, column 13 - line 202, column 41): " + [v1.operationType.constructor.name]);
       }();
       return "type " + (opStr + (" = " + namedTypeToPurs_(v1.namedType)));
     };
     var schemaDefinitionToPurs = function(v1) {
       return intercalate7("\n\n")(map1(rootOperationTypeDefinitionToPurs)(v1.rootOperationTypeDefinition));
     };
-    var namedTypeToPursNullable = function($319) {
-      return wrapMaybe(namedTypeToPurs_($319));
+    var namedTypeToPursNullable = function($307) {
+      return wrapMaybe(namedTypeToPurs_($307));
     };
     var typeToPurs = function(v1) {
       if (v1 instanceof Type_NamedType) {
@@ -42863,7 +42794,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return notNullTypeToPurs(v1.value0);
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 433, column 16 - line 436, column 72): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 432, column 16 - line 435, column 72): " + [v1.constructor.name]);
     };
     var notNullTypeToPurs = function(v1) {
       if (v1 instanceof NonNullType_NamedType) {
@@ -42874,7 +42805,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return listTypeToPurs(v1.value0);
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 447, column 23 - line 449, column 51): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 446, column 23 - line 448, column 51): " + [v1.constructor.name]);
     };
     var listTypeToPursNullable = function(t) {
       return wrapMaybe(listTypeToPurs(t));
@@ -42885,21 +42816,25 @@ var gqlToPursMainSchemaCode = function(v) {
     var interfaceTypeDefinitionToPurs = function(v1) {
       return Nothing.value;
     };
+    var imports = joinWith("\n")(toImports(nub4(append13(map15(function(v1) {
+      return v1.moduleName;
+    })(fromFoldable7(v.externalTypes)))(append13(map15(function(v1) {
+      return v1.moduleName;
+    })(foldl3(function(res) {
+      return function(m) {
+        return append13(res)(fromFoldable7(m));
+      };
+    })([])(v.fieldTypeOverrides)))(["Data.Argonaut.Core", "GraphQL.Hasura.Array"])))));
     var getDefinitionTypeName = function() {
-      var $320 = filter3(function(l) {
+      var $308 = filter3(function(l) {
         return take4(length4(commentPrefix))(l) !== commentPrefix;
       });
-      var $321 = takeWhile3(notEq5(codePointFromChar("=")));
-      return function($322) {
-        return fromLines($320(toLines($321($322))));
+      var $309 = takeWhile3(notEq4(codePointFromChar("=")));
+      return function($310) {
+        return fromLines($308(toLines($309($310))));
       };
     }();
-    var removeDuplicateDefinitions = function() {
-      var $323 = nubBy2(on(compare4)(getDefinitionTypeName));
-      return function($324) {
-        return fromFoldable12($323(fromFoldable7($324)));
-      };
-    }();
+    var removeDuplicateDefinitions = nubBy(on(compare4)(getDefinitionTypeName));
     var enumTypeDefinitionToPurs = function(v1) {
       return Nothing.value;
     };
@@ -42928,7 +42863,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return wrapNotNull(argNotNullTypeToPurs(v1.value0));
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 415, column 19 - line 418, column 89): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 414, column 19 - line 417, column 89): " + [v1.constructor.name]);
     };
     var argNotNullTypeToPurs = function(v1) {
       if (v1 instanceof NonNullType_NamedType) {
@@ -42939,7 +42874,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return argListTypeToPurs(v1.value0);
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 421, column 26 - line 423, column 54): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 420, column 26 - line 422, column 54): " + [v1.constructor.name]);
     };
     var argListTypeToPurs = function(v1) {
       return "(Array " + (argTypeToPurs(v1) + ")");
@@ -42964,7 +42899,7 @@ var gqlToPursMainSchemaCode = function(v) {
             return v2.value0.moduleName + ("." + v2.value0.typeName);
           }
           ;
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 404, column 10 - line 409, column 53): " + [v2.constructor.name]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 403, column 10 - line 408, column 53): " + [v2.constructor.name]);
         }()));
       };
     };
@@ -43005,7 +42940,7 @@ var gqlToPursMainSchemaCode = function(v) {
             return wrapMaybe(v2.value0.moduleName + ("." + v2.value0.typeName));
           }
           ;
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 294, column 10 - line 299, column 65): " + [v2.constructor.name]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 293, column 10 - line 298, column 65): " + [v2.constructor.name]);
         }())));
       };
     };
@@ -43051,7 +42986,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return new Just(inputObjectTypeDefinitionToPurs(v1.value0));
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 206, column 26 - line 212, column 143): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 205, column 26 - line 211, column 143): " + [v1.constructor.name]);
     };
     var typeSystemDefinitionToPurs = function(v1) {
       if (v1 instanceof TypeSystemDefinition_SchemaDefinition) {
@@ -43066,7 +43001,7 @@ var gqlToPursMainSchemaCode = function(v) {
         return directiveDefinitionToPurs(v1.value0);
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 185, column 32 - line 188, column 118): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 184, column 32 - line 187, column 118): " + [v1.constructor.name]);
     };
     var definitionToPurs = function(v1) {
       if (v1 instanceof Definition_ExecutableDefinition) {
@@ -43081,25 +43016,16 @@ var gqlToPursMainSchemaCode = function(v) {
         return Nothing.value;
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 179, column 22 - line 182, column 52): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 178, column 22 - line 181, column 52): " + [v1.constructor.name]);
     };
     var mainCode = intercalate7("\n\n")(removeDuplicateDefinitions(mapMaybe(definitionToPurs)(unwrap5(doc))));
-    var imports = fold5(nub4(append13(toImport(mainCode)(fromFoldable22(v.externalTypes)))(append13(toImport(mainCode)(nub12(foldl3(function(res) {
-      return function(m) {
-        return append13(res)(fromFoldable22(m));
-      };
-    })([])(v.fieldTypeOverrides))))(toImport(mainCode)([{
-      moduleName: "Data.Argonaut.Core"
-    }, {
-      moduleName: "GraphQL.Hasura.Array"
-    }])))));
     return imports + (guard5(imports !== "")("\n") + ("\n" + mainCode));
   };
 };
 var gqlToPursEnums = function(gqlScalarsToPursTypes) {
   var typeName_ = typeName(gqlScalarsToPursTypes);
   var enumValuesDefinitionToPurs = function(def) {
-    return fromFoldable7(mapFlipped4(unwrap5(def))(function(v) {
+    return fromFoldable12(mapFlipped4(unwrap5(def))(function(v) {
       return unwrap5(v.enumValue);
     }));
   };
@@ -43128,15 +43054,15 @@ var gqlToPursEnums = function(gqlScalarsToPursTypes) {
     ;
     return Nothing.value;
   };
-  var $325 = mapMaybe(definitionToEnum);
-  return function($326) {
-    return fromFoldable7($325(unwrap5($326)));
+  var $311 = mapMaybe(definitionToEnum);
+  return function($312) {
+    return fromFoldable12($311(unwrap5($312)));
   };
 };
 var schemaFromGqlToPurs = function(opts) {
   return function(v) {
     return mapFlipped1(mapFlipped1(runParser(v.schema)(document))(applyNullableOverrides(opts.nullableOverrides)))(function(ast) {
-      var symbols = fromFoldable7(getSymbols(ast));
+      var symbols = fromFoldable12(getSymbols(ast));
       return {
         mainSchemaCode: gqlToPursMainSchemaCode(opts)(ast),
         enums: gqlToPursEnums(opts.gqlScalarsToPursTypes)(ast),
@@ -43158,33 +43084,35 @@ var schemaFromGqlToPursWithCache = function(opts) {
       ;
       if (v1 instanceof Just) {
         return bind1(v1.value0.get(v.schema))(function(jsonMay) {
-          return bind1(function() {
-            var v2 = bind6(jsonMay)(function($327) {
-              return hush(decodeJson2($327));
-            });
-            if (v2 instanceof Nothing) {
-              return go(Nothing.value);
-            }
-            ;
-            if (v2 instanceof Just) {
-              return pure6(new Right(v2.value0));
-            }
-            ;
-            throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 110, column 13 - line 112, column 35): " + [v2.constructor.name]);
-          }())(function(eVal) {
-            return discard2(function() {
-              if (eVal instanceof Right) {
-                return v1.value0.set({
-                  key: v.schema,
-                  val: encodeJson2(eVal.value0)
-                });
-              }
-              ;
-              return pure6(unit);
-            }())(function() {
-              return pure6(eVal);
-            });
+          var v2 = bind6(jsonMay)(function($313) {
+            return hush(decodeJson2($313));
           });
+          if (v2 instanceof Nothing) {
+            return bind1(go(Nothing.value))(function(eVal) {
+              return discard2(function() {
+                var v3 = schemaFromGqlToPurs(opts)({
+                  schema: v.schema,
+                  moduleName: v.moduleName
+                });
+                if (v3 instanceof Right) {
+                  return v1.value0.set({
+                    key: v.schema,
+                    val: encodeJson2(v3.value0)
+                  });
+                }
+                ;
+                return pure6(unit);
+              }())(function() {
+                return pure6(eVal);
+              });
+            });
+          }
+          ;
+          if (v2 instanceof Just) {
+            return pure6(new Right(v2.value0));
+          }
+          ;
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 110, column 5 - line 117, column 35): " + [v2.constructor.name]);
         });
       }
       ;
@@ -43196,7 +43124,7 @@ var schemaFromGqlToPursWithCache = function(opts) {
 var schemasFromGqlToPurs = function(opts_) {
   var fieldTypeOverrides = unions2(mapWithIndex4(function(gqlObjectName) {
     return function(obj) {
-      return fromFoldable32([new Tuple(gqlObjectName, obj), new Tuple(gqlObjectName + "InsertInput", obj), new Tuple(gqlObjectName + "MinFields", obj), new Tuple(gqlObjectName + "MaxFields", obj), new Tuple(gqlObjectName + "SetInput", obj), new Tuple(gqlObjectName + "BoolExp", map23(function(o) {
+      return fromFoldable22([new Tuple(gqlObjectName, obj), new Tuple(gqlObjectName + "InsertInput", obj), new Tuple(gqlObjectName + "MinFields", obj), new Tuple(gqlObjectName + "MaxFields", obj), new Tuple(gqlObjectName + "SetInput", obj), new Tuple(gqlObjectName + "BoolExp", map23(function(o) {
         return {
           typeName: o.typeName + "ComparisonExp",
           moduleName: o.moduleName
@@ -43266,11 +43194,11 @@ var schemasFromGqlToPurs = function(opts_) {
       }))
     };
   };
-  var $328 = map32(map42(collectSchemas));
-  var $329 = map32(sequence3);
-  var $330 = traverse2(schemaFromGqlToPursWithCache(opts));
-  return function($331) {
-    return $328($329($330($331)));
+  var $314 = map32(map42(collectSchemas));
+  var $315 = map32(sequence3);
+  var $316 = traverse2(schemaFromGqlToPursWithCache(opts));
+  return function($317) {
+    return $314($315($316($317)));
   };
 };
 
