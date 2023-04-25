@@ -12,6 +12,7 @@ const writeFileRec =  promisify((path, contents, cb) => {
 })
 
 export async function writePursSchemas (opts, gqlSchemas) {
+  console.log({gqlSchemas})
   const { argsTypeError, parseError, result } =
     await schemasFromGqlToPursJs(opts, gqlSchemas)()
 
