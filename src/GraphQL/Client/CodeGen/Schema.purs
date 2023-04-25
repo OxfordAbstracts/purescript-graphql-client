@@ -6,17 +6,18 @@ module GraphQL.Client.CodeGen.Schema
 
 import Prelude
 
+import Data.Argonaut.Core (stringify)
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Array (filter, notElem, nub, nubBy)
 import Data.Array as Array
+import Data.Bifunctor (lmap)
 import Data.CodePoint.Unicode (isLower)
 import Data.Either (Either(..), hush)
 import Data.Foldable (foldMap, foldl, intercalate)
 import Data.Function (on)
 import Data.FunctorWithIndex (mapWithIndex)
 import Data.GraphQL.AST as AST
-import Data.GraphQL.Parser (document)
 import Data.List (List, mapMaybe)
 import Data.List as List
 import Data.Map (Map, lookup)
@@ -32,6 +33,7 @@ import Data.String.Extra (pascalCase)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
+import GraphQL.Client.CodeGen.DocumentFromIntrospection (documentFromIntrospection, toParserError)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
 import GraphQL.Client.CodeGen.Lines (commentPrefix, docComment, fromLines, indent, toLines)
 import GraphQL.Client.CodeGen.Template.Enum as Enum
@@ -103,23 +105,25 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
 schemaFromGqlToPursWithCache :: InputOptions -> GqlInput -> Aff (Either ParseError PursGql)
 schemaFromGqlToPursWithCache opts { schema, moduleName } = go opts.cache
   where
-  go Nothing = pure $ schemaFromGqlToPurs opts { schema, moduleName }
+  stringSchema = stringify schema
+  
+  go _ = pure $ schemaFromGqlToPurs opts { schema, moduleName }
 
   go (Just { get, set }) = do
-    jsonMay <- get schema
+    jsonMay <- get stringSchema
     case jsonMay >>= decodeJson >>> hush of
       Nothing -> do
         eVal <- go Nothing
         case schemaFromGqlToPurs opts { schema, moduleName } of
-          Right val -> set { key: schema, val: encodeJson val }
+          Right val -> set $ { key: stringSchema, val: encodeJson val }
           _ -> pure unit
         pure eVal
       Just res -> pure $ Right res
 
 schemaFromGqlToPurs :: InputOptions -> GqlInput -> Either ParseError PursGql
 schemaFromGqlToPurs opts { schema, moduleName } =
-  document
-    # runParser schema
+  documentFromIntrospection schema
+    # lmap toParserError
     <#> applyNullableOverrides opts.nullableOverrides
     <#>
       ( \ast ->

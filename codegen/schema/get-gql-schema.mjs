@@ -26,9 +26,11 @@ export async function getGqlSchema ({ moduleName, cache, url, token }) {
       }
     )
 
-    const { data } = await response.json()
-
-    const schema = printSchema(buildClientSchema(data))
+    const { data: schema, errors } = await response.json()
+    
+    if (errors) {
+      throw new Error(errors)
+    }
 
     return { moduleName, cache, schema }
   } catch (err) {

@@ -13,6 +13,7 @@ You can edit this file as you like.
   , "affjax-web"
   , "argonaut-codecs"
   , "argonaut-core"
+  , "argonaut-generic"
   , "arrays"
   , "bifunctors"
   , "console"
