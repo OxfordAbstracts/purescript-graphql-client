@@ -11,6 +11,7 @@ console.log = (log) => {
 
 import serverFn from './server-fn.js'
 import gps from './generate-purs-schema.mjs'
+import { handleTestError } from '../../examples/handle-test-error.js';
 
 serverFn(async () => {
   try {
@@ -24,7 +25,7 @@ serverFn(async () => {
       process.exit(0)
     }, 250)
   } catch (err) {
-    handleTestError
+    handleTestError(err)
     process.exit(1)
   }
 })
