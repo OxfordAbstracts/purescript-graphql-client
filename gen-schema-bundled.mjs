@@ -4046,6 +4046,45 @@ var mapMaybe = function(f) {
 var fromFoldable = function(dictFoldable) {
   return foldr(dictFoldable)(Cons.create)(Nil.value);
 };
+var filter = function(p) {
+  var go = function($copy_v) {
+    return function($copy_v1) {
+      var $tco_var_v = $copy_v;
+      var $tco_done = false;
+      var $tco_result;
+      function $tco_loop(v, v1) {
+        if (v1 instanceof Nil) {
+          $tco_done = true;
+          return reverse(v);
+        }
+        ;
+        if (v1 instanceof Cons) {
+          if (p(v1.value0)) {
+            $tco_var_v = new Cons(v1.value0, v);
+            $copy_v1 = v1.value1;
+            return;
+          }
+          ;
+          if (otherwise) {
+            $tco_var_v = v;
+            $copy_v1 = v1.value1;
+            return;
+          }
+          ;
+        }
+        ;
+        throw new Error("Failed pattern match at Data.List (line 390, column 3 - line 390, column 27): " + [v.constructor.name, v1.constructor.name]);
+      }
+      ;
+      while (!$tco_done) {
+        $tco_result = $tco_loop($tco_var_v, $copy_v1);
+      }
+      ;
+      return $tco_result;
+    };
+  };
+  return go(Nil.value);
+};
 var catMaybes = /* @__PURE__ */ mapMaybe(identity10);
 
 // output/Data.List.NonEmpty/index.js
@@ -5677,6 +5716,14 @@ var notElem2 = function(dictEq) {
   return function(a) {
     return function(arr) {
       return isNothing(elemIndex1(a)(arr));
+    };
+  };
+};
+var elem2 = function(dictEq) {
+  var elemIndex1 = elemIndex(dictEq);
+  return function(a) {
+    return function(arr) {
+      return isJust(elemIndex1(a)(arr));
     };
   };
 };
@@ -39411,6 +39458,12 @@ var Subscription = /* @__PURE__ */ function() {
   Subscription2.value = new Subscription2();
   return Subscription2;
 }();
+var NamedType = function(x) {
+  return x;
+};
+var UnionMemberTypes = function(x) {
+  return x;
+};
 var Type_NamedType = /* @__PURE__ */ function() {
   function Type_NamedType2(value0) {
     this.value0 = value0;
@@ -39959,6 +40012,7 @@ var bind3 = /* @__PURE__ */ bind(bindEither);
 var pure4 = /* @__PURE__ */ pure(applicativeEither);
 var pure1 = /* @__PURE__ */ pure(applicativeList);
 var wrap3 = /* @__PURE__ */ wrap();
+var unwrap3 = /* @__PURE__ */ unwrap();
 var fold4 = /* @__PURE__ */ fold(foldableMaybe)(monoidString);
 var fromFoldable6 = /* @__PURE__ */ fromFoldable(foldableArray);
 var map13 = /* @__PURE__ */ map(functorList);
@@ -40042,7 +40096,7 @@ var toParserError = function(v) {
     return new ParseError(v.value0, initialPos);
   }
   ;
-  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.DocumentFromIntrospection (line 223, column 17 - line 225, column 58): " + [v.constructor.name]);
+  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.DocumentFromIntrospection (line 241, column 17 - line 243, column 58): " + [v.constructor.name]);
 };
 var startsWith = function(pre) {
   return function(str) {
@@ -40050,11 +40104,11 @@ var startsWith = function(pre) {
   };
 };
 var noSchemaTypes = /* @__PURE__ */ filter3(/* @__PURE__ */ function() {
-  var $258 = maybe(true)(not(heytingAlgebraFunction(heytingAlgebraFunction(heytingAlgebraBoolean)))(startsWith)("__"));
-  return function($259) {
-    return $258(function(v) {
+  var $260 = maybe(true)(not(heytingAlgebraFunction(heytingAlgebraFunction(heytingAlgebraBoolean)))(startsWith)("__"));
+  return function($261) {
+    return $260(function(v) {
       return v.name;
-    }($259));
+    }($261));
   };
 }());
 var documentFromIntrospection = /* @__PURE__ */ function() {
@@ -40075,6 +40129,27 @@ var documentFromIntrospection = /* @__PURE__ */ function() {
           operationType: opType
         });
       };
+    };
+    var toNamedType = function($262) {
+      return NamedType(fold4(function(v1) {
+        return v1.name;
+      }(unwrap3($262))));
+    };
+    var toUnionMemberTypes = function() {
+      var $263 = map13(toNamedType);
+      return function($264) {
+        return UnionMemberTypes($263(fromFoldable6($264)));
+      };
+    }();
+    var toUnionDefinition = function(fullType) {
+      return bind3(note("No name for union type")(fullType.name))(function(name2) {
+        return pure4({
+          description: fullType.description,
+          directives: Nothing.value,
+          name: name2,
+          unionMemberTypes: map1(toUnionMemberTypes)(fullType.possibleTypes)
+        });
+      });
     };
     var toType = function(v1) {
       var v2 = function(v3) {
@@ -40128,9 +40203,9 @@ var documentFromIntrospection = /* @__PURE__ */ function() {
       };
     };
     var toInputFieldsDefintion = function() {
-      var $260 = map13(toInputValueDefinition);
-      return function($261) {
-        return InputFieldsDefinition($260(fromFoldable6($261)));
+      var $265 = map13(toInputValueDefinition);
+      return function($266) {
+        return InputFieldsDefinition($265(fromFoldable6($266)));
       };
     }();
     var toInputObjectDefinition = function(fullType) {
@@ -40151,9 +40226,9 @@ var documentFromIntrospection = /* @__PURE__ */ function() {
       };
     };
     var toEnumValuesDefintion = function() {
-      var $262 = map13(toEnumValueDefinition);
-      return function($263) {
-        return EnumValuesDefinition($262(fromFoldable6($263)));
+      var $267 = map13(toEnumValueDefinition);
+      return function($268) {
+        return EnumValuesDefinition($267(fromFoldable6($268)));
       };
     }();
     var toEnumDefinition = function(fullType) {
@@ -40242,9 +40317,9 @@ var documentFromIntrospection = /* @__PURE__ */ function() {
       return new Left("Unknown directive location: " + v1);
     };
     var toArgumentsDefinition = function() {
-      var $264 = map13(toInputValueDefinition);
-      return function($265) {
-        return ArgumentsDefinition($264(fromFoldable6($265)));
+      var $269 = map13(toInputValueDefinition);
+      return function($270) {
+        return ArgumentsDefinition($269(fromFoldable6($270)));
       };
     }();
     var toDirectiveDefinition = function(directive) {
@@ -40267,9 +40342,9 @@ var documentFromIntrospection = /* @__PURE__ */ function() {
       };
     };
     var toFieldsDefinition = function() {
-      var $266 = map13(toFieldDefinition);
-      return function($267) {
-        return FieldsDefinition($266(fromFoldable6($267)));
+      var $271 = map13(toFieldDefinition);
+      return function($272) {
+        return FieldsDefinition($271(fromFoldable6($272)));
       };
     }();
     var toObjectDefinition = function(fullType) {
@@ -40285,27 +40360,33 @@ var documentFromIntrospection = /* @__PURE__ */ function() {
     };
     var toTypeSystemDefinition = function(fullType) {
       if (fullType.kind === "OBJECT") {
-        return map23(function($268) {
-          return Just.create(TypeDefinition_ObjectTypeDefinition.create($268));
+        return map23(function($273) {
+          return Just.create(TypeDefinition_ObjectTypeDefinition.create($273));
         })(toObjectDefinition(fullType));
       }
       ;
       if (fullType.kind === "INPUT_OBJECT") {
-        return map23(function($269) {
-          return Just.create(TypeDefinition_InputObjectTypeDefinition.create($269));
+        return map23(function($274) {
+          return Just.create(TypeDefinition_InputObjectTypeDefinition.create($274));
         })(toInputObjectDefinition(fullType));
       }
       ;
       if (fullType.kind === "ENUM") {
-        return map23(function($270) {
-          return Just.create(TypeDefinition_EnumTypeDefinition.create($270));
+        return map23(function($275) {
+          return Just.create(TypeDefinition_EnumTypeDefinition.create($275));
         })(toEnumDefinition(fullType));
       }
       ;
       if (fullType.kind === "SCALAR") {
-        return map23(function($271) {
-          return Just.create(TypeDefinition_ScalarTypeDefinition.create($271));
+        return map23(function($276) {
+          return Just.create(TypeDefinition_ScalarTypeDefinition.create($276));
         })(toScalarDefinition(fullType));
+      }
+      ;
+      if (fullType.kind === "UNION") {
+        return map23(function($277) {
+          return Just.create(TypeDefinition_UnionTypeDefinition.create($277));
+        })(toUnionDefinition(fullType));
       }
       ;
       return new Left("Unsupported TypeDefinition kind: " + fullType.kind);
@@ -40322,28 +40403,28 @@ var documentFromIntrospection = /* @__PURE__ */ function() {
     });
     var nonSchemaTypes = noSchemaTypes(v["__schema"].types);
     var fullTypeToDefinition = function() {
-      var $272 = map23(map1(function($274) {
-        return Definition_TypeSystemDefinition.create(TypeSystemDefinition_TypeDefinition.create($274));
+      var $278 = map23(map1(function($280) {
+        return Definition_TypeSystemDefinition.create(TypeSystemDefinition_TypeDefinition.create($280));
       }));
-      return function($273) {
-        return $272(toTypeSystemDefinition($273));
+      return function($279) {
+        return $278(toTypeSystemDefinition($279));
       };
     }();
     var typeDefinitions = map23(catMaybes)(traverse12(fullTypeToDefinition)(fromFoldable6(nonSchemaTypes)));
     var directiveToDefinition = function() {
-      var $275 = map23(map1(function($277) {
-        return Definition_TypeSystemDefinition.create(TypeSystemDefinition_DirectiveDefinition.create($277));
+      var $281 = map23(map1(function($283) {
+        return Definition_TypeSystemDefinition.create(TypeSystemDefinition_DirectiveDefinition.create($283));
       }));
-      return function($276) {
-        return $275(toDirectiveDefinition($276));
+      return function($282) {
+        return $281(toDirectiveDefinition($282));
       };
     }();
     var directiveDefinitions = map23(catMaybes)(traverse12(directiveToDefinition)(fromFoldable6(v["__schema"].directives)));
     return map23(Document)(append2(directiveDefinitions)(append2(map23(pure1)(root))(typeDefinitions)));
   };
   return composeKleisli(bindEither)(function() {
-    var $278 = lmap4(JsonDecodeError.create);
-    var $279 = decodeJson(decodeRecord(gDecodeJsonCons(decodeFieldId(decodeRecord(gDecodeJsonCons(decodeFieldId(decodeArray2(decodeRecord(gDecodeJsonCons(decodeFieldId(decodeArray3))(gDecodeJsonCons3(gDecodeJsonCons(decodeFieldId(decodeArray2(decodeJsonString)))(gDecodeJsonCons32)({
+    var $284 = lmap4(JsonDecodeError.create);
+    var $285 = decodeJson(decodeRecord(gDecodeJsonCons(decodeFieldId(decodeRecord(gDecodeJsonCons(decodeFieldId(decodeArray2(decodeRecord(gDecodeJsonCons(decodeFieldId(decodeArray3))(gDecodeJsonCons3(gDecodeJsonCons(decodeFieldId(decodeArray2(decodeJsonString)))(gDecodeJsonCons32)({
       reflectSymbol: function() {
         return "locations";
       }
@@ -40396,13 +40477,13 @@ var documentFromIntrospection = /* @__PURE__ */ function() {
         return "__schema";
       }
     })()())());
-    return function($280) {
-      return $278($279($280));
+    return function($286) {
+      return $284($285($286));
     };
   }())(function() {
-    var $281 = lmap4(InvalidIntrospectionSchema.create);
-    return function($282) {
-      return $281(toDocument($282));
+    var $287 = lmap4(InvalidIntrospectionSchema.create);
+    return function($288) {
+      return $287(toDocument($288));
     };
   }());
 }();
@@ -40416,7 +40497,8 @@ var monoidFn2 = /* @__PURE__ */ monoidFn(monoidList);
 var mempty3 = /* @__PURE__ */ mempty(monoidList);
 var sort3 = /* @__PURE__ */ sort(ordString);
 var nub1 = /* @__PURE__ */ nub(ordString);
-var unwrap3 = /* @__PURE__ */ unwrap();
+var not2 = /* @__PURE__ */ not(/* @__PURE__ */ heytingAlgebraFunction(heytingAlgebraBoolean));
+var unwrap4 = /* @__PURE__ */ unwrap();
 var symbolsToCode = function(dictFoldable) {
   var fromFoldable8 = fromFoldable3(dictFoldable);
   return function(modulePrefix) {
@@ -40428,6 +40510,7 @@ var symbolsToCode = function(dictFoldable) {
     };
   };
 };
+var keyword = /* @__PURE__ */ flip(/* @__PURE__ */ elem2(eqString))(["data", "type"]);
 var getSymbols = function(doc) {
   var inputValueDefinitionsToSymbols1 = mempty(monoidFn2);
   var argumentsDefinitionToSymbols = function(v) {
@@ -40467,7 +40550,7 @@ var getSymbols = function(doc) {
       return mempty3;
     }
     ;
-    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 44, column 29 - line 50, column 61): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 52, column 29 - line 58, column 61): " + [v.constructor.name]);
   };
   var typeSystemDefinitionToSymbols = function(v) {
     if (v instanceof TypeSystemDefinition_SchemaDefinition) {
@@ -40482,7 +40565,7 @@ var getSymbols = function(doc) {
       return mempty3;
     }
     ;
-    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 38, column 35 - line 41, column 61): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 46, column 35 - line 49, column 61): " + [v.constructor.name]);
   };
   var definitionToSymbols = function(v) {
     if (v instanceof Definition_ExecutableDefinition) {
@@ -40497,9 +40580,9 @@ var getSymbols = function(doc) {
       return mempty3;
     }
     ;
-    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 32, column 25 - line 35, column 51): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 40, column 25 - line 43, column 51): " + [v.constructor.name]);
   };
-  return sort3(nub1(bind4(unwrap3(doc))(definitionToSymbols)));
+  return sort3(nub1(filter(not2(keyword))(bind4(unwrap4(doc))(definitionToSymbols))));
 };
 
 // output/GraphQL.Client.CodeGen.Lines/index.js
@@ -40529,7 +40612,7 @@ var docComment = function(dictFoldable) {
 
 // output/GraphQL.Client.CodeGen.Template.Enum/index.js
 var guard3 = /* @__PURE__ */ guard(monoidString);
-var not2 = /* @__PURE__ */ not(/* @__PURE__ */ heytingAlgebraFunction(heytingAlgebraBoolean));
+var not3 = /* @__PURE__ */ not(/* @__PURE__ */ heytingAlgebraFunction(heytingAlgebraBoolean));
 var intercalate5 = /* @__PURE__ */ intercalate2(foldableArray)(monoidString);
 var mapFlipped2 = /* @__PURE__ */ mapFlipped(functorArray);
 var map15 = /* @__PURE__ */ map(functorArray);
@@ -40537,7 +40620,7 @@ var docComment2 = /* @__PURE__ */ docComment(foldableMaybe);
 var show3 = /* @__PURE__ */ show(showString);
 var defaultEnumValueName = function(s) {
   var alphaStart = guard3(maybe(false)(function() {
-    var $20 = not2(isAlpha);
+    var $20 = not3(isAlpha);
     return function($21) {
       return $20(codePointFromChar($21));
     };
@@ -40879,7 +40962,7 @@ var foldMap5 = /* @__PURE__ */ foldMap(foldableMaybe)(monoidString);
 var docComment3 = /* @__PURE__ */ docComment(foldableMaybe);
 var intercalate7 = /* @__PURE__ */ intercalate2(foldableList)(monoidString);
 var map17 = /* @__PURE__ */ map(functorList);
-var unwrap4 = /* @__PURE__ */ unwrap();
+var unwrap5 = /* @__PURE__ */ unwrap();
 var guard5 = /* @__PURE__ */ guard(monoidString);
 var nub4 = /* @__PURE__ */ nub2(ordString);
 var append13 = /* @__PURE__ */ append(semigroupArray);
@@ -41053,7 +41136,7 @@ var gqlToPursMainSchemaCode = function(v) {
     var unionTypeDefinitionToPurs = function(v1) {
       if (v1.directives instanceof Nothing && v1.unionMemberTypes instanceof Just) {
         return new Just(docComment3(v1.description) + ("type " + (v1.name + (" = GqlUnion" + indent("\n( " + (intercalate7("\n, ")(map17(function($307) {
-          return unionMemberTypeToPurs(unwrap4($307));
+          return unionMemberTypeToPurs(unwrap5($307));
         })(v1.unionMemberTypes.value0)) + "\n)"))))));
       }
       ;
@@ -41344,15 +41427,15 @@ var gqlToPursMainSchemaCode = function(v) {
       ;
       throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 182, column 22 - line 185, column 52): " + [v1.constructor.name]);
     };
-    var mainCode = intercalate7("\n\n")(removeDuplicateDefinitions(mapMaybe(definitionToPurs)(unwrap4(doc))));
+    var mainCode = intercalate7("\n\n")(removeDuplicateDefinitions(mapMaybe(definitionToPurs)(unwrap5(doc))));
     return imports + (guard5(imports !== "")("\n") + ("\n" + mainCode));
   };
 };
 var gqlToPursEnums = function(gqlScalarsToPursTypes) {
   var typeName_ = typeName(gqlScalarsToPursTypes);
   var enumValuesDefinitionToPurs = function(def) {
-    return fromFoldable1(mapFlipped4(unwrap4(def))(function(v) {
-      return unwrap4(v.enumValue);
+    return fromFoldable1(mapFlipped4(unwrap5(def))(function(v) {
+      return unwrap5(v.enumValue);
     }));
   };
   var typeDefinitionToPurs = function(v) {
@@ -41382,7 +41465,7 @@ var gqlToPursEnums = function(gqlScalarsToPursTypes) {
   };
   var $312 = mapMaybe(definitionToEnum);
   return function($313) {
-    return fromFoldable1($312(unwrap4($313)));
+    return fromFoldable1($312(unwrap5($313)));
   };
 };
 var schemaFromGqlToPurs = function(opts) {

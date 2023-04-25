@@ -7,16 +7,17 @@ import Data.Argonaut.Decode (JsonDecodeError, decodeJson, printJsonDecodeError)
 import Data.Array (filter, length)
 import Data.Bifunctor (lmap)
 import Data.Either (Either(..), note)
-import Data.GraphQL.AST (ArgumentsDefinition(..), Definition(..), DirectiveDefinition(..), DirectiveLocation(..), DirectiveLocations(..), Document(..), EnumTypeDefinition(..), EnumValueDefinition(..), EnumValuesDefinition(..), ExecutableDirectiveLocation(..), FieldDefinition(..), FieldsDefinition(..), InputFieldsDefinition(..), InputObjectTypeDefinition(..), InputValueDefinition(..), ListType(..), NamedType(..), NonNullType(..), ObjectTypeDefinition(..), RootOperationTypeDefinition(..), ScalarTypeDefinition(..), SchemaDefinition(..), Type(..), TypeDefinition(..), TypeSystemDefinition(..), TypeSystemDirectiveLocation(..))
+import Data.GraphQL.AST (ArgumentsDefinition(..), Definition(..), DirectiveDefinition(..), DirectiveLocation(..), DirectiveLocations(..), Document(..), EnumTypeDefinition(..), EnumValueDefinition(..), EnumValuesDefinition(..), ExecutableDirectiveLocation(..), FieldDefinition(..), FieldsDefinition(..), InputFieldsDefinition(..), InputObjectTypeDefinition(..), InputValueDefinition(..), ListType(..), NamedType(..), NonNullType(..), ObjectTypeDefinition(..), RootOperationTypeDefinition(..), ScalarTypeDefinition(..), SchemaDefinition(..), Type(..), TypeDefinition(..), TypeSystemDefinition(..), TypeSystemDirectiveLocation(..), UnionMemberTypes(..), UnionTypeDefinition(..))
 import Data.GraphQL.AST as AST
 import Data.List (List(..), catMaybes, fold)
 import Data.List as List
 import Data.Maybe (Maybe(..), maybe)
-import Data.Newtype (wrap)
+import Data.Newtype (unwrap, wrap)
 import Data.String as String
 import Data.Traversable (traverse)
 import GraphQL.Client.CodeGen.IntrospectionResult (EnumValue, FullType, IField, InputValue, IntrospectionResult, TypeRef(..), Directive)
 import Parsing (ParseError(..), initialPos)
+import Unsafe.Coerce (unsafeCoerce)
 
 documentFromIntrospection :: Json -> Either DocumentBuildError Document
 documentFromIntrospection =
@@ -100,6 +101,7 @@ documentFromIntrospection =
       "INPUT_OBJECT" -> Just <<< TypeDefinition_InputObjectTypeDefinition <$> toInputObjectDefinition fullType
       "ENUM" -> Just <<< TypeDefinition_EnumTypeDefinition <$> toEnumDefinition fullType
       "SCALAR" -> Just <<< TypeDefinition_ScalarTypeDefinition <$> toScalarDefinition fullType
+      "UNION" -> Just <<< TypeDefinition_UnionTypeDefinition <$> toUnionDefinition fullType
       k -> Left $ "Unsupported TypeDefinition kind: " <> k
 
     toObjectDefinition :: FullType -> Either String ObjectTypeDefinition
@@ -141,6 +143,22 @@ documentFromIntrospection =
         , name
         , directives: Nothing
         }
+
+    toUnionDefinition :: FullType -> Either String UnionTypeDefinition
+    toUnionDefinition fullType = do
+      name <- note "No name for union type" fullType.name
+      pure $ UnionTypeDefinition
+        { description: fullType.description
+        , directives: Nothing
+        , name
+        , unionMemberTypes: map toUnionMemberTypes fullType.possibleTypes
+        }
+
+    toUnionMemberTypes :: Array TypeRef -> UnionMemberTypes
+    toUnionMemberTypes = List.fromFoldable >>> map toNamedType >>> UnionMemberTypes
+
+    toNamedType :: TypeRef -> NamedType
+    toNamedType = unwrap >>> _.name >>> fold >>> NamedType
 
     toEnumValuesDefintion :: Array EnumValue -> EnumValuesDefinition
     toEnumValuesDefintion = List.fromFoldable >>> map toEnumValueDefinition >>> EnumValuesDefinition
