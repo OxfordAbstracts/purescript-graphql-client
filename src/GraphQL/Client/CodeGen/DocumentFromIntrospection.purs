@@ -4,6 +4,7 @@ import Prelude
 
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (JsonDecodeError, decodeJson, printJsonDecodeError)
+import Data.Array (filter, length)
 import Data.Bifunctor (lmap)
 import Data.Either (Either(..), note)
 import Data.GraphQL.AST (ArgumentsDefinition(..), Definition(..), DirectiveDefinition(..), DirectiveLocation(..), DirectiveLocations(..), Document(..), EnumTypeDefinition(..), EnumValueDefinition(..), EnumValuesDefinition(..), ExecutableDirectiveLocation(..), FieldDefinition(..), FieldsDefinition(..), InputFieldsDefinition(..), InputObjectTypeDefinition(..), InputValueDefinition(..), ListType(..), NamedType(..), NonNullType(..), ObjectTypeDefinition(..), RootOperationTypeDefinition(..), ScalarTypeDefinition(..), SchemaDefinition(..), Type(..), TypeDefinition(..), TypeSystemDefinition(..), TypeSystemDirectiveLocation(..))
@@ -12,6 +13,7 @@ import Data.List (List(..), catMaybes, fold)
 import Data.List as List
 import Data.Maybe (Maybe(..), maybe)
 import Data.Newtype (wrap)
+import Data.String as String
 import Data.Traversable (traverse)
 import GraphQL.Client.CodeGen.IntrospectionResult (EnumValue, FullType, IField, InputValue, IntrospectionResult, TypeRef(..), Directive)
 import Parsing (ParseError(..), initialPos)
@@ -36,6 +38,8 @@ documentFromIntrospection =
     directiveDefinitions <> (pure <$> root) <> typeDefinitions
 
     where
+    nonSchemaTypes = noSchemaTypes types
+
     root :: Either String Definition
     root = do
       query <- note "No query type" queryType.name
@@ -61,7 +65,7 @@ documentFromIntrospection =
 
     typeDefinitions :: Either String (List Definition)
     typeDefinitions =
-      List.fromFoldable types
+      List.fromFoldable nonSchemaTypes
         # traverse fullTypeToDefinition
         # map catMaybes
 
@@ -220,3 +224,17 @@ toParserError = case _ of
   JsonDecodeError e -> ParseError (printJsonDecodeError e) initialPos
   InvalidIntrospectionSchema e -> ParseError e initialPos
 
+noSchemaTypes :: forall r.
+  Array
+    { name :: Maybe String
+    | r
+    }
+  -> Array
+       { name :: Maybe String
+       | r
+       }
+noSchemaTypes = filter (_.name >>> maybe true ( not startsWith "__"))
+
+
+startsWith :: String -> String -> Boolean
+startsWith pre str = String.take (String.length pre) str == pre

@@ -106,7 +106,7 @@ schemaFromGqlToPursWithCache :: InputOptions -> GqlInput -> Aff (Either ParseErr
 schemaFromGqlToPursWithCache opts { schema, moduleName } = go opts.cache
   where
   stringSchema = stringify schema
-  
+
   go Nothing = pure $ schemaFromGqlToPurs opts { schema, moduleName }
 
   go (Just { get, set }) = do
@@ -195,11 +195,14 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
 
   rootOperationTypeDefinitionToPurs :: AST.RootOperationTypeDefinition -> String
   rootOperationTypeDefinitionToPurs (AST.RootOperationTypeDefinition { operationType, namedType }) =
-    "type "
-      <> opStr
-      <> " = "
-      <> (namedTypeToPurs_ namedType)
+    guard (opStr /= actualType) $
+      "type "
+        <> opStr
+        <> " = "
+        <> actualType
     where
+    actualType = namedTypeToPurs_ namedType
+
     opStr = case operationType of
       AST.Query -> "Query"
       AST.Mutation -> "Mutation"
