@@ -4,7 +4,7 @@ import Prelude
 
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (JsonDecodeError, decodeJson, printJsonDecodeError)
-import Data.Array (filter, length)
+import Data.Array (filter)
 import Data.Bifunctor (lmap)
 import Data.Either (Either(..), note)
 import Data.GraphQL.AST (ArgumentsDefinition(..), Definition(..), DirectiveDefinition(..), DirectiveLocation(..), DirectiveLocations(..), Document(..), EnumTypeDefinition(..), EnumValueDefinition(..), EnumValuesDefinition(..), ExecutableDirectiveLocation(..), FieldDefinition(..), FieldsDefinition(..), InputFieldsDefinition(..), InputObjectTypeDefinition(..), InputValueDefinition(..), ListType(..), NamedType(..), NonNullType(..), ObjectTypeDefinition(..), RootOperationTypeDefinition(..), ScalarTypeDefinition(..), SchemaDefinition(..), Type(..), TypeDefinition(..), TypeSystemDefinition(..), TypeSystemDirectiveLocation(..), UnionMemberTypes(..), UnionTypeDefinition(..))
@@ -17,7 +17,6 @@ import Data.String as String
 import Data.Traversable (traverse)
 import GraphQL.Client.CodeGen.IntrospectionResult (EnumValue, FullType, IField, InputValue, IntrospectionResult, TypeRef(..), Directive)
 import Parsing (ParseError(..), initialPos)
-import Unsafe.Coerce (unsafeCoerce)
 
 documentFromIntrospection :: Json -> Either DocumentBuildError Document
 documentFromIntrospection =

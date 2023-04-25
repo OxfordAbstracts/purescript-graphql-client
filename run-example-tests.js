@@ -28,10 +28,21 @@ const go = async () => {
     try {
       await exec(`cd "./examples/${p}" && npm t`)
     } catch (err) {
+
+
+      
+      console.error(err.message.slice(0, -500))
       console.error(`Test threw error: ${p}`)
       process.exit(1)
     }
   }
+}
+
+const exitOnTestError = (err) => {
+  
+  console.error(err.message.slice(0, -500))
+  console.error(`Test threw error: ${p}`)
+  process.exit(1)
 }
 
 go()

@@ -24,7 +24,7 @@ serverFn(async () => {
       process.exit(0)
     }, 250)
   } catch (err) {
-    console.error('test error', err)
+    handleTestError
     process.exit(1)
   }
 })
