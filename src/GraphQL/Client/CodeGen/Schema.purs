@@ -237,7 +237,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
             , typeName: "Json -- Unknown scalar type. Add " <> tName <> " to externalTypes in codegen options to override this behaviour"
             }
 
-  builtInTypes = [ "Int", "Number", "String", "Boolean", "GraphQL.Hasura.Array.Hasura_text" ]
+  builtInTypes = [ "Int", "Number", "String", "Boolean", "ID", "GraphQL.Hasura.Array.Hasura_text" ]
 
   objectTypeDefinitionToPurs :: AST.ObjectTypeDefinition -> String
   objectTypeDefinitionToPurs

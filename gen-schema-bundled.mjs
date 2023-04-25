@@ -41250,7 +41250,7 @@ var gqlToPursMainSchemaCode = function(v) {
     var directiveDefinitionToPurs = function(v1) {
       return Nothing.value;
     };
-    var builtInTypes = ["Int", "Number", "String", "Boolean", "GraphQL.Hasura.Array.Hasura_text"];
+    var builtInTypes = ["Int", "Number", "String", "Boolean", "ID", "GraphQL.Hasura.Array.Hasura_text"];
     var scalarTypeDefinitionToPurs = function(v1) {
       var tName = typeName_(v1.name);
       var typeAndModule = fromMaybe({
