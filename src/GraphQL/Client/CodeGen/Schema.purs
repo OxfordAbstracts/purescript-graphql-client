@@ -40,7 +40,7 @@ import GraphQL.Client.CodeGen.Template.Enum as Enum
 import GraphQL.Client.CodeGen.Template.Schema as Schema
 import GraphQL.Client.CodeGen.Transform.NullableOverrides (applyNullableOverrides)
 import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptions, PursGql)
-import Parsing (ParseError, runParser)
+import Parsing (ParseError)
 
 schemasFromGqlToPurs :: InputOptions -> Array GqlInput -> Aff (Either ParseError FilesToWrite)
 schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> map sequence >>> map (map collectSchemas)
@@ -107,7 +107,7 @@ schemaFromGqlToPursWithCache opts { schema, moduleName } = go opts.cache
   where
   stringSchema = stringify schema
   
-  go _ = pure $ schemaFromGqlToPurs opts { schema, moduleName }
+  go Nothing = pure $ schemaFromGqlToPurs opts { schema, moduleName }
 
   go (Just { get, set }) = do
     jsonMay <- get stringSchema

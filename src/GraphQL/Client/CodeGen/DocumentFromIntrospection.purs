@@ -13,7 +13,6 @@ import Data.List as List
 import Data.Maybe (Maybe(..), maybe)
 import Data.Newtype (wrap)
 import Data.Traversable (traverse)
-import Debug (spy)
 import GraphQL.Client.CodeGen.IntrospectionResult (EnumValue, FullType, IField, InputValue, IntrospectionResult, TypeRef(..), Directive)
 import Parsing (ParseError(..), initialPos)
 
@@ -97,9 +96,7 @@ documentFromIntrospection =
       "INPUT_OBJECT" -> Just <<< TypeDefinition_InputObjectTypeDefinition <$> toInputObjectDefinition fullType
       "ENUM" -> Just <<< TypeDefinition_EnumTypeDefinition <$> toEnumDefinition fullType
       "SCALAR" -> Just <<< TypeDefinition_ScalarTypeDefinition <$> toScalarDefinition fullType
-      k -> pure Nothing
-        where
-        _ = spy "unknown kind" k
+      k -> Left $ "Unsupported TypeDefinition kind: " <> k
 
     toObjectDefinition :: FullType -> Either String ObjectTypeDefinition
     toObjectDefinition fullType = do
