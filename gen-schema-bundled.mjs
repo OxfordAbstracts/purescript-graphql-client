@@ -40510,7 +40510,7 @@ var symbolsToCode = function(dictFoldable) {
     };
   };
 };
-var keyword = /* @__PURE__ */ flip(/* @__PURE__ */ elem2(eqString))(["data", "type"]);
+var keyword = /* @__PURE__ */ flip(/* @__PURE__ */ elem2(eqString))(["data", "type", "instance", "if", "then", "else"]);
 var getSymbols = function(doc) {
   var inputValueDefinitionsToSymbols1 = mempty(monoidFn2);
   var argumentsDefinitionToSymbols = function(v) {
