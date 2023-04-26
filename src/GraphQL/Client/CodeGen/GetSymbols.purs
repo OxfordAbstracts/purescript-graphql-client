@@ -81,4 +81,4 @@ getSymbols doc =
   inputValueDefinitionsToSymbols = mempty
 
 keyword :: String -> Boolean
-keyword = flip elem [ "data", "type", "instance" ]
+keyword = flip elem [ "data", "type", "instance", "if", "then", "else" ]
