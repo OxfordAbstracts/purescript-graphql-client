@@ -1,10 +1,12 @@
 module GraphQL.Client.CodeGen.Schema.Test where
 
 import Prelude
+
 import Data.Either (Either(..))
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
+import Data.String (take)
 import Data.Tuple (Tuple(..))
 import GraphQL.Client.CodeGen.Schema (schemaFromGqlToPurs)
 import GraphQL.Client.CodeGen.Types (InputOptions)
