@@ -1,28 +1,29 @@
 {
-  "name": "2-purty",
+  "name": "3-comments",
   "version": "1.0.0",
-  "description": "make sure purty formatting does not break",
+  "description": "Handle comments in with code gen.",
   "main": "server.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "npm i && spago install && spago build && node ./test.mjs",
-    "format": "purty format ./src --write",
+    "test": "npm i && spago install && node ./test.mjs",
     "build": "spago build",
     "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "console": "^0.7.2",
     "express": "4.17.1",
     "express-graphql": "0.12.0",
-    "graphql": "15.5.0",
-    "purty": "^7.0.0",
+    "graphql": "15.4.0",
+    "isomorphic-ws": "^5.0.0",
+    "mkdirp": "1.0.4",
     "rimraf": "3.0.2",
     "xhr2": "0.2.0"
   },
   "devDependencies": {
-    "mkdirp": "^1.0.4"
+    "exec-sh": "^0.4.0"
   }
 }

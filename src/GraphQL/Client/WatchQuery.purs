@@ -1,9 +1,11 @@
 module GraphQL.Client.WatchQuery where
 
 import Prelude
+
 import Data.Argonaut.Core (Json)
 import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError, decodeJson)
 import Data.Either (Either)
+import GraphQL.Client.Operation (OpMutation)
 import GraphQL.Client.Query (decodeGqlRes)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
@@ -12,20 +14,20 @@ import GraphQL.Client.Variables (getVarsJson)
 import Halogen.Subscription (Emitter)
 
 watchQueryOpts ::
-  forall b a returns query schema client opts.
+  forall b a returns query schema client directives opts.
   WatchQueryClient client opts =>
-  GqlQuery schema query returns =>
+  GqlQuery directives OpMutation schema query returns =>
   DecodeJson returns =>
-  (opts -> opts) -> Client client schema a b -> String -> query -> Emitter (Either JsonDecodeError returns)
+  (opts -> opts) -> Client client directives schema a b -> String -> query -> Emitter (Either JsonDecodeError returns)
 watchQueryOpts = watchQueryOptsWithDecoder decodeJson
 
 watchQueryOptsWithDecoder ::
-  forall client opts schema query returns a b.
+  forall client directives opts schema query returns a b.
   WatchQueryClient client opts =>
-  GqlQuery schema query returns =>
+  GqlQuery directives OpMutation schema query returns =>
   (Json -> Either JsonDecodeError returns) ->
   (opts -> opts) ->
-  (Client client schema a b) ->
+  (Client client directives schema a b) ->
   String ->
   query ->
   Emitter (Either JsonDecodeError returns)
@@ -38,19 +40,19 @@ watchQueryOptsWithDecoder decodeFn optsF (Client client) queryNameUnsafe q =
   query = "query " <> queryName <> " " <> toGqlQueryString q
 
 watchQuery ::
-  forall b a returns query schema client opts.
+  forall b a returns query schema client directives opts.
   WatchQueryClient client opts =>
-  GqlQuery schema query returns =>
+  GqlQuery directives OpMutation schema query returns =>
   DecodeJson returns =>
-  Client client schema a b -> String -> query -> Emitter (Either JsonDecodeError returns)
+  Client client directives schema a b -> String -> query -> Emitter (Either JsonDecodeError returns)
 watchQuery = watchQueryWithDecoder decodeJson
 
 watchQueryWithDecoder ::
-  forall client opts schema query returns a b.
+  forall client directives opts schema query returns a b.
   WatchQueryClient client opts =>
-  GqlQuery schema query returns =>
+  GqlQuery directives OpMutation schema query returns =>
   (Json -> Either JsonDecodeError returns) ->
-  (Client client schema a b) ->
+  (Client client directives schema a b) ->
   String ->
   query ->
   Emitter (Either JsonDecodeError returns)

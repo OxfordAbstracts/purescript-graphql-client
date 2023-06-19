@@ -33,6 +33,7 @@ type InputOptions
               , typeName :: String
               }
           )
+    , nullableOverrides  :: Map String (Map String Boolean)
     , idImport ::
         Maybe
           { moduleName :: String
@@ -57,6 +58,7 @@ defaultInputOptions =
   { externalTypes: Map.empty
   , gqlScalarsToPursTypes: Map.empty
   , fieldTypeOverrides: Map.empty
+  , nullableOverrides: Map.empty
   , idImport: Nothing
   , dir: ""
   , isHasura: false
@@ -71,11 +73,12 @@ defaultInputOptions =
 
 
 type GqlInput
-  = { schema :: String, moduleName :: String }
+  = { schema :: Json, moduleName :: String }
 
 type PursGql
   = { moduleName :: String
     , mainSchemaCode :: String
+    , directives :: String
     , symbols :: Array String
     , enums :: Array GqlEnum
     }
@@ -85,6 +88,7 @@ type GqlEnum
 
 type FilesToWrite
   = { schemas :: Array FileToWrite
+    , directives :: Array FileToWrite
     , enums :: Array FileToWrite
     , symbols :: FileToWrite
     }

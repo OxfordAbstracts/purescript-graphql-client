@@ -1,6 +1,6 @@
 {
   "name": "purescript-graphql-client",
-  "version": "9.1.0",
+  "version": "9.3.2",
   "description": "A typesafe graphql client for purescript.",
   "main": "codegen/schema/index.mjs",
   "directories": {
@@ -30,6 +30,7 @@
     "graphql": "^16.5.0",
     "graphql-ws": "^5.9.1",
     "isomorphic-unfetch": "^3.1.0",
+    "isomorphic-ws": "^5.0.0",
     "mkdirp": "1.0.4",
     "rimraf": "3.0.2"
   },
@@ -37,6 +38,7 @@
     "@apollo/client": "3.6",
     "esbuild": "^0.14.51",
     "exec-sh": "^0.4.0",
+    "glob": "^7.2.0",
     "wonka": "^4.0.15"
   }
 }

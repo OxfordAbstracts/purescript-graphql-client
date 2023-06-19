@@ -2,31 +2,39 @@ module GraphQL.Client.CodeGen.GetSymbols where
 
 import Prelude
 
+import Data.Array (elem)
 import Data.Array as Array
 import Data.Foldable (class Foldable)
 import Data.GraphQL.AST as AST
-import Data.List (List, foldMap, nub, sort, (:))
+import Data.List (List, filter, foldMap, nub, sort, (:))
 import Data.Maybe (maybe)
 import Data.Newtype (unwrap)
 
-
 symbolsToCode :: forall f. Foldable f => String -> f String -> String
 symbolsToCode modulePrefix symbols =
-  """module """ <> modulePrefix <> """Symbols where
+  """module """ <> modulePrefix
+    <>
+      """Symbols where
 
 import Type.Proxy (Proxy(..))
 """
     <> symbolsString
   where
   symbolsString =
-     symbols
-        # Array.fromFoldable
-        # Array.nub 
-        # foldMap (\s -> "\n" <> s <> " = Proxy :: Proxy" <> show s
+    symbols
+      # Array.fromFoldable
+      # Array.nub
+      # foldMap
+          ( \s -> "\n" <> s <> " = Proxy :: Proxy" <> show s
           )
 
 getSymbols :: AST.Document -> List String
-getSymbols doc = unwrap doc >>= definitionToSymbols # nub # sort
+getSymbols doc =
+  unwrap doc
+    >>= definitionToSymbols
+    # filter (not keyword)
+    # nub
+    # sort
   where
   definitionToSymbols :: AST.Definition -> List String
   definitionToSymbols = case _ of
@@ -50,22 +58,27 @@ getSymbols doc = unwrap doc >>= definitionToSymbols # nub # sort
     AST.TypeDefinition_InputObjectTypeDefinition _ -> mempty
 
   objectTypeDefinitionToSymbols :: AST.ObjectTypeDefinition -> List String
-  objectTypeDefinitionToSymbols ( AST.ObjectTypeDefinition
-      { fieldsDefinition
-    }
-  ) = maybe mempty fieldsDefinitionToSymbols fieldsDefinition
+  objectTypeDefinitionToSymbols
+    ( AST.ObjectTypeDefinition
+        { fieldsDefinition
+        }
+    ) = maybe mempty fieldsDefinitionToSymbols fieldsDefinition
 
   fieldsDefinitionToSymbols :: AST.FieldsDefinition -> List String
   fieldsDefinitionToSymbols (AST.FieldsDefinition fieldsDefinition) = fieldsDefinition >>= fieldDefinitionToSymbols
 
   fieldDefinitionToSymbols :: AST.FieldDefinition -> List String
-  fieldDefinitionToSymbols ( AST.FieldDefinition
-      { name
-    , argumentsDefinition
-    }
-  ) = name : maybe mempty argumentsDefinitionToSymbols argumentsDefinition
+  fieldDefinitionToSymbols
+    ( AST.FieldDefinition
+        { name
+        , argumentsDefinition
+        }
+    ) = name : maybe mempty argumentsDefinitionToSymbols argumentsDefinition
 
   argumentsDefinitionToSymbols :: AST.ArgumentsDefinition -> List String
   argumentsDefinitionToSymbols (AST.ArgumentsDefinition inputValueDefinitions) = inputValueDefinitions >>= inputValueDefinitionsToSymbols
 
   inputValueDefinitionsToSymbols = mempty
+
+keyword :: String -> Boolean
+keyword = flip elem [ "data", "type", "instance", "if", "then", "else" ]

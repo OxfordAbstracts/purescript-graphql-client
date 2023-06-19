@@ -50,6 +50,7 @@ You can edit this file as you like.
   , "strings-extra"
   , "transformers"
   , "tuples"
+  , "typelevel-lists"
   , "typelevel-prelude"
   , "unicode"
   , "unsafe-coerce"

@@ -16,7 +16,7 @@ const createClientWithoutWebsockets = function (opts) {
         {},
         headers,
         opts.headers,
-        { authorization: opts.authToken ? `Bearer ${opts.authToken}` : '' }
+        opts.authToken ? { authorization:`Bearer ${opts.authToken}` } : {}
       )
     }
   })
@@ -52,9 +52,7 @@ const createClientWithWebsockets = function (opts) {
       url: opts.websocketUrl,
       timeout: 30000,
       connectionParams: {
-        headers: {
-          Authorization: 'Bearer ' + opts.authToken
-        }
+        headers: opts.authToken ? { Authorization:`Bearer ${opts.authToken}` } : {}
       }
     })
   )
@@ -76,8 +74,8 @@ const createClientWithWebsockets = function (opts) {
       headers: Object.assign(
         {},
         headers,
-        opts.headers,
-        { authorization: opts.authToken ? `Bearer ${opts.authToken}` : '' }
+        opts.headers,  
+        opts.authToken ? { authorization:`Bearer ${opts.authToken}` } : {}
       )
     }
   })
