@@ -293,7 +293,7 @@ queryJson
   -> query
   -> Aff (GqlResJson schema query returns)
 queryJson optsF (Client client) queryNameUnsafe q =
-  GqlResJson <$> clientQuery opts client queryName (toGqlQueryString q) (getVarsJson q)
+  GqlResJson <$> clientQuery opts client queryName (getVarsTypeNames q <> toGqlQueryString q) (getVarsJson q)
   where
   opts = optsF (defQueryOpts client)
   queryName = safeQueryName queryNameUnsafe
@@ -329,7 +329,7 @@ mutationJson
   -> mutation
   -> Aff (GqlResJson schema mutation returns)
 mutationJson optsF (Client client) queryNameUnsafe q =
-  GqlResJson <$> clientMutation opts client queryName (toGqlQueryString q) (getVarsJson q)
+  GqlResJson <$> clientMutation opts client queryName (getVarsTypeNames q <> toGqlQueryString q) (getVarsJson q)
   where
   opts = optsF (defMutationOpts client)
 
