@@ -73,7 +73,7 @@ defaultInputOptions =
 
 
 type GqlInput
-  = { schema :: String, moduleName :: String }
+  = { schema :: Json, moduleName :: String }
 
 type PursGql
   = { moduleName :: String
