@@ -270,13 +270,6 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
               <> " :: Newtype "
               <> tName
               <> " _"
-              <> "\ninstance argToGql"
-              <> tName
-              <> " :: (Newtype "
-              <> tName
-              <> " {| p},  RecordArg p a u) => ArgGql "
-              <> tName
-              <> " { | a }"
           else
             "type "
               <> typeName_ name
@@ -386,13 +379,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
         <> " :: Newtype "
         <> tName
         <> " _"
-        <> "\ninstance argToGql"
-        <> tName
-        <> " :: (Newtype "
-        <> tName
-        <> " {| p},  RecordArg p a u) => ArgGql "
-        <> tName
-        <> " { | a }"
+
 
   inputValueToFieldsDefinitionToPurs :: String -> List AST.InputValueDefinition -> String
   inputValueToFieldsDefinitionToPurs objectName definitions =
