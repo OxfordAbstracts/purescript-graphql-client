@@ -43,6 +43,7 @@ You can edit this file as you like.
   , "numbers"
   , "ordered-collections"
   , "parsing"
+  , "partial"
   , "prelude"
   , "profunctor"
   , "profunctor-lenses"
