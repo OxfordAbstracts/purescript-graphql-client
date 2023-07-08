@@ -2,15 +2,17 @@ module GraphQL.Client.CodeGen.Template.Enum where
 
 import Prelude
 
+import Data.Array (zipWith, uncons, unsnoc, range, length)
 import Data.CodePoint.Unicode (isAlpha)
 import Data.Foldable (intercalate)
-import Data.Maybe (Maybe, fromMaybe, maybe)
+import Data.Maybe (Maybe, fromJust, fromMaybe, maybe)
 import Data.Monoid (guard)
 import Data.String (codePointFromChar)
 import Data.String as String
 import Data.String.CodeUnits (charAt)
 import Data.String.Unicode (toUpper)
 import GraphQL.Client.CodeGen.Lines (docComment)
+import Partial.Unsafe (unsafePartial)
 
 template ::
   String ->
@@ -31,8 +33,11 @@ import Prelude
 
 import Data.Argonaut.Decode (class DecodeJson, JsonDecodeError(..), decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
+import Data.Bounded (class Bounded)
+import Data.Enum (class Enum, class BoundedEnum, Cardinality(..))
 import Data.Either (Either(..))
 import Data.Function (on)
+import Data.Maybe (Maybe(..))
 import GraphQL.Client.Args (class ArgGql)
 import GraphQL.Client.ToGqlString (class GqlArgString)
 import GraphQL.Hasura.Decode (class DecodeHasura)
@@ -135,6 +140,36 @@ instance show"""
 """
     <> showMember
     <> """
+
+instance enum"""
+    <> name 
+    <> """ :: Enum """
+    <> name 
+    <> """ where
+  succ a = case a of 
+    """ <> succMembers <> """
+  pred a = case a of 
+    """ <> predMembers <> """
+
+instance bounded"""
+    <> name 
+    <> """ :: Bounded """
+    <> name 
+    <> """ where
+  top = """ <> enumValueName headValue <> """
+  bottom = """ <> enumValueName lastValue <> """
+
+instance boundedEnum"""
+    <> name 
+    <> """ :: BoundedEnum """
+    <> name 
+    <> """ where
+  cardinality = Cardinality """ <> show (length values) <> """
+  toEnum a = case a of
+    """ <> toEnumMembers <> """
+  fromEnum a = case a of
+    """ <> fromEnumMembers <> """
+
 """
   where
   enumValueName = fromMaybe defaultEnumValueName opts.enumValueNameTransform
@@ -150,6 +185,34 @@ instance show"""
     values
       <#> (\v -> "    " <> enumValueName v <> " -> \"" <> v <> "\"")
       # intercalate "\n"
+
+  { head: headValue, tail: tailValues } = unsafePartial $ fromJust $ uncons values
+
+  { init: initValues, last: lastValue } = unsafePartial $ fromJust $ unsnoc values
+
+  succMembers = intercalate """
+    """ (zipWith makeAdjacent initValues tailValues) <> """
+    """ <> enumValueName lastValue <> """ -> Nothing"""
+
+  predMembers = enumValueName headValue <> """ -> Nothing 
+    """ <> intercalate """
+    """ (zipWith makeAdjacent tailValues initValues)
+  
+  ints = range 0 (length values - 1)
+
+  toEnumMembers = intercalate """
+    """ (zipWith makeToEnum ints values) <> """
+    _ -> Nothing"""
+    where 
+    makeToEnum int value = show int <> " -> Just " <> enumValueName value
+
+  fromEnumMembers = intercalate """
+    """ (zipWith makeFromEnum values ints)
+    where 
+    makeFromEnum value int = enumValueName value <> " -> " <> show int
+  
+  makeAdjacent this adjacent = enumValueName this <> " -> Just " <> enumValueName adjacent
+  
 
   valuesAndTransforms = values <#> (\v -> {gql: v, transformed: enumValueName v})
 
