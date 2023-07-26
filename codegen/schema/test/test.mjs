@@ -12,7 +12,6 @@ const go = async () => {
       externalTypes: {},
       fieldTypeOverrides: require('./outside-types'),
       modulePath: ['Generated', 'Gql'],
-      isHasura: true,
       cache: { get, set }
     }, require('./gql-endpoints'))
     console.log('test done')

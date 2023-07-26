@@ -1,11 +1,12 @@
 module GraphQL.Client.CodeGen.Types
-  ( InputOptions
-  , PursGql
+  ( FileToWrite
+  , FilesToWrite
   , GqlEnum
   , GqlInput
-  , FileToWrite
-  , FilesToWrite
+  , GqlPath(..)
+  , InputOptions
   , JsResult
+  , PursGql
   , defaultInputOptions
   ) where
 
@@ -19,39 +20,52 @@ import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Aff (Aff)
 
-type InputOptions
-  = { gqlScalarsToPursTypes :: Map String String
-    , externalTypes ::
-        Map String
-          { moduleName :: String
-          , typeName :: String
-          }
-    , fieldTypeOverrides ::
-        Map String
-          ( Map String
-              { moduleName :: String
-              , typeName :: String
-              }
-          )
-    , nullableOverrides  :: Map String (Map String Boolean)
-    , idImport ::
-        Maybe
-          { moduleName :: String
-          , typeName :: String
-          }
-    , dir :: String
-    , isHasura :: Boolean
-    , useNewtypesForRecords :: Boolean 
-    , modulePath :: Array String
-    , enumImports :: Array String 
-    , customEnumCode :: { name :: String, values :: Array { gql :: String, transformed :: String} } -> String
-    , cache ::
-        Maybe
-          { get :: String -> Aff (Maybe Json)
-          , set :: { key :: String, val :: Json } -> Aff Unit
-          }
-    , enumValueNameTransform :: Maybe (String -> String)
-    }
+type InputOptions =
+  { gqlScalarsToPursTypes :: Map String String
+  , externalTypes ::
+      Map String
+        { moduleName :: String
+        , typeName :: String
+        }
+  -- | override types by typename then fieldname
+  , fieldTypeOverrides ::
+      Map String
+        ( Map String
+            { moduleName :: String
+            , typeName :: String
+            }
+        )
+  -- | override nullability by typename then fieldname
+  , nullableOverrides :: Map String (Map String Boolean)
+  -- | override arg types by typename then fieldname then arg name
+  , argTypeOverrides ::
+      Map String
+        ( Map String
+            ( Map String
+                { moduleName :: String
+                , typeName :: String
+                }
+            )
+        )
+  , idImport ::
+      Maybe
+        { moduleName :: String
+        , typeName :: String
+        }
+  , dir :: String
+  , useNewtypesForRecords :: Boolean
+  , modulePath :: Array String
+  , enumImports :: Array String
+  , customEnumCode :: { name :: String, values :: Array { gql :: String, transformed :: String } } -> String
+  , cache ::
+      Maybe
+        { get :: String -> Aff (Maybe Json)
+        , set :: { key :: String, val :: Json } -> Aff Unit
+        }
+  , enumValueNameTransform :: Maybe (String -> String)
+  }
+
+data GqlPath = SelectionSet GqlPath | Args GqlPath | Node String
 
 defaultInputOptions :: InputOptions
 defaultInputOptions =
@@ -59,9 +73,9 @@ defaultInputOptions =
   , gqlScalarsToPursTypes: Map.empty
   , fieldTypeOverrides: Map.empty
   , nullableOverrides: Map.empty
+  , argTypeOverrides: Map.empty
   , idImport: Nothing
   , dir: ""
-  , isHasura: false
   , useNewtypesForRecords: true
   , modulePath: []
   , enumImports: []
@@ -70,37 +84,32 @@ defaultInputOptions =
   , enumValueNameTransform: Nothing
   }
 
+type GqlInput = { schema :: String, moduleName :: String }
 
+type PursGql =
+  { moduleName :: String
+  , mainSchemaCode :: String
+  , symbols :: Array String
+  , enums :: Array GqlEnum
+  }
 
-type GqlInput
-  = { schema :: String, moduleName :: String }
+type GqlEnum = { name :: String, description :: Maybe String, values :: Array String }
 
-type PursGql
-  = { moduleName :: String
-    , mainSchemaCode :: String
-    , symbols :: Array String
-    , enums :: Array GqlEnum
-    }
+type FilesToWrite =
+  { schemas :: Array FileToWrite
+  , enums :: Array FileToWrite
+  , symbols :: FileToWrite
+  }
 
-type GqlEnum
-  = { name :: String, description :: Maybe String, values :: Array String }
+type JsResult = Effect
+  ( Promise
+      { argsTypeError :: String
+      , parseError :: String
+      , result :: FilesToWrite
+      }
+  )
 
-type FilesToWrite
-  = { schemas :: Array FileToWrite
-    , enums :: Array FileToWrite
-    , symbols :: FileToWrite
-    }
-
-type JsResult
-  = Effect
-      ( Promise
-          { argsTypeError :: String
-          , parseError :: String
-          , result :: FilesToWrite
-          }
-      )
-
-type FileToWrite
-  = { path :: String
-    , code :: String
-    }
+type FileToWrite =
+  { path :: String
+  , code :: String
+  }

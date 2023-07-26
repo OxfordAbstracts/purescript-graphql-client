@@ -1,6 +1,7 @@
 module GraphQL.Client.CodeGen.Schema.Test where
 
 import Prelude
+
 import Data.Either (Either(..))
 import Data.Map (Map)
 import Data.Map as Map
@@ -226,6 +227,7 @@ type Query {
   my_type_a: SomethingUnknown!
   my_type_b: SomethingElseUnknown
   my_type_c: [AlsoUnkown]
+  my_type_d(arg1: Int) : AlsoUnkown
 }
           """
 
@@ -240,6 +242,10 @@ newtype Query = Query
   , my_type_a :: MyModule.MyTypeA
   , my_type_b :: (Maybe MyModule.MyTypeB)
   , my_type_c :: (Array MyModule.MyTypeC)
+  , my_type_d :: 
+    { arg1 :: Int
+    }
+    -> (Maybe AlsoUnkown)
   }
 derive instance newtypeQuery :: Newtype Query _
 instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }"""
@@ -252,6 +258,12 @@ instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Quer
                         [ Tuple "my_type_a" { moduleName: "MyModule", typeName: "MyTypeA" }
                         , Tuple "my_type_b" { moduleName: "MyModule", typeName: "MyTypeB" }
                         , Tuple "my_type_c" { moduleName: "MyModule", typeName: "MyTypeC" }
+                        ]
+                    ]
+                , argTypeOverrides =
+                  mkMap
+                    [ Tuple "Query"
+                        [ Tuple "my_type_d" $ Map.fromFoldable [Tuple "arg1" { moduleName: "MyModule", typeName: "MyTypeD" }]
                         ]
                     ]
                 }
@@ -442,11 +454,11 @@ defaultOpts =
   , cache: Nothing
   , gqlScalarsToPursTypes: Map.empty
   , useNewtypesForRecords: true
-  , isHasura: false
   , modulePath: []
   , enumImports: []
   , customEnumCode: const ""
   , fieldTypeOverrides: Map.empty
+  , argTypeOverrides: Map.empty
   , nullableOverrides: Map.empty
   , externalTypes: Map.empty
   , idImport: Nothing
