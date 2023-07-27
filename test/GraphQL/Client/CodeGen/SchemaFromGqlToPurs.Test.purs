@@ -234,6 +234,7 @@ type Query {
           result =
             """
 import MyModule as MyModule
+import MyArgModule as MyArgModule
 
 type Query = Query
 
@@ -243,7 +244,7 @@ newtype Query = Query
   , my_type_b :: (Maybe MyModule.MyTypeB)
   , my_type_c :: (Array MyModule.MyTypeC)
   , my_type_d :: 
-    { arg1 :: Int
+    { arg1 :: MyArgModule.ArgType
     }
     -> (Maybe AlsoUnkown)
   }
@@ -263,7 +264,7 @@ instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Quer
                 , argTypeOverrides =
                   mkMap
                     [ Tuple "Query"
-                        [ Tuple "my_type_d" $ Map.fromFoldable [Tuple "arg1" { moduleName: "MyModule", typeName: "MyTypeD" }]
+                        [ Tuple "my_type_d" $ Map.fromFoldable [Tuple "arg1" { moduleName: "MyArgModule", typeName: "ArgType" }]
                         ]
                     ]
                 }

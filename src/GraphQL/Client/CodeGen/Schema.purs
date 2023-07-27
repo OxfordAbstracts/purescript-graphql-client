@@ -158,11 +158,14 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
     fold
       $ nub
       $ toImport mainCode (Array.fromFoldable externalTypes)
-          <> toImport mainCode (nub $ foldl (\res m -> res <> Array.fromFoldable m) [] fieldTypeOverrides)
+          <> toImport mainCode (joinMaps fieldTypeOverrides)
+          <> toImport mainCode (nub $ fold $ map joinMaps argTypeOverrides)
           <> toImport mainCode
             [ { moduleName: "Data.Argonaut.Core" }
             , { moduleName: "GraphQL.Hasura.Array" }
             ]
+
+  joinMaps = nub <<< foldl (\res m -> res <> Array.fromFoldable m) []
 
   mainCode = unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
 
@@ -209,7 +212,8 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
     AST.TypeDefinition_InterfaceTypeDefinition interfaceTypeDefinition -> interfaceTypeDefinitionToPurs interfaceTypeDefinition
     AST.TypeDefinition_UnionTypeDefinition unionTypeDefinition -> unionTypeDefinitionToPurs unionTypeDefinition
     AST.TypeDefinition_EnumTypeDefinition enumTypeDefinition -> enumTypeDefinitionToPurs enumTypeDefinition
-    AST.TypeDefinition_InputObjectTypeDefinition inputObjectTypeDefinition -> Just $ inputObjectTypeDefinitionToPurs inputObjectTypeDefinition
+    AST.TypeDefinition_InputObjectTypeDefinition inputObjectTypeDefinition ->
+      Just $ (inputObjectTypeDefinitionToPurs (_.name $ unwrap inputObjectTypeDefinition)) inputObjectTypeDefinition
 
   scalarTypeDefinitionToPurs :: AST.ScalarTypeDefinition -> String
   scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name }) =
@@ -290,7 +294,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
     inlineComment description
       <> safeFieldname name
       <> " :: "
-      <> foldMap (argumentsDefinitionToPurs objectName) argumentsDefinition
+      <> foldMap (argumentsDefinitionToPurs objectName name) argumentsDefinition
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
         Nothing -> typeToPurs tipe
         Just out -> case tipe of
@@ -298,26 +302,12 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
           AST.Type_ListType _ -> wrapArray $ out.moduleName <> "." <> out.typeName
           _ -> wrapMaybe $ out.moduleName <> "." <> out.typeName
 
-  argumentsDefinitionToPurs :: String -> AST.ArgumentsDefinition -> String
-  argumentsDefinitionToPurs objectName (AST.ArgumentsDefinition inputValueDefinitions) =
+  argumentsDefinitionToPurs :: String -> String -> AST.ArgumentsDefinition -> String
+  argumentsDefinitionToPurs objectName fieldName (AST.ArgumentsDefinition inputValueDefinitions) =
     indent
       $ "\n{ "
-          <> intercalate "\n, " (map (inputValueDefinitionsToPurs objectName) inputValueDefinitions)
+          <> intercalate "\n, " (map (inputValueDefinitionToPurs objectName fieldName) inputValueDefinitions)
           <> "\n}\n-> "
-
-  inputValueDefinitionsToPurs :: String -> AST.InputValueDefinition -> String
-  inputValueDefinitionsToPurs
-    objectName
-    ( AST.InputValueDefinition
-        { description
-        , name
-        , type: tipe
-        }
-    ) =
-    inlineComment description
-      <> safeFieldname name
-      <> " :: "
-      <> argTypeToPurs objectName name tipe
 
   interfaceTypeDefinitionToPurs :: AST.InterfaceTypeDefinition -> Maybe String
   interfaceTypeDefinitionToPurs (AST.InterfaceTypeDefinition _) = Nothing
@@ -349,8 +339,10 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
   enumTypeDefinitionToPurs :: AST.EnumTypeDefinition -> Maybe String
   enumTypeDefinitionToPurs (AST.EnumTypeDefinition _) = Nothing
 
-  inputObjectTypeDefinitionToPurs :: AST.InputObjectTypeDefinition -> String
+  -- TODO make fieldName Maybe
+  inputObjectTypeDefinitionToPurs :: String -> AST.InputObjectTypeDefinition -> String
   inputObjectTypeDefinitionToPurs
+    fieldName
     ( AST.InputObjectTypeDefinition
         { description
         , inputFieldsDefinition
@@ -368,7 +360,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
         <>
           ( inputFieldsDefinition
               # maybe "{}" \(AST.InputFieldsDefinition fd) ->
-                  inputValueToFieldsDefinitionToPurs tName fd
+                  inputValueToFieldsDefinitionToPurs tName fieldName fd
           )
         <> "\nderive instance newtype"
         <> tName
@@ -383,16 +375,17 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
         <> tName
         <> " { | a }"
 
-  inputValueToFieldsDefinitionToPurs :: String -> List AST.InputValueDefinition -> String
-  inputValueToFieldsDefinitionToPurs objectName definitions =
+  inputValueToFieldsDefinitionToPurs :: String -> String -> List AST.InputValueDefinition -> String
+  inputValueToFieldsDefinitionToPurs objectName fieldName definitions =
     indent
       $ "\n{ "
-          <> intercalate "\n, " (map (inputValueDefinitionToPurs objectName) definitions)
+          <> intercalate "\n, " (map (inputValueDefinitionToPurs objectName fieldName) definitions)
           <> "\n}"
 
-  inputValueDefinitionToPurs :: String -> AST.InputValueDefinition -> String
+  inputValueDefinitionToPurs :: String -> String -> AST.InputValueDefinition -> String
   inputValueDefinitionToPurs
     objectName
+    fieldName
     ( AST.InputValueDefinition
         { description
         , name
@@ -403,7 +396,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
       <> safeFieldname name
       <> " :: "
       <> case lookup objectName fieldTypeOverrides >>= lookup name of
-        Nothing -> argTypeToPurs objectName name tipe
+        Nothing -> argTypeToPurs objectName fieldName name tipe
         Just out -> case tipe of
           AST.Type_NonNullType _ -> wrapNotNull $ out.moduleName <> "." <> out.typeName
           AST.Type_ListType _ -> wrapArray $ out.moduleName <> "." <> out.typeName
@@ -412,21 +405,21 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
   directiveDefinitionToPurs :: AST.DirectiveDefinition -> Maybe String
   directiveDefinitionToPurs _ = Nothing
 
-  argTypeToPurs :: String ->String -> AST.Type -> String
-  argTypeToPurs objectName fieldName = case _ of
-    (AST.Type_NamedType namedType) -> case lookup objectName argTypeOverrides >>= lookup fieldName >>= lookup (unwrap namedType) of
+  argTypeToPurs :: String -> String -> String -> AST.Type -> String
+  argTypeToPurs objectName fieldName argName = case _ of
+    (AST.Type_NamedType namedType) -> case lookup objectName argTypeOverrides >>= lookup fieldName >>= lookup argName of
       Nothing -> namedTypeToPurs_ namedType
       Just out -> out.moduleName <> "." <> out.typeName
-    (AST.Type_ListType listType) -> argListTypeToPurs objectName fieldName listType
-    (AST.Type_NonNullType notNullType) -> wrapNotNull $ argNotNullTypeToPurs objectName fieldName notNullType
+    (AST.Type_ListType listType) -> argListTypeToPurs objectName fieldName argName listType
+    (AST.Type_NonNullType notNullType) -> wrapNotNull $ argNotNullTypeToPurs objectName fieldName argName notNullType
 
-  argNotNullTypeToPurs :: String -> String -> AST.NonNullType -> String
-  argNotNullTypeToPurs objectName fieldName = case _ of
+  argNotNullTypeToPurs :: String -> String -> String -> AST.NonNullType -> String
+  argNotNullTypeToPurs objectName fieldName argName = case _ of
     AST.NonNullType_NamedType t -> namedTypeToPurs_ t
-    AST.NonNullType_ListType t -> argListTypeToPurs objectName fieldName t
+    AST.NonNullType_ListType t -> argListTypeToPurs objectName fieldName argName t
 
-  argListTypeToPurs :: String ->String -> AST.ListType -> String
-  argListTypeToPurs objectName fieldName (AST.ListType t) = "(Array " <> argTypeToPurs objectName fieldName t <> ")"
+  argListTypeToPurs :: String -> String -> String -> AST.ListType -> String
+  argListTypeToPurs objectName fieldName argName (AST.ListType t) = "(Array " <> argTypeToPurs objectName fieldName argName t <> ")"
 
   wrapNotNull s = if startsWith "(NotNull " (String.trim s) then s else "(NotNull " <> s <> ")"
 
