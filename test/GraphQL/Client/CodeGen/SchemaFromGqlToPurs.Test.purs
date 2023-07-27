@@ -211,7 +211,7 @@ enum my_enum {
                 [ { name: "MyEnum"
                   , description: Just "description"
                   , values: [ "enum_val1", "enum_val2" ]
-                  }
+                  } 
                 ]
             }
       it "handles type overrides " do
