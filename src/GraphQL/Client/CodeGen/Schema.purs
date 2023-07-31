@@ -405,8 +405,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
   directiveDefinitionToPurs :: AST.DirectiveDefinition -> Maybe String
   directiveDefinitionToPurs _ = Nothing
 
-  argTypeToPurs :: String -> String -> String -> AST.Type -> String
-  argTypeToPurs objectName fieldName argName = case _ of
+  argTypeToPurs objectName fieldName argName tipe = case tipe of
     (AST.Type_NamedType namedType) -> case lookup objectName argTypeOverrides >>= lookup fieldName >>= lookup argName of
       Nothing -> namedTypeToPurs_ namedType
       Just out -> out.moduleName <> "." <> out.typeName
@@ -415,7 +414,9 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
 
   argNotNullTypeToPurs :: String -> String -> String -> AST.NonNullType -> String
   argNotNullTypeToPurs objectName fieldName argName = case _ of
-    AST.NonNullType_NamedType t -> namedTypeToPurs_ t
+    AST.NonNullType_NamedType t -> case lookup objectName argTypeOverrides >>= lookup fieldName >>= lookup argName of
+      Nothing -> namedTypeToPurs_ t
+      Just out -> out.moduleName <> "." <> out.typeName
     AST.NonNullType_ListType t -> argListTypeToPurs objectName fieldName argName t
 
   argListTypeToPurs :: String -> String -> String -> AST.ListType -> String
