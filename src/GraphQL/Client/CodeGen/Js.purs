@@ -28,11 +28,11 @@ schemasFromGqlToPursJs = mkFn2 go
     opts =
       { externalTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.externalTypes)
       , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (fromNullable mempty optsJs.fieldTypeOverrides)
+      , argTypeOverrides: (map Map.fromFoldableWithIndex <<< Map.fromFoldableWithIndex) <$> Map.fromFoldableWithIndex (fromNullable mempty optsJs.argTypeOverrides)
       , gqlScalarsToPursTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.gqlScalarsToPursTypes)
       , nullableOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (fromNullable Object.empty optsJs.nullableOverrides)
       , dir: fromNullable "" optsJs.dir
       , modulePath: fromNullable [] optsJs.modulePath
-      , isHasura: fromNullable false optsJs.isHasura
       , useNewtypesForRecords: fromNullable true optsJs.useNewtypesForRecords
       , enumImports: fromNullable [] optsJs.enumImports
       , customEnumCode: fromNullable (const "") optsJs.customEnumCode
@@ -41,10 +41,10 @@ schemasFromGqlToPursJs = mkFn2 go
       , cache:
           toMaybe optsJs.cache
             <#> \{ get, set } ->
-                { get: map (toAff >>> map toMaybe) get
-                , set: map toAff set
-                }
-      
+              { get: map (toAff >>> map toMaybe) get
+              , set: map toAff set
+              }
+
       }
 
     getError err =
@@ -56,40 +56,50 @@ schemasFromGqlToPursJs = mkFn2 go
 fromNullable :: forall a. a -> Nullable a -> a
 fromNullable a = fromMaybe a <<< toMaybe
 
-type InputOptionsJs
-  = { gqlScalarsToPursTypes :: Nullable (Object String)
-    , externalTypes ::
-        Nullable
-          ( Object
-              { moduleName :: String
-              , typeName :: String
-              }
-          )
-    , fieldTypeOverrides ::
-        Nullable
-          ( Object
-              ( Object
-                  { moduleName :: String
-                  , typeName :: String
-                  }
-              )
-          )
-    , nullableOverrides :: Nullable (Object (Object Boolean))
-    , idImport ::
-        Nullable
-          { moduleName :: String
-          , typeName :: String
-          }
-    , dir :: Nullable String
-    , modulePath :: Nullable (Array String)
-    , isHasura :: Nullable Boolean
-    , useNewtypesForRecords :: Nullable Boolean
-    , enumImports :: Nullable (Array String)
-    , customEnumCode :: Nullable ({ name :: String, values :: Array { gql :: String, transformed :: String} } -> String)
-    , cache ::
-        Nullable
-          { get :: String -> Promise (Nullable Json)
-          , set :: { key :: String, val :: Json } -> Promise Unit
-          }
-    , enumValueNameTransform :: Nullable (String -> String)
-    }
+type InputOptionsJs =
+  { gqlScalarsToPursTypes :: Nullable (Object String)
+  , externalTypes ::
+      Nullable
+        ( Object
+            { moduleName :: String
+            , typeName :: String
+            }
+        )
+  , fieldTypeOverrides ::
+      Nullable
+        ( Object
+            ( Object
+                { moduleName :: String
+                , typeName :: String
+                }
+            )
+        )
+  , argTypeOverrides ::
+      Nullable
+        ( Object
+            ( Object
+                ( Object
+                    { moduleName :: String
+                    , typeName :: String
+                    }
+                )
+            )
+        )
+  , nullableOverrides :: Nullable (Object (Object Boolean))
+  , idImport ::
+      Nullable
+        { moduleName :: String
+        , typeName :: String
+        }
+  , dir :: Nullable String
+  , modulePath :: Nullable (Array String)
+  , useNewtypesForRecords :: Nullable Boolean
+  , enumImports :: Nullable (Array String)
+  , customEnumCode :: Nullable ({ name :: String, values :: Array { gql :: String, transformed :: String } } -> String)
+  , cache ::
+      Nullable
+        { get :: String -> Promise (Nullable Json)
+        , set :: { key :: String, val :: Json } -> Promise Unit
+        }
+  , enumValueNameTransform :: Nullable (String -> String)
+  }
