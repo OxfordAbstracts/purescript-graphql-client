@@ -181,8 +181,9 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
   where
   imports =
     joinWith "\n"
-      $ toImports
+      -- $ toImports
       $ nub
+      $ filter (not String.null)
       $ toImport mainCode (Array.fromFoldable externalTypes)
           <> toImport mainCode (joinMaps fieldTypeOverrides)
           <> toImport mainCode (nub $ fold $ map joinMaps argTypeOverrides)
