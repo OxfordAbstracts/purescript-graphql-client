@@ -5,6 +5,7 @@ import Prelude
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (IgnoreArg(..), (++), (+++), (=>>))
+import GraphQL.Client.Directive (applyDir)
 import GraphQL.Client.ToGqlString (gqlArgStringRecordTopLevel, toGqlQueryString, toGqlQueryStringFormatted)
 import GraphQL.Client.Variable (Var(..))
 import Test.Spec (Spec, describe, it)
@@ -122,7 +123,7 @@ spec =
             { a:
                 { a: [ 1, 2, 3 ]
                 , b: 1 ++ 2 ++ 3 ++ 4
-                , c: ["a", "b"] +++ [1, 2] 
+                , c: ["a", "b"] +++ [1, 2]
                 , d: ([] :: Array Int) +++ ["a", "b"] +++ [1, 2] +++ ([] :: Array Int) +++ [ "c", "d"] +++ ([] :: Array Int)
                 }
                   =>> { nested: unit }
@@ -167,7 +168,7 @@ spec =
       it "handles dynamic aliases"
         $ toGqlQueryStringFormatted
              (Spread (Proxy :: _ "b") [ { arg: 10}, { arg: 20}, { arg: 30}] { field: unit })
-            
+
             `shouldEqual`
               """ {
   _0: b(arg: 10) {
@@ -179,4 +180,26 @@ spec =
   _2: b(arg: 30) {
     field
   }
+}"""
+      it "handles top level directives"
+        let
+          cached = applyDir (Proxy :: _ "cached")
+        in
+         toGqlQueryStringFormatted
+             (cached {ttl: 10} { a: unit } )
+
+            `shouldEqual`
+              """@cached(ttl: 10) {
+  a
+}"""
+      it "handles top level directives with no arguments"
+        let
+          cached = applyDir (Proxy :: _ "cached")
+        in
+         toGqlQueryStringFormatted
+             (cached {} { a: unit } )
+
+            `shouldEqual`
+              """@cached {
+  a
 }"""

@@ -41,7 +41,7 @@ main =
 -- Run gql query
 queryGql ::
   forall query returns.
-  GqlQuery Schema query returns =>
+  GqlQuery Nil' OpQuery Schema query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
 queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Schema) 
@@ -182,9 +182,11 @@ import MySchema (Query, Mutation)
 import GraphQL.Client.BaseClients.Apollo (createClient)
 import GraphQL.Client.Query (query)
 import GraphQL.Client.Types (Client)
+import Type.Data.List (Nil')
+
 ...
 
-    client  :: Client _ Query Mutation Void <- createClient
+    client  :: Client _ Nil' Query Mutation Void <- createClient
       { url: "http://localhost:4000/graphql"
       , authToken: Nothing
       , headers: []
@@ -209,9 +211,11 @@ import MySchema (Query, Subscription, Mutation)
 import GraphQL.Client.BaseClients.Apollo (createSubscriptionClient)
 import GraphQL.Client.Subscription (subscription)
 import GraphQL.Client.Types (Client)
+import Type.Data.List (Nil')
+
 ...
 
-  client :: Client _ Query Mutation Subscription <-
+  client :: Client _ Nil' Query Mutation Subscription <-
     createSubscriptionClient
       { url: "http://localhost:4000/graphql"
       , authToken: Nothing
@@ -411,6 +415,13 @@ This type class specifies their graphql type.
 
 There is a full example in the examples directory.
 
+### Directives
+
+Only top level directives, that have a query, mutation or subscription location are currently supported. 
+
+Please look in the example/12-directives to see an example of this.
+
+
 ### Full responses 
 
 If you wish to get the full response, as per the [GraphQL Spec](https://spec.graphql.org/June2018/#sec-Response) use the "FullRes" versions of the query functions
@@ -420,6 +431,16 @@ If you wish to get the full response, as per the [GraphQL Spec](https://spec.gra
 - `subscriptionFullRes`
 
 These will include all errors and extensions in the response, even if a response of the correct type has been returned. 
+
+### Full responses as Json
+
+If you wish to get the full response as json use the "Json" versions of the query functions
+
+- `queryJson`
+- `mutationJson`
+- `subscriptionJson`
+
+These will return the raw json returned by the server inside a newtype `GqlResJson` with phanton types for the schema, query and response. These can be useful for creating your own abstractions using that require the unchanged json response.
 
 ### Apollo only features 
 

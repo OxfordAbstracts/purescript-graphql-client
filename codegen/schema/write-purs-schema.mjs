@@ -23,9 +23,9 @@ export async function writePursSchemas (opts, gqlSchemas) {
     throw new Error(parseError)
   }
 
-  const { schemas, enums, symbols } = result
+  const { schemas, enums, directives, symbols } = result
 
-  await Promise.all([...schemas, ...enums, symbols].map(({ path, code }) => writeFileRec(path, code)))
+  await Promise.all([...schemas, ...enums, ...directives, symbols].map(({ path, code }) => writeFileRec(path, code)))
 
   return result
 }

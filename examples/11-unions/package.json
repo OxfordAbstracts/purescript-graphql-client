@@ -1,7 +1,7 @@
 {
-  "name": "3-comments",
+  "name": "11-unions",
   "version": "1.0.0",
-  "description": "Handle comments in with code gen.",
+  "description": "Handle unions in with code gen.",
   "main": "server.js",
   "directories": {
     "test": "test"

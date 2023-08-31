@@ -84,22 +84,17 @@ defaultInputOptions =
   , enumValueNameTransform: Nothing
   }
 
-type GqlInput = { schema :: String, moduleName :: String }
-
-type PursGql =
-  { moduleName :: String
-  , mainSchemaCode :: String
-  , symbols :: Array String
-  , enums :: Array GqlEnum
-  }
+type GqlInput = { schema :: Json, moduleName :: String }
 
 type GqlEnum = { name :: String, description :: Maybe String, values :: Array String }
 
-type FilesToWrite =
-  { schemas :: Array FileToWrite
-  , enums :: Array FileToWrite
-  , symbols :: FileToWrite
-  }
+type PursGql
+  = { moduleName :: String
+    , mainSchemaCode :: String
+    , directives :: String
+    , symbols :: Array String
+    , enums :: Array GqlEnum
+    }
 
 type JsResult = Effect
   ( Promise
@@ -113,3 +108,11 @@ type FileToWrite =
   { path :: String
   , code :: String
   }
+type FilesToWrite
+  = { schemas :: Array FileToWrite
+    , directives :: Array FileToWrite
+    , enums :: Array FileToWrite
+    , symbols :: FileToWrite
+    }
+
+

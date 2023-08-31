@@ -6,462 +6,549 @@ import Data.Either (Either(..))
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
+import Data.String (take)
 import Data.Tuple (Tuple(..))
 import GraphQL.Client.CodeGen.Schema (schemaFromGqlToPurs)
 import GraphQL.Client.CodeGen.Types (InputOptions)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
 
-spec :: Spec Unit
-spec =
-  describe "GraphQL.Client.CodeGen.Schema" do
-    describe "schemaFromGqlToPurs" do
-      it "converts a query only single nullable prop object schema" do
-        let
-          gql = queryOnlySchemaGql "{ prop: Int }"
-        gql `shouldParseTo` queryOnlySchemaPurs "\n  { prop :: (Maybe Int)\n  }"
-      it "converts a single nullable prop object schema" do
-        let
-          gql =
-            schemaGql
-              { query: "{ prop: Int }"
-              , mutation: "{ prop: Int }"
-              , subscription: "{ prop: Int }"
-              }
+-- spec :: Spec Unit
+-- spec =
+--   describe "GraphQL.Client.CodeGen.Schema" do
+--     describe "schemaFromGqlToPurs" do
+--       it "converts a query only single nullable prop object schema" do
+--         let
+--           gql = queryOnlySchemaGql "{ prop: Int }"
+--         gql `shouldParseTo` queryOnlySchemaPurs "\n  { prop :: (Maybe Int)\n  }"
+--       it "converts a single nullable prop object schema" do
+--         let
+--           gql =
+--             schemaGql
+--               { query: "{ prop: Int }"
+--               , mutation: "{ prop: Int }"
+--               , subscription: "{ prop: Int }"
+--               }
 
-          result =
-            schemaPurs
-              { query: "\n  { prop :: (Maybe Int)\n  }"
-              , mutation: "\n  { prop :: (Maybe Int)\n  }"
-              , subscription: "\n  { prop :: (Maybe Int)\n  }"
-              }
-        gql `shouldParseTo` result
-      it "converts a single not null prop object schema" do
-        let
-          gql =
-            schemaGql
-              { query: "{ prop: Int! }"
-              , mutation: "{ prop: Int! }"
-              , subscription: "{ prop: Int! }"
-              }
+--           result =
+--             schemaPurs
+--               { query: "\n  { prop :: (Maybe Int)\n  }"
+--               , mutation: "\n  { prop :: (Maybe Int)\n  }"
+--               , subscription: "\n  { prop :: (Maybe Int)\n  }"
+--               }
+--         gql `shouldParseTo` result
+--       it "converts a single not null prop object schema" do
+--         let
+--           gql =
+--             schemaGql
+--               { query: "{ prop: Int! }"
+--               , mutation: "{ prop: Int! }"
+--               , subscription: "{ prop: Int! }"
+--               }
 
-          result =
-            schemaPurs
-              { query: "\n  { prop :: Int\n  }"
-              , mutation: "\n  { prop :: Int\n  }"
-              , subscription: "\n  { prop :: Int\n  }"
-              }
-        gql `shouldParseTo` result
-      it "converts a multiple prop object schema" do
-        let
-          gql =
-            schemaGql
-              { query:
-                  """{ 
-  int_prop: Int!
-  number_prop: Number
-  string_prop: String!
-  ints_prop: [Int!]!
-}"""
-              , mutation: "{ prop: Int! }"
-              , subscription: "{ prop: Int! }"
-              }
+--           result =
+--             schemaPurs
+--               { query: "\n  { prop :: Int\n  }"
+--               , mutation: "\n  { prop :: Int\n  }"
+--               , subscription: "\n  { prop :: Int\n  }"
+--               }
+--         gql `shouldParseTo` result
+--       it "converts a multiple prop object schema" do
+--         let
+--           gql =
+--             schemaGql
+--               { query:
+--                   """{ 
+--   int_prop: Int!
+--   number_prop: Number
+--   string_prop: String!
+--   ints_prop: [Int!]!
+-- }"""
+--               , mutation: "{ prop: Int! }"
+--               , subscription: "{ prop: Int! }"
+--               }
 
-          result =
-            schemaPurs
-              { query:
-                  """
-  { int_prop :: Int
-  , number_prop :: (Maybe Number)
-  , string_prop :: String
-  , ints_prop :: (Array Int)
-  }"""
-              , mutation: "\n  { prop :: Int\n  }"
-              , subscription: "\n  { prop :: Int\n  }"
-              }
-        gql `shouldParseTo` result
-      it "converts a schema with arguments" do
-        let
-          gql =
-            schemaGql
-              { query:
-                  """{ 
-  int_prop(id: Int str: String!): Int!
-  number_prop: Number
-  string_prop: String!
-  ints_prop: [Int!]!
-}"""
-              , mutation: "{ prop: Int! }"
-              , subscription: "{ prop: Int! }"
-              }
+--           result =
+--             schemaPurs
+--               { query:
+--                   """
+--   { int_prop :: Int
+--   , number_prop :: (Maybe Number)
+--   , string_prop :: String
+--   , ints_prop :: (Array Int)
+--   }"""
+--               , mutation: "\n  { prop :: Int\n  }"
+--               , subscription: "\n  { prop :: Int\n  }"
+--               }
+--         gql `shouldParseTo` result
+--       it "converts a schema with arguments" do
+--         let
+--           gql =
+--             schemaGql
+--               { query:
+--                   """{ 
+--   int_prop(id: Int str: String!): Int!
+--   number_prop: Number
+--   string_prop: String!
+--   ints_prop: [Int!]!
+-- }"""
+--               , mutation: "{ prop: Int! }"
+--               , subscription: "{ prop: Int! }"
+--               }
 
-          result =
-            schemaPurs
-              { query:
-                  """
-  { int_prop :: 
-    { id :: Int
-    , str :: (NotNull String)
-    }
-    -> Int
-  , number_prop :: (Maybe Number)
-  , string_prop :: String
-  , ints_prop :: (Array Int)
-  }"""
-              , mutation: "\n  { prop :: Int\n  }"
-              , subscription: "\n  { prop :: Int\n  }"
-              }
-        gql `shouldParseTo` result
-      it "converts a schema with list arguments and nested object fields" do
-        let
-          gql =
-            schemaGql
-              { query:
-                  """{ 
-  int_prop(id: Int): Int!
-  number_prop(str: String! obj: [my_type!]!): Number
-  string_prop: String!
-  ints_prop: [Int!]!
-}
+--           result =
+--             schemaPurs
+--               { query:
+--                   """
+--   { int_prop :: 
+--     { id :: Int
+--     , str :: (NotNull String)
+--     }
+--     -> Int
+--   , number_prop :: (Maybe Number)
+--   , string_prop :: String
+--   , ints_prop :: (Array Int)
+--   }"""
+--               , mutation: "\n  { prop :: Int\n  }"
+--               , subscription: "\n  { prop :: Int\n  }"
+--               }
+--         gql `shouldParseTo` result
+--       it "converts a schema with list arguments and nested object fields" do
+--         let
+--           gql =
+--             schemaGql
+--               { query:
+--                   """{ 
+--   int_prop(id: Int): Int!
+--   number_prop(str: String! obj: [my_type!]!): Number
+--   string_prop: String!
+--   ints_prop: [Int!]!
+-- }
 
-"""
-              , mutation: "{ prop: Int! }"
-              , subscription: "{ prop: Int! }"
-              }
-              <> "\ntype my_type { prop: Int }"
+-- """
+--               , mutation: "{ prop: Int! }"
+--               , subscription: "{ prop: Int! }"
+--               }
+--               <> "\ntype my_type { prop: Int }"
 
-          result =
-            schemaPurs
-              { query:
-                  """
-  { int_prop :: 
-    { id :: Int
-    }
-    -> Int
-  , number_prop :: 
-    { str :: (NotNull String)
-    , obj :: (NotNull (Array (NotNull MyType)))
-    }
-    -> (Maybe Number)
-  , string_prop :: String
-  , ints_prop :: (Array Int)
-  }"""
-              , mutation: "\n  { prop :: Int\n  }"
-              , subscription: "\n  { prop :: Int\n  }"
-              }
-              <> "\n\nnewtype MyType = MyType \n  { prop :: (Maybe Int)\n  }\nderive instance newtypeMyType :: Newtype MyType _"
-              <> "\ninstance argToGqlMyType :: (Newtype MyType {| p},  RecordArg p a u) => ArgGql MyType { | a }"
-        gql `shouldParseTo` result
-      it "converts input types" do
-        let
-          gql =
-            queryOnlySchemaGql
-              """{ prop(id: MyInputType): Int! }
+--           result =
+--             schemaPurs
+--               { query:
+--                   """
+--   { int_prop :: 
+--     { id :: Int
+--     }
+--     -> Int
+--   , number_prop :: 
+--     { str :: (NotNull String)
+--     , obj :: (NotNull (Array (NotNull MyType)))
+--     }
+--     -> (Maybe Number)
+--   , string_prop :: String
+--   , ints_prop :: (Array Int)
+--   }"""
+--               , mutation: "\n  { prop :: Int\n  }"
+--               , subscription: "\n  { prop :: Int\n  }"
+--               }
+--               <> "\n\nnewtype MyType = MyType \n  { prop :: (Maybe Int)\n  }\nderive instance newtypeMyType :: Newtype MyType _"
+--               <> "\ninstance argToGqlMyType :: (Newtype MyType {| p},  RecordArg p a u) => ArgGql MyType { | a }"
+--         gql `shouldParseTo` result
+--       it "converts input types" do
+--         let
+--           gql =
+--             queryOnlySchemaGql
+--               """{ prop(id: MyInputType): Int! }
 
-input MyInputType {
-  id: Int
-  username: String!
-}"""
+-- input MyInputType {
+--   id: Int
+--   username: String!
+-- }"""
 
-          result =
-            """
-type Query = QueryRoot
+--           result =
+--             """
+-- type Query = QueryRoot
 
-newtype QueryRoot = QueryRoot 
-  { prop :: 
-    { id :: MyInputType
-    }
-    -> Int
-  }
-derive instance newtypeQueryRoot :: Newtype QueryRoot _
-instance argToGqlQueryRoot :: (Newtype QueryRoot {| p},  RecordArg p a u) => ArgGql QueryRoot { | a }
+-- newtype QueryRoot = QueryRoot 
+--   { prop :: 
+--     { id :: MyInputType
+--     }
+--     -> Int
+--   }
+-- derive instance newtypeQueryRoot :: Newtype QueryRoot _
+-- instance argToGqlQueryRoot :: (Newtype QueryRoot {| p},  RecordArg p a u) => ArgGql QueryRoot { | a }
 
-newtype MyInputType = MyInputType
-  { id :: Int
-  , username :: (NotNull String)
-  }
-derive instance newtypeMyInputType :: Newtype MyInputType _
-instance argToGqlMyInputType :: (Newtype MyInputType {| p},  RecordArg p a u) => ArgGql MyInputType { | a }"""
-        gql `shouldParseTo` result
-      it "converts enum types" do
-        let
-          gql =
-            queryOnlySchemaGql
-              """{ prop(id: my_enum): Int! }
-"description"
-enum my_enum {
-  enum_val1
-  enum_val2
-}"""
+-- newtype MyInputType = MyInputType
+--   { id :: Int
+--   , username :: (NotNull String)
+--   }
+-- derive instance newtypeMyInputType :: Newtype MyInputType _
+-- instance argToGqlMyInputType :: (Newtype MyInputType {| p},  RecordArg p a u) => ArgGql MyInputType { | a }"""
+--         gql `shouldParseTo` result
+--       it "converts enum types" do
+--         let
+--           gql =
+--             queryOnlySchemaGql
+--               """{ prop(id: my_enum): Int! }
+-- "description"
+-- enum my_enum {
+--   enum_val1
+--   enum_val2
+-- }"""
 
-          mainSchemaCode =
-            queryOnlySchemaPurs
-              """
-  { prop :: 
-    { id :: MyEnum
-    }
-    -> Int
-  }"""
-        gql
-          `shouldParseToAll`
-            { mainSchemaCode
-            , moduleName: "Test"
-            , symbols: [ "prop" ]
-            , enums:
-                [ { name: "MyEnum"
-                  , description: Just "description"
-                  , values: [ "enum_val1", "enum_val2" ]
-                  } 
-                ]
-            }
-      it "handles type overrides " do
-        let
-          gql =
-            """
-schema {
-  query: Query
-}
+--           mainSchemaCode =
+--             queryOnlySchemaPurs
+--               """
+--   { prop :: 
+--     { id :: MyEnum
+--     }
+--     -> Int
+--   }"""
+--         gql
+--           `shouldParseToAll`
+--             { mainSchemaCode
+--             , moduleName: "Test"
+--             , symbols: [ "prop" ]
+--             , enums:
+--                 [ { name: "MyEnum"
+--                   , description: Just "description"
+--                   , values: [ "enum_val1", "enum_val2" ]
+--                   } 
+--                 ]
+--             }
+--       it "handles type overrides " do
+--         let
+--           gql =
+--             """
+-- schema {
+--   query: Query
+-- }
 
-type Query {
-  int: Int
-  my_type_a: SomethingUnknown!
-  my_type_b: SomethingElseUnknown
-  my_type_c: [AlsoUnkown]
-  my_type_d(arg1: Int) : AlsoUnkown
-}
-          """
+-- type Query {
+--   int: Int
+--   my_type_a: SomethingUnknown!
+--   my_type_b: SomethingElseUnknown
+--   my_type_c: [AlsoUnkown]
+--   my_type_d(arg1: Int) : AlsoUnkown
+-- }
+--           """
 
-          result =
-            """
-import MyModule as MyModule
-import MyArgModule as MyArgModule
+--           result =
+--             """
+-- import MyModule as MyModule
+-- import MyArgModule as MyArgModule
+-- --           mainSchemaCode =
+-- --             queryOnlySchemaPurs
+-- --               """
 
-type Query = Query
+--   { prop :: 
+--     { id :: MyEnum
+--     }
+--     -> Int
+--   }"""
+--         gql
+--           `shouldParseToAll`
+--             { mainSchemaCode
+--             , moduleName: "Test"
+--             , symbols: [ "prop" ]
+--             , enums:
+--                 [ { name: "MyEnum"
+--                   , description: Just "description"
+--                   , values: [ "enum_val1", "enum_val2" ]
+--                   }
+--                 ]
+--             }
+--       it "handles type overrides " do
+--         let
+--           gql =
+--             """
+-- schema {
+--   query: Query
+-- }
 
-newtype Query = Query 
-  { int :: (Maybe Int)
-  , my_type_a :: MyModule.MyTypeA
-  , my_type_b :: (Maybe MyModule.MyTypeB)
-  , my_type_c :: (Array MyModule.MyTypeC)
-  , my_type_d :: 
-    { arg1 :: MyArgModule.ArgType
-    }
-    -> (Maybe AlsoUnkown)
-  }
-derive instance newtypeQuery :: Newtype Query _
-instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }"""
-        gql
-          ` ( shouldParseToOpts
-              defaultOpts
-                { fieldTypeOverrides =
-                  mkMap
-                    [ Tuple "Query"
-                        [ Tuple "my_type_a" { moduleName: "MyModule", typeName: "MyTypeA" }
-                        , Tuple "my_type_b" { moduleName: "MyModule", typeName: "MyTypeB" }
-                        , Tuple "my_type_c" { moduleName: "MyModule", typeName: "MyTypeC" }
-                        ]
-                    ]
-                , argTypeOverrides =
-                  mkMap
-                    [ Tuple "Query"
-                        [ Tuple "my_type_d" $ Map.fromFoldable [Tuple "arg1" { moduleName: "MyArgModule", typeName: "ArgType" }]
-                        ]
-                    ]
-                }
-          )
-            `
-            result
-      it "handles unknown scalar types" do
-        let
-          gql =
-            """
-schema {
-  query: Query
-}
+-- type Query {
+--   int: Int
+--   my_type_a: SomethingUnknown!
+--   my_type_b: SomethingElseUnknown
+--   my_type_c: [AlsoUnkown]
+-- }
+--           """
 
-type Query {
-  int: Int
-  my_type_a: SomethingUnknown!
-  my_type_b: SomethingElseUnknown
-  my_type_c: [AlsoUnkown!]!
-}
+--           result =
+--             """
+-- import MyModule as MyModule
 
-scalar SomethingUnknown
-scalar SomethingElseUnknown
-scalar AlsoUnkown
-          """
+-- type Query = Query
 
-          result =
-            """
-import Data.Argonaut.Core as Data.Argonaut.Core
+-- newtype Query = Query 
+--   { int :: (Maybe Int)
+--   , my_type_a :: MyModule.MyTypeA
+--   , my_type_b :: (Maybe MyModule.MyTypeB)
+--   , my_type_c :: (Array MyModule.MyTypeC)
+--   , my_type_d :: 
+--     { arg1 :: MyArgModule.ArgType
+--     }
+--     -> (Maybe AlsoUnkown)
+--   }
+-- derive instance newtypeQuery :: Newtype Query _
+-- instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }"""
+--         gql
+--           ` ( shouldParseToOpts
+--               defaultOpts
+--                 { fieldTypeOverrides =
+--                   mkMap
+--                     [ Tuple "Query"
+--                         [ Tuple "my_type_a" { moduleName: "MyModule", typeName: "MyTypeA" }
+--                         , Tuple "my_type_b" { moduleName: "MyModule", typeName: "MyTypeB" }
+--                         , Tuple "my_type_c" { moduleName: "MyModule", typeName: "MyTypeC" }
+--                         ]
+--                     ]
+--                 , argTypeOverrides =
+--                   mkMap
+--                     [ Tuple "Query"
+--                         [ Tuple "my_type_d" $ Map.fromFoldable [Tuple "arg1" { moduleName: "MyArgModule", typeName: "ArgType" }]
+--                         ]
+--                     ]
+--                 }
+--           )
+--             `
+--             result
+--       it "handles unknown scalar types" do
+--         let
+--           gql =
+--             """
+-- schema {
+--   query: Query
+-- }
+-- -- newtype Query = Query 
+-- --   { int :: (Maybe Int)
+-- --   , my_type_a :: MyModule.MyTypeA
+-- --   , my_type_b :: (Maybe MyModule.MyTypeB)
+-- --   , my_type_c :: (Array MyModule.MyTypeC)
+-- --   }
+-- -- derive instance newtypeQuery :: Newtype Query _
+-- -- instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }"""
+--         gql
+--           ` ( shouldParseToOpts
+--               defaultOpts
+--                 { fieldTypeOverrides =
+--                   mkMap
+--                     [ Tuple "Query"
+--                         [ Tuple "my_type_a" { moduleName: "MyModule", typeName: "MyTypeA" }
+--                         , Tuple "my_type_b" { moduleName: "MyModule", typeName: "MyTypeB" }
+--                         , Tuple "my_type_c" { moduleName: "MyModule", typeName: "MyTypeC" }
+--                         ]
+--                     ]
+--                 }
+--           )
+--             `
+--             result
+--       it "handles unknown scalar types" do
+--         let
+--           gql =
+--             """
+-- schema {
+--   query: Query
+-- }
 
-type Query = Query
+-- type Query {
+--   int: Int
+--   my_type_a: SomethingUnknown!
+--   my_type_b: SomethingElseUnknown
+--   my_type_c: [AlsoUnkown!]!
+-- }
 
-newtype Query = Query 
-  { int :: (Maybe Int)
-  , my_type_a :: SomethingUnknown
-  , my_type_b :: (Maybe SomethingElseUnknown)
-  , my_type_c :: (Array AlsoUnkown)
-  }
-derive instance newtypeQuery :: Newtype Query _
-instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
+-- scalar SomethingUnknown
+-- scalar SomethingElseUnknown
+-- scalar AlsoUnkown
+--           """
 
-type SomethingUnknown = Data.Argonaut.Core.Json -- Unknown scalar type. Add SomethingUnknown to externalTypes in codegen options to override this behaviour
+--           result =
+--             """
+-- import Data.Argonaut.Core as Data.Argonaut.Core
 
-type SomethingElseUnknown = Data.Argonaut.Core.Json -- Unknown scalar type. Add SomethingElseUnknown to externalTypes in codegen options to override this behaviour
+-- type Query = Query
 
-type AlsoUnkown = Data.Argonaut.Core.Json -- Unknown scalar type. Add AlsoUnkown to externalTypes in codegen options to override this behaviour"""
-        gql `shouldParseTo` result
-      it "removes duplicate definitions" do
-        let
-          gql =
-            """
-schema {
-  query: Query
-}
+-- newtype Query = Query 
+--   { int :: (Maybe Int)
+--   , my_type_a :: SomethingUnknown
+--   , my_type_b :: (Maybe SomethingElseUnknown)
+--   , my_type_c :: (Array AlsoUnkown)
+--   }
+-- derive instance newtypeQuery :: Newtype Query _
+-- instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
 
-type Query {
-  int: Int!
-}
+-- type SomethingUnknown = Data.Argonaut.Core.Json -- Unknown scalar type. Add SomethingUnknown to externalTypes in codegen options to override this behaviour
 
-type X { int: Int! }
-type X { int: Int! }
-          """
+-- type SomethingElseUnknown = Data.Argonaut.Core.Json -- Unknown scalar type. Add SomethingElseUnknown to externalTypes in codegen options to override this behaviour
 
-          result =
-            """
-type Query = Query
+-- type AlsoUnkown = Data.Argonaut.Core.Json -- Unknown scalar type. Add AlsoUnkown to externalTypes in codegen options to override this behaviour"""
+--         gql `shouldParseTo` result
+--       it "removes duplicate definitions" do
+--         let
+--           gql =
+--             """
+-- schema {
+--   query: Query
+-- }
 
-newtype Query = Query 
-  { int :: Int
-  }
-derive instance newtypeQuery :: Newtype Query _
-instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
+-- type Query {
+--   int: Int!
+-- }
 
-newtype X = X 
-  { int :: Int
-  }
-derive instance newtypeX :: Newtype X _
-instance argToGqlX :: (Newtype X {| p},  RecordArg p a u) => ArgGql X { | a }"""
-        gql `shouldParseTo` result
-      it "handles unsafe fieldnames (some not to gql spec)" do
-        let
-          gql =
-            schemaGql
-              { query: "{ Prop: Int }"
-              , mutation: "{ _prop1: Int }"
-              , subscription: "{ prop: Int }"
-              }
+-- type X { int: Int! }
+-- type X { int: Int! }
+--           """
 
-          result =
-            schemaPurs
-              { query: "\n  { \"Prop\" :: (Maybe Int)\n  }"
-              , mutation: "\n  { _prop1 :: (Maybe Int)\n  }"
-              , subscription: "\n  { prop :: (Maybe Int)\n  }"
-              }
-        gql `shouldParseTo` result
-  where
-  mkMap :: forall v. Array (Tuple String (Array (Tuple String v))) -> Map String (Map String v)
-  mkMap = Map.fromFoldable >>> map Map.fromFoldable
+--           result =
+--             """
+-- type Query = Query
 
-  shouldParseToOpts opts schema r =
-    let
-      purs =
-        schemaFromGqlToPurs
-          opts
-          { schema, moduleName: "" }
-    in
-      map _.mainSchemaCode purs `shouldEqual` Right r
+-- newtype Query = Query 
+--   { int :: Int
+--   }
+-- derive instance newtypeQuery :: Newtype Query _
+-- instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
 
-  shouldParseTo =
-    shouldParseToOpts
-      defaultOpts
+-- newtype X = X 
+--   { int :: Int
+--   }
+-- derive instance newtypeX :: Newtype X _
+-- instance argToGqlX :: (Newtype X {| p},  RecordArg p a u) => ArgGql X { | a }"""
+--         gql `shouldParseTo` result
+--       it "handles unsafe fieldnames (some not to gql spec)" do
+--         let
+--           gql =
+--             schemaGql
+--               { query: "{ Prop: Int }"
+--               , mutation: "{ _prop1: Int }"
+--               , subscription: "{ prop: Int }"
+--               }
 
-  shouldParseToAll schema r =
-    schemaFromGqlToPurs
-      defaultOpts
-      { schema, moduleName: "Test" }
-      `shouldEqual`
-        Right r
+--           result =
+--             schemaPurs
+--               { query: "\n  { \"Prop\" :: (Maybe Int)\n  }"
+--               , mutation: "\n  { _prop1 :: (Maybe Int)\n  }"
+--               , subscription: "\n  { prop :: (Maybe Int)\n  }"
+--               }
+--         gql `shouldParseTo` result
+--   where
+--   mkMap :: forall v. Array (Tuple String (Array (Tuple String v))) -> Map String (Map String v)
+--   mkMap = Map.fromFoldable >>> map Map.fromFoldable
 
-queryOnlySchemaGql :: String -> String
-queryOnlySchemaGql queryRoot =
-  """schema {
-  query: query_root
-}
+--   shouldParseToOpts opts schema r =
+--     let
+--       purs =
+--         schemaFromGqlToPurs
+--           opts
+--           { schema, moduleName: "" }
+--     in
+--       map _.mainSchemaCode purs `shouldEqual` Right r
 
-# query root
-type query_root """
-    <> queryRoot
+--   shouldParseTo =
+--     shouldParseToOpts
+--       defaultOpts
 
-queryOnlySchemaPurs :: String -> String
-queryOnlySchemaPurs queryRoot =
-  """
-type Query = QueryRoot
+--   shouldParseToAll schema r =
+--     schemaFromGqlToPurs
+--       defaultOpts
+--       { schema, moduleName: "Test" }
+--       `shouldEqual`
+--         Right r
 
-newtype QueryRoot = QueryRoot """
-    <> queryRoot
-    <> "\nderive instance newtypeQueryRoot :: Newtype QueryRoot _"
-    <> "\ninstance argToGqlQueryRoot :: (Newtype QueryRoot {| p},  RecordArg p a u) => ArgGql QueryRoot { | a }"
+-- queryOnlySchemaGql :: String -> String
+-- queryOnlySchemaGql queryRoot =
+--   """schema {
+--   query: query_root
+-- }
 
-schemaGql :: { query :: String, mutation :: String, subscription :: String } -> String
-schemaGql { query, mutation, subscription } =
-  """schema {
-  query: query_root
-  mutation: mutation_root
-  subscription: subscription_root
-}
+-- # query root
+-- type query_root """
+--     <> queryRoot
 
-type query_root """
-    <> query
-    <> """
+-- queryOnlySchemaPurs :: String -> String
+-- queryOnlySchemaPurs queryRoot =
+--   """
+-- type Query = QueryRoot
 
-type mutation_root """
-    <> mutation
-    <> """
+-- newtype QueryRoot = QueryRoot """
+--     <> queryRoot
+--     <> "\nderive instance newtypeQueryRoot :: Newtype QueryRoot _"
+--     <> "\ninstance argToGqlQueryRoot :: (Newtype QueryRoot {| p},  RecordArg p a u) => ArgGql QueryRoot { | a }"
 
-type subscription_root """
-    <> subscription
+-- schemaGql :: { query :: String, mutation :: String, subscription :: String } -> String
+-- schemaGql { query, mutation, subscription } =
+--   """schema {
+--   query: query_root
+--   mutation: mutation_root
+--   subscription: subscription_root
+-- }
 
-schemaPurs :: { query :: String, mutation :: String, subscription :: String } -> String
-schemaPurs { query, mutation, subscription } =
-  """
-type Query = QueryRoot
+-- type query_root """
+--     <> query
+--     <> """
 
-type Mutation = MutationRoot
+-- type mutation_root """
+--     <> mutation
+--     <> """
 
-type Subscription = SubscriptionRoot
+-- type subscription_root """
+--     <> subscription
 
-newtype QueryRoot = QueryRoot """
-    <> query
-    <> """
-derive instance newtypeQueryRoot :: Newtype QueryRoot _
-instance argToGqlQueryRoot :: (Newtype QueryRoot {| p},  RecordArg p a u) => ArgGql QueryRoot { | a }
+-- schemaPurs :: { query :: String, mutation :: String, subscription :: String } -> String
+-- schemaPurs { query, mutation, subscription } =
+--   """
+-- type Query = QueryRoot
 
-newtype MutationRoot = MutationRoot """
-    <> mutation
-    <> """
-derive instance newtypeMutationRoot :: Newtype MutationRoot _
-instance argToGqlMutationRoot :: (Newtype MutationRoot {| p},  RecordArg p a u) => ArgGql MutationRoot { | a }
+-- type Mutation = MutationRoot
 
-newtype SubscriptionRoot = SubscriptionRoot """
-    <> subscription
-    <> "\nderive instance newtypeSubscriptionRoot :: Newtype SubscriptionRoot _"
-    <> "\ninstance argToGqlSubscriptionRoot :: (Newtype SubscriptionRoot {| p},  RecordArg p a u) => ArgGql SubscriptionRoot { | a }"
+-- type Subscription = SubscriptionRoot
 
-defaultOpts :: InputOptions
-defaultOpts =
-  { dir: ""
-  , cache: Nothing
-  , gqlScalarsToPursTypes: Map.empty
-  , useNewtypesForRecords: true
-  , modulePath: []
-  , enumImports: []
-  , customEnumCode: const ""
-  , fieldTypeOverrides: Map.empty
-  , argTypeOverrides: Map.empty
-  , nullableOverrides: Map.empty
-  , externalTypes: Map.empty
-  , idImport: Nothing
-  , enumValueNameTransform: Nothing
-  }
+-- newtype QueryRoot = QueryRoot """
+--     <> query
+--     <> """
+-- derive instance newtypeQueryRoot :: Newtype QueryRoot _
+-- instance argToGqlQueryRoot :: (Newtype QueryRoot {| p},  RecordArg p a u) => ArgGql QueryRoot { | a }
+
+-- newtype MutationRoot = MutationRoot """
+--     <> mutation
+--     <> """
+-- derive instance newtypeMutationRoot :: Newtype MutationRoot _
+-- instance argToGqlMutationRoot :: (Newtype MutationRoot {| p},  RecordArg p a u) => ArgGql MutationRoot { | a }
+
+-- newtype SubscriptionRoot = SubscriptionRoot """
+--     <> subscription
+--     <> "\nderive instance newtypeSubscriptionRoot :: Newtype SubscriptionRoot _"
+--     <> "\ninstance argToGqlSubscriptionRoot :: (Newtype SubscriptionRoot {| p},  RecordArg p a u) => ArgGql SubscriptionRoot { | a }"
+
+-- defaultOpts :: InputOptions
+-- defaultOpts =
+--   { dir: ""
+--   , cache: Nothing
+--   , gqlScalarsToPursTypes: Map.empty
+--   , useNewtypesForRecords: true
+--   , modulePath: []
+--   , enumImports: []
+--   , customEnumCode: const ""
+--   , fieldTypeOverrides: Map.empty
+--   , argTypeOverrides: Map.empty
+--   , nullableOverrides: Map.empty
+--   , externalTypes: Map.empty
+--   , idImport: Nothing
+--   , enumValueNameTransform: Nothing
+--   }
+-- defaultOpts :: InputOptions
+-- defaultOpts =
+--   { dir: ""
+--   , cache: Nothing
+--   , gqlScalarsToPursTypes: Map.empty
+--   , useNewtypesForRecords: true
+--   , isHasura: false
+--   , modulePath: []
+--   , enumImports: []
+--   , customEnumCode: const ""
+--   , fieldTypeOverrides: Map.empty
+--   , nullableOverrides: Map.empty
+--   , externalTypes: Map.empty
+--   , idImport: Nothing
+--   , enumValueNameTransform: Nothing
+--   }

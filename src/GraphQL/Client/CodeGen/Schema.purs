@@ -6,17 +6,18 @@ module GraphQL.Client.CodeGen.Schema
 
 import Prelude
 
+import Data.Argonaut.Core (stringify)
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Array (filter, notElem, nub, nubBy)
 import Data.Array as Array
+import Data.Bifunctor (lmap)
 import Data.CodePoint.Unicode (isLower)
 import Data.Either (Either(..), hush)
 import Data.Foldable (fold, foldMap, foldl, intercalate)
 import Data.Function (on)
 import Data.FunctorWithIndex (mapWithIndex)
 import Data.GraphQL.AST as AST
-import Data.GraphQL.Parser (document)
 import Data.List (List, mapMaybe)
 import Data.List as List
 import Data.Map (Map, lookup)
@@ -24,7 +25,7 @@ import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe, fromMaybe', maybe)
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
-import Data.String (Pattern(..), codePointFromChar, contains, take)
+import Data.String (Pattern(..), codePointFromChar, contains, joinWith, take)
 import Data.String as String
 import Data.String.CodePoints (takeWhile)
 import Data.String.CodeUnits (charAt)
@@ -32,13 +33,15 @@ import Data.String.Extra (pascalCase)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
+import GraphQL.Client.CodeGen.Directive (getDocumentDirectivesPurs)
+import GraphQL.Client.CodeGen.DocumentFromIntrospection (documentFromIntrospection, toParserError)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
 import GraphQL.Client.CodeGen.Lines (commentPrefix, docComment, fromLines, indent, toLines)
 import GraphQL.Client.CodeGen.Template.Enum as Enum
 import GraphQL.Client.CodeGen.Template.Schema as Schema
 import GraphQL.Client.CodeGen.Transform.NullableOverrides (applyNullableOverrides)
 import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptions, PursGql)
-import Parsing (ParseError, runParser)
+import Parsing (ParseError)
 
 schemasFromGqlToPurs :: InputOptions -> Array GqlInput -> Aff (Either ParseError FilesToWrite)
 schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> map sequence >>> map (map collectSchemas)
@@ -97,37 +100,59 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
         pursGqls >>= _.symbols
           # \syms ->
               { path: opts.dir <> "/Symbols.purs", code: symbolsToCode modulePrefix syms }
+    , directives:
+        pursGqls
+          <#> \pg ->
+              { code: "module " <> modulePrefix <> "Directives." <> pg.moduleName <> " where\n" <> pg.directives
+              , path: opts.dir <> "/Directives/" <> pg.moduleName <> ".purs"
+              }
     }
 
 -- | Given a gql doc this will create the equivalent purs gql schema
 schemaFromGqlToPursWithCache :: InputOptions -> GqlInput -> Aff (Either ParseError PursGql)
 schemaFromGqlToPursWithCache opts { schema, moduleName } = go opts.cache
   where
+  stringSchema = stringify schema
+
   go Nothing = pure $ schemaFromGqlToPurs opts { schema, moduleName }
 
   go (Just { get, set }) = do
-    jsonMay <- get schema
-    eVal <- case jsonMay >>= decodeJson >>> hush of
-      Nothing -> go Nothing
+    jsonMay <- get stringSchema
+    case jsonMay >>= decodeJson >>> hush of
+      Nothing -> do
+        eVal <- go Nothing
+        case schemaFromGqlToPurs opts { schema, moduleName } of
+          Right val -> set $ { key: stringSchema, val: encodeJson val }
+          _ -> pure unit
+        pure eVal
       Just res -> pure $ Right res
-    case eVal of
-      Right val -> set { key: schema, val: encodeJson val }
-      _ -> pure unit
-    pure $ eVal
 
 schemaFromGqlToPurs :: InputOptions -> GqlInput -> Either ParseError PursGql
 schemaFromGqlToPurs opts { schema, moduleName } =
-  runParser schema document
+  documentFromIntrospection schema
+    # lmap toParserError
     <#> applyNullableOverrides opts.nullableOverrides
     <#> \ast ->
-      let
-        symbols = Array.fromFoldable $ getSymbols ast
-      in
-        { mainSchemaCode: gqlToPursMainSchemaCode opts ast
-        , enums: gqlToPursEnums opts.gqlScalarsToPursTypes ast
-        , symbols
-        , moduleName
-        }
+        let
+          symbols = Array.fromFoldable $ getSymbols ast
+        in
+          { mainSchemaCode: gqlToPursMainSchemaCode opts ast
+          , enums: gqlToPursEnums opts.gqlScalarsToPursTypes ast
+          , directives: getDocumentDirectivesPurs opts.gqlScalarsToPursTypes ast
+          , symbols
+          , moduleName
+          }
+
+toImports
+  :: Array String
+  -> Array String
+toImports =
+  map
+    ( \t -> "import "
+        <> t
+        <> " as "
+        <> t
+    )
 
 toImport
   :: forall r
@@ -155,7 +180,8 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
     <> mainCode
   where
   imports =
-    fold
+    joinWith "\n"
+      $ toImports
       $ nub
       $ toImport mainCode (Array.fromFoldable externalTypes)
           <> toImport mainCode (joinMaps fieldTypeOverrides)
@@ -169,7 +195,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
 
   mainCode = unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
 
-  removeDuplicateDefinitions = Array.fromFoldable >>> nubBy (compare `on` getDefinitionTypeName) >>> List.fromFoldable
+  removeDuplicateDefinitions = List.nubBy (compare `on` getDefinitionTypeName)
 
   getDefinitionTypeName :: String -> String
   getDefinitionTypeName =
@@ -195,11 +221,14 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
 
   rootOperationTypeDefinitionToPurs :: AST.RootOperationTypeDefinition -> String
   rootOperationTypeDefinitionToPurs (AST.RootOperationTypeDefinition { operationType, namedType }) =
-    "type "
-      <> opStr
-      <> " = "
-      <> (namedTypeToPurs_ namedType)
+    guard (opStr /= actualType) $
+      "type "
+        <> opStr
+        <> " = "
+        <> actualType
     where
+    actualType = namedTypeToPurs_ namedType
+
     opStr = case operationType of
       AST.Query -> "Query"
       AST.Mutation -> "Mutation"
@@ -235,7 +264,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
             , typeName: "Json -- Unknown scalar type. Add " <> tName <> " to externalTypes in codegen options to override this behaviour"
             }
 
-  builtInTypes = [ "Int", "Number", "String", "Boolean", "GraphQL.Hasura.Array.Hasura_text" ]
+  builtInTypes = [ "Int", "Number", "String", "Boolean", "ID", "GraphQL.Hasura.Array.Hasura_text" ]
 
   objectTypeDefinitionToPurs :: AST.ObjectTypeDefinition -> String
   objectTypeDefinitionToPurs
@@ -255,20 +284,13 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
               <> typeName_ name
               <> " = "
               <> typeName_ name
-              <> " "
+              -- <> " "
               <> (fieldsDefinition # maybe "{}" (fieldsDefinitionToPurs tName))
               <> "\nderive instance newtype"
               <> tName
               <> " :: Newtype "
               <> tName
               <> " _"
-              <> "\ninstance argToGql"
-              <> tName
-              <> " :: (Newtype "
-              <> tName
-              <> " {| p},  RecordArg p a u) => ArgGql "
-              <> tName
-              <> " { | a }"
           else
             "type "
               <> typeName_ name
@@ -367,13 +389,7 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
         <> " :: Newtype "
         <> tName
         <> " _"
-        <> "\ninstance argToGql"
-        <> tName
-        <> " :: (Newtype "
-        <> tName
-        <> " {| p},  RecordArg p a u) => ArgGql "
-        <> tName
-        <> " { | a }"
+
 
   inputValueToFieldsDefinitionToPurs :: String -> String -> List AST.InputValueDefinition -> String
   inputValueToFieldsDefinitionToPurs objectName fieldName definitions =

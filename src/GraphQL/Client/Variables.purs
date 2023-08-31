@@ -22,6 +22,7 @@ import Data.Symbol (class IsSymbol)
 import GraphQL.Client.Alias (Alias)
 import GraphQL.Client.Alias.Dynamic (Spread)
 import GraphQL.Client.Args (AndArg, Args, OrArg)
+import GraphQL.Client.Directive (ApplyDirective(..))
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables.TypeName (VarTypeNameProps, varTypeNameRecord)
 import Heterogeneous.Folding (class Folding, class HFoldl, class HFoldlWithIndex, hfoldl)
@@ -44,6 +45,7 @@ else instance getVarAlias ::
   ) =>
   GetVar (Alias name query) var where
   getVar _ = getVar (Proxy :: _ query)
+
 else instance getVarMaybe ::
   ( GetVar a { | vars }
   ) =>
@@ -54,6 +56,11 @@ else instance getVarArray ::
   ) =>
   GetVar (Array a) { | vars } where
   getVar _ = getVar (Proxy :: _ a)
+else instance getVarApplyDirective ::
+  ( GetVar query var
+  ) =>
+  GetVar (ApplyDirective name args query) var where
+  getVar _ = getVar (Proxy :: _ query)
 else instance getVarSpread ::
   ( GetVar l { | varL }
   , GetVar r { | varR }
@@ -178,6 +185,11 @@ class VarsTypeChecked query where
 instance varsTypeCheckedWithVars :: VarsTypeChecked (WithVars query vars) where
   getVarsJson (WithVars _ _ json) = json
   getVarsTypeNames (WithVars _ varsTypeNames _) = varsTypeNames
+else instance varsTypeCheckedApplyDirective ::
+  GetVar { | query } {} =>
+  VarsTypeChecked (ApplyDirective name args {|query}) where
+  getVarsJson (ApplyDirective _ _) = jsonEmptyObject
+  getVarsTypeNames _ = ""
 else instance varsTypeCheckedWithoutVars ::
   GetVar { | query } {} =>
   VarsTypeChecked { | query } where
