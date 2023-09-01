@@ -103,9 +103,9 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
     , directives:
         pursGqls
           <#> \pg ->
-              { code: "module " <> modulePrefix <> "Directives." <> pg.moduleName <> " where\n" <> pg.directives
-              , path: opts.dir <> "/Directives/" <> pg.moduleName <> ".purs"
-              }
+            { code: pg.directives
+            , path: opts.dir <> "/Directives/" <> pg.moduleName <> ".purs"
+            }
     }
 
 -- | Given a gql doc this will create the equivalent purs gql schema
@@ -133,15 +133,18 @@ schemaFromGqlToPurs opts { schema, moduleName } =
     # lmap toParserError
     <#> applyNullableOverrides opts.nullableOverrides
     <#> \ast ->
-        let
-          symbols = Array.fromFoldable $ getSymbols ast
-        in
-          { mainSchemaCode: gqlToPursMainSchemaCode opts ast
-          , enums: gqlToPursEnums opts.gqlScalarsToPursTypes ast
-          , directives: getDocumentDirectivesPurs opts.gqlScalarsToPursTypes ast
-          , symbols
-          , moduleName
-          }
+      let
+        symbols = Array.fromFoldable $ getSymbols ast
+      in
+        { mainSchemaCode: gqlToPursMainSchemaCode opts ast
+        , enums: gqlToPursEnums opts.gqlScalarsToPursTypes ast
+        , directives: getDocumentDirectivesPurs opts.gqlScalarsToPursTypes (modulePrefix <> "Directives." <> moduleName) ast
+        , symbols
+        , moduleName
+        }
+
+  where
+  modulePrefix = foldMap (_ <> ".") opts.modulePath
 
 toImports
   :: Array String
@@ -390,7 +393,6 @@ gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrid
         <> " :: Newtype "
         <> tName
         <> " _"
-
 
   inputValueToFieldsDefinitionToPurs :: String -> String -> List AST.InputValueDefinition -> String
   inputValueToFieldsDefinitionToPurs objectName fieldName definitions =
