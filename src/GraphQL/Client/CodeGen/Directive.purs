@@ -15,8 +15,7 @@ import Data.Maybe (Maybe(..), maybe)
 import Data.Newtype (unwrap)
 import GraphQL.Client.CodeGen.UtilCst (inputValueDefinitionToPurs)
 import Partial.Unsafe (unsafePartial)
-import PureScript.CST (parsePartialModule)
-import PureScript.CST.Types (Declaration, Expr, Module)
+import PureScript.CST.Types (Declaration)
 import PureScript.CST.Types as CST
 import Tidy.Codegen (binaryOp, declImport, declSignature, declType, declValue, exprApp, exprCtor, exprIdent, exprTyped, importType, importTypeAll, importTypeOp, importValue, module_, printModule, typeApp, typeArrow, typeCtor, typeForall, typeOp, typeRecord, typeString, typeVar, typeWildcard)
 
@@ -109,21 +108,7 @@ directiveToApplierPurs (AST.DirectiveDefinition { name }) = unsafePartial $
           [ exprTyped (exprCtor "Proxy") (typeApp typeWildcard [ typeString name ])
           ]
       )
-
   ]
-
--- "\n"
---   <> name
---   <> " :: forall q args. args -> q -> ApplyDirective "
---   <> show name
---   <> " args q \n"
---   <> name
---   <> " = applyDir (Proxy :: _ "
---   <> show name
---   <> ")"
-
--- directiveLocationsToPurs :: AST.DirectiveLocations -> List String
--- directiveLocationsToPurs (AST.DirectiveLocations locations) = mapMaybe directiveLocationToPurs locations
 
 directiveLocationToPurs :: AST.DirectiveLocation -> Maybe (CST.Type Void)
 directiveLocationToPurs = case _ of

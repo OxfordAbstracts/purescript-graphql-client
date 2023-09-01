@@ -243,12 +243,12 @@ var append = function(dict) {
   return dict.append;
 };
 var semigroupFn = function(dictSemigroup) {
-  var append18 = append(dictSemigroup);
+  var append19 = append(dictSemigroup);
   return {
     append: function(f) {
       return function(g) {
         return function(x) {
-          return append18(f(x))(g(x));
+          return append19(f(x))(g(x));
         };
       };
     }
@@ -260,7 +260,7 @@ var semigroupRecordCons = function(dictIsSymbol) {
     return function(dictSemigroupRecord) {
       var appendRecord1 = appendRecord(dictSemigroupRecord);
       return function(dictSemigroup) {
-        var append18 = append(dictSemigroup);
+        var append19 = append(dictSemigroup);
         return {
           appendRecord: function(v) {
             return function(ra) {
@@ -269,7 +269,7 @@ var semigroupRecordCons = function(dictIsSymbol) {
                 var key = reflectSymbol2($$Proxy.value);
                 var insert7 = unsafeSet(key);
                 var get4 = unsafeGet(key);
-                return insert7(append18(get4(ra))(get4(rb)))(tail3);
+                return insert7(append19(get4(ra))(get4(rb)))(tail3);
               };
             };
           }
@@ -1357,11 +1357,11 @@ var bindEither = {
   }
 };
 var semigroupEither = function(dictSemigroup) {
-  var append18 = append(dictSemigroup);
+  var append19 = append(dictSemigroup);
   return {
     append: function(x) {
       return function(y) {
-        return apply3(map3(append18)(x))(y);
+        return apply3(map3(append19)(x))(y);
       };
     }
   };
@@ -2576,11 +2576,11 @@ var foldableNonEmpty = function(dictFoldable) {
   var foldr7 = foldr(dictFoldable);
   return {
     foldMap: function(dictMonoid) {
-      var append18 = append(dictMonoid.Semigroup0());
+      var append19 = append(dictMonoid.Semigroup0());
       var foldMap16 = foldMap10(dictMonoid);
       return function(f) {
         return function(v) {
-          return append18(f(v.value0))(foldMap16(f)(v.value1));
+          return append19(f(v.value0))(foldMap16(f)(v.value1));
         };
       };
     },
@@ -3780,6 +3780,16 @@ var _delay = function() {
   };
 }();
 var _sequential = Aff.Seq;
+
+// output/Type.Equality/index.js
+var refl = {
+  proof: function(a) {
+    return a;
+  },
+  Coercible0: function() {
+    return void 0;
+  }
+};
 
 // output/Data.Profunctor/index.js
 var identity8 = /* @__PURE__ */ identity(categoryFn);
@@ -6834,13 +6844,13 @@ var monoidObject = function(dictSemigroup) {
 };
 var fold2 = /* @__PURE__ */ _foldM(applyFlipped);
 var foldMap3 = function(dictMonoid) {
-  var append18 = append(dictMonoid.Semigroup0());
+  var append19 = append(dictMonoid.Semigroup0());
   var mempty10 = mempty(dictMonoid);
   return function(f) {
     return fold2(function(acc) {
       return function(k) {
         return function(v) {
-          return append18(acc)(f(k)(v));
+          return append19(acc)(f(k)(v));
         };
       };
     })(mempty10);
@@ -7403,6 +7413,11 @@ var replaceAll = function(s1) {
     return function(s3) {
       return s3.replace(new RegExp(s1.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"), "g"), s2);
     };
+  };
+};
+var split = function(sep) {
+  return function(s) {
+    return s.split(sep);
   };
 };
 var trim = function(s) {
@@ -46896,10 +46911,10 @@ var formatComment = function(lineComment2) {
     };
   };
 };
-var formatWithComments = function(leading) {
+var formatWithComments = function(leading3) {
   return function(trailing) {
     return function(doc) {
-      return foldr6(formatComment(leadingLineComment)(leadingBlockComment))(append15(doc)(foldr6(formatComment(trailingLineComment)(trailingBlockComment))(mempty6)(trailing)))(leading);
+      return foldr6(formatComment(leadingLineComment)(leadingBlockComment))(append15(doc)(foldr6(formatComment(trailingLineComment)(trailingBlockComment))(mempty6)(trailing)))(leading3);
     };
   };
 };
@@ -50653,13 +50668,13 @@ var lexWithState = /* @__PURE__ */ function() {
   })(token))(trailingComments))(leadingComments);
   var go = function(stack) {
     return function(startPos) {
-      return function(leading) {
+      return function(leading3) {
         return function(str) {
           return defer2(function(v) {
             var $289 = str === "";
             if ($289) {
               return step2(unwindLayout(startPos)(defer2(function(v12) {
-                return new TokenEOF(startPos, leading);
+                return new TokenEOF(startPos, leading3);
               }))(stack));
             }
             ;
@@ -50677,7 +50692,7 @@ var lexWithState = /* @__PURE__ */ function() {
                   start: startPos,
                   end: endPos
                 },
-                leadingComments: leading,
+                leadingComments: leading3,
                 trailingComments: v1.value0.trailing,
                 value: v1.value0.token
               };
@@ -50907,6 +50922,7 @@ var escapeSourceString = /* @__PURE__ */ function() {
 // output/Tidy.Codegen.Class/index.js
 var unwrap3 = /* @__PURE__ */ unwrap();
 var crashWith3 = /* @__PURE__ */ crashWith();
+var coerce4 = /* @__PURE__ */ coerce();
 var toWhereExpr = {
   toWhere: function($711) {
     return Where(function(v) {
@@ -50948,6 +50964,32 @@ var overTrailingCommentsModul = {
       };
     };
   }
+};
+var overLeadingCommentsVoid = {
+  overLeadingComments: function(v) {
+    return absurd;
+  }
+};
+var overLeadingCommentsRecord = function(dictTypeEquals) {
+  return {
+    overLeadingComments: function(k) {
+      return function(r) {
+        var r$prime = coerce4(r);
+        return coerce4(function() {
+          var $434 = {};
+          for (var $435 in r$prime) {
+            if ({}.hasOwnProperty.call(r$prime, $435)) {
+              $434[$435] = r$prime[$435];
+            }
+            ;
+          }
+          ;
+          $434.leadingComments = k(r$prime.leadingComments);
+          return $434;
+        }());
+      };
+    }
+  };
 };
 var fromTokenQualifiedProper = {
   fromToken: function(v) {
@@ -51055,6 +51097,131 @@ var overTrailingCommentsModul1 = {
       };
     };
   }
+};
+var overLeadingComments = function(dict) {
+  return dict.overLeadingComments;
+};
+var overLeadingComments1 = /* @__PURE__ */ overLeadingComments(/* @__PURE__ */ overLeadingCommentsRecord(refl));
+var overLeadingCommentsName = {
+  overLeadingComments: function(k) {
+    return function(v) {
+      return {
+        token: overLeadingComments1(k)(v.token),
+        name: v.name
+      };
+    };
+  }
+};
+var overLeadingComments4 = /* @__PURE__ */ overLeadingComments(overLeadingCommentsName);
+var overLeadingCommentsQualif = {
+  overLeadingComments: function(k) {
+    return function(v) {
+      return {
+        token: overLeadingComments1(k)(v.token),
+        module: v.module,
+        name: v.name
+      };
+    };
+  }
+};
+var overLeadingComments5 = /* @__PURE__ */ overLeadingComments(overLeadingCommentsQualif);
+var overLeadingCommentsWrappe = {
+  overLeadingComments: function(k) {
+    return function(v) {
+      return {
+        open: overLeadingComments1(k)(v.open),
+        value: v.value,
+        close: v.close
+      };
+    };
+  }
+};
+var overLeadingComments7 = /* @__PURE__ */ overLeadingComments(overLeadingCommentsWrappe);
+var overLeadingCommentsType = function(dictOverLeadingComments) {
+  var overLeadingComments8 = overLeadingComments(dictOverLeadingComments);
+  return {
+    overLeadingComments: function(k) {
+      return function(v) {
+        if (v instanceof TypeVar) {
+          return new TypeVar(overLeadingComments4(k)(v.value0));
+        }
+        ;
+        if (v instanceof TypeConstructor) {
+          return new TypeConstructor(overLeadingComments5(k)(v.value0));
+        }
+        ;
+        if (v instanceof TypeWildcard) {
+          return new TypeWildcard(overLeadingComments1(k)(v.value0));
+        }
+        ;
+        if (v instanceof TypeHole) {
+          return new TypeHole(overLeadingComments4(k)(v.value0));
+        }
+        ;
+        if (v instanceof TypeString) {
+          return new TypeString(overLeadingComments1(k)(v.value0), v.value1);
+        }
+        ;
+        if (v instanceof TypeInt && v.value0 instanceof Just) {
+          return new TypeInt(new Just(overLeadingComments1(k)(v.value0.value0)), v.value1, v.value2);
+        }
+        ;
+        if (v instanceof TypeInt) {
+          return new TypeInt(Nothing.value, overLeadingComments1(k)(v.value1), v.value2);
+        }
+        ;
+        if (v instanceof TypeRow) {
+          return new TypeRow(overLeadingComments7(k)(v.value0));
+        }
+        ;
+        if (v instanceof TypeRecord) {
+          return new TypeRecord(overLeadingComments7(k)(v.value0));
+        }
+        ;
+        if (v instanceof TypeForall) {
+          return new TypeForall(overLeadingComments1(k)(v.value0), v.value1, v.value2, v.value3);
+        }
+        ;
+        if (v instanceof TypeKinded) {
+          return new TypeKinded(overLeadingComments(overLeadingCommentsType(dictOverLeadingComments))(k)(v.value0), v.value1, v.value2);
+        }
+        ;
+        if (v instanceof TypeApp) {
+          return new TypeApp(overLeadingComments(overLeadingCommentsType(dictOverLeadingComments))(k)(v.value0), v.value1);
+        }
+        ;
+        if (v instanceof TypeOp) {
+          return new TypeOp(overLeadingComments(overLeadingCommentsType(dictOverLeadingComments))(k)(v.value0), v.value1);
+        }
+        ;
+        if (v instanceof TypeOpName) {
+          return new TypeOpName(overLeadingComments5(k)(v.value0));
+        }
+        ;
+        if (v instanceof TypeArrow) {
+          return new TypeArrow(overLeadingComments(overLeadingCommentsType(dictOverLeadingComments))(k)(v.value0), v.value1, v.value2);
+        }
+        ;
+        if (v instanceof TypeArrowName) {
+          return new TypeArrowName(overLeadingComments1(k)(v.value0));
+        }
+        ;
+        if (v instanceof TypeConstrained) {
+          return new TypeConstrained(overLeadingComments(overLeadingCommentsType(dictOverLeadingComments))(k)(v.value0), v.value1, v.value2);
+        }
+        ;
+        if (v instanceof TypeParens) {
+          return new TypeParens(overLeadingComments7(k)(v.value0));
+        }
+        ;
+        if (v instanceof $$TypeError) {
+          return new $$TypeError(overLeadingComments8(k)(v.value0));
+        }
+        ;
+        throw new Error("Failed pattern match at Tidy.Codegen.Class (line 538, column 27 - line 557, column 55): " + [v.constructor.name]);
+      };
+    }
+  };
 };
 var fromToken = function(dict) {
   return dict.fromToken;
@@ -51381,7 +51548,7 @@ var defaultOperators = ["Control.Alt.($>) 4", "Control.Alt.(<#>) 1", "Control.Al
 
 // output/Tidy.Codegen/index.js
 var unwrap4 = /* @__PURE__ */ unwrap();
-var coerce4 = /* @__PURE__ */ coerce();
+var coerce5 = /* @__PURE__ */ coerce();
 var map20 = /* @__PURE__ */ map(functorArray);
 var map111 = /* @__PURE__ */ map(functorBinaryOp);
 var append5 = /* @__PURE__ */ append(semigroupArray);
@@ -51397,6 +51564,7 @@ var zero2 = /* @__PURE__ */ zero(/* @__PURE__ */ semiringRecord()(/* @__PURE__ *
     return "line";
   }
 })()(semiringRecordNil)(semiringInt))(semiringInt)));
+var append16 = /* @__PURE__ */ append(semigroupString);
 var overTrailingComments2 = /* @__PURE__ */ overTrailingComments(overTrailingCommentsModul1);
 var typeVarTypeVarBindingPref = {
   typeVar: function(dictToName) {
@@ -51454,7 +51622,7 @@ var typeOp = function(ty) {
   var $275 = maybe(ty)(function() {
     var $278 = TypeOp.create(precType2(ty));
     return function($279) {
-      return $278(coerce4($279));
+      return $278(coerce5($279));
     };
   }());
   var $276 = map20(map111(precType2));
@@ -51599,6 +51767,12 @@ var printModuleWithOptions = function(options) {
     return print(plainText)(dodoOptions)(toDoc(formatModule(formatOptions)(overTrailingComments2(addTrailingBreak)(mod4))));
   };
 };
+var leading = function(dictOverLeadingComments) {
+  var overLeadingComments2 = overLeadingComments(dictOverLeadingComments);
+  return function(c) {
+    return overLeadingComments2(append5(c));
+  };
+};
 var importValue = function(dictToName) {
   var $309 = toName(dictToName);
   return function($310) {
@@ -51609,7 +51783,7 @@ var importTypeOp = function(dictToName) {
   var $311 = ImportTypeOp.create(tokType);
   var $312 = toName(dictToName);
   return function($313) {
-    return $311(coerce4($312($313)));
+    return $311(coerce5($312($313)));
   };
 };
 var importTypeAll = function(dictToName) {
@@ -51654,6 +51828,18 @@ var exprApp = function(head4) {
     return $367($368($369));
   };
 };
+var docComments = /* @__PURE__ */ function() {
+  var $394 = map20(function() {
+    var $397 = append16("-- | ");
+    return function($398) {
+      return Comment.create($397($398));
+    };
+  }());
+  var $395 = split("\n");
+  return function($396) {
+    return $394($395($396));
+  };
+}();
 var defaultPrintOptions = /* @__PURE__ */ function() {
   return {
     importWrap: ImportWrapSource.value,
@@ -51737,6 +51923,8 @@ var binaryOp = function(dictToQualifiedName) {
 var toQualifiedNameString2 = /* @__PURE__ */ toQualifiedNameString();
 var typeCtor2 = /* @__PURE__ */ typeCtor(/* @__PURE__ */ toQualifiedNameString2(fromTokenQualifiedProper));
 var lookup4 = /* @__PURE__ */ lookup(ordString);
+var leading2 = /* @__PURE__ */ leading(/* @__PURE__ */ overLeadingCommentsType(overLeadingCommentsVoid));
+var fold5 = /* @__PURE__ */ fold(foldableMaybe)(monoidString);
 var wrapNotNull = function(s) {
   return typeApp(typeCtor2("NotNull"))([s]);
 };
@@ -51850,7 +52038,7 @@ var argListTypeToPurs = function(gqlScalarsToPursTypes) {
 };
 var inputValueDefinitionToPurs = function(gqlScalarsToPursTypes) {
   return function(v) {
-    return new Tuple(v.name, argTypeToPurs(gqlScalarsToPursTypes)(v.type));
+    return new Tuple(v.name, leading2(docComments(fold5(v.description)))(argTypeToPurs(gqlScalarsToPursTypes)(v.type)));
   };
 };
 
@@ -51873,7 +52061,7 @@ var unwrap5 = /* @__PURE__ */ unwrap();
 var mapFlipped2 = /* @__PURE__ */ mapFlipped(functorArray);
 var append6 = /* @__PURE__ */ append(semigroupArray);
 var binaryOp2 = /* @__PURE__ */ binaryOp(/* @__PURE__ */ toQualifiedNameString3(fromTokenQualifiedOperato));
-var fold5 = /* @__PURE__ */ fold(foldableMaybe)(monoidString);
+var fold6 = /* @__PURE__ */ fold(foldableMaybe)(monoidString);
 var typeRecord2 = /* @__PURE__ */ typeRecord(toNameStringLabel);
 var toNameStringModuleName2 = /* @__PURE__ */ toNameStringModuleName();
 var declImport2 = /* @__PURE__ */ declImport(toNameStringModuleName2);
@@ -51960,7 +52148,7 @@ var directiveToPurs = function(gqlScalarsToPursTypes) {
       return Nothing.value;
     }
     ;
-    return new Just(typeApp(typeCtor3("Directive"))([typeString(v.name), typeString(fold5(v.description)), typeRecord2(args)(Nothing.value), locations]));
+    return new Just(typeApp(typeCtor3("Directive"))([typeString(v.name), typeString(fold6(v.description)), typeRecord2(args)(Nothing.value), locations]));
   };
 };
 var getDocumentDirectivesPurs = function(gqlScalarsToPursTypes) {
@@ -52037,13 +52225,13 @@ var pure9 = /* @__PURE__ */ pure(applicativeEither);
 var pure14 = /* @__PURE__ */ pure(applicativeList);
 var wrap3 = /* @__PURE__ */ wrap();
 var unwrap6 = /* @__PURE__ */ unwrap();
-var fold6 = /* @__PURE__ */ fold(foldableMaybe)(monoidString);
+var fold7 = /* @__PURE__ */ fold(foldableMaybe)(monoidString);
 var fromFoldable7 = /* @__PURE__ */ fromFoldable(foldableArray);
 var map25 = /* @__PURE__ */ map(functorList);
 var map112 = /* @__PURE__ */ map(functorMaybe);
 var traverse2 = /* @__PURE__ */ traverse(traversableArray)(applicativeEither);
 var map26 = /* @__PURE__ */ map(functorEither);
-var append16 = /* @__PURE__ */ append(semigroupList);
+var append17 = /* @__PURE__ */ append(semigroupList);
 var bind12 = /* @__PURE__ */ bind(bindMaybe);
 var traverse12 = /* @__PURE__ */ traverse(traversableList)(applicativeEither);
 var append24 = /* @__PURE__ */ append(/* @__PURE__ */ semigroupEither(semigroupList));
@@ -52155,7 +52343,7 @@ var documentFromIntrospection = /* @__PURE__ */ function() {
       };
     };
     var toNamedType = function($262) {
-      return NamedType(fold6(function(v1) {
+      return NamedType(fold7(function(v1) {
         return v1.name;
       }(unwrap6($262))));
     };
@@ -52178,7 +52366,7 @@ var documentFromIntrospection = /* @__PURE__ */ function() {
     var toType = function(v1) {
       var v2 = function(v3) {
         var v4 = function(v5) {
-          return new Type_NamedType(fold6(v1.name));
+          return new Type_NamedType(fold7(v1.name));
         };
         if (v1.kind === "NON_NULL") {
           if (v1.ofType instanceof Just) {
@@ -52202,7 +52390,7 @@ var documentFromIntrospection = /* @__PURE__ */ function() {
     };
     var toNonNullType = function(v1) {
       var v2 = function(v3) {
-        return new NonNullType_NamedType(fold6(v1.name));
+        return new NonNullType_NamedType(fold7(v1.name));
       };
       if (v1.kind === "LIST") {
         if (v1.ofType instanceof Just) {
@@ -52418,7 +52606,7 @@ var documentFromIntrospection = /* @__PURE__ */ function() {
     var root = bind4(note("No query type")(v["__schema"].queryType.name))(function(query) {
       return pure9(new Definition_TypeSystemDefinition(new TypeSystemDefinition_SchemaDefinition({
         directives: Nothing.value,
-        rootOperationTypeDefinition: append16(toRootOp(Query.value)(query))(append16(maybe(Nil.value)(toRootOp(Mutation.value))(bind12(v["__schema"].mutationType)(function(v1) {
+        rootOperationTypeDefinition: append17(toRootOp(Query.value)(query))(append17(maybe(Nil.value)(toRootOp(Mutation.value))(bind12(v["__schema"].mutationType)(function(v1) {
           return v1.name;
         })))(maybe(Nil.value)(toRootOp(Subscription.value))(bind12(v["__schema"].subscriptionType)(function(v1) {
           return v1.name;
@@ -52771,7 +52959,7 @@ var wander = function(dict) {
 };
 
 // output/Data.Lens.Iso/index.js
-var coerce5 = /* @__PURE__ */ coerce();
+var coerce6 = /* @__PURE__ */ coerce();
 var iso = function(f) {
   return function(g) {
     return function(dictProfunctor) {
@@ -52785,7 +52973,7 @@ var iso = function(f) {
 var coerced = function() {
   return function() {
     return function(dictProfunctor) {
-      return iso(coerce5)(coerce5)(dictProfunctor);
+      return iso(coerce6)(coerce6)(dictProfunctor);
     };
   };
 };
@@ -53027,7 +53215,7 @@ var nub4 = /* @__PURE__ */ nub2(/* @__PURE__ */ ordRecord()(/* @__PURE__ */ ordR
   }
 })(ordString))()(moduleNameIsSymbol)(ordString)));
 var foldl5 = /* @__PURE__ */ foldl(foldableMap);
-var append17 = /* @__PURE__ */ append(semigroupArray);
+var append18 = /* @__PURE__ */ append(semigroupArray);
 var fromFoldable8 = /* @__PURE__ */ fromFoldable3(foldableMap);
 var notEq1 = /* @__PURE__ */ notEq(eqCodePoint);
 var compare9 = /* @__PURE__ */ compare(ordString);
@@ -53035,7 +53223,7 @@ var notElem3 = /* @__PURE__ */ notElem2(eqString);
 var bind6 = /* @__PURE__ */ bind(bindMaybe);
 var nub12 = /* @__PURE__ */ nub2(ordString);
 var not5 = /* @__PURE__ */ not(/* @__PURE__ */ heytingAlgebraFunction(heytingAlgebraBoolean));
-var fold7 = /* @__PURE__ */ fold(foldableMap)(monoidArray);
+var fold8 = /* @__PURE__ */ fold(foldableMap)(monoidArray);
 var map210 = /* @__PURE__ */ map(functorMap);
 var fromFoldable1 = /* @__PURE__ */ fromFoldable3(foldableList);
 var mapFlipped5 = /* @__PURE__ */ mapFlipped(functorList);
@@ -53291,7 +53479,7 @@ var gqlToPursMainSchemaCode = function(v) {
     var joinMaps = function() {
       var $341 = foldl5(function(res) {
         return function(m) {
-          return append17(res)(fromFoldable8(m));
+          return append18(res)(fromFoldable8(m));
         };
       })([]);
       return function($342) {
@@ -53540,7 +53728,7 @@ var gqlToPursMainSchemaCode = function(v) {
       throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 212, column 22 - line 215, column 52): " + [v1.constructor.name]);
     };
     var mainCode = intercalate10("\n\n")(removeDuplicateDefinitions(mapMaybe(definitionToPurs)(unwrap8(doc))));
-    var imports = joinWith("\n")(nub12(filter3(not5($$null2))(append17(toImport(mainCode)(fromFoldable8(v.externalTypes)))(append17(toImport(mainCode)(joinMaps(v.fieldTypeOverrides)))(append17(toImport(mainCode)(nub4(fold7(map210(joinMaps)(v.argTypeOverrides)))))(toImport(mainCode)([{
+    var imports = joinWith("\n")(nub12(filter3(not5($$null2))(append18(toImport(mainCode)(fromFoldable8(v.externalTypes)))(append18(toImport(mainCode)(joinMaps(v.fieldTypeOverrides)))(append18(toImport(mainCode)(nub4(fold8(map210(joinMaps)(v.argTypeOverrides)))))(toImport(mainCode)([{
       moduleName: "Data.Argonaut.Core"
     }, {
       moduleName: "GraphQL.Hasura.Array"

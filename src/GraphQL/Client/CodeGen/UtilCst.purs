@@ -4,13 +4,12 @@ module GraphQL.Client.CodeGen.UtilCst where
 import Prelude
 
 import Data.Array as Array
-import Data.Foldable (class Foldable, fold, foldMap, intercalate)
+import Data.Foldable (class Foldable, fold, foldMap)
 import Data.GraphQL.AST as AST
 import Data.Map (Map, lookup)
 import Data.Maybe (Maybe(..), fromMaybe')
 import Data.String.Extra (pascalCase)
 import Data.Tuple (Tuple(..))
-import GraphQL.Client.CodeGen.Lines (indent)
 import Partial.Unsafe (unsafePartial)
 import PureScript.CST.Types as CST
 import Tidy.Codegen (binaryOp, docComments, leading, typeApp, typeCtor, typeOp, typeRecord)
@@ -62,7 +61,7 @@ inputValueDefinitionToPurs
       }
   ) =
   Tuple name 
-    -- $ leading (docComments $ fold description) 
+    $ leading (docComments $ fold description) 
     (argTypeToPurs gqlScalarsToPursTypes tipe)
 
 argTypeToPurs :: Map String String -> AST.Type -> CST.Type Void
