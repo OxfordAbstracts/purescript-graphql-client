@@ -1,7 +1,6 @@
-
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.15.4-20220725/packages.dhall
-        sha256:e56fbdf33a5afd2a610c81f8b940b413a638931edb41532164e641bb2a9ec29c
+      https://github.com/purescript/package-sets/releases/download/psc-0.15.7-20230408/packages.dhall
+        sha256:eafb4e5bcbc2de6172e9457f321764567b33bc7279bd6952468d0d422aa33948
 
 in  upstream
   with tidy-codegen =
@@ -49,14 +48,11 @@ in  upstream
       , "type-equality"
       , "unicode"
       ]
-    , repo =
-      "https://github.com/natefaubion/purescript-tidy-codegen.git"
-    , version =
-        "v4.0.0"
+    , repo = "https://github.com/natefaubion/purescript-tidy-codegen.git"
+    , version = "v4.0.0"
     }
   with language-cst-parser =
-    (upstream.language-cst-parser with version = "v0.13.0")
-
+      (upstream.language-cst-parser with version = "v0.13.0")
   with tidy =
     { dependencies =
       [ "arrays"

@@ -13,14 +13,15 @@ import Data.List (List, fold, foldMap)
 import Data.Map (Map)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Newtype (unwrap)
+import GraphQL.Client.CodeGen.Types (QualifiedType)
 import GraphQL.Client.CodeGen.UtilCst (inputValueDefinitionToPurs)
 import Partial.Unsafe (unsafePartial)
 import PureScript.CST.Types (Declaration)
 import PureScript.CST.Types as CST
 import Tidy.Codegen (binaryOp, declImport, declSignature, declType, declValue, exprApp, exprCtor, exprIdent, exprTyped, importType, importTypeAll, importTypeOp, importValue, module_, printModule, typeApp, typeArrow, typeCtor, typeForall, typeOp, typeRecord, typeString, typeVar, typeWildcard)
 
-getDocumentDirectivesPurs :: Map String String -> String -> AST.Document -> String
-getDocumentDirectivesPurs gqlScalarsToPursTypes moduleName (AST.Document defs) =
+getDocumentDirectivesPurs :: Map String QualifiedType -> QualifiedType -> String -> AST.Document -> String
+getDocumentDirectivesPurs gqlScalarsToPursTypes id moduleName (AST.Document defs) =
   unsafePartial $ printModule $
     module_ moduleName exports imports decls
 
@@ -55,7 +56,7 @@ getDocumentDirectivesPurs gqlScalarsToPursTypes moduleName (AST.Document defs) =
 
   directiveTypes = directives
     # Array.fromFoldable
-    # mapMaybe (directiveToPurs gqlScalarsToPursTypes)
+    # mapMaybe (directiveToPurs gqlScalarsToPursTypes id)
 
   directiveAppliers =
     directives
@@ -68,8 +69,8 @@ getDirectiveDefinitions defs =
       AST.Definition_TypeSystemDefinition (AST.TypeSystemDefinition_DirectiveDefinition def) -> pure def
       _ -> mempty
 
-directiveToPurs :: Map String String -> AST.DirectiveDefinition -> Maybe (CST.Type Void)
-directiveToPurs gqlScalarsToPursTypes (AST.DirectiveDefinition { name, description, argumentsDefinition, directiveLocations }) =
+directiveToPurs :: Map String QualifiedType -> QualifiedType -> AST.DirectiveDefinition -> Maybe (CST.Type Void)
+directiveToPurs gqlScalarsToPursTypes id (AST.DirectiveDefinition { name, description, argumentsDefinition, directiveLocations }) =
   unsafePartial
     if null locationTypes then
       Nothing
@@ -84,7 +85,7 @@ directiveToPurs gqlScalarsToPursTypes (AST.DirectiveDefinition { name, descripti
 
   where
   args = unsafePartial $
-    argumentsDefinition # maybe [] (unwrap >>> Array.fromFoldable) <#> (inputValueDefinitionToPurs gqlScalarsToPursTypes)
+    argumentsDefinition # maybe [] (unwrap >>> Array.fromFoldable) <#> (inputValueDefinitionToPurs gqlScalarsToPursTypes id)
 
   locationsArr :: Array (AST.DirectiveLocation)
   locationsArr = Array.fromFoldable $ unwrap directiveLocations

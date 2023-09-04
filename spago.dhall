@@ -24,6 +24,7 @@ You can edit this file as you like.
   , "either"
   , "enums"
   , "exceptions"
+  , "filterable"
   , "foldable-traversable"
   , "foreign"
   , "foreign-object"
@@ -60,8 +61,10 @@ You can edit this file as you like.
   , "transformers"
   , "tuples"
   , "typelevel-lists"
+  , "unfoldable"
   , "unicode"
   , "unsafe-coerce"
+  , "untagged-union"
   , "variant"
   ]
 , packages = ./packages.dhall

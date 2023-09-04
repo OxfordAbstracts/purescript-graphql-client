@@ -9,39 +9,33 @@ import Prelude
 import Data.Argonaut.Core (stringify)
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
-import Data.Array (filter, notElem, nub, nubBy)
+import Data.Array (nubBy)
 import Data.Array as Array
 import Data.Bifunctor (lmap)
-import Data.CodePoint.Unicode (isLower)
 import Data.Either (Either(..), hush)
-import Data.Foldable (fold, foldMap, foldl, intercalate)
+import Data.Foldable (foldMap)
 import Data.Function (on)
 import Data.FunctorWithIndex (mapWithIndex)
 import Data.GraphQL.AST as AST
-import Data.List (List, mapMaybe)
-import Data.List as List
-import Data.Map (Map, lookup)
+import Data.List (mapMaybe)
 import Data.Map as Map
-import Data.Maybe (Maybe(..), fromMaybe, fromMaybe', maybe)
+import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Monoid (guard)
 import Data.Newtype (unwrap)
-import Data.String (Pattern(..), codePointFromChar, contains, joinWith, take)
-import Data.String as String
-import Data.String.CodePoints (takeWhile)
-import Data.String.CodeUnits (charAt)
-import Data.String.Extra (pascalCase)
+import Data.String (Pattern(..), contains)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
 import GraphQL.Client.CodeGen.Directive (getDocumentDirectivesPurs)
 import GraphQL.Client.CodeGen.DocumentFromIntrospection (documentFromIntrospection, toParserError)
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
-import GraphQL.Client.CodeGen.Lines (commentPrefix, docComment, fromLines, indent, toLines)
+import GraphQL.Client.CodeGen.SchemaCst (gqlToPursSchema)
 import GraphQL.Client.CodeGen.Template.Enum as Enum
 import GraphQL.Client.CodeGen.Template.Schema as Schema
 import GraphQL.Client.CodeGen.Transform.NullableOverrides (applyNullableOverrides)
-import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptions, PursGql)
+import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptions, PursGql, QualifiedType)
 import Parsing (ParseError)
+import Tidy.Codegen (printModule)
 
 schemasFromGqlToPurs :: InputOptions -> Array GqlInput -> Aff (Either ParseError FilesToWrite)
 schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> map sequence >>> map (map collectSchemas)
@@ -135,10 +129,11 @@ schemaFromGqlToPurs opts { schema, moduleName } =
     <#> \ast ->
       let
         symbols = Array.fromFoldable $ getSymbols ast
+        enums = getDocumentEnums ast
       in
-        { mainSchemaCode: gqlToPursMainSchemaCode opts ast
-        , enums: gqlToPursEnums opts.gqlScalarsToPursTypes ast
-        , directives: getDocumentDirectivesPurs opts.gqlScalarsToPursTypes (modulePrefix <> "Directives." <> moduleName) ast
+        { mainSchemaCode: gqlToPursMainSchemaCode opts (modulePrefix <> "Schema." <> moduleName) ast enums
+        , enums
+        , directives: getDocumentDirectivesPurs opts.gqlToPursTypes (fromMaybe defaultIdImport opts.idImport) (modulePrefix <> "Directives." <> moduleName) ast
         , symbols
         , moduleName
         }
@@ -146,16 +141,8 @@ schemaFromGqlToPurs opts { schema, moduleName } =
   where
   modulePrefix = foldMap (_ <> ".") opts.modulePath
 
-toImports
-  :: Array String
-  -> Array String
-toImports =
-  map
-    ( \t -> "import "
-        <> t
-        <> " as "
-        <> t
-    )
+defaultIdImport :: QualifiedType
+defaultIdImport = { typeName: "ID", moduleName: "GraphQL.Client.ID" }
 
 toImport
   :: forall r
@@ -175,306 +162,12 @@ toImport mainCode =
               <> t.moduleName
     )
 
-gqlToPursMainSchemaCode :: InputOptions -> AST.Document -> String
-gqlToPursMainSchemaCode { gqlScalarsToPursTypes, externalTypes, fieldTypeOverrides, argTypeOverrides, useNewtypesForRecords } doc =
-  imports
-    <> guard (imports /= "") "\n"
-    <> "\n"
-    <> mainCode
-  where
-  imports =
-    joinWith "\n"
-      -- $ toImports
-      $ nub
-      $ filter (not String.null)
-      $ toImport mainCode (Array.fromFoldable externalTypes)
-          <> toImport mainCode (joinMaps fieldTypeOverrides)
-          <> toImport mainCode (nub $ fold $ map joinMaps argTypeOverrides)
-          <> toImport mainCode
-            [ { moduleName: "Data.Argonaut.Core" }
-            , { moduleName: "GraphQL.Hasura.Array" }
-            ]
+gqlToPursMainSchemaCode :: InputOptions -> String -> AST.Document -> Array GqlEnum -> String
+gqlToPursMainSchemaCode opts moduleName doc enums =
+  printModule $ gqlToPursSchema opts moduleName doc enums
 
-  joinMaps = nub <<< foldl (\res m -> res <> Array.fromFoldable m) []
-
-  mainCode = unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
-
-  removeDuplicateDefinitions = List.nubBy (compare `on` getDefinitionTypeName)
-
-  getDefinitionTypeName :: String -> String
-  getDefinitionTypeName =
-    takeWhile (notEq (codePointFromChar '='))
-      >>> toLines
-      >>> filter (\l -> take (String.length commentPrefix) l /= commentPrefix)
-      >>> fromLines
-
-  definitionToPurs :: AST.Definition -> Maybe String
-  definitionToPurs = case _ of
-    AST.Definition_ExecutableDefinition _ -> Nothing
-    AST.Definition_TypeSystemDefinition def -> typeSystemDefinitionToPurs def
-    AST.Definition_TypeSystemExtension _ -> Nothing
-
-  typeSystemDefinitionToPurs :: AST.TypeSystemDefinition -> Maybe String
-  typeSystemDefinitionToPurs = case _ of
-    AST.TypeSystemDefinition_SchemaDefinition schemaDefinition -> Just $ schemaDefinitionToPurs schemaDefinition
-    AST.TypeSystemDefinition_TypeDefinition typeDefinition -> typeDefinitionToPurs typeDefinition
-    AST.TypeSystemDefinition_DirectiveDefinition directiveDefinition -> directiveDefinitionToPurs directiveDefinition
-
-  schemaDefinitionToPurs :: AST.SchemaDefinition -> String
-  schemaDefinitionToPurs (AST.SchemaDefinition { rootOperationTypeDefinition }) = map rootOperationTypeDefinitionToPurs rootOperationTypeDefinition # intercalate "\n\n"
-
-  rootOperationTypeDefinitionToPurs :: AST.RootOperationTypeDefinition -> String
-  rootOperationTypeDefinitionToPurs (AST.RootOperationTypeDefinition { operationType, namedType }) =
-    guard (opStr /= actualType) $
-      "type "
-        <> opStr
-        <> " = "
-        <> actualType
-    where
-    actualType = namedTypeToPurs_ namedType
-
-    opStr = case operationType of
-      AST.Query -> "Query"
-      AST.Mutation -> "Mutation"
-      AST.Subscription -> "Subscription"
-
-  typeDefinitionToPurs :: AST.TypeDefinition -> Maybe String
-  typeDefinitionToPurs = case _ of
-    AST.TypeDefinition_ScalarTypeDefinition scalarTypeDefinition -> Just $ scalarTypeDefinitionToPurs scalarTypeDefinition
-    AST.TypeDefinition_ObjectTypeDefinition objectTypeDefinition -> Just $ objectTypeDefinitionToPurs objectTypeDefinition
-    AST.TypeDefinition_InterfaceTypeDefinition interfaceTypeDefinition -> interfaceTypeDefinitionToPurs interfaceTypeDefinition
-    AST.TypeDefinition_UnionTypeDefinition unionTypeDefinition -> unionTypeDefinitionToPurs unionTypeDefinition
-    AST.TypeDefinition_EnumTypeDefinition enumTypeDefinition -> enumTypeDefinitionToPurs enumTypeDefinition
-    AST.TypeDefinition_InputObjectTypeDefinition inputObjectTypeDefinition ->
-      Just $ (inputObjectTypeDefinitionToPurs (_.name $ unwrap inputObjectTypeDefinition)) inputObjectTypeDefinition
-
-  scalarTypeDefinitionToPurs :: AST.ScalarTypeDefinition -> String
-  scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name }) =
-    guard (notElem tName builtInTypes)
-      $ docComment description
-          <> "type "
-          <> tName
-          <> " = "
-          <> typeAndModule.moduleName
-          <> "."
-          <> typeAndModule.typeName
-    where
-    tName = typeName_ name
-
-    typeAndModule =
-      lookup tName externalTypes
-        # fromMaybe
-            { moduleName: "Data.Argonaut.Core"
-            , typeName: "Json -- Unknown scalar type. Add " <> tName <> " to externalTypes in codegen options to override this behaviour"
-            }
-
-  builtInTypes = [ "Int", "Number", "String", "Boolean", "ID", "GraphQL.Hasura.Array.Hasura_text" ]
-
-  objectTypeDefinitionToPurs :: AST.ObjectTypeDefinition -> String
-  objectTypeDefinitionToPurs
-    ( AST.ObjectTypeDefinition
-        { description
-        , fieldsDefinition
-        , name
-        }
-    ) =
-    let
-      tName = typeName_ name
-    in
-      docComment description
-        <>
-          if useNewtypesForRecords then
-            "newtype "
-              <> typeName_ name
-              <> " = "
-              <> typeName_ name
-              -- <> " "
-              <> (fieldsDefinition # maybe "{}" (fieldsDefinitionToPurs tName))
-              <> "\nderive instance newtype"
-              <> tName
-              <> " :: Newtype "
-              <> tName
-              <> " _"
-          else
-            "type "
-              <> typeName_ name
-              <> (fieldsDefinition # foldMap \fd -> " = " <> fieldsDefinitionToPurs tName fd)
-
-  fieldsDefinitionToPurs :: String -> AST.FieldsDefinition -> String
-  fieldsDefinitionToPurs objectName (AST.FieldsDefinition fieldsDefinition) =
-    indent
-      $ "\n{ "
-          <> intercalate "\n, " (map (fieldDefinitionToPurs objectName) fieldsDefinition)
-          <> "\n}"
-
-  fieldDefinitionToPurs :: String -> AST.FieldDefinition -> String
-  fieldDefinitionToPurs
-    objectName
-    ( AST.FieldDefinition
-        { description
-        , name
-        , argumentsDefinition
-        , type: tipe
-        }
-    ) =
-    inlineComment description
-      <> safeFieldname name
-      <> " :: "
-      <> foldMap (argumentsDefinitionToPurs objectName name) argumentsDefinition
-      <> case lookup objectName fieldTypeOverrides >>= lookup name of
-        Nothing -> typeToPurs tipe
-        Just out -> case tipe of
-          AST.Type_NonNullType _ -> out.moduleName <> "." <> out.typeName
-          AST.Type_ListType _ -> wrapArray $ out.moduleName <> "." <> out.typeName
-          _ -> wrapMaybe $ out.moduleName <> "." <> out.typeName
-
-  argumentsDefinitionToPurs :: String -> String -> AST.ArgumentsDefinition -> String
-  argumentsDefinitionToPurs objectName fieldName (AST.ArgumentsDefinition inputValueDefinitions) =
-    indent
-      $ "\n{ "
-          <> intercalate "\n, " (map (inputValueDefinitionToPurs objectName fieldName) inputValueDefinitions)
-          <> "\n}\n-> "
-
-  interfaceTypeDefinitionToPurs :: AST.InterfaceTypeDefinition -> Maybe String
-  interfaceTypeDefinitionToPurs (AST.InterfaceTypeDefinition _) = Nothing
-
-  unionTypeDefinitionToPurs :: AST.UnionTypeDefinition -> Maybe String
-  unionTypeDefinitionToPurs
-    ( AST.UnionTypeDefinition
-        { description
-        , name
-        , directives: Nothing
-        , unionMemberTypes: Just (AST.UnionMemberTypes unionMemberTypes)
-        }
-    ) = Just $
-    docComment description
-      <> "type "
-      <> name
-      <> " = GqlUnion"
-      <>
-        ( indent
-            $ "\n( "
-                <> intercalate "\n, " (map (unionMemberTypeToPurs <<< unwrap) unionMemberTypes)
-                <> "\n)"
-        )
-  unionTypeDefinitionToPurs _ = Nothing
-
-  unionMemberTypeToPurs :: String -> String
-  unionMemberTypeToPurs ty = "\"" <> ty <> "\" :: " <> ty
-
-  enumTypeDefinitionToPurs :: AST.EnumTypeDefinition -> Maybe String
-  enumTypeDefinitionToPurs (AST.EnumTypeDefinition _) = Nothing
-
-  -- TODO make fieldName Maybe
-  inputObjectTypeDefinitionToPurs :: String -> AST.InputObjectTypeDefinition -> String
-  inputObjectTypeDefinitionToPurs
-    fieldName
-    ( AST.InputObjectTypeDefinition
-        { description
-        , inputFieldsDefinition
-        , name
-        }
-    ) =
-    let
-      tName = typeName_ name
-    in
-      docComment description
-        <> "newtype "
-        <> tName
-        <> " = "
-        <> tName
-        <>
-          ( inputFieldsDefinition
-              # maybe "{}" \(AST.InputFieldsDefinition fd) ->
-                  inputValueToFieldsDefinitionToPurs tName fieldName fd
-          )
-        <> "\nderive instance newtype"
-        <> tName
-        <> " :: Newtype "
-        <> tName
-        <> " _"
-
-  inputValueToFieldsDefinitionToPurs :: String -> String -> List AST.InputValueDefinition -> String
-  inputValueToFieldsDefinitionToPurs objectName fieldName definitions =
-    indent
-      $ "\n{ "
-          <> intercalate "\n, " (map (inputValueDefinitionToPurs objectName fieldName) definitions)
-          <> "\n}"
-
-  inputValueDefinitionToPurs :: String -> String -> AST.InputValueDefinition -> String
-  inputValueDefinitionToPurs
-    objectName
-    fieldName
-    ( AST.InputValueDefinition
-        { description
-        , name
-        , type: tipe
-        }
-    ) =
-    inlineComment description
-      <> safeFieldname name
-      <> " :: "
-      <> case lookup objectName fieldTypeOverrides >>= lookup name of
-        Nothing -> argTypeToPurs objectName fieldName name tipe
-        Just out -> case tipe of
-          AST.Type_NonNullType _ -> wrapNotNull $ out.moduleName <> "." <> out.typeName
-          AST.Type_ListType _ -> wrapArray $ out.moduleName <> "." <> out.typeName
-          _ -> out.moduleName <> "." <> out.typeName
-
-  directiveDefinitionToPurs :: AST.DirectiveDefinition -> Maybe String
-  directiveDefinitionToPurs _ = Nothing
-
-  argTypeToPurs objectName fieldName argName tipe = case tipe of
-    (AST.Type_NamedType namedType) -> case lookup objectName argTypeOverrides >>= lookup fieldName >>= lookup argName of
-      Nothing -> namedTypeToPurs_ namedType
-      Just out -> out.moduleName <> "." <> out.typeName
-    (AST.Type_ListType listType) -> argListTypeToPurs objectName fieldName argName listType
-    (AST.Type_NonNullType notNullType) -> wrapNotNull $ argNotNullTypeToPurs objectName fieldName argName notNullType
-
-  argNotNullTypeToPurs :: String -> String -> String -> AST.NonNullType -> String
-  argNotNullTypeToPurs objectName fieldName argName = case _ of
-    AST.NonNullType_NamedType t -> case lookup objectName argTypeOverrides >>= lookup fieldName >>= lookup argName of
-      Nothing -> namedTypeToPurs_ t
-      Just out -> out.moduleName <> "." <> out.typeName
-    AST.NonNullType_ListType t -> argListTypeToPurs objectName fieldName argName t
-
-  argListTypeToPurs :: String -> String -> String -> AST.ListType -> String
-  argListTypeToPurs objectName fieldName argName (AST.ListType t) = "(Array " <> argTypeToPurs objectName fieldName argName t <> ")"
-
-  wrapNotNull s = if startsWith "(NotNull " (String.trim s) then s else "(NotNull " <> s <> ")"
-
-  startsWith pre str = pre == take (String.length pre) str
-
-  typeToPurs :: AST.Type -> String
-  typeToPurs = case _ of
-    (AST.Type_NamedType namedType) -> namedTypeToPursNullable namedType
-    (AST.Type_ListType listType) -> listTypeToPursNullable listType
-    (AST.Type_NonNullType notNullType) -> notNullTypeToPurs notNullType
-
-  namedTypeToPursNullable :: AST.NamedType -> String
-  namedTypeToPursNullable = wrapMaybe <<< namedTypeToPurs_
-
-  listTypeToPursNullable :: AST.ListType -> String
-  listTypeToPursNullable t = wrapMaybe $ listTypeToPurs t
-
-  wrapMaybe s = if startsWith "(Maybe " s then s else "(Maybe " <> s <> ")"
-
-  notNullTypeToPurs :: AST.NonNullType -> String
-  notNullTypeToPurs = case _ of
-    AST.NonNullType_NamedType t -> namedTypeToPurs_ t
-    AST.NonNullType_ListType t -> listTypeToPurs t
-
-  listTypeToPurs :: AST.ListType -> String
-  listTypeToPurs (AST.ListType t) = wrapArray $ typeToPurs t
-
-  wrapArray s = "(Array " <> s <> ")"
-
-  typeName_ = typeName gqlScalarsToPursTypes
-
-  namedTypeToPurs_ = namedTypeToPurs gqlScalarsToPursTypes
-
-gqlToPursEnums :: Map String String -> AST.Document -> Array GqlEnum
-gqlToPursEnums gqlScalarsToPursTypes = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
+getDocumentEnums :: AST.Document -> Array GqlEnum
+getDocumentEnums = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
   where
   definitionToEnum :: AST.Definition -> Maybe GqlEnum
   definitionToEnum = case _ of
@@ -490,7 +183,7 @@ gqlToPursEnums gqlScalarsToPursTypes = unwrap >>> mapMaybe definitionToEnum >>> 
   typeDefinitionToPurs = case _ of
     AST.TypeDefinition_EnumTypeDefinition (AST.EnumTypeDefinition enumTypeDefinition) ->
       Just
-        { name: typeName_ enumTypeDefinition.name
+        { name: enumTypeDefinition.name
         , description: enumTypeDefinition.description
         , values: maybe [] enumValuesDefinitionToPurs enumTypeDefinition.enumValuesDefinition
         }
@@ -501,42 +194,3 @@ gqlToPursEnums gqlScalarsToPursTypes = unwrap >>> mapMaybe definitionToEnum >>> 
     Array.fromFoldable $ unwrap def
       <#> \(AST.EnumValueDefinition { enumValue }) ->
         unwrap enumValue
-
-  typeName_ = typeName gqlScalarsToPursTypes
-
-namedTypeToPurs :: Map String String -> AST.NamedType -> String
-namedTypeToPurs gqlScalarsToPursTypes (AST.NamedType str) = typeName gqlScalarsToPursTypes str
-
-inlineComment :: Maybe String -> String
-inlineComment = foldMap (\str -> "\n{- " <> str <> " -}\n")
-
-typeName :: Map String String -> String -> String
-typeName gqlScalarsToPursTypes str =
-  lookup str gqlScalarsToPursTypes
-    # fromMaybe' \_ -> case str of
-        "_text" -> "GraphQL.Hasura.Array.Hasura_text"
-        _ -> case pascalCase str of
-          "Id" -> "ID"
-          "Float" -> "Number"
-          "Numeric" -> "Number"
-          "Bigint" -> "Number"
-          "Smallint" -> "Int"
-          "Integer" -> "Int"
-          "Int" -> "Int"
-          "Int2" -> "Int"
-          "Int4" -> "Int"
-          "Int8" -> "Int"
-          "Text" -> "String"
-          "Citext" -> "String"
-          "Jsonb" -> "Json"
-          "Timestamp" -> "DateTime"
-          "Timestamptz" -> "DateTime"
-          s -> s
-
-safeFieldname :: String -> String
-safeFieldname s = if isSafe then s else show s
-  where
-  isSafe =
-    charAt 0 s
-      # maybe false \c ->
-          c == '_' || (isLower $ codePointFromChar c)

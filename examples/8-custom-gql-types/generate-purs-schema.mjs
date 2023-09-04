@@ -1,5 +1,5 @@
 // In your code replace this line with the npm package:
-// const { generateSchema } = require('purescript-graphql-client')
+// import { generateSchema } = from 'purescript-graphql-client'
 import { generateSchema } from '../../codegen/schema/index.mjs'
 
 export default () =>
@@ -8,7 +8,7 @@ export default () =>
     modulePath: ['Generated', 'Gql', 'Admin'],
     useNewtypesForRecords: false,
     url: 'http://localhost:4000/graphql',
-    gqlScalarsToPursTypes: {
+    gqlToPursTypes: {
       GqlTypeThatIsAString: 'String',
       GqlTypeThatIsAnInt: 'Int'
     }

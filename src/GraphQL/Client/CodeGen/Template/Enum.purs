@@ -13,6 +13,15 @@ import Data.String.CodeUnits (charAt)
 import Data.String.Unicode (toUpper)
 import GraphQL.Client.CodeGen.Lines (docComment)
 import Partial.Unsafe (unsafePartial)
+import PureScript.CST.Types as CST
+import Unsafe.Coerce (unsafeCoerce)
+
+
+-- enumModules ::InputOptions -> String -> AST.Document -> CST.Module Void -> Array { name :: String , mod :: CST.Module Void }
+-- enumModules opts mName doc mod = getEnums doc <#> unsafeCoerce
+
+--  where 
+--  getEnums
 
 template ::
   String ->
@@ -25,7 +34,7 @@ template ::
   , customCode :: { name :: String, values :: Array { gql :: String, transformed :: String} } -> String
   } ->
   String
-template modulePrefix opts@{ name, schemaName, description, values, imports, customCode } =
+template modulePrefix opts@{ name, schemaName, description, values, imports, customCode } = 
   """module """ <> modulePrefix <> "Schema." <> schemaName <> """.Enum.""" <> name
     <> """ where
 

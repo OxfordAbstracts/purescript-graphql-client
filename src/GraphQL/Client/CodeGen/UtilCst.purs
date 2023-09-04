@@ -4,79 +4,93 @@ module GraphQL.Client.CodeGen.UtilCst where
 import Prelude
 
 import Data.Array as Array
-import Data.Foldable (class Foldable, fold, foldMap)
+import Data.Foldable (class Foldable, fold)
 import Data.GraphQL.AST as AST
 import Data.Map (Map, lookup)
 import Data.Maybe (Maybe(..), fromMaybe')
 import Data.String.Extra (pascalCase)
 import Data.Tuple (Tuple(..))
+import GraphQL.Client.CodeGen.Types (QualifiedType)
 import Partial.Unsafe (unsafePartial)
+import PureScript.CST.Types (ModuleName(..), Proper(..), QualifiedName)
 import PureScript.CST.Types as CST
 import Tidy.Codegen (binaryOp, docComments, leading, typeApp, typeCtor, typeOp, typeRecord)
+import Tidy.Codegen.Class (toQualifiedName)
+import Tidy.Codegen.Types (Qualified(..))
 
-namedTypeToPurs :: Map String String -> AST.NamedType -> CST.Type Void
-namedTypeToPurs gqlScalarsToPursTypes (AST.NamedType str) =
-  unsafePartial $ typeCtor $ typeName gqlScalarsToPursTypes str
+namedTypeToPurs :: Map String QualifiedType -> QualifiedType -> AST.NamedType -> CST.Type Void
+namedTypeToPurs gqlScalarsToPursTypes id (AST.NamedType str) =
+  unsafePartial $ typeCtor $ typeName gqlScalarsToPursTypes id str
 
-inlineComment :: Maybe String -> String
-inlineComment = foldMap (\str -> "\n{- " <> str <> " -}\n")
-
-typeName :: Map String String -> String -> String
-typeName gqlScalarsToPursTypes str =
+typeName :: Map String QualifiedType ->QualifiedType ->  String -> QualifiedName Proper
+typeName gqlScalarsToPursTypes id str =
   lookup str gqlScalarsToPursTypes
+    <#> qualifiedTypeToName
     # fromMaybe' \_ -> case pascalCase str of
-        "Id" -> "ID"
-        "Float" -> "Number"
-        "Numeric" -> "Number"
-        "Bigint" -> "Number"
-        "Smallint" -> "Int"
-        "Integer" -> "Int"
-        "Int" -> "Int"
-        "Int2" -> "Int"
-        "Int4" -> "Int"
-        "Int8" -> "Int"
-        "Text" -> "String"
-        "Citext" -> "String"
-        "Jsonb" -> "Json"
-        "Timestamp" -> "DateTime"
-        "Timestamptz" -> "DateTime"
-        s -> s
+        -- "Id" -> "ID"
+        -- "Float" -> "Number"
+        -- "Numeric" -> "Number"
+        -- "Bigint" -> "Number"
+        -- "Smallint" -> "Int"
+        -- "Integer" -> "Int"
+        -- "Int" -> "Int"
+        -- "Int2" -> "Int"
+        -- "Int4" -> "Int"
+        -- "Int8" -> "Int"
+        -- "Text" -> "String"
+        -- "Citext" -> "String"
+        -- "Jsonb" -> "Json"
+        -- "Timestamp" -> "DateTime"
+        -- "Timestamptz" -> "DateTime"
+        s -> qualifiy s
 
--- argumentsDefinitionToPurs :: Map String String -> AST.ArgumentsDefinition -> _
-argumentsDefinitionToPurs :: Partial => Map String String -> AST.ArgumentsDefinition -> CST.Type Void -> CST.Type Void
-argumentsDefinitionToPurs gqlScalarsToPursTypes (AST.ArgumentsDefinition inputValueDefinitions) a =
-  typeOp (inputValueDefinitionsToPurs gqlScalarsToPursTypes inputValueDefinitions) [ binaryOp "==>" a ]
+qualifiy :: String -> QualifiedName Proper
+qualifiy = toQualifiedName <<< Proper
 
-inputValueDefinitionsToPurs :: forall f. Foldable f => Functor f => Map String String -> f AST.InputValueDefinition -> CST.Type Void
-inputValueDefinitionsToPurs gqlScalarsToPursTypes inputValueDefinitions = unsafePartial $
-  typeRecord (map (inputValueDefinitionToPurs gqlScalarsToPursTypes) $ Array.fromFoldable inputValueDefinitions) Nothing
+qualifiedTypeToName :: QualifiedType -> QualifiedName Proper
+qualifiedTypeToName { moduleName, typeName } =
+  case moduleName of 
+    "" -> qualifiy typeName
+    _ -> 
+      toQualifiedName
+        $ Qualified (Just $ ModuleName moduleName)
+        $ Proper typeName
 
-inputValueDefinitionToPurs :: Map String String -> AST.InputValueDefinition -> Tuple String (CST.Type Void)
+-- argumentsDefinitionToPurs :: Map String QualifiedType -> AST.ArgumentsDefinition -> _
+argumentsDefinitionToPurs :: Partial => Map String QualifiedType -> QualifiedType -> AST.ArgumentsDefinition -> CST.Type Void -> CST.Type Void
+argumentsDefinitionToPurs gqlScalarsToPursTypes id (AST.ArgumentsDefinition inputValueDefinitions) a =
+  typeOp (inputValueDefinitionsToPurs gqlScalarsToPursTypes id inputValueDefinitions) [ binaryOp "==>" a ]
+
+inputValueDefinitionsToPurs :: forall f. Foldable f => Functor f => Map String QualifiedType -> QualifiedType -> f AST.InputValueDefinition -> CST.Type Void
+inputValueDefinitionsToPurs gqlScalarsToPursTypes id inputValueDefinitions = unsafePartial $
+  typeRecord (map (inputValueDefinitionToPurs gqlScalarsToPursTypes id) $ Array.fromFoldable inputValueDefinitions) Nothing
+
+inputValueDefinitionToPurs :: Map String QualifiedType -> QualifiedType -> AST.InputValueDefinition -> Tuple String (CST.Type Void)
 inputValueDefinitionToPurs
-  gqlScalarsToPursTypes
+  gqlScalarsToPursTypes id
   ( AST.InputValueDefinition
       { description
       , name
       , type: tipe
       }
   ) =
-  Tuple name 
-    $ leading (docComments $ fold description) 
-    (argTypeToPurs gqlScalarsToPursTypes tipe)
+  Tuple name
+    $ leading (docComments $ fold description)
+        (argTypeToPurs gqlScalarsToPursTypes id tipe)
 
-argTypeToPurs :: Map String String -> AST.Type -> CST.Type Void
-argTypeToPurs gqlScalarsToPursTypes = case _ of
-  (AST.Type_NamedType namedType) -> namedTypeToPurs gqlScalarsToPursTypes namedType
-  (AST.Type_ListType listType) -> argListTypeToPurs gqlScalarsToPursTypes listType
-  (AST.Type_NonNullType notNullType) -> wrapNotNull $ argNotNullTypeToPurs gqlScalarsToPursTypes notNullType
+argTypeToPurs :: Map String QualifiedType -> QualifiedType -> AST.Type -> CST.Type Void
+argTypeToPurs gqlScalarsToPursTypes id = case _ of
+  (AST.Type_NamedType namedType) -> namedTypeToPurs gqlScalarsToPursTypes id namedType
+  (AST.Type_ListType listType) -> argListTypeToPurs gqlScalarsToPursTypes id listType
+  (AST.Type_NonNullType notNullType) -> wrapNotNull $ argNotNullTypeToPurs gqlScalarsToPursTypes id notNullType
 
-argNotNullTypeToPurs :: Map String String -> AST.NonNullType -> CST.Type Void
-argNotNullTypeToPurs gqlScalarsToPursTypes = case _ of
-  AST.NonNullType_NamedType t -> namedTypeToPurs gqlScalarsToPursTypes t
-  AST.NonNullType_ListType t -> argListTypeToPurs gqlScalarsToPursTypes t
+argNotNullTypeToPurs :: Map String QualifiedType -> QualifiedType -> AST.NonNullType -> CST.Type Void
+argNotNullTypeToPurs gqlScalarsToPursTypes id = case _ of
+  AST.NonNullType_NamedType t -> namedTypeToPurs gqlScalarsToPursTypes id t
+  AST.NonNullType_ListType t -> argListTypeToPurs gqlScalarsToPursTypes id t
 
-argListTypeToPurs :: Map String String -> AST.ListType -> CST.Type Void
-argListTypeToPurs gqlScalarsToPursTypes (AST.ListType t) = unsafePartial $ typeApp (typeCtor "Array") [ argTypeToPurs gqlScalarsToPursTypes t ]
+argListTypeToPurs :: Map String QualifiedType -> QualifiedType -> AST.ListType -> CST.Type Void
+argListTypeToPurs gqlScalarsToPursTypes id (AST.ListType t) = unsafePartial $ typeApp (typeCtor "Array") [ argTypeToPurs gqlScalarsToPursTypes id t ]
 
 wrapNotNull :: CST.Type Void -> CST.Type Void
 wrapNotNull s = unsafePartial $ typeApp (typeCtor "NotNull") [ s ]

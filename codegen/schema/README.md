@@ -91,7 +91,7 @@ Argument for generateSchema
 -- | External scalar types. The object key is the name of the scalar type in the graphQL schema.
 -- | When the scalar type is encountered it will be set at the type in the provided module
 -- | Useful for handling custom scalar types such as `Date`
-, externalTypes :: 
+, gqlToPursTypes :: 
     Nullable
         ( Object
             { moduleName :: String
