@@ -20,9 +20,7 @@ import Data.GraphQL.AST as AST
 import Data.List (mapMaybe)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
-import Data.Monoid (guard)
 import Data.Newtype (unwrap)
-import Data.String (Pattern(..), contains)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
@@ -31,7 +29,6 @@ import GraphQL.Client.CodeGen.DocumentFromIntrospection (documentFromIntrospecti
 import GraphQL.Client.CodeGen.GetSymbols (getSymbols, symbolsToCode)
 import GraphQL.Client.CodeGen.SchemaCst (gqlToPursSchema)
 import GraphQL.Client.CodeGen.Template.Enum as Enum
-import GraphQL.Client.CodeGen.Template.Schema as Schema
 import GraphQL.Client.CodeGen.Transform.NullableOverrides (applyNullableOverrides)
 import GraphQL.Client.CodeGen.Types (FilesToWrite, GqlEnum, GqlInput, InputOptions, PursGql, QualifiedType)
 import Parsing (ParseError)
@@ -62,14 +59,7 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
     { schemas:
         pursGqls
           <#> \pg ->
-            { code:
-                Schema.template
-                  { name: pg.moduleName
-                  , mainSchemaCode: pg.mainSchemaCode
-                  , idImport: opts.idImport
-                  , enums: map _.name pg.enums
-                  , modulePrefix
-                  }
+            { code: pg.mainSchemaCode
             , path: opts.dir <> "/Schema/" <> pg.moduleName <> ".purs"
             }
     , enums:
@@ -143,24 +133,6 @@ schemaFromGqlToPurs opts { schema, moduleName } =
 
 defaultIdImport :: QualifiedType
 defaultIdImport = { typeName: "ID", moduleName: "GraphQL.Client.ID" }
-
-toImport
-  :: forall r
-   . String
-  -> Array
-       { moduleName :: String
-       | r
-       }
-  -> Array String
-toImport mainCode =
-  map
-    ( \t ->
-        guard (contains (Pattern t.moduleName) mainCode)
-          $ "\nimport "
-              <> t.moduleName
-              <> " as "
-              <> t.moduleName
-    )
 
 gqlToPursMainSchemaCode :: InputOptions -> String -> AST.Document -> Array GqlEnum -> String
 gqlToPursMainSchemaCode opts moduleName doc enums =
