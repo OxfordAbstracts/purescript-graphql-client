@@ -2,6 +2,7 @@ module GraphQL.Client.Args where
 
 import Prelude
 
+import Data.Argonaut.Core (Json)
 import Data.Bifunctor (class Bifunctor)
 import Data.Date (Date)
 import Data.DateTime (DateTime)
@@ -67,6 +68,8 @@ class ArgGql params arg
 
 instance argToGqlNotNull :: (IsNotNull param arg, ArgGql param arg) => ArgGql (NotNull param) arg
 else instance argToGqlIgnore :: ArgGql param IgnoreArg
+else instance argVarJson :: ArgGql Json (Var sym Json) -- Json can only be used with a variable 
+else instance argToGqlJsonNotAllowed :: TE.Fail (TE.Text "A `Json` query argument can only be used as a variable ") => ArgGql Json Json
 else instance argVar :: ArgGql param arg => ArgGql param (Var sym arg)
 else instance argToGqlArrayAnds :: (ArgGql (Array param) ( a1), ArgGql (Array param)  a2) => ArgGql (Array param) (AndArgs a1 a2)
 else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql param (OrArg argL argR)
@@ -126,6 +129,7 @@ instance argToGqlTime :: ArgGql Time Time
 instance argToGqlDateTime :: ArgGql DateTime DateTime
 
 instance argToGqlRecord :: RecordArg p a u => ArgGql { | p } { | a }
+
 
 class HMapWithIndex (ArgPropToGql p) { | a } u <= RecordArg p a u
 
