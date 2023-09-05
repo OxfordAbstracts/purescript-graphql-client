@@ -22,26 +22,35 @@ namedTypeToPurs :: Map String QualifiedType -> QualifiedType -> AST.NamedType ->
 namedTypeToPurs gqlScalarsToPursTypes id (AST.NamedType str) =
   unsafePartial $ typeCtor $ typeName gqlScalarsToPursTypes id str
 
-typeName :: Map String QualifiedType ->QualifiedType ->  String -> QualifiedName Proper
+typeName :: Map String QualifiedType -> QualifiedType -> String -> QualifiedName Proper
 typeName gqlScalarsToPursTypes id str =
   lookup str gqlScalarsToPursTypes
     <#> qualifiedTypeToName
     # fromMaybe' \_ -> case pascalCase str of
-        -- "Id" -> "ID"
-        -- "Float" -> "Number"
-        -- "Numeric" -> "Number"
-        -- "Bigint" -> "Number"
-        -- "Smallint" -> "Int"
-        -- "Integer" -> "Int"
-        -- "Int" -> "Int"
-        -- "Int2" -> "Int"
-        -- "Int4" -> "Int"
-        -- "Int8" -> "Int"
-        -- "Text" -> "String"
-        -- "Citext" -> "String"
-        -- "Jsonb" -> "Json"
-        -- "Timestamp" -> "DateTime"
-        -- "Timestamptz" -> "DateTime"
+        "Id" -> qualifiedTypeToName id
+        "Float" -> qualifiy "Number"
+        "Numeric" -> qualifiy "Number"
+        "Bigint" -> qualifiy "Number"
+        "Smallint" -> qualifiy "Int"
+        "Integer" -> qualifiy "Int"
+        "Int" -> qualifiy "Int"
+        "Int2" -> qualifiy "Int"
+        "Int4" -> qualifiy "Int"
+        "Int8" -> qualifiy "Int"
+        "Text" -> qualifiy "String"
+        "Citext" -> qualifiy "String"
+        "Jsonb" -> qualifiedTypeToName
+          { typeName: "Json"
+          , moduleName: "Data.Argonaut.Core"
+          }
+        "Timestamp" -> qualifiedTypeToName
+          { typeName: "DateTime"
+          , moduleName: "Data.DateTime"
+          }
+        "Timestamptz" -> qualifiedTypeToName
+          { typeName: "DateTime"
+          , moduleName: "Data.DateTime"
+          }
         s -> qualifiy s
 
 qualifiy :: String -> QualifiedName Proper
@@ -49,9 +58,9 @@ qualifiy = toQualifiedName <<< Proper
 
 qualifiedTypeToName :: QualifiedType -> QualifiedName Proper
 qualifiedTypeToName { moduleName, typeName } =
-  case moduleName of 
+  case moduleName of
     "" -> qualifiy typeName
-    _ -> 
+    _ ->
       toQualifiedName
         $ Qualified (Just $ ModuleName moduleName)
         $ Proper typeName
@@ -67,7 +76,8 @@ inputValueDefinitionsToPurs gqlScalarsToPursTypes id inputValueDefinitions = uns
 
 inputValueDefinitionToPurs :: Map String QualifiedType -> QualifiedType -> AST.InputValueDefinition -> Tuple String (CST.Type Void)
 inputValueDefinitionToPurs
-  gqlScalarsToPursTypes id
+  gqlScalarsToPursTypes
+  id
   ( AST.InputValueDefinition
       { description
       , name

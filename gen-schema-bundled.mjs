@@ -337,29 +337,29 @@ var apply2 = function(dict) {
 };
 var applyFirst = function(dictApply) {
   var apply1 = apply2(dictApply);
-  var map38 = map(dictApply.Functor0());
+  var map37 = map(dictApply.Functor0());
   return function(a) {
     return function(b) {
-      return apply1(map38($$const)(a))(b);
+      return apply1(map37($$const)(a))(b);
     };
   };
 };
 var applySecond = function(dictApply) {
   var apply1 = apply2(dictApply);
-  var map38 = map(dictApply.Functor0());
+  var map37 = map(dictApply.Functor0());
   return function(a) {
     return function(b) {
-      return apply1(map38($$const(identity2))(a))(b);
+      return apply1(map37($$const(identity2))(a))(b);
     };
   };
 };
 var lift2 = function(dictApply) {
   var apply1 = apply2(dictApply);
-  var map38 = map(dictApply.Functor0());
+  var map37 = map(dictApply.Functor0());
   return function(f) {
     return function(a) {
       return function(b) {
-        return apply1(map38(f)(a))(b);
+        return apply1(map37(f)(a))(b);
       };
     };
   };
@@ -1532,10 +1532,10 @@ var catchError = function(dict) {
 var $$try = function(dictMonadError) {
   var catchError1 = catchError(dictMonadError);
   var Monad0 = dictMonadError.MonadThrow0().Monad0();
-  var map38 = map(Monad0.Bind1().Apply0().Functor0());
+  var map37 = map(Monad0.Bind1().Apply0().Functor0());
   var pure17 = pure(Monad0.Applicative0());
   return function(a) {
-    return catchError1(map38(Right.create)(a))(function($52) {
+    return catchError1(map37(Right.create)(a))(function($52) {
       return pure17(Left.create($52));
     });
   };
@@ -2270,7 +2270,7 @@ var traverseArrayImpl = function() {
     };
   }
   return function(apply6) {
-    return function(map38) {
+    return function(map37) {
       return function(pure17) {
         return function(f) {
           return function(array) {
@@ -2279,14 +2279,14 @@ var traverseArrayImpl = function() {
                 case 0:
                   return pure17([]);
                 case 1:
-                  return map38(array1)(f(array[bot]));
+                  return map37(array1)(f(array[bot]));
                 case 2:
-                  return apply6(map38(array2)(f(array[bot])))(f(array[bot + 1]));
+                  return apply6(map37(array2)(f(array[bot])))(f(array[bot + 1]));
                 case 3:
-                  return apply6(apply6(map38(array3)(f(array[bot])))(f(array[bot + 1])))(f(array[bot + 2]));
+                  return apply6(apply6(map37(array3)(f(array[bot])))(f(array[bot + 1])))(f(array[bot + 2]));
                 default:
                   var pivot = bot + Math.floor((top4 - bot) / 4) * 2;
-                  return apply6(map38(concat2)(go(bot, pivot)))(go(pivot, top4));
+                  return apply6(map37(concat2)(go(bot, pivot)))(go(pivot, top4));
               }
             }
             return go(0, array.length);
@@ -2305,7 +2305,7 @@ var traverse = function(dict) {
 var traversableMaybe = {
   traverse: function(dictApplicative) {
     var pure17 = pure(dictApplicative);
-    var map38 = map(dictApplicative.Apply0().Functor0());
+    var map37 = map(dictApplicative.Apply0().Functor0());
     return function(v) {
       return function(v1) {
         if (v1 instanceof Nothing) {
@@ -2313,7 +2313,7 @@ var traversableMaybe = {
         }
         ;
         if (v1 instanceof Just) {
-          return map38(Just.create)(v(v1.value0));
+          return map37(Just.create)(v(v1.value0));
         }
         ;
         throw new Error("Failed pattern match at Data.Traversable (line 115, column 1 - line 119, column 33): " + [v.constructor.name, v1.constructor.name]);
@@ -2322,14 +2322,14 @@ var traversableMaybe = {
   },
   sequence: function(dictApplicative) {
     var pure17 = pure(dictApplicative);
-    var map38 = map(dictApplicative.Apply0().Functor0());
+    var map37 = map(dictApplicative.Apply0().Functor0());
     return function(v) {
       if (v instanceof Nothing) {
         return pure17(Nothing.value);
       }
       ;
       if (v instanceof Just) {
-        return map38(Just.create)(v.value0);
+        return map37(Just.create)(v.value0);
       }
       ;
       throw new Error("Failed pattern match at Data.Traversable (line 115, column 1 - line 119, column 33): " + [v.constructor.name]);
@@ -7234,10 +7234,10 @@ var traverse1Impl = function() {
     return arr;
   }
   return function(apply6) {
-    return function(map38) {
+    return function(map37) {
       return function(f) {
         var buildFrom = function(x, ys) {
-          return apply6(map38(consList)(f(x)))(ys);
+          return apply6(map37(consList)(f(x)))(ys);
         };
         var go = function(acc, currentLen, xs) {
           if (currentLen === 0) {
@@ -7251,12 +7251,12 @@ var traverse1Impl = function() {
           }
         };
         return function(array) {
-          var acc = map38(finalCell)(f(array[array.length - 1]));
+          var acc = map37(finalCell)(f(array[array.length - 1]));
           var result = go(acc, array.length - 1, array);
           while (result instanceof Cont) {
             result = result.fn();
           }
-          return map38(listToArray)(result);
+          return map37(listToArray)(result);
         };
       };
     };
@@ -52565,6 +52565,75 @@ var typeName = function(gqlScalarsToPursTypes) {
     return function(str) {
       return fromMaybe$prime(function(v) {
         var v1 = pascalCase(str);
+        if (v1 === "Id") {
+          return qualifiedTypeToName(id2);
+        }
+        ;
+        if (v1 === "Float") {
+          return qualifiy("Number");
+        }
+        ;
+        if (v1 === "Numeric") {
+          return qualifiy("Number");
+        }
+        ;
+        if (v1 === "Bigint") {
+          return qualifiy("Number");
+        }
+        ;
+        if (v1 === "Smallint") {
+          return qualifiy("Int");
+        }
+        ;
+        if (v1 === "Integer") {
+          return qualifiy("Int");
+        }
+        ;
+        if (v1 === "Int") {
+          return qualifiy("Int");
+        }
+        ;
+        if (v1 === "Int2") {
+          return qualifiy("Int");
+        }
+        ;
+        if (v1 === "Int4") {
+          return qualifiy("Int");
+        }
+        ;
+        if (v1 === "Int8") {
+          return qualifiy("Int");
+        }
+        ;
+        if (v1 === "Text") {
+          return qualifiy("String");
+        }
+        ;
+        if (v1 === "Citext") {
+          return qualifiy("String");
+        }
+        ;
+        if (v1 === "Jsonb") {
+          return qualifiedTypeToName({
+            typeName: "Json",
+            moduleName: "Data.Argonaut.Core"
+          });
+        }
+        ;
+        if (v1 === "Timestamp") {
+          return qualifiedTypeToName({
+            typeName: "DateTime",
+            moduleName: "Data.DateTime"
+          });
+        }
+        ;
+        if (v1 === "Timestamptz") {
+          return qualifiedTypeToName({
+            typeName: "DateTime",
+            moduleName: "Data.DateTime"
+          });
+        }
+        ;
         return qualifiy(v1);
       })(mapFlipped2(lookup4(str)(gqlScalarsToPursTypes))(qualifiedTypeToName));
     };
@@ -52592,7 +52661,7 @@ var argTypeToPurs = function(gqlScalarsToPursTypes) {
         return wrapNotNull(argNotNullTypeToPurs(gqlScalarsToPursTypes)(id2)(v.value0));
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.UtilCst (line 82, column 42 - line 85, column 112): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.UtilCst (line 92, column 42 - line 95, column 112): " + [v.constructor.name]);
     };
   };
 };
@@ -52607,7 +52676,7 @@ var argNotNullTypeToPurs = function(gqlScalarsToPursTypes) {
         return argListTypeToPurs(gqlScalarsToPursTypes)(id2)(v.value0);
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.UtilCst (line 88, column 49 - line 90, column 77): " + [v.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.UtilCst (line 98, column 49 - line 100, column 77): " + [v.constructor.name]);
     };
   };
 };
@@ -53923,12 +53992,12 @@ var runStateT = function(v) {
   return v;
 };
 var functorStateT = function(dictFunctor) {
-  var map38 = map(dictFunctor);
+  var map37 = map(dictFunctor);
   return {
     map: function(f) {
       return function(v) {
         return function(s) {
-          return map38(function(v1) {
+          return map37(function(v1) {
             return new Tuple(f(v1.value0), v1.value1);
           })(v(s));
         };
@@ -55312,11 +55381,6 @@ var template = function(modulePrefix) {
   };
 };
 
-// output/GraphQL.Client.CodeGen.Template.Schema/index.js
-var template2 = function(v) {
-  return v.mainSchemaCode;
-};
-
 // output/Data.Profunctor.Choice/index.js
 var right = function(dict) {
   return dict.right;
@@ -55608,7 +55672,6 @@ var applyNullableOverrides = function(overrides) {
 };
 
 // output/GraphQL.Client.CodeGen.Schema/index.js
-var map34 = /* @__PURE__ */ map(functorArray);
 var fromFoldable10 = /* @__PURE__ */ fromFoldable3(foldableList);
 var mapFlipped6 = /* @__PURE__ */ mapFlipped(functorList);
 var unwrap9 = /* @__PURE__ */ unwrap();
@@ -55668,15 +55731,15 @@ var encodeJson2 = /* @__PURE__ */ encodeJson(/* @__PURE__ */ encodeRecord(/* @__
 var unions2 = /* @__PURE__ */ unions(ordString)(foldableMap);
 var mapWithIndex4 = /* @__PURE__ */ mapWithIndex(functorWithIndexMap);
 var fromFoldable13 = /* @__PURE__ */ fromFoldable2(ordString)(foldableArray);
-var map115 = /* @__PURE__ */ map(functorMap);
+var map34 = /* @__PURE__ */ map(functorMap);
 var mapFlipped22 = /* @__PURE__ */ mapFlipped(functorArray);
 var compare10 = /* @__PURE__ */ compare(ordString);
 var bind23 = /* @__PURE__ */ bind(bindArray);
 var symbolsToCode2 = /* @__PURE__ */ symbolsToCode(foldableArray);
 var traverse4 = /* @__PURE__ */ traverse(traversableArray)(applicativeAff);
-var map210 = /* @__PURE__ */ map(functorAff);
+var map115 = /* @__PURE__ */ map(functorAff);
 var sequence2 = /* @__PURE__ */ sequence(traversableArray)(applicativeEither);
-var map35 = /* @__PURE__ */ map(functorEither);
+var map210 = /* @__PURE__ */ map(functorEither);
 var gqlToPursMainSchemaCode = function(opts) {
   return function(moduleName) {
     return function(doc) {
@@ -55717,9 +55780,9 @@ var getDocumentEnums = /* @__PURE__ */ function() {
     ;
     return Nothing.value;
   };
-  var $166 = mapMaybe(definitionToEnum);
-  return function($167) {
-    return fromFoldable10($166(unwrap9($167)));
+  var $163 = mapMaybe(definitionToEnum);
+  return function($164) {
+    return fromFoldable10($163(unwrap9($164)));
   };
 }();
 var defaultIdImport = {
@@ -55757,8 +55820,8 @@ var schemaFromGqlToPursWithCache = function(opts) {
       ;
       if (v1 instanceof Just) {
         return bind9(v1.value0.get(stringSchema))(function(jsonMay) {
-          var v2 = bind14(jsonMay)(function($168) {
-            return hush(decodeJson2($168));
+          var v2 = bind14(jsonMay)(function($165) {
+            return hush(decodeJson2($165));
           });
           if (v2 instanceof Nothing) {
             return bind9(go(Nothing.value))(function(eVal) {
@@ -55785,11 +55848,11 @@ var schemaFromGqlToPursWithCache = function(opts) {
             return pure16(new Right(v2.value0));
           }
           ;
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 115, column 5 - line 122, column 35): " + [v2.constructor.name]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 105, column 5 - line 112, column 35): " + [v2.constructor.name]);
         });
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 111, column 3 - line 111, column 70): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 101, column 3 - line 101, column 70): " + [v1.constructor.name]);
     };
     return go(opts.cache);
   };
@@ -55797,7 +55860,7 @@ var schemaFromGqlToPursWithCache = function(opts) {
 var schemasFromGqlToPurs = function(opts_) {
   var fieldTypeOverrides = unions2(mapWithIndex4(function(gqlObjectName) {
     return function(obj) {
-      return fromFoldable13([new Tuple(gqlObjectName, obj), new Tuple(gqlObjectName + "InsertInput", obj), new Tuple(gqlObjectName + "MinFields", obj), new Tuple(gqlObjectName + "MaxFields", obj), new Tuple(gqlObjectName + "SetInput", obj), new Tuple(gqlObjectName + "BoolExp", map115(function(o) {
+      return fromFoldable13([new Tuple(gqlObjectName, obj), new Tuple(gqlObjectName + "InsertInput", obj), new Tuple(gqlObjectName + "MinFields", obj), new Tuple(gqlObjectName + "MaxFields", obj), new Tuple(gqlObjectName + "SetInput", obj), new Tuple(gqlObjectName + "BoolExp", map34(function(o) {
         return {
           typeName: o.typeName + "ComparisonExp",
           moduleName: o.moduleName
@@ -55826,15 +55889,7 @@ var schemasFromGqlToPurs = function(opts_) {
     return {
       schemas: mapFlipped22(pursGqls)(function(pg) {
         return {
-          code: template2({
-            name: pg.moduleName,
-            mainSchemaCode: pg.mainSchemaCode,
-            idImport: opts.idImport,
-            enums: map34(function(v) {
-              return v.name;
-            })(pg.enums),
-            modulePrefix
-          }),
+          code: pg.mainSchemaCode,
           path: opts.dir + ("/Schema/" + (pg.moduleName + ".purs"))
         };
       }),
@@ -55872,11 +55927,11 @@ var schemasFromGqlToPurs = function(opts_) {
       })
     };
   };
-  var $169 = map210(map35(collectSchemas));
-  var $170 = map210(sequence2);
-  var $171 = traverse4(schemaFromGqlToPursWithCache(opts));
-  return function($172) {
-    return $169($170($171($172)));
+  var $166 = map115(map210(collectSchemas));
+  var $167 = map115(sequence2);
+  var $168 = traverse4(schemaFromGqlToPursWithCache(opts));
+  return function($169) {
+    return $166($167($168($169)));
   };
 };
 
@@ -55966,11 +56021,11 @@ var toEither1 = function(dictHasRuntimeType) {
 
 // output/GraphQL.Client.CodeGen.Js/index.js
 var fromFoldableWithIndex2 = /* @__PURE__ */ fromFoldableWithIndex(ordString)(foldableWithIndexObject);
-var map36 = /* @__PURE__ */ map(functorObject);
+var map35 = /* @__PURE__ */ map(functorObject);
 var map116 = /* @__PURE__ */ map(functorMap);
 var map211 = /* @__PURE__ */ map(functorMaybe);
 var mapFlipped7 = /* @__PURE__ */ mapFlipped(functorMaybe);
-var map37 = /* @__PURE__ */ map(functorFn);
+var map36 = /* @__PURE__ */ map(functorFn);
 var map42 = /* @__PURE__ */ map(functorAff);
 var mempty10 = /* @__PURE__ */ mempty(monoidString);
 var monoidRecord2 = /* @__PURE__ */ monoidRecord();
@@ -56028,8 +56083,8 @@ var fromNullable = function(a) {
 var schemasFromGqlToPursJs = /* @__PURE__ */ function() {
   var go = function(optsJs) {
     var opts = {
-      gqlToPursTypes: fromFoldableWithIndex2(map36(fromQualifiedTypeJs)(fromNullable(empty3)(optsJs.gqlToPursTypes))),
-      fieldTypeOverrides: map116(fromFoldableWithIndex2)(fromFoldableWithIndex2(map36(map36(fromQualifiedTypeJs))(fromNullable(empty3)(optsJs.fieldTypeOverrides)))),
+      gqlToPursTypes: fromFoldableWithIndex2(map35(fromQualifiedTypeJs)(fromNullable(empty3)(optsJs.gqlToPursTypes))),
+      fieldTypeOverrides: map116(fromFoldableWithIndex2)(fromFoldableWithIndex2(map35(map35(fromQualifiedTypeJs))(fromNullable(empty3)(optsJs.fieldTypeOverrides)))),
       argTypeOverrides: map116(function() {
         var $68 = map116(function() {
           var $70 = map116(fromQualifiedTypeJs);
@@ -56051,13 +56106,13 @@ var schemasFromGqlToPursJs = /* @__PURE__ */ function() {
       enumValueNameTransform: toMaybe(optsJs.enumValueNameTransform),
       cache: mapFlipped7(toMaybe(optsJs.cache))(function(v) {
         return {
-          get: map37(function() {
+          get: map36(function() {
             var $72 = map42(toMaybe);
             return function($73) {
               return $72(toAff($73));
             };
           }())(v.get),
-          set: map37(toAff)(v.set)
+          set: map36(toAff)(v.set)
         };
       })
     };
