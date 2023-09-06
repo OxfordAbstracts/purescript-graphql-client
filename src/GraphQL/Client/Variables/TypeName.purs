@@ -3,6 +3,7 @@ module GraphQL.Client.Variables.TypeName where
 import Prelude
 
 import Data.Argonaut.Core (Json)
+import Data.Date (Date)
 import Data.Maybe (Maybe)
 import Data.String.CodeUnits (dropRight, takeRight)
 import Data.Symbol (class IsSymbol, reflectSymbol)
@@ -38,11 +39,15 @@ instance varTypeNameMaybe :: VarTypeName a => VarTypeName (Maybe a) where
       else
         inner
 
-data VarTypeNameProps
-  = VarTypeNameProps
+instance VarTypeName Date where
+  varTypeName _ = "date!"
+
+data VarTypeNameProps = VarTypeNameProps
 
 instance varTypeNameProps ::
-  (VarTypeName a, IsSymbol sym) =>
+  ( VarTypeName a
+  , IsSymbol sym
+  ) =>
   FoldingWithIndex VarTypeNameProps (Proxy sym) String a String where
   foldingWithIndex VarTypeNameProps prop str _ = pre <> reflectSymbol prop <> ": " <> varTypeName (Proxy :: _ a)
     where
@@ -50,9 +55,9 @@ instance varTypeNameProps ::
       | str == "" = "$"
       | otherwise = str <> ", $"
 
-varTypeNameRecord ::
-  forall r.
-  HFoldlWithIndex VarTypeNameProps String { | r } String =>
-  { | r } ->
-  String
+varTypeNameRecord
+  :: forall r
+   . HFoldlWithIndex VarTypeNameProps String { | r } String
+  => { | r }
+  -> String
 varTypeNameRecord r = "( " <> hfoldlWithIndex VarTypeNameProps "" r <> " )"
