@@ -23,7 +23,7 @@ instance varTypeNameString :: VarTypeName String where
   varTypeName _ = "String!"
 
 instance varTypeNameJson :: VarTypeName Json where
-  varTypeName _ = "Json!"
+  varTypeName _ = "jsonb!"
 
 instance varTypeNameArray :: VarTypeName a => VarTypeName (Array a) where
   varTypeName _ = "[" <> varTypeName (Proxy :: _ a) <> "]!"
