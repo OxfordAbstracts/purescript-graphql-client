@@ -46,19 +46,19 @@ foreign import data UrqlClient :: Type
 foreign import data UrqlSubClient :: Type
 
 createClient ::
-  forall directives querySchema mutationSchema subscriptionSchema.
-  UrqlClientOptions -> Effect (Client UrqlClient directives querySchema mutationSchema subscriptionSchema)
+  forall schema.
+  UrqlClientOptions -> Effect (Client UrqlClient schema)
 createClient = clientOptsToForeign >>> createClientImpl >>> map Client
 
 createGlobalClientUnsafe ::
-  forall directives querySchema mutationSchema subscriptionSchema.
-  UrqlClientOptions -> Effect (Client UrqlClient directives querySchema mutationSchema subscriptionSchema)
+  forall schema.
+  UrqlClientOptions -> Effect (Client UrqlClient schema)
 createGlobalClientUnsafe = clientOptsToForeign >>> createGlobalClientUnsafeImpl >>> map Client
 
 createSubscriptionClient ::
-  forall directives querySchema mutationSchema subscriptionSchema.
+  forall schema.
   UrqlSubClientOptions ->
-  Effect (Client UrqlSubClient directives querySchema mutationSchema subscriptionSchema)
+  Effect (Client UrqlSubClient schema)
 createSubscriptionClient = clientOptsToForeign >>> createSubscriptionClientImpl >>> map Client
 
 clientOptsToForeign ::

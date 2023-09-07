@@ -22,7 +22,7 @@ main =
       queryGql "Widget names with id 1"
         { widgets: { id: 1 } =>> { name } }
     logShow $ map _.name widgets
-    fullResult  <-
+    fullResult <-
       queryFullRes decodeJson identity client "Widget names with id 1"
         { widgets: { id: 1 } =>> { name } }
 
@@ -31,26 +31,34 @@ main =
     logShow $ isJust fullResult.errors_json
 
 -- Run gql query
-queryGql ::
-  forall query returns.
-  GqlQuery Nil' OpQuery Schema query returns =>
-  DecodeJson returns =>
-  String -> query -> Aff returns
+queryGql
+  :: forall query returns
+   . GqlQuery Nil' OpQuery Schema query returns
+  => DecodeJson returns
+  => String
+  -> query
+  -> Aff returns
 queryGql = query client
 
-client :: Client AffjaxNodeClient Nil' Schema Void Void
+client
+  :: Client AffjaxNodeClient
+       { directives :: Proxy Nil'
+       , query :: Schema
+       , mutation :: Void
+       , subscription :: Void
+       }
 client = (Client $ AffjaxNodeClient "http://localhost:4000/graphql" [])
 
 -- Schema
-type Schema
-  = { prop :: String
-    , widgets :: { id :: Int } -> Array Widget
-    }
+type Schema =
+  { prop :: String
+  , widgets :: { id :: Int } -> Array Widget
+  }
 
-type Widget
-  = { name :: String
-    , id :: Int
-    }
+type Widget =
+  { name :: String
+  , id :: Int
+  }
 
 -- Symbols
 prop :: Proxy "prop"

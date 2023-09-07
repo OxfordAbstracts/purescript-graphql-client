@@ -38,8 +38,8 @@ instance queriable ::
   ) =>
   GqlQuery directives op schema query returns
 
-newtype Client :: forall k1 k2 k3 k4. Type -> k1 -> k2 -> k3 -> k4 -> Type
-newtype Client baseClient directives querySchema mutationSchema subscriptionSchema = Client baseClient
+newtype Client :: Type -> Type -> Type
+newtype Client baseClient schema = Client baseClient
 
 -- | A type class for making a graphql request client.
 -- | Apollo, urql and xhr2/Affjax baseClients are provided.

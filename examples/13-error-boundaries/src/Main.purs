@@ -60,7 +60,7 @@ queryGql name_ q = do
           { url: "http://localhost:4000/graphql"
           , headers: []
           }
-  queryFullRes decodeJson identity (client :: Client UrqlClient Nil' Schema _ _) name_ q
+  queryFullRes decodeJson identity (client :: Client UrqlClient { directives :: Proxy Nil', query :: Schema | _ }) name_ q
 
 -- Schema
 type Schema =
