@@ -6,7 +6,9 @@ import Data.Argonaut.Core (Json)
 import Data.Maybe (Maybe)
 import Data.String.CodeUnits (dropRight, takeRight)
 import Data.Symbol (class IsSymbol, reflectSymbol)
+import GraphQL.Client.GqlType (class BoolRuntime, class GqlType, printGqlType)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
+import Literals (BooleanLit)
 import Type.Proxy (Proxy(..))
 
 class VarTypeName :: forall k. k -> Constraint
@@ -41,21 +43,24 @@ instance varTypeNameMaybe :: VarTypeName a => VarTypeName (Maybe a) where
       else
         inner
 
-data VarTypeNameProps
-  = VarTypeNameProps
+data VarTypeNameProps = VarTypeNameProps
 
 instance varTypeNameProps ::
-  (VarTypeName a, IsSymbol sym) =>
+  ( GqlType a gqlName nullable
+  , BoolRuntime nullable
+  , IsSymbol sym
+  , IsSymbol gqlName
+  ) =>
   FoldingWithIndex VarTypeNameProps (Proxy sym) String a String where
-  foldingWithIndex VarTypeNameProps prop str _ = pre <> reflectSymbol prop <> ": " <> varTypeName (Proxy :: _ a)
+  foldingWithIndex VarTypeNameProps prop str _ = pre <> reflectSymbol prop <> ": " <> printGqlType (Proxy :: _ a)
     where
     pre
       | str == "" = "$"
       | otherwise = str <> ", $"
 
-varTypeNameRecord ::
-  forall r.
-  HFoldlWithIndex VarTypeNameProps String { | r } String =>
-  { | r } ->
-  String
+varTypeNameRecord
+  :: forall r
+   . HFoldlWithIndex VarTypeNameProps String { | r } String
+  => { | r }
+  -> String
 varTypeNameRecord r = "( " <> hfoldlWithIndex VarTypeNameProps "" r <> " )"

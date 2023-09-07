@@ -11,6 +11,7 @@ import GraphQL.Client.Args (class SatisifyNotNullParam, ArgPropToGql, Args(..))
 import GraphQL.Client.Directive (ApplyDirective)
 import GraphQL.Client.ErrorBoundary (BoundaryResult, ErrorBoundary)
 import GraphQL.Client.ErrorBoundary as ErrorBoundary
+import GraphQL.Client.GqlType (class GqlType, AsGql)
 import GraphQL.Client.Union (GqlUnion, UnionReturned)
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars)
@@ -35,9 +36,10 @@ class QueryReturns schema query returns | schema query -> returns where
 
 instance queryReturnsWithVars :: QueryReturns a q t => QueryReturns a (WithVars q vars) t where
   queryReturnsImpl a _ = queryReturnsImpl a (undefined :: q)
-
 else instance queryReturnsVar :: QueryReturns a q t => QueryReturns a (Var name q) t where
   queryReturnsImpl a _ = queryReturnsImpl a (undefined :: q)
+else instance queryReturnsGqlType :: QueryReturns a q t => QueryReturns (AsGql gql a) q t where
+  queryReturnsImpl _ q = queryReturnsImpl (undefined :: a) q
 else instance queryReturnsApplyDirective :: QueryReturns a q t => QueryReturns a (ApplyDirective name args q) t where
   queryReturnsImpl a _ = queryReturnsImpl a (undefined :: q)
 else instance queryReturnErrorBoundary :: QueryReturns a q t => QueryReturns a (ErrorBoundary q) (BoundaryResult Unit t) where

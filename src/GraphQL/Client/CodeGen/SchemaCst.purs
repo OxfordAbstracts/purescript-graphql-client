@@ -31,7 +31,7 @@ import GraphQL.Client.CodeGen.UtilCst (qualifiedTypeToName)
 import Partial.Unsafe (unsafePartial)
 import PureScript.CST.Types (Module, Proper, QualifiedName)
 import PureScript.CST.Types as CST
-import Tidy.Codegen (declDerive, declNewtype, declType, docComments, leading, lineComments, typeApp, typeArrow, typeCtor, typeRecord, typeRecordEmpty, typeRow, typeWildcard)
+import Tidy.Codegen (declDerive, declNewtype, declType, docComments, leading, lineComments, typeApp, typeArrow, typeCtor, typeRecord, typeRecordEmpty, typeRow, typeString, typeWildcard)
 import Tidy.Codegen.Class (class OverLeadingComments, class ToModuleName, class ToToken, toQualifiedName)
 import Tidy.Codegen.Monad (CodegenT, codegenModule, importClass, importFrom, importType)
 import Tidy.Codegen.Types (Qualified)
@@ -48,6 +48,8 @@ gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides
       { notNull: importType "NotNull"
       }
     gqlUnion <- importFrom "GraphQL.Client.Union" (importType "GqlUnion")
+    asGql <- importFrom "GraphQL.Client.GqlType" (importType "AsGql")
+    falseT <- importFrom "Prim.Boolean" (importType "False")
     id <- case idImport of
       Nothing -> importFrom "GraphQL.Client.ID" (importType "ID")
       Just idImport_ -> importFrom idImport_.moduleName (importType idImport_.typeName)
@@ -244,7 +246,11 @@ gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides
 
       getPursTypeName = namedTypeToPurs gqlToPursTypesMs id
 
-      pursTypeCtr = typeCtor <<< getPursTypeName
+      pursTypeCtr gqlT =
+        annotateGqlType gqlT $ typeCtor $ getPursTypeName gqlT
+
+      annotateGqlType gqlT pursT =
+        typeApp (typeCtor asGql) [ typeString $ unwrap gqlT, pursT ]
 
       typeToPurs :: AST.Type -> CST.Type Void
       typeToPurs = case _ of
@@ -276,7 +282,7 @@ gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides
       argTypeToPurs objectName fieldName argName tipe = case tipe of
         (AST.Type_NamedType namedType) -> case lookup objectName argTypeOverridesMs >>= lookup fieldName >>= lookup argName of
           Nothing -> pursTypeCtr namedType
-          Just out -> typeCtor out
+          Just out -> annotateGqlType namedType $ typeCtor out
         (AST.Type_ListType listType) -> argListTypeToPurs objectName fieldName argName listType
         (AST.Type_NonNullType notNullType) -> wrapNotNull $ argNotNullTypeToPurs objectName fieldName argName notNullType
 
@@ -284,7 +290,7 @@ gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides
       argNotNullTypeToPurs objectName fieldName argName = case _ of
         AST.NonNullType_NamedType t -> case lookup objectName argTypeOverridesMs >>= lookup fieldName >>= lookup argName of
           Nothing -> pursTypeCtr t
-          Just out -> typeCtor out
+          Just out -> annotateGqlType t $ typeCtor out
         AST.NonNullType_ListType t -> argListTypeToPurs objectName fieldName argName t
 
       argListTypeToPurs :: String -> String -> String -> AST.ListType -> CST.Type Void

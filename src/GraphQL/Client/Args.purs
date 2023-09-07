@@ -9,6 +9,7 @@ import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import Data.Symbol (class IsSymbol)
 import Data.Time (Time)
+import GraphQL.Client.GqlType (AsGql)
 import GraphQL.Client.NullArray (NullArray)
 import GraphQL.Client.Variable (Var)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex)
@@ -71,6 +72,7 @@ else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
 else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
 else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
 else instance argVar :: ArgGql param arg => ArgGql param (Var sym arg)
+else instance argAsGql :: ArgGql param arg => ArgGql (AsGql gqlName param) arg
 else instance argToGqlRecord :: RecordArg p a u => ArgGql { | p } { | a }
 else instance argToGqlNewtypeRecord :: (Newtype n {| p},  RecordArg p a u) => ArgGql n { | a }
 class IsNotNull :: forall k1 k2. k1 -> k2 -> Constraint

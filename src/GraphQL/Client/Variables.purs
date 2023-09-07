@@ -4,7 +4,7 @@ module GraphQL.Client.Variables
   , GetVarRec
   , WithVars
   , getVarsJson
-  , getVarsTypeNames 
+  , getVarsTypeNames
   , getQuery
   , getQueryVars
   , getVar
@@ -23,6 +23,7 @@ import GraphQL.Client.Alias (Alias)
 import GraphQL.Client.Alias.Dynamic (Spread)
 import GraphQL.Client.Args (AndArg, Args, OrArg)
 import GraphQL.Client.Directive (ApplyDirective(..))
+import GraphQL.Client.GqlType (AsGql)
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables.TypeName (VarTypeNameProps, varTypeNameRecord)
 import Heterogeneous.Folding (class Folding, class HFoldl, class HFoldlWithIndex, hfoldl)
@@ -50,6 +51,11 @@ else instance getVarMaybe ::
   ( GetVar a { | vars }
   ) =>
   GetVar (Maybe a) { | vars } where
+  getVar _ = getVar (Proxy :: _ a)
+else instance getVarAsGql ::
+  ( GetVar a { | vars }
+  ) =>
+  GetVar (AsGql sym a) { | vars } where
   getVar _ = getVar (Proxy :: _ a)
 else instance getVarArray ::
   ( GetVar a { | vars }
@@ -131,15 +137,14 @@ else instance getVarOrArg ::
       lift2 Record.merge varL varR
 else instance getVarRecord ::
   ( HFoldl GetVarRec (Proxy {}) { | query } (Proxy { | var })
-    ) =>
+  ) =>
   GetVar { | query } { | var } where
   getVar q = q >>= \query -> hfoldl GetVarRec (Proxy :: _ {}) (query :: { | query })
 else instance getVarSkip :: GetVar a {} where
   getVar _ = Proxy
 
 -- | Get variables from a record, recursively
-data GetVarRec
-  = GetVarRec
+data GetVarRec = GetVarRec
 
 instance getVarRec ::
   ( GetVar val { | subRes }
@@ -154,25 +159,28 @@ getQueryVars :: forall query vars. GetVar query vars => query -> Proxy vars
 getQueryVars _ = getVar (Proxy :: _ query)
 
 data WithVars :: forall k. Type -> k -> Type
-data WithVars query vars
-  = WithVars query String Json
+data WithVars query vars = WithVars query String Json
 
 -- | Add variables to a query with a custom encoder
-withVarsEncode ::
-  forall query vars.
-  HFoldlWithIndex VarTypeNameProps String {|vars} String =>
-  HFoldl GetVarRec (Proxy {}) query (Proxy {|vars}) =>
-  ({|vars} -> Json) ->
-  query -> {|vars} -> WithVars query {|vars}
+withVarsEncode
+  :: forall query vars
+   . HFoldlWithIndex VarTypeNameProps String { | vars } String
+  => HFoldl GetVarRec (Proxy {}) query (Proxy { | vars })
+  => ({ | vars } -> Json)
+  -> query
+  -> { | vars }
+  -> WithVars query { | vars }
 withVarsEncode encode query vars = WithVars query (varTypeNameRecord vars) $ encode vars
 
 -- | Add variables to a query
-withVars ::
-  forall query vars.
-  HFoldlWithIndex VarTypeNameProps String {|vars} String =>
-  HFoldl GetVarRec (Proxy {}) query (Proxy {|vars}) =>
-  EncodeJson {|vars} =>
-  query -> {|vars} -> WithVars query {|vars}
+withVars
+  :: forall query vars
+   . HFoldlWithIndex VarTypeNameProps String { | vars } String
+  => HFoldl GetVarRec (Proxy {}) query (Proxy { | vars })
+  => EncodeJson { | vars }
+  => query
+  -> { | vars }
+  -> WithVars query { | vars }
 withVars = withVarsEncode encodeJson
 
 getQuery :: forall query vars. WithVars query vars -> query
@@ -180,14 +188,14 @@ getQuery (WithVars query _ _) = query
 
 class VarsTypeChecked query where
   getVarsJson :: query -> Json
-  getVarsTypeNames :: query -> String 
+  getVarsTypeNames :: query -> String
 
 instance varsTypeCheckedWithVars :: VarsTypeChecked (WithVars query vars) where
   getVarsJson (WithVars _ _ json) = json
   getVarsTypeNames (WithVars _ varsTypeNames _) = varsTypeNames
 else instance varsTypeCheckedApplyDirective ::
   GetVar { | query } {} =>
-  VarsTypeChecked (ApplyDirective name args {|query}) where
+  VarsTypeChecked (ApplyDirective name args { | query }) where
   getVarsJson (ApplyDirective _ _) = jsonEmptyObject
   getVarsTypeNames _ = ""
 else instance varsTypeCheckedWithoutVars ::
@@ -197,7 +205,7 @@ else instance varsTypeCheckedWithoutVars ::
   getVarsTypeNames _ = ""
 
 else instance varsTypeCheckedSpread ::
-  GetVar (Spread alias arg fields)  {} =>
+  GetVar (Spread alias arg fields) {} =>
   VarsTypeChecked (Spread alias arg fields) where
   getVarsJson _ = jsonEmptyObject
   getVarsTypeNames _ = ""
