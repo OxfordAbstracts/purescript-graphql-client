@@ -12,17 +12,18 @@ import Data.Array as Array
 import Data.CodePoint.Unicode (isLower)
 import Data.Filterable (class Filterable, filter)
 import Data.GraphQL.AST as AST
-import Data.List (List(..), mapMaybe, (:))
+import Data.List (List(..), any, mapMaybe, (:))
 import Data.List as List
 import Data.Map (Map, lookup)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe', maybe)
+import Data.Monoid (guard)
 import Data.Newtype (unwrap, wrap)
 import Data.String (codePointFromChar)
 import Data.String as String
 import Data.String.CodeUnits (charAt)
 import Data.String.Extra (pascalCase)
-import Data.Traversable (class Traversable, for, traverse)
+import Data.Traversable (class Foldable, class Traversable, for, traverse)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (none)
 import GraphQL.Client.CodeGen.Types (InputOptions, GqlEnum)
@@ -35,9 +36,12 @@ import Tidy.Codegen.Class (class OverLeadingComments, class ToModuleName, class 
 import Tidy.Codegen.Monad (CodegenT, codegenModule, importClass, importFrom, importType)
 import Tidy.Codegen.Types (Qualified)
 
-gqlToPursSchema :: InputOptions -> String -> AST.Document -> Array GqlEnum -> Module Void
-gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides, useNewtypesForRecords } mName doc enums = do
+gqlToPursSchema :: InputOptions -> String -> String -> AST.Document -> Array GqlEnum -> Module Void
+gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides, useNewtypesForRecords } directivesMName mName (AST.Document defs) enums = do
   unsafePartial $ codegenModule mName do
+    directives <- importFrom directivesMName (importType "Directives")
+    voidT <- importFrom "Data.Void" (importType "Void")
+    proxyT <- importFrom "Type.Proxy" (importType "Proxy")
     maybe_ <- importFrom "Data.Maybe" (importType "Maybe")
     newType <- importFrom "Data.Newtype" (importClass "Newtype")
     argsM <- importFrom "GraphQL.Client.Args"
@@ -289,10 +293,30 @@ gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides
 
       wrapNotNull s = typeApp (typeCtor argsM.notNull) [ s ]
 
+      -- definitions = unwrap doc
+
+      declarations = defs
+        >>= definitionToPurs
+        # Array.fromFoldable
+
+      hasMutation = hasRootOp defs AST.Mutation
+      hasSubscription = hasRootOp defs AST.Subscription
+
+      schema = declType "Schema" [] $ typeRecord
+        [ Tuple "directives" $ typeApp (typeCtor proxyT) [ typeCtor directives ]
+        , Tuple "query" $ typeCtor "Query"
+        , Tuple "mutation" $ if hasMutation then typeCtor "Mutation" else typeCtor voidT
+        , Tuple "subscription" $ if hasSubscription then typeCtor "Subscription" else typeCtor voidT
+        ]
+        Nothing
     tell
-      $ unwrap doc
-          >>= definitionToPurs
-          # Array.fromFoldable
+      $ [ schema ] <> declarations
+
+hasRootOp :: forall f. Foldable f => f AST.Definition -> AST.OperationType -> Boolean
+hasRootOp defs op = defs # any case _ of
+  AST.Definition_TypeSystemDefinition (AST.TypeSystemDefinition_SchemaDefinition (AST.SchemaDefinition d)) ->
+    d.rootOperationTypeDefinition # any (unwrap >>> _.operationType >>> eq op)
+  _ -> false
 
 genImports
   :: forall f e m name r

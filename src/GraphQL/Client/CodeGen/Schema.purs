@@ -120,10 +120,11 @@ schemaFromGqlToPurs opts { schema, moduleName } =
       let
         symbols = Array.fromFoldable $ getSymbols ast
         enums = getDocumentEnums ast
+        directivesModuleName = modulePrefix <> "Directives." <> moduleName
       in
-        { mainSchemaCode: gqlToPursMainSchemaCode opts (modulePrefix <> "Schema." <> moduleName) ast enums
+        { mainSchemaCode: gqlToPursMainSchemaCode opts directivesModuleName (modulePrefix <> "Schema." <> moduleName) ast enums
         , enums
-        , directives: getDocumentDirectivesPurs opts.gqlToPursTypes (fromMaybe defaultIdImport opts.idImport) (modulePrefix <> "Directives." <> moduleName) ast
+        , directives: getDocumentDirectivesPurs opts.gqlToPursTypes (fromMaybe defaultIdImport opts.idImport) directivesModuleName ast
         , symbols
         , moduleName
         }
@@ -134,9 +135,9 @@ schemaFromGqlToPurs opts { schema, moduleName } =
 defaultIdImport :: QualifiedType
 defaultIdImport = { typeName: "ID", moduleName: "GraphQL.Client.ID" }
 
-gqlToPursMainSchemaCode :: InputOptions -> String -> AST.Document -> Array GqlEnum -> String
-gqlToPursMainSchemaCode opts moduleName doc enums =
-  printModule $ gqlToPursSchema opts moduleName doc enums
+gqlToPursMainSchemaCode :: InputOptions -> String ->String ->  AST.Document -> Array GqlEnum -> String
+gqlToPursMainSchemaCode opts directiveModuleName moduleName doc enums =
+  printModule $ gqlToPursSchema opts directiveModuleName moduleName doc enums
 
 getDocumentEnums :: AST.Document -> Array GqlEnum
 getDocumentEnums = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable

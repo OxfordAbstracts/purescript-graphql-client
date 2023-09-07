@@ -1,5 +1,5 @@
 {
-  "name": "3-comments",
+  "name": "2-comments",
   "version": "1.0.0",
   "description": "Handle comments in with code gen.",
   "main": "server.js",

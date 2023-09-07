@@ -18,7 +18,7 @@ import GraphQL.Client.CodeGen.UtilCst (inputValueDefinitionToPurs)
 import Partial.Unsafe (unsafePartial)
 import PureScript.CST.Types (Declaration)
 import PureScript.CST.Types as CST
-import Tidy.Codegen (binaryOp, declImport, declSignature, declType, declValue, exprApp, exprCtor, exprIdent, exprTyped, importType, importTypeAll, importTypeOp, importValue, module_, printModule, typeApp, typeArrow, typeCtor, typeForall, typeOp, typeRecord, typeString, typeVar, typeWildcard)
+import Tidy.Codegen (binaryOp, declImport, declSignature, declType, declTypeSignature, declValue, exprApp, exprCtor, exprIdent, exprTyped, importType, importTypeAll, importTypeOp, importValue, module_, printModule, typeApp, typeArrow, typeCtor, typeForall, typeOp, typeRecord, typeString, typeVar, typeWildcard)
 
 getDocumentDirectivesPurs :: Map String QualifiedType -> QualifiedType -> String -> AST.Document -> String
 getDocumentDirectivesPurs gqlScalarsToPursTypes id moduleName (AST.Document defs) =
@@ -34,13 +34,14 @@ getDocumentDirectivesPurs gqlScalarsToPursTypes id moduleName (AST.Document defs
     , declImport "GraphQL.Client.Directive.Definition" [ importType "Directive" ]
     , declImport "GraphQL.Client.Directive.Location" [ importType "MUTATION", importType "QUERY", importType "SUBSCRIPTION" ]
     , declImport "GraphQL.Client.Operation" [ importTypeAll "OpMutation", importTypeAll "OpQuery", importTypeAll "OpSubscription" ]
-    , declImport "Type.Data.List" [ importTypeOp ":>", importType "Nil'" ]
+    , declImport "Type.Data.List" [ importTypeOp ":>", importType "List'", importType "Nil'" ]
     , declImport "Type.Proxy" [ importTypeAll "Proxy" ]
     ]
 
   decls :: Array (Declaration Void)
   decls = unsafePartial $
-    [ declType "Directives" [] directiveDefinitionsPurs
+    [ declTypeSignature "Directives" $ typeApp (typeCtor "List'") [ typeCtor "Type" ]
+    , declType "Directives" [] directiveDefinitionsPurs
     ]
       <>
         directiveAppliers
