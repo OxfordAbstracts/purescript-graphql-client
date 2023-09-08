@@ -51,9 +51,8 @@ import GraphQL.Client.Args (class ArgGql)
 import GraphQL.Client.ToGqlString (class GqlArgString)
 import GraphQL.Hasura.Decode (class DecodeHasura)
 import GraphQL.Hasura.Encode (class EncodeHasura)
-import GraphQL.Client.Variables.TypeName (class VarTypeName)
 import GraphQL.Client.GqlType (class GqlType)
-import Prim.Boolean (False)
+import Prim.Boolean (True)
 """
     <> intercalate "\n" imports
     <> """
@@ -133,22 +132,13 @@ instance encodeHasura"""
     <> """ where 
   encodeHasura = encodeJson
 
-instance varTypeName"""
-    <> name
-    <> """ :: VarTypeName """
-    <> name
-    <> """ where 
-  varTypeName _ = """
-    <> show (name <> "!")
-    <> """
-
 instance gqlName"""
     <> name
     <> """ :: GqlType """
     <> name
     <> " "
     <> show name 
-    <> """ False
+    <> """ True
 
 instance show"""
     <> name

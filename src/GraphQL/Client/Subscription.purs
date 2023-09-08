@@ -12,7 +12,7 @@ import GraphQL.Client.ToGqlString (toGqlQueryString)
 import GraphQL.Client.Types (class GqlQuery, class SubscriptionClient, Client(..), GqlRes, GqlResJson(..), subscriptionEventOpts)
 import GraphQL.Client.Variables (getVarsJson)
 import Halogen.Subscription (Emitter)
-import Type.Proxy (Proxy)
+import Type.Proxy (Proxy(..))
 
 subscriptionOpts
   :: forall a returns query schema client directives opts
@@ -37,7 +37,7 @@ subscriptionOptsWithDecoder
   -> query
   -> Emitter (Either JsonDecodeError returns)
 subscriptionOptsWithDecoder decodeFn optsF (Client client) queryNameUnsafe q =
-  subscriptionEventOpts optsF client query (getVarsJson q)
+  subscriptionEventOpts optsF client query (getVarsJson (Proxy :: _ schema) q)
     <#> decodeGqlRes decodeFn
   where
   queryName = safeQueryName queryNameUnsafe
@@ -94,7 +94,7 @@ subscriptionJson
   -> subscription
   -> Emitter (GqlResJson schema subscription returns)
 subscriptionJson optsF (Client client) queryNameUnsafe q =
-  GqlResJson <$> subscriptionEventOpts optsF client query (getVarsJson q)
+  GqlResJson <$> subscriptionEventOpts optsF client query (getVarsJson (Proxy :: _ schema) q)
   where
   queryName = safeQueryName queryNameUnsafe
 

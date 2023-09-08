@@ -101,7 +101,7 @@ query = queryWithDecoder decodeJson
 -- | A create client and query shortcut that creates a global client and caches it for future calls. 
 -- | `query` is a safer option for production environments and should generally be used
 query_
-  :: forall directives schema query returns 
+  :: forall directives schema query returns
    . GqlQuery directives OpQuery schema query returns
   => DecodeJson returns
   => URL
@@ -190,7 +190,7 @@ runQuery
   :: forall client directives schema query returns qOpts mOpts
    . QueryClient client qOpts mOpts
   => GqlQuery directives OpQuery schema query returns
-  => VarsTypeChecked query
+  => VarsTypeChecked schema query
   => (Json -> Either JsonDecodeError returns)
   -> qOpts
   -> client
@@ -200,7 +200,8 @@ runQuery
   -> Aff returns
 runQuery decodeFn opts client _ queryNameUnsafe q =
   addErrorInfo queryName q do
-    json <- clientQuery opts client queryName (getVarsTypeNames q <> toGqlQueryString q) (getVarsJson q)
+    json <- clientQuery opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
+      (getVarsJson (Proxy :: _ schema) q)
     decodeJsonData decodeFn json
   where
   queryName = safeQueryName queryNameUnsafe
@@ -218,7 +219,8 @@ runMutation
   -> Aff returns
 runMutation decodeFn opts client _ queryNameUnsafe q =
   addErrorInfo queryName q do
-    json <- clientMutation opts client queryName (getVarsTypeNames q <> toGqlQueryString q) (getVarsJson q)
+    json <- clientMutation opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
+      (getVarsJson (Proxy :: _ schema) q)
     decodeJsonData decodeFn json
   where
   queryName = safeQueryName queryNameUnsafe
@@ -293,7 +295,9 @@ queryJson
   -> query
   -> Aff (GqlResJson schema query returns)
 queryJson optsF (Client client) queryNameUnsafe q =
-  GqlResJson <$> clientQuery opts client queryName (getVarsTypeNames q <> toGqlQueryString q) (getVarsJson q)
+  GqlResJson <$>
+    clientQuery opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
+      (getVarsJson (Proxy :: _ schema) q)
   where
   opts = optsF (defQueryOpts client)
   queryName = safeQueryName queryNameUnsafe
@@ -329,7 +333,8 @@ mutationJson
   -> mutation
   -> Aff (GqlResJson schema mutation returns)
 mutationJson optsF (Client client) queryNameUnsafe q =
-  GqlResJson <$> clientMutation opts client queryName (getVarsTypeNames q <> toGqlQueryString q) (getVarsJson q)
+  GqlResJson <$> clientMutation opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
+    (getVarsJson (Proxy :: _ schema) q)
   where
   opts = optsF (defMutationOpts client)
 

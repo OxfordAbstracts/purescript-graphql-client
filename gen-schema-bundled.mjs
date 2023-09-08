@@ -55116,13 +55116,13 @@ var gqlToPursSchema = function(v) {
                                           return typeCtor4(voidT);
                                         }())])(Nothing.value));
                                         var getPursTypeName = namedTypeToPurs2(gqlToPursTypesMs)(id2);
-                                        var namedTypeToPursNullable = function($269) {
-                                          return wrapMaybe(typeCtor4(getPursTypeName($269)));
-                                        };
                                         var annotateGqlType = function(gqlT) {
                                           return function(pursT) {
                                             return typeApp(typeCtor4(asGql))([typeString(unwrap8(gqlT)), pursT]);
                                           };
+                                        };
+                                        var namedTypeToPursNullable = function(t) {
+                                          return wrapMaybe(annotateGqlType(t)(typeCtor4(getPursTypeName(t))));
                                         };
                                         var pursTypeCtr = function(gqlT) {
                                           return annotateGqlType(gqlT)(typeCtor4(getPursTypeName(gqlT)));
@@ -55236,9 +55236,9 @@ var gqlToPursSchema = function(v) {
                                           return function(v3) {
                                             var tName = pascalCase(v3.name);
                                             var record = maybe(typeRecordEmpty)(function() {
-                                              var $270 = inputValueToFieldsDefinitionToPurs(tName)(fieldName);
-                                              return function($271) {
-                                                return $270(unwrap8($271));
+                                              var $269 = inputValueToFieldsDefinitionToPurs(tName)(fieldName);
+                                              return function($270) {
+                                                return $269(unwrap8($270));
                                               };
                                             }())(v3.inputFieldsDefinition);
                                             return new Cons(comment1(v3.description)(declNewtype2(tName)([])(tName)(record)), new Cons(declDerive2(Nothing.value)([])(tName)([typeCtor12(tName), typeWildcard]), Nil.value));
@@ -55492,10 +55492,10 @@ var template = function(modulePrefix) {
       };
       return intercalate7("\n    ")(zipWith2(makeFromEnum)(v.values)(ints));
     }();
-    return "module " + (modulePrefix + ("Schema." + (v.schemaName + (".Enum." + (v.name + (" where\n\nimport Prelude\n\nimport Data.Argonaut.Decode (class DecodeJson, JsonDecodeError(..), decodeJson)\nimport Data.Argonaut.Encode (class EncodeJson, encodeJson)\nimport Data.Bounded (class Bounded)\nimport Data.Enum (class Enum, class BoundedEnum, Cardinality(..))\nimport Data.Either (Either(..))\nimport Data.Function (on)\nimport Data.Maybe (Maybe(..))\nimport GraphQL.Client.Args (class ArgGql)\nimport GraphQL.Client.ToGqlString (class GqlArgString)\nimport GraphQL.Hasura.Decode (class DecodeHasura)\nimport GraphQL.Hasura.Encode (class EncodeHasura)\nimport GraphQL.Client.Variables.TypeName (class VarTypeName)\nimport GraphQL.Client.GqlType (class GqlType)\nimport Prim.Boolean (False)\n" + (intercalate7("\n")(v.imports) + ("\n\n" + (docComment2(v.description) + ("data " + (v.name + (" \n  = " + (enumCtrs + ("\n" + (v.customCode({
+    return "module " + (modulePrefix + ("Schema." + (v.schemaName + (".Enum." + (v.name + (" where\n\nimport Prelude\n\nimport Data.Argonaut.Decode (class DecodeJson, JsonDecodeError(..), decodeJson)\nimport Data.Argonaut.Encode (class EncodeJson, encodeJson)\nimport Data.Bounded (class Bounded)\nimport Data.Enum (class Enum, class BoundedEnum, Cardinality(..))\nimport Data.Either (Either(..))\nimport Data.Function (on)\nimport Data.Maybe (Maybe(..))\nimport GraphQL.Client.Args (class ArgGql)\nimport GraphQL.Client.ToGqlString (class GqlArgString)\nimport GraphQL.Hasura.Decode (class DecodeHasura)\nimport GraphQL.Hasura.Encode (class EncodeHasura)\nimport GraphQL.Client.GqlType (class GqlType)\nimport Prim.Boolean (True)\n" + (intercalate7("\n")(v.imports) + ("\n\n" + (docComment2(v.description) + ("data " + (v.name + (" \n  = " + (enumCtrs + ("\n" + (v.customCode({
       name: v.name,
       values: valuesAndTransforms
-    }) + ("\n\ninstance eq" + (v.name + (" :: Eq " + (v.name + (" where \n  eq = eq `on` show\n\ninstance ord" + (v.name + (" :: Ord " + (v.name + (" where\n  compare = compare `on` show\n\ninstance argToGql" + (v.name + (" :: ArgGql " + (v.name + (" " + (v.name + ("\n\ninstance gqlArgString" + (v.name + (" :: GqlArgString " + (v.name + (" where\n  toGqlArgStringImpl = show\n\ninstance decodeJson" + (v.name + (" :: DecodeJson " + (v.name + (" where\n  decodeJson = decodeJson >=> case _ of \n" + (decodeMember + ('\n    s -> Left $ TypeMismatch $ "Not a ' + (v.name + (': " <> s\n\ninstance encodeJson' + (v.name + (" :: EncodeJson " + (v.name + (" where \n  encodeJson = show >>> encodeJson\n\ninstance decdoeHasura" + (v.name + (" :: DecodeHasura " + (v.name + (" where \n  decodeHasura = decodeJson\n\ninstance encodeHasura" + (v.name + (" :: EncodeHasura " + (v.name + (" where \n  encodeHasura = encodeJson\n\ninstance varTypeName" + (v.name + (" :: VarTypeName " + (v.name + (" where \n  varTypeName _ = " + (show12(v.name + "!") + ("\n\ninstance gqlName" + (v.name + (" :: GqlType " + (v.name + (" " + (show12(v.name) + (" False\n\ninstance show" + (v.name + (" :: Show " + (v.name + (" where\n  show a = case a of \n" + (showMember + ("\n\ninstance enum" + (v.name + (" :: Enum " + (v.name + (" where\n  succ a = case a of \n    " + (succMembers + ("\n  pred a = case a of \n    " + (predMembers + ("\n\ninstance bounded" + (v.name + (" :: Bounded " + (v.name + (" where\n  top = " + (enumValueName(v1.head) + ("\n  bottom = " + (enumValueName(v2.last) + ("\n\ninstance boundedEnum" + (v.name + (" :: BoundedEnum " + (v.name + (" where\n  cardinality = Cardinality " + (show4(length3(v.values)) + ("\n  toEnum a = case a of\n    " + (toEnumMembers + ("\n  fromEnum a = case a of\n    " + (fromEnumMembers + "\n\n")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+    }) + ("\n\ninstance eq" + (v.name + (" :: Eq " + (v.name + (" where \n  eq = eq `on` show\n\ninstance ord" + (v.name + (" :: Ord " + (v.name + (" where\n  compare = compare `on` show\n\ninstance argToGql" + (v.name + (" :: ArgGql " + (v.name + (" " + (v.name + ("\n\ninstance gqlArgString" + (v.name + (" :: GqlArgString " + (v.name + (" where\n  toGqlArgStringImpl = show\n\ninstance decodeJson" + (v.name + (" :: DecodeJson " + (v.name + (" where\n  decodeJson = decodeJson >=> case _ of \n" + (decodeMember + ('\n    s -> Left $ TypeMismatch $ "Not a ' + (v.name + (': " <> s\n\ninstance encodeJson' + (v.name + (" :: EncodeJson " + (v.name + (" where \n  encodeJson = show >>> encodeJson\n\ninstance decdoeHasura" + (v.name + (" :: DecodeHasura " + (v.name + (" where \n  decodeHasura = decodeJson\n\ninstance encodeHasura" + (v.name + (" :: EncodeHasura " + (v.name + (" where \n  encodeHasura = encodeJson\n\ninstance gqlName" + (v.name + (" :: GqlType " + (v.name + (" " + (show12(v.name) + (" True\n\ninstance show" + (v.name + (" :: Show " + (v.name + (" where\n  show a = case a of \n" + (showMember + ("\n\ninstance enum" + (v.name + (" :: Enum " + (v.name + (" where\n  succ a = case a of \n    " + (succMembers + ("\n  pred a = case a of \n    " + (predMembers + ("\n\ninstance bounded" + (v.name + (" :: Bounded " + (v.name + (" where\n  top = " + (enumValueName(v1.head) + ("\n  bottom = " + (enumValueName(v2.last) + ("\n\ninstance boundedEnum" + (v.name + (" :: BoundedEnum " + (v.name + (" where\n  cardinality = Cardinality " + (show4(length3(v.values)) + ("\n  toEnum a = case a of\n    " + (toEnumMembers + ("\n  fromEnum a = case a of\n    " + (fromEnumMembers + "\n\n")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
   };
 };
 

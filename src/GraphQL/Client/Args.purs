@@ -9,11 +9,12 @@ import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import Data.Symbol (class IsSymbol)
 import Data.Time (Time)
-import GraphQL.Client.GqlType (AsGql)
+import GraphQL.Client.GqlType (class GqlType, AsGql)
 import GraphQL.Client.NullArray (NullArray)
 import GraphQL.Client.Variable (Var)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex)
 import Heterogeneous.Mapping (class HMapWithIndex, class MappingWithIndex)
+import Prim.Boolean (False)
 import Prim.Row as Row
 import Prim.TypeError as TE
 import Type.Proxy (Proxy)
@@ -65,16 +66,18 @@ class ArgGql params arg
 
 instance argToGqlNotNull :: (IsNotNull param arg, ArgGql param arg) => ArgGql (NotNull param) arg
 else instance argToGqlIgnore :: ArgGql param IgnoreArg
+else instance argAsGql :: ArgGql param arg => ArgGql (AsGql gqlName param) arg
+else instance argVar :: ArgGql param arg => ArgGql param (Var sym arg)
 else instance argToGqlArrayNull :: ArgGql (Array param) NullArray
 else instance argToGqlArrayAnds :: (ArgGql (Array param) a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArgs a1 a2)
 else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql param (OrArg argL argR)
 else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
 else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
 else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
-else instance argVar :: ArgGql param arg => ArgGql param (Var sym arg)
-else instance argAsGql :: ArgGql param arg => ArgGql (AsGql gqlName param) arg
+
 else instance argToGqlRecord :: RecordArg p a u => ArgGql { | p } { | a }
-else instance argToGqlNewtypeRecord :: (Newtype n {| p},  RecordArg p a u) => ArgGql n { | a }
+else instance argToGqlNewtypeRecord :: (Newtype n { | p }, RecordArg p a u) => ArgGql n { | a }
+
 class IsNotNull :: forall k1 k2. k1 -> k2 -> Constraint
 class IsNotNull param arg
 
@@ -108,6 +111,10 @@ else instance
   ) =>
   IsNotNull param IgnoreArg
 else instance
+  ( IsNotNull param arg
+  ) =>
+  IsNotNull (AsGql gqlName param) arg
+else instance
   ( IsNotNull param l
   , IsNotNull param r
   ) =>
@@ -128,14 +135,13 @@ instance argToGqlTime :: ArgGql Time Time
 
 instance argToGqlDateTime :: ArgGql DateTime DateTime
 
-
 class HMapWithIndex (ArgPropToGql p) { | a } u <= RecordArg p a u
 
 instance recordArg :: HMapWithIndex (ArgPropToGql p) { | a } u => RecordArg p a u
 
 newtype ArgPropToGql params = ArgPropToGql { | params }
 
-instance argPropToGql_ ::
+instance
   ( IsSymbol sym
   , Row.Cons sym param rest params
   , ArgGql param arg
@@ -164,3 +170,5 @@ instance argsSatisifyNotNulls_ ::
 else instance argsSatisifyOthers_ ::
   FoldingWithIndex (ArgsSatisifyNotNullsProps args) (Proxy sym) Unit param Unit where
   foldingWithIndex (ArgsSatisifyNotNullsProps _) _ _ _ = unit
+
+instance GqlType t gqlName nullable => GqlType (NotNull t) gqlName False

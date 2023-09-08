@@ -21,7 +21,7 @@ class GqlQuery :: forall k1 k2. k1 -> k2 -> Type -> Type -> Type -> Constraint
 class
   ( QueryReturns schema query returns
   , GqlQueryString query
-  , VarsTypeChecked query
+  , VarsTypeChecked schema query
   , GqlOperation op
   , DirectivesTypeCheckTopLevel directives op query
   ) <=
@@ -32,7 +32,7 @@ class
 instance queriable ::
   ( QueryReturns schema query returns
   , GqlQueryString query
-  , VarsTypeChecked query
+  , VarsTypeChecked schema query
   , GqlOperation op
   , DirectivesTypeCheckTopLevel directives op query
   ) =>

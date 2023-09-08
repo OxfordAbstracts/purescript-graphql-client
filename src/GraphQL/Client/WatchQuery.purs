@@ -12,7 +12,7 @@ import GraphQL.Client.ToGqlString (toGqlQueryString)
 import GraphQL.Client.Types (class GqlQuery, class WatchQueryClient, Client(..), watchQueryEventOpts)
 import GraphQL.Client.Variables (getVarsJson)
 import Halogen.Subscription (Emitter)
-import Type.Proxy (Proxy)
+import Type.Proxy (Proxy(..))
 
 watchQueryOpts
   :: forall a returns query schema client directives opts
@@ -37,7 +37,7 @@ watchQueryOptsWithDecoder
   -> query
   -> Emitter (Either JsonDecodeError returns)
 watchQueryOptsWithDecoder decodeFn optsF (Client client) queryNameUnsafe q =
-  watchQueryEventOpts optsF client query (getVarsJson q)
+  watchQueryEventOpts optsF client query (getVarsJson (Proxy :: _ schema) q)
     <#> decodeGqlRes decodeFn
   where
   queryName = safeQueryName queryNameUnsafe

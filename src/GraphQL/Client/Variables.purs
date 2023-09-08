@@ -1,16 +1,17 @@
 module GraphQL.Client.Variables
-  ( class GetVar
+  ( GetVarRec
+  , WithVars(..)
+  , class GetVar
   , class VarsTypeChecked
-  , GetVarRec
-  , WithVars
-  , getVarsJson
-  , getVarsTypeNames
   , getQuery
   , getQueryVars
   , getVar
+  , getVarsJson
+  , getVarsTypeNames
   , withVars
   , withVarsEncode
-  ) where
+  )
+  where
 
 import Prelude
 
@@ -158,55 +159,56 @@ instance getVarRec ::
 getQueryVars :: forall query vars. GetVar query vars => query -> Proxy vars
 getQueryVars _ = getVar (Proxy :: _ query)
 
-data WithVars :: forall k. Type -> k -> Type
-data WithVars query vars = WithVars query String Json
+-- data WithVars :: forall k. Type -> k -> Type
+data WithVars query vars = WithVars (vars -> Json) query vars
 
 -- | Add variables to a query with a custom encoder
 withVarsEncode
   :: forall query vars
-   . HFoldlWithIndex VarTypeNameProps String { | vars } String
-  => HFoldl GetVarRec (Proxy {}) query (Proxy { | vars })
-  => ({ | vars } -> Json)
+   . ({ | vars } -> Json)
   -> query
   -> { | vars }
   -> WithVars query { | vars }
-withVarsEncode encode query vars = WithVars query (varTypeNameRecord vars) $ encode vars
+withVarsEncode = WithVars
+
+-- HFoldlWithIndex VarTypeNameProps String { | vars } String
+--   => HFoldl GetVarRec (Proxy {}) query (Proxy { | vars })
+--   => 
 
 -- | Add variables to a query
 withVars
   :: forall query vars
-   . HFoldlWithIndex VarTypeNameProps String { | vars } String
-  => HFoldl GetVarRec (Proxy {}) query (Proxy { | vars })
-  => EncodeJson { | vars }
+   . EncodeJson { | vars }
   => query
   -> { | vars }
   -> WithVars query { | vars }
 withVars = withVarsEncode encodeJson
 
+
 getQuery :: forall query vars. WithVars query vars -> query
-getQuery (WithVars query _ _) = query
+getQuery (WithVars _ query _) = query
 
-class VarsTypeChecked query where
-  getVarsJson :: query -> Json
-  getVarsTypeNames :: query -> String
+class VarsTypeChecked schema query where
+  getVarsJson :: Proxy schema -> query -> Json
+  getVarsTypeNames :: Proxy schema -> query -> String
 
-instance varsTypeCheckedWithVars :: VarsTypeChecked (WithVars query vars) where
-  getVarsJson (WithVars _ _ json) = json
-  getVarsTypeNames (WithVars _ varsTypeNames _) = varsTypeNames
+instance varsTypeCheckedWithVars :: VarsTypeChecked schema (WithVars query vars) where
+  getVarsJson _ (WithVars encode _ vars) = encode vars
+  getVarsTypeNames _ (WithVars _ varsTypeNames _) = "TODO"
 else instance varsTypeCheckedApplyDirective ::
   GetVar { | query } {} =>
-  VarsTypeChecked (ApplyDirective name args { | query }) where
-  getVarsJson (ApplyDirective _ _) = jsonEmptyObject
-  getVarsTypeNames _ = ""
+  VarsTypeChecked schema (ApplyDirective name args { | query }) where
+  getVarsJson _ (ApplyDirective _ _) = jsonEmptyObject
+  getVarsTypeNames _ _ = ""
 else instance varsTypeCheckedWithoutVars ::
   GetVar { | query } {} =>
-  VarsTypeChecked { | query } where
-  getVarsJson _ = jsonEmptyObject
-  getVarsTypeNames _ = ""
+  VarsTypeChecked schema { | query } where
+  getVarsJson _ _ = jsonEmptyObject
+  getVarsTypeNames _ _ = ""
 
 else instance varsTypeCheckedSpread ::
   GetVar (Spread alias arg fields) {} =>
-  VarsTypeChecked (Spread alias arg fields) where
-  getVarsJson _ = jsonEmptyObject
-  getVarsTypeNames _ = ""
+  VarsTypeChecked schema (Spread alias arg fields) where
+  getVarsJson _ _ = jsonEmptyObject
+  getVarsTypeNames _ _ = ""
 

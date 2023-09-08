@@ -259,7 +259,7 @@ gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides
         (AST.Type_NonNullType notNullType) -> notNullTypeToPurs notNullType
 
       namedTypeToPursNullable :: AST.NamedType -> CST.Type Void
-      namedTypeToPursNullable = wrapMaybe <<< typeCtor <<< getPursTypeName
+      namedTypeToPursNullable t = wrapMaybe $ annotateGqlType t $ typeCtor $ getPursTypeName t
 
       listTypeToPursNullable :: AST.ListType -> CST.Type Void
       listTypeToPursNullable t = wrapMaybe $ listTypeToPurs t
@@ -298,8 +298,6 @@ gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides
         wrapArray $ argTypeToPurs objectName fieldName argName t
 
       wrapNotNull s = typeApp (typeCtor argsM.notNull) [ s ]
-
-      -- definitions = unwrap doc
 
       declarations = defs
         >>= definitionToPurs
