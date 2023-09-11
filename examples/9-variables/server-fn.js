@@ -7,7 +7,7 @@ module.exports = (onListening) => {
   const schema = buildSchema(`
     type Query {
         prop: String
-        widgets(colour: Colour, ids: [Int!]): [Widget!]!
+        widgets(colour: Colour, ids: [Int!], ids_2: [Int]!): [Widget!]!
     }
 
     type Widget {

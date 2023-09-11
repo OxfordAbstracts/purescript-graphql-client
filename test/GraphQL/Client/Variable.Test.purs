@@ -6,7 +6,7 @@ import Data.Maybe (Maybe)
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (OrArg(..), (++), (=>>))
-import GraphQL.Client.GqlType (AsGql)
+import GraphQL.Client.AsGql (AsGql(..))
 import GraphQL.Client.Variable (Var(..))
 import GraphQL.Client.Variables (getQueryVars, getVarsTypeNames, withVars)
 import Test.Spec (Spec, describe, it)
@@ -33,7 +33,7 @@ spec =
             , orders: { name: Var :: Var "nameVar" String } =>> { user_id: Var :: Var "myOtherVar" Int }
             }
         getVarsTypeNames testSchemaProxy (q `withVars` {}) `shouldEqual`
-          "($nameVar: Name, $myOtherVar: UserId, $myVar: customId)"
+          "($nameVar: Name, $myOtherVar: UserId!, $myVar: customId!)"
 
 type TestSchema =
   { users ::

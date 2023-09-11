@@ -5,49 +5,44 @@ import Prelude
 import Data.Maybe (Maybe)
 import Data.Monoid (guard)
 import Data.Symbol (class IsSymbol, reflectSymbol)
+import GraphQL.Client.Args (NotNull)
+import GraphQL.Client.AsGql (AsGql)
 import Prim.Boolean (False, True)
 import Prim.Symbol (class Append)
 import Type.Proxy (Proxy(..))
 
-class GqlType :: Type -> Symbol -> Boolean -> Constraint
-class GqlType t gqlName nullable | t -> gqlName, t -> nullable
-
-class BoolRuntime :: Boolean -> Constraint
-class BoolRuntime t where
-  toBool :: Proxy t -> Boolean
-
-instance BoolRuntime True where
-  toBool _ = true
-else instance BoolRuntime False where
-  toBool _ = false
-
-data AsGql :: Symbol -> Type -> Type
-data AsGql sym t = AsGql
-
-instance GqlType (AsGql sym t) sym True
-
-instance GqlType Boolean "Boolean" True
-instance GqlType Int "Int" True
-instance GqlType Number "Float" True
-instance GqlType String "String" True
-
-instance GqlType t gqlName nullable => GqlType (Maybe t) gqlName True
-
+class GqlType :: Type -> Symbol -> Constraint
+class GqlType t gqlName | t -> gqlName
 
 instance
-  ( GqlType t gqlName nullable
+  ( Append sym "!" name
+  ) =>
+  GqlType (AsGql sym t) name
+
+instance GqlType Boolean "Boolean!"
+instance GqlType Int "Int!"
+instance GqlType Number "Float!"
+instance GqlType String "String!"
+
+instance
+  ( GqlType t gqlName
+  , Append maybeGqlName "!" gqlName
+  ) =>
+  GqlType (Maybe t) maybeGqlName
+
+instance GqlType t name => GqlType (NotNull t) name
+
+instance
+  ( GqlType t gqlName
   , Append "[" gqlName withOpen
   , Append withOpen "]" arrayGqlName
   ) =>
-  GqlType (Array t) arrayGqlName nullable
+  GqlType (Array t) arrayGqlName
 
 printGqlType
-  :: forall t gqlName nullable
-   . GqlType t gqlName nullable
+  :: forall t gqlName
+   . GqlType t gqlName
   => IsSymbol gqlName
-  => BoolRuntime nullable
   => Proxy t
   -> String
-printGqlType _ = reflectSymbol (Proxy :: _ gqlName) <> bang
-  where
-  bang = guard (not toBool (Proxy :: _ nullable)) "!"
+printGqlType _ = reflectSymbol (Proxy :: _ gqlName)

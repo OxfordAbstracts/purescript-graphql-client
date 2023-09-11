@@ -48,8 +48,7 @@ gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides
       { notNull: importType "NotNull"
       }
     gqlUnion <- importFrom "GraphQL.Client.Union" (importType "GqlUnion")
-    asGql <- importFrom "GraphQL.Client.GqlType" (importType "AsGql")
-    falseT <- importFrom "Prim.Boolean" (importType "False")
+    asGql <- importFrom "GraphQL.Client.AsGql" (importType "AsGql")
     id <- case idImport of
       Nothing -> importFrom "GraphQL.Client.ID" (importType "ID")
       Just idImport_ -> importFrom idImport_.moduleName (importType idImport_.typeName)

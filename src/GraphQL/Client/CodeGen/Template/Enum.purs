@@ -13,15 +13,6 @@ import Data.String.CodeUnits (charAt)
 import Data.String.Unicode (toUpper)
 import GraphQL.Client.CodeGen.Lines (docComment)
 import Partial.Unsafe (unsafePartial)
-import PureScript.CST.Types as CST
-import Unsafe.Coerce (unsafeCoerce)
-
-
--- enumModules ::InputOptions -> String -> AST.Document -> CST.Module Void -> Array { name :: String , mod :: CST.Module Void }
--- enumModules opts mName doc mod = getEnums doc <#> unsafeCoerce
-
---  where 
---  getEnums
 
 template ::
   String ->
@@ -51,8 +42,6 @@ import GraphQL.Client.Args (class ArgGql)
 import GraphQL.Client.ToGqlString (class GqlArgString)
 import GraphQL.Hasura.Decode (class DecodeHasura)
 import GraphQL.Hasura.Encode (class EncodeHasura)
-import GraphQL.Client.GqlType (class GqlType)
-import Prim.Boolean (True)
 """
     <> intercalate "\n" imports
     <> """
@@ -131,14 +120,6 @@ instance encodeHasura"""
     <> name
     <> """ where 
   encodeHasura = encodeJson
-
-instance gqlName"""
-    <> name
-    <> """ :: GqlType """
-    <> name
-    <> " "
-    <> show name 
-    <> """ True
 
 instance show"""
     <> name

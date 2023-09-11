@@ -9,12 +9,11 @@ import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import Data.Symbol (class IsSymbol)
 import Data.Time (Time)
-import GraphQL.Client.GqlType (class GqlType, AsGql)
+import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.NullArray (NullArray)
 import GraphQL.Client.Variable (Var)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex)
 import Heterogeneous.Mapping (class HMapWithIndex, class MappingWithIndex)
-import Prim.Boolean (False)
 import Prim.Row as Row
 import Prim.TypeError as TE
 import Type.Proxy (Proxy)
@@ -171,4 +170,3 @@ else instance argsSatisifyOthers_ ::
   FoldingWithIndex (ArgsSatisifyNotNullsProps args) (Proxy sym) Unit param Unit where
   foldingWithIndex (ArgsSatisifyNotNullsProps _) _ _ _ = unit
 
-instance GqlType t gqlName nullable => GqlType (NotNull t) gqlName False
