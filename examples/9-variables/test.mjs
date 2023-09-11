@@ -4,10 +4,10 @@ const { promise: exec } = execSh;
 
 const logs = [];
 
-// console.log = (log) => {
-//   console.info(log);
-//   logs.push(log);
-// };
+console.log = (log) => {
+  console.info(log);
+  logs.push(log);
+};
 
 import serverFn from "./server-fn.js";
 import gps from "./generate-purs-schema.mjs";

@@ -11,7 +11,7 @@ import GraphQL.Client.Args (class SatisifyNotNullParam, ArgPropToGql, Args(..))
 import GraphQL.Client.Directive (ApplyDirective)
 import GraphQL.Client.ErrorBoundary (BoundaryResult, ErrorBoundary)
 import GraphQL.Client.ErrorBoundary as ErrorBoundary
-import GraphQL.Client.GqlType (class GqlType, AsGql)
+import GraphQL.Client.GqlType (AsGql)
 import GraphQL.Client.Union (GqlUnion, UnionReturned)
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars)

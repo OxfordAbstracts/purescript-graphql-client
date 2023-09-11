@@ -53,6 +53,7 @@ You can edit this file as you like.
   , "psci-support"
   , "quickcheck"
   , "record"
+  , "record-studio"
   , "spec"
   , "spec-discovery"
   , "string-parsers"
