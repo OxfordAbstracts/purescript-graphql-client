@@ -36,7 +36,7 @@ import GraphQL.Client.BaseClients.Apollo.ErrorPolicy (ErrorPolicy(..))
 import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy)
 import GraphQL.Client.Operation (OpQuery)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
-import GraphQL.Client.Types (class GqlQuery, class QueryClient, class SubscriptionClient, class WatchQueryClient, Client(..))
+import GraphQL.Client.Types (class Queriable, class QueryClient, class SubscriptionClient, class WatchQueryClient, Client(..))
 import Type.Proxy (Proxy)
 
 type ApolloClientOptions =
@@ -197,7 +197,7 @@ instance isApolloSubClient :: IsApollo ApolloSubClient
 updateCacheJson
   :: forall s directives m q qSchema c res sr
    . IsApollo c
-  => GqlQuery directives OpQuery qSchema q res
+  => Queriable directives OpQuery qSchema q res
   => EncodeJson res
   => DecodeJson res
   => (Client c { directives :: Proxy directives, query :: qSchema | sr })
@@ -210,7 +210,7 @@ updateCacheJson = updateCache encodeJson decodeJson
 updateCache
   :: forall c directives qSchema q m s res sr
    . IsApollo c
-  => GqlQuery directives OpQuery qSchema q res
+  => Queriable directives OpQuery qSchema q res
   => (res -> Json)
   -> (Json -> Either JsonDecodeError res)
   -> (Client c { directives :: Proxy directives, query :: qSchema | sr })
@@ -227,7 +227,7 @@ updateCache encoder decoder client query f = do
 readQuery
   :: forall c directives qSchema q m s res sr
    . IsApollo c
-  => GqlQuery directives OpQuery qSchema q res
+  => Queriable directives OpQuery qSchema q res
   => (Json -> Either JsonDecodeError res)
   -> (Client c { directives :: Proxy directives, query :: qSchema | sr })
   -> q
@@ -243,7 +243,7 @@ readQuery decoder client query = do
 writeQuery
   :: forall c directives qSchema q m s res sr
    . IsApollo c
-  => GqlQuery directives OpQuery qSchema q res
+  => Queriable directives OpQuery qSchema q res
   => (res -> Json)
   -> (Client c { directives :: Proxy directives, query :: qSchema | sr })
   -> q

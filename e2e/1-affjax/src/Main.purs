@@ -11,7 +11,7 @@ import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.Operation (OpQuery)
 import GraphQL.Client.BaseClients.Affjax.Node (AffjaxNodeClient(..))
 import GraphQL.Client.Query (query, queryFullRes)
-import GraphQL.Client.Types (class GqlQuery, Client(..))
+import GraphQL.Client.Types (class Queriable, Client(..))
 import Type.Data.List (Nil')
 import Type.Proxy (Proxy(..))
 
@@ -33,7 +33,7 @@ main =
 -- Run gql query
 queryGql
   :: forall query returns
-   . GqlQuery Nil' OpQuery Schema query returns
+   . Queriable Nil' OpQuery Schema query returns
   => DecodeJson returns
   => String
   -> query

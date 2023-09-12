@@ -27,7 +27,7 @@ import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
 import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.Query (query_)
-import GraphQL.Client.Types (class GqlQuery)
+import GraphQL.Client.Types (class Queriable)
 import Type.Proxy (Proxy(..))
 
 main :: Effect Unit
@@ -41,7 +41,7 @@ main =
 -- Run gql query
 queryGql ::
   forall query returns.
-  GqlQuery Nil' OpQuery Schema query returns =>
+  Queriable Nil' OpQuery Schema query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
 queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Schema) 

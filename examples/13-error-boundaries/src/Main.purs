@@ -15,7 +15,7 @@ import GraphQL.Client.BaseClients.Urql (UrqlClient, createClient)
 import GraphQL.Client.ErrorBoundary (BoundaryResult(..), ErrorBoundary(..), putErrorsInPaths)
 import GraphQL.Client.Operation (OpQuery)
 import GraphQL.Client.Query (queryFullRes)
-import GraphQL.Client.Types (class GqlQuery, Client, GqlRes)
+import GraphQL.Client.Types (class Queriable, Client, GqlRes)
 import Type.Data.List (Nil')
 import Type.Proxy (Proxy(..))
 
@@ -48,7 +48,7 @@ main =
 -- Run gql query
 queryGql
   :: forall query returns
-   . GqlQuery Nil' OpQuery Schema query returns
+   . Queriable Nil' OpQuery Schema query returns
   => DecodeJson returns
   => String
   -> query

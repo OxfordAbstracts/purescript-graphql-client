@@ -12,7 +12,7 @@ import Generated.Gql.Symbols (colour)
 import GraphQL.Client.Args ((=>>))
 import GraphQL.Client.Operation (OpQuery(..))
 import GraphQL.Client.Query (query_)
-import GraphQL.Client.Types (class GqlQuery)
+import GraphQL.Client.Types (class Queriable)
 import Type.Data.List (Nil')
 import Type.Proxy (Proxy(..))
 
@@ -29,7 +29,7 @@ main =
 -- Run gql query
 queryGql ::
   forall query returns.
-  GqlQuery Nil' OpQuery Query query returns =>
+  Queriable Nil' OpQuery Query query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
 queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Query)
