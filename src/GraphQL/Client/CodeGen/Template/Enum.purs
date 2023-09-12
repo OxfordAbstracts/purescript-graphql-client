@@ -14,20 +14,21 @@ import Data.String.Unicode (toUpper)
 import GraphQL.Client.CodeGen.Lines (docComment)
 import Partial.Unsafe (unsafePartial)
 
-template ::
-  String ->
-  { name :: String
-  , schemaName :: String
-  , description :: Maybe String
-  , values :: Array String
-  , imports :: Array String
-  , enumValueNameTransform :: Maybe (String -> String)
-  , customCode :: { name :: String, values :: Array { gql :: String, transformed :: String} } -> String
-  } ->
-  String
-template modulePrefix opts@{ name, schemaName, description, values, imports, customCode } = 
+template
+  :: String
+  -> { name :: String
+     , schemaName :: String
+     , description :: Maybe String
+     , values :: Array String
+     , imports :: Array String
+     , enumValueNameTransform :: Maybe (String -> String)
+     , customCode :: { name :: String, values :: Array { gql :: String, transformed :: String } } -> String
+     }
+  -> String
+template modulePrefix opts@{ name, schemaName, description, values, imports, customCode } =
   """module """ <> modulePrefix <> "Schema." <> schemaName <> """.Enum.""" <> name
-    <> """ where
+    <>
+      """ where
 
 import Prelude
 
@@ -44,32 +45,38 @@ import GraphQL.Hasura.Decode (class DecodeHasura)
 import GraphQL.Hasura.Encode (class EncodeHasura)
 """
     <> intercalate "\n" imports
-    <> """
+    <>
+      """
 
 """
     <> docComment description
     <> """data """
     <> name
-    <> """ 
+    <>
+      """ 
   = """
     <> enumCtrs
-    <> """
+    <>
+      """
 """
     <> customCode { name, values: valuesAndTransforms }
-    <> """
+    <>
+      """
 
 instance eq"""
     <> name
     <> """ :: Eq """
     <> name
-    <> """ where 
+    <>
+      """ where 
   eq = eq `on` show
 
 instance ord"""
     <> name
     <> """ :: Ord """
     <> name
-    <> """ where
+    <>
+      """ where
   compare = compare `on` show
 
 instance argToGql"""
@@ -78,87 +85,121 @@ instance argToGql"""
     <> name
     <> """ """
     <> name
-    <> """
+    <>
+      """
 
 instance gqlArgString"""
     <> name
     <> """ :: GqlArgString """
     <> name
-    <> """ where
+    <>
+      """ where
   toGqlArgStringImpl = show
 
 instance decodeJson"""
     <> name
     <> """ :: DecodeJson """
     <> name
-    <> """ where
+    <>
+      """ where
   decodeJson = decodeJson >=> case _ of 
 """
     <> decodeMember
-    <> """
+    <>
+      """
     s -> Left $ TypeMismatch $ "Not a """
     <> name
-    <> """: " <> s
+    <>
+      """: " <> s
 
 instance encodeJson"""
     <> name
     <> """ :: EncodeJson """
     <> name
-    <> """ where 
+    <>
+      """ where 
   encodeJson = show >>> encodeJson
 
 instance decdoeHasura"""
     <> name
     <> """ :: DecodeHasura """
     <> name
-    <> """ where 
+    <>
+      """ where 
   decodeHasura = decodeJson
 
 instance encodeHasura"""
     <> name
     <> """ :: EncodeHasura """
     <> name
-    <> """ where 
+    <>
+      """ where 
   encodeHasura = encodeJson
 
 instance show"""
     <> name
     <> """ :: Show """
     <> name
-    <> """ where
+    <>
+      """ where
   show a = case a of 
 """
     <> showMember
-    <> """
+    <>
+      """
 
 instance enum"""
-    <> name 
+    <> name
     <> """ :: Enum """
-    <> name 
-    <> """ where
+    <> name
+    <>
+      """ where
   succ a = case a of 
-    """ <> succMembers <> """
+    """
+    <> succMembers
+    <>
+      """
   pred a = case a of 
-    """ <> predMembers <> """
+    """
+    <> predMembers
+    <>
+      """
 
 instance bounded"""
-    <> name 
+    <> name
     <> """ :: Bounded """
-    <> name 
-    <> """ where
-  top = """ <> enumValueName headValue <> """
-  bottom = """ <> enumValueName lastValue <> """
+    <> name
+    <>
+      """ where
+  top = """
+    <> enumValueName headValue
+    <>
+      """
+  bottom = """
+    <> enumValueName lastValue
+    <>
+      """
 
 instance boundedEnum"""
-    <> name 
+    <> name
     <> """ :: BoundedEnum """
-    <> name 
-    <> """ where
-  cardinality = Cardinality """ <> show (length values) <> """
+    <> name
+    <>
+      """ where
+  cardinality = Cardinality """
+    <> show (length values)
+    <>
+      """
   toEnum a = case a of
-    """ <> toEnumMembers <> """
+    """
+    <> toEnumMembers
+    <>
+      """
   fromEnum a = case a of
-    """ <> fromEnumMembers <> """
+    """
+    <> fromEnumMembers
+    <>
+      """
 
 """
   where
@@ -180,31 +221,48 @@ instance boundedEnum"""
 
   { init: initValues, last: lastValue } = unsafePartial $ fromJust $ unsnoc values
 
-  succMembers = intercalate """
-    """ (zipWith makeAdjacent initValues tailValues) <> """
-    """ <> enumValueName lastValue <> """ -> Nothing"""
+  succMembers =
+    intercalate
+      """
+    """
+      (zipWith makeAdjacent initValues tailValues)
+      <>
+        """
+    """
+      <> enumValueName lastValue
+      <> """ -> Nothing"""
 
-  predMembers = enumValueName headValue <> """ -> Nothing 
-    """ <> intercalate """
-    """ (zipWith makeAdjacent tailValues initValues)
-  
+  predMembers = enumValueName headValue
+    <>
+      """ -> Nothing 
+    """
+    <> intercalate
+      """
+    """
+      (zipWith makeAdjacent tailValues initValues)
+
   ints = range 0 (length values - 1)
 
-  toEnumMembers = intercalate """
-    """ (zipWith makeToEnum ints values) <> """
+  toEnumMembers =
+    intercalate
+      """
+    """
+      (zipWith makeToEnum ints values) <>
+      """
     _ -> Nothing"""
-    where 
+    where
     makeToEnum int value = show int <> " -> Just " <> enumValueName value
 
-  fromEnumMembers = intercalate """
-    """ (zipWith makeFromEnum values ints)
-    where 
+  fromEnumMembers = intercalate
+    """
+    """
+    (zipWith makeFromEnum values ints)
+    where
     makeFromEnum value int = enumValueName value <> " -> " <> show int
-  
-  makeAdjacent this adjacent = enumValueName this <> " -> Just " <> enumValueName adjacent
-  
 
-  valuesAndTransforms = values <#> (\v -> {gql: v, transformed: enumValueName v})
+  makeAdjacent this adjacent = enumValueName this <> " -> Just " <> enumValueName adjacent
+
+  valuesAndTransforms = values <#> (\v -> { gql: v, transformed: enumValueName v })
 
 defaultEnumValueName :: String -> String
 defaultEnumValueName s = alphaStart <> toUpper (String.take 1 s) <> String.drop 1 s

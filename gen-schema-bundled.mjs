@@ -41926,12 +41926,14 @@ var regexUnicodeWords = /* @__PURE__ */ function() {
   var rsDingbat = "[\\u2700-\\u27bf]";
   var rsBreakRange = "\\xac\\xb1\\xd7\\xf7\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\xbf\\u2000-\\u206f \\t\\x0b\\f\\xa0\\ufeff\\n\\r\\u2028\\u2029\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000";
   var rsBreak = "[" + (rsBreakRange + "]");
-  var rsMisc = "[^" + ("\\ud800-\\udfff" + (rsBreakRange + "\\d\\u2700-\\u27bfa-z\\xdf-\\xf6\\xf8-\\xffA-Z\\xc0-\\xd6\\xd8-\\xde]"));
+  var rsAstralRange = "\\ud800-\\udfff";
+  var rsMisc = "[^" + (rsAstralRange + (rsBreakRange + "\\d\\u2700-\\u27bfa-z\\xdf-\\xf6\\xf8-\\xffA-Z\\xc0-\\xd6\\xd8-\\xde]"));
   var rsMiscLower = "(?:" + (rsLower + ("|" + (rsMisc + ")")));
   var rsMiscUpper = "(?:" + (rsUpper + ("|" + (rsMisc + ")")));
-  var rsNonAstral = "[^\\ud800-\\udfff]";
-  var rsOptContrLower = "(?:['\\u2019](?:d|ll|m|re|s|t|ve))?";
-  var rsOptContrUpper = "(?:['\\u2019](?:D|LL|M|RE|S|T|VE))?";
+  var rsNonAstral = "[^" + (rsAstralRange + "]");
+  var rsApos = "['\\u2019]";
+  var rsOptContrLower = "(?:" + (rsApos + "(?:d|ll|m|re|s|t|ve))?");
+  var rsOptContrUpper = "(?:" + (rsApos + "(?:D|LL|M|RE|S|T|VE))?");
   var rsComboRange = "\\u0300-\\u036f\\ufe20-\\ufe2f\\u20d0-\\u20ff\\u1ab0-\\u1aff\\u1dc0-\\u1dff";
   var rsCombo = "[" + (rsComboRange + "]");
   var rsModifier = "(?:" + (rsCombo + "|\\ud83c[\\udffb-\\udfff])");
@@ -55875,7 +55877,7 @@ var getDocumentEnums = /* @__PURE__ */ function() {
   var typeDefinitionToPurs = function(v) {
     if (v instanceof TypeDefinition_EnumTypeDefinition) {
       return new Just({
-        name: v.value0.name,
+        name: pascalCase(v.value0.name),
         description: v.value0.description,
         values: maybe([])(enumValuesDefinitionToPurs)(v.value0.enumValuesDefinition)
       });
@@ -55966,11 +55968,11 @@ var schemaFromGqlToPursWithCache = function(opts) {
             return pure16(new Right(v2.value0));
           }
           ;
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 105, column 5 - line 112, column 35): " + [v2.constructor.name]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 106, column 5 - line 113, column 35): " + [v2.constructor.name]);
         });
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 101, column 3 - line 101, column 70): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 102, column 3 - line 102, column 70): " + [v1.constructor.name]);
     };
     return go(opts.cache);
   };

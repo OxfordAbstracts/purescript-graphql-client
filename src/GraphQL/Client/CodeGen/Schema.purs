@@ -21,6 +21,7 @@ import Data.List (mapMaybe)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Newtype (unwrap)
+import Data.String.Extra (pascalCase)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
@@ -135,7 +136,7 @@ schemaFromGqlToPurs opts { schema, moduleName } =
 defaultIdImport :: QualifiedType
 defaultIdImport = { typeName: "ID", moduleName: "GraphQL.Client.ID" }
 
-gqlToPursMainSchemaCode :: InputOptions -> String ->String ->  AST.Document -> Array GqlEnum -> String
+gqlToPursMainSchemaCode :: InputOptions -> String -> String -> AST.Document -> Array GqlEnum -> String
 gqlToPursMainSchemaCode opts directiveModuleName moduleName doc enums =
   printModule $ gqlToPursSchema opts directiveModuleName moduleName doc enums
 
@@ -156,7 +157,7 @@ getDocumentEnums = unwrap >>> mapMaybe definitionToEnum >>> Array.fromFoldable
   typeDefinitionToPurs = case _ of
     AST.TypeDefinition_EnumTypeDefinition (AST.EnumTypeDefinition enumTypeDefinition) ->
       Just
-        { name: enumTypeDefinition.name
+        { name: pascalCase enumTypeDefinition.name
         , description: enumTypeDefinition.description
         , values: maybe [] enumValuesDefinitionToPurs enumTypeDefinition.enumValuesDefinition
         }
