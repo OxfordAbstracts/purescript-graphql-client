@@ -17,8 +17,7 @@ import GraphQL.Client.Variables (class VarsTypeChecked)
 import Halogen.Subscription (Emitter, makeEmitter)
 import GraphQL.Client.GqlError (GqlError)
 
-
-class Queriable :: forall k1 k2. k1 -> k2 -> Type -> Type -> Type -> Constraint
+class GqlQuery :: forall k1 k2. k1 -> k2 -> Type -> Type -> Type -> Constraint
 class
   ( QueryReturns schema query returns
   , GqlQueryString query
@@ -26,7 +25,7 @@ class
   , GqlOperation op
   , DirectivesTypeCheckTopLevel directives op query
   ) <=
-  Queriable directives op schema query returns
+  GqlQuery directives op schema query returns
   | schema query -> returns
   , schema -> directives
 
@@ -37,7 +36,7 @@ instance queriable ::
   , GqlOperation op
   , DirectivesTypeCheckTopLevel directives op query
   ) =>
-  Queriable directives op schema query returns
+  GqlQuery directives op schema query returns
 
 newtype Client :: Type -> Type -> Type
 newtype Client baseClient schema = Client baseClient
