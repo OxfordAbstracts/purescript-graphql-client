@@ -2,12 +2,67 @@ module GraphQL.Client.Variable.Test where
 
 import Prelude
 
+import Data.Maybe (Maybe)
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (OrArg(..), (++), (=>>))
+import GraphQL.Client.AsGql (AsGql(..))
 import GraphQL.Client.Variable (Var(..))
-import GraphQL.Client.Variables (getQueryVars)
+import GraphQL.Client.Variables (getQueryVars, getVarsTypeNames, withVars)
+import Test.Spec (Spec, describe, it)
+import Test.Spec.Assertions (shouldEqual)
 import Type.Proxy (Proxy(..))
+
+spec :: Spec Unit
+spec =
+  describe " GraphQL.Client.QueryVars" do
+    describe "getVarsTypeNames" do
+      it "should return no vars for an empty query" do
+        getVarsTypeNames testSchemaProxy {} `shouldEqual` ""
+
+      it "should return no vars for a query without vars" do
+        let
+          q =
+            { users: { id: unit } }
+        getVarsTypeNames testSchemaProxy q `shouldEqual` ""
+
+      it "should return vars for a query with vars" do
+        let
+          q =
+            { users: { id: Var :: Var "myVar" Int }
+            , orders: { name: Var :: Var "nameVar" String } =>> { user_id: Var :: Var "myOtherVar" Int }
+            }
+        getVarsTypeNames testSchemaProxy (q `withVars` {}) `shouldEqual`
+          "($nameVar: Name, $myOtherVar: UserId!, $myVar: customId!)"
+
+type TestSchema =
+  { users ::
+      { online :: Maybe (AsGql "IsOnline" Boolean)
+      , id :: AsGql "id" Int
+      , where ::
+          { created_at ::
+              { eq :: Int
+              , lt :: Int
+              , gt :: Int
+              }
+          }
+      , is_in :: Array Int
+      , is_in_rec :: Array { int :: Int, string :: String }
+      }
+      -> Array
+           { id :: AsGql "customId" Int
+           , name :: AsGql "name" String
+           , other_names :: Array (AsGql "name" String)
+           }
+  , orders ::
+      { name :: AsGql "Name" String }
+      -> Array
+           { user_id :: AsGql "UserId" Int }
+  , obj_rel :: { id :: Int }
+  }
+
+testSchemaProxy :: Proxy TestSchema
+testSchemaProxy = Proxy
 
 -- TYPE LEVEL TESTS
 testBasic
@@ -126,3 +181,4 @@ testSpreadAlias =
     }
 
 alias = Proxy :: Proxy "alias"
+

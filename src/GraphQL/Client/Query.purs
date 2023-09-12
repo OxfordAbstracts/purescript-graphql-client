@@ -46,12 +46,12 @@ import Type.Proxy (Proxy(..))
 
 -- | Run a graphQL query with a custom decoder and custom options
 queryOptsWithDecoder
-  :: forall client directives schema query returns a b queryOpts mutationOpts
+  :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
   => GqlQuery directives OpQuery schema query returns
   => (Json -> Either JsonDecodeError returns)
   -> (queryOpts -> queryOpts)
-  -> (Client client directives schema a b)
+  -> (Client client { directives :: Proxy directives, query :: schema | sr })
   -> String
   -> query
   -> Aff returns
@@ -63,12 +63,12 @@ queryOptsWithDecoder d optsF (Client c) name q =
 
 -- | Run a graphQL query with custom options
 queryOpts
-  :: forall client directives schema query returns a b queryOpts mutationOpts
+  :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
   => GqlQuery directives OpQuery schema query returns
   => DecodeJson returns
   => (queryOpts -> queryOpts)
-  -> (Client client directives schema a b)
+  -> (Client client { directives :: Proxy directives, query :: schema | sr })
   -> String
   -> query
   -> Aff returns
@@ -76,11 +76,11 @@ queryOpts = queryOptsWithDecoder decodeJson
 
 -- | Run a graphQL query with a custom decoder
 queryWithDecoder
-  :: forall client directives schema query returns a b queryOpts mutationOpts
+  :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
   => GqlQuery directives OpQuery schema query returns
   => (Json -> Either JsonDecodeError returns)
-  -> (Client client directives schema a b)
+  -> (Client client { directives :: Proxy directives, query :: schema | sr })
   -> String
   -> query
   -> Aff returns
@@ -88,11 +88,11 @@ queryWithDecoder d (Client c) = runQuery d (defQueryOpts c) c (Proxy :: Proxy sc
 
 -- | Run a graphQL query
 query
-  :: forall client directives schema query returns a b queryOpts mutationOpts
+  :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
   => GqlQuery directives OpQuery schema query returns
   => DecodeJson returns
-  => (Client client directives schema a b)
+  => (Client client { directives :: Proxy directives, query :: schema | sr })
   -> String
   -> query
   -> Aff returns
@@ -116,25 +116,25 @@ query_ url _ name q = do
           { url
           , headers: []
           }
-  query (client :: Client UrqlClient directives schema _ _) name q
+  query (client :: Client UrqlClient { directives :: Proxy directives, query :: schema | _ }) name q
 
 mutationWithDecoder
-  :: forall client directives schema mutation returns a b queryOpts mutationOpts
+  :: forall client directives schema mutation returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
   => GqlQuery directives OpMutation schema mutation returns
   => (Json -> Either JsonDecodeError returns)
-  -> (Client client directives a schema b)
+  -> (Client client { directives :: Proxy directives, mutation :: schema | sr })
   -> String
   -> mutation
   -> Aff returns
 mutationWithDecoder d (Client c) = runMutation d (defMutationOpts c) c (Proxy :: Proxy schema)
 
 mutation
-  :: forall client directives schema mutation returns a b queryOpts mutationOpts
+  :: forall client directives schema mutation returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
   => GqlQuery directives OpMutation schema mutation returns
   => DecodeJson returns
-  => (Client client directives a schema b)
+  => (Client client { directives :: Proxy directives, mutation :: schema | sr })
   -> String
   -> mutation
   -> Aff returns
@@ -142,12 +142,12 @@ mutation = mutationWithDecoder decodeJson
 
 -- | Run a graphQL query with a custom decoder and custom options
 mutationOptsWithDecoder
-  :: forall client directives schema query returns a b queryOpts mutationOpts
+  :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
   => GqlQuery directives OpMutation schema query returns
   => (Json -> Either JsonDecodeError returns)
   -> (mutationOpts -> mutationOpts)
-  -> (Client client directives a schema b)
+  -> (Client client { directives :: Proxy directives, mutation :: schema | sr })
   -> String
   -> query
   -> Aff returns
@@ -157,12 +157,12 @@ mutationOptsWithDecoder d optsF (Client c) = runMutation d opts c (Proxy :: Prox
 
 -- | Run a graphQL query with a custom decoder and custom options
 mutationOpts
-  :: forall client directives schema query returns a b queryOpts mutationOpts
+  :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
   => GqlQuery directives OpMutation schema query returns
   => DecodeJson returns
   => (mutationOpts -> mutationOpts)
-  -> (Client client directives a schema b)
+  -> (Client client { directives :: Proxy directives, mutation :: schema | sr })
   -> String
   -> query
   -> Aff returns
@@ -184,13 +184,13 @@ mutation_ url _ name q = do
           { url
           , headers: []
           }
-  mutation (client :: Client UrqlClient directives _ schema _) name q
+  mutation (client :: Client UrqlClient { directives :: Proxy directives, mutation :: schema | _ }) name q
 
 runQuery
   :: forall client directives schema query returns qOpts mOpts
    . QueryClient client qOpts mOpts
   => GqlQuery directives OpQuery schema query returns
-  => VarsTypeChecked query
+  => VarsTypeChecked schema query
   => (Json -> Either JsonDecodeError returns)
   -> qOpts
   -> client
@@ -200,7 +200,8 @@ runQuery
   -> Aff returns
 runQuery decodeFn opts client _ queryNameUnsafe q =
   addErrorInfo queryName q do
-    json <- clientQuery opts client queryName (getVarsTypeNames q <> toGqlQueryString q) (getVarsJson q)
+    json <- clientQuery opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
+      (getVarsJson (Proxy :: _ schema) q)
     decodeJsonData decodeFn json
   where
   queryName = safeQueryName queryNameUnsafe
@@ -218,7 +219,8 @@ runMutation
   -> Aff returns
 runMutation decodeFn opts client _ queryNameUnsafe q =
   addErrorInfo queryName q do
-    json <- clientMutation opts client queryName (getVarsTypeNames q <> toGqlQueryString q) (getVarsJson q)
+    json <- clientMutation opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
+      (getVarsJson (Proxy :: _ schema) q)
     decodeJsonData decodeFn json
   where
   queryName = safeQueryName queryNameUnsafe
@@ -265,12 +267,12 @@ addErrorInfo queryName q =
 -- | Run a graphQL query, getting the full response,
 -- | According to https://spec.graphql.org/June2018/#sec-Response-Format
 queryFullRes
-  :: forall client directives schema query returns a b queryOpts mutationOpts
+  :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
   => GqlQuery directives OpQuery schema query returns
   => (Json -> Either JsonDecodeError returns)
   -> (queryOpts -> queryOpts)
-  -> (Client client directives schema a b)
+  -> (Client client { directives :: Proxy directives, query :: schema | sr })
   -> String
   -> query
   -> Aff (GqlRes returns)
@@ -284,16 +286,18 @@ queryFullRes decodeFn optsF (Client client) queryNameUnsafe q =
 -- | Run a graphQL query, returning the response as json with phantom types
 -- | The json will be of the format: https://spec.graphql.org/June2018/#sec-Response-Format
 queryJson
-  :: forall client directives schema query returns a b queryOpts mutationOpts
+  :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
   => GqlQuery directives OpQuery schema query returns
   => (queryOpts -> queryOpts)
-  -> (Client client directives schema a b)
+  -> (Client client { directives :: Proxy directives, query :: schema | sr })
   -> String
   -> query
   -> Aff (GqlResJson schema query returns)
 queryJson optsF (Client client) queryNameUnsafe q =
-  GqlResJson <$> clientQuery opts client queryName (getVarsTypeNames q <> toGqlQueryString q) (getVarsJson q)
+  GqlResJson <$>
+    clientQuery opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
+      (getVarsJson (Proxy :: _ schema) q)
   where
   opts = optsF (defQueryOpts client)
   queryName = safeQueryName queryNameUnsafe
@@ -301,12 +305,12 @@ queryJson optsF (Client client) queryNameUnsafe q =
 -- | Run a graphQL mutation, getting the full response,
 -- | According to https://spec.graphql.org/June2018/#sec-Response-Format
 mutationFullRes
-  :: forall client directives schema mutation returns a b queryOpts mutationOpts
+  :: forall client directives schema mutation returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
   => GqlQuery directives OpMutation schema mutation returns
   => (Json -> Either JsonDecodeError returns)
   -> (mutationOpts -> mutationOpts)
-  -> (Client client directives a schema b)
+  -> (Client client { directives :: Proxy directives, query :: schema | sr })
   -> String
   -> mutation
   -> Aff (GqlRes returns)
@@ -320,16 +324,17 @@ mutationFullRes decodeFn optsF (Client client) queryNameUnsafe q =
 -- | Run a graphQL mutation, returning the response as json with phantom types
 -- | The json will be of the format: https://spec.graphql.org/June2018/#sec-Response-Format
 mutationJson
-  :: forall client directives schema mutation returns a b queryOpts mutationOpts
+  :: forall client directives schema mutation returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
   => GqlQuery directives OpMutation schema mutation returns
   => (mutationOpts -> mutationOpts)
-  -> (Client client directives a schema b)
+  -> (Client client { directives :: Proxy directives, mutation :: schema | sr })
   -> String
   -> mutation
   -> Aff (GqlResJson schema mutation returns)
 mutationJson optsF (Client client) queryNameUnsafe q =
-  GqlResJson <$> clientMutation opts client queryName (getVarsTypeNames q <> toGqlQueryString q) (getVarsJson q)
+  GqlResJson <$> clientMutation opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
+    (getVarsJson (Proxy :: _ schema) q)
   where
   opts = optsF (defMutationOpts client)
 

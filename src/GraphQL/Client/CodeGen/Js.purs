@@ -13,8 +13,9 @@ import Data.Nullable (Nullable, toMaybe)
 import Foreign.Object (Object)
 import Foreign.Object as Object
 import GraphQL.Client.CodeGen.Schema (schemasFromGqlToPurs)
-import GraphQL.Client.CodeGen.Types (GqlInput, JsResult)
+import GraphQL.Client.CodeGen.Types (GqlInput, JsResult, QualifiedType)
 import Parsing (parseErrorMessage)
+import Untagged.Union (type (|+|), toEither1)
 
 schemasFromGqlToPursJs :: Fn2 InputOptionsJs (Array GqlInput) JsResult
 schemasFromGqlToPursJs = mkFn2 go
@@ -26,17 +27,16 @@ schemasFromGqlToPursJs = mkFn2 go
       >>> fromAff
     where
     opts =
-      { externalTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.externalTypes)
-      , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (fromNullable mempty optsJs.fieldTypeOverrides)
-      , argTypeOverrides: (map Map.fromFoldableWithIndex <<< Map.fromFoldableWithIndex) <$> Map.fromFoldableWithIndex (fromNullable mempty optsJs.argTypeOverrides)
-      , gqlScalarsToPursTypes: Map.fromFoldableWithIndex (fromNullable mempty optsJs.gqlScalarsToPursTypes)
+      { gqlToPursTypes: Map.fromFoldableWithIndex (fromQualifiedTypeJs <$> fromNullable Object.empty optsJs.gqlToPursTypes)
+      , fieldTypeOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (map fromQualifiedTypeJs <$> fromNullable Object.empty optsJs.fieldTypeOverrides)
+      , argTypeOverrides: (map (map fromQualifiedTypeJs <<< Map.fromFoldableWithIndex) <<< Map.fromFoldableWithIndex) <$> Map.fromFoldableWithIndex (fromNullable Object.empty optsJs.argTypeOverrides)
       , nullableOverrides: Map.fromFoldableWithIndex <$> Map.fromFoldableWithIndex (fromNullable Object.empty optsJs.nullableOverrides)
       , dir: fromNullable "" optsJs.dir
       , modulePath: fromNullable [] optsJs.modulePath
       , useNewtypesForRecords: fromNullable true optsJs.useNewtypesForRecords
       , enumImports: fromNullable [] optsJs.enumImports
       , customEnumCode: fromNullable (const "") optsJs.customEnumCode
-      , idImport: toMaybe optsJs.idImport
+      , idImport: map fromQualifiedTypeJs $ toMaybe optsJs.idImport
       , enumValueNameTransform: toMaybe optsJs.enumValueNameTransform
       , cache:
           toMaybe optsJs.cache
@@ -56,41 +56,30 @@ schemasFromGqlToPursJs = mkFn2 go
 fromNullable :: forall a. a -> Nullable a -> a
 fromNullable a = fromMaybe a <<< toMaybe
 
+fromQualifiedTypeJs :: QualifiedTypeJs -> QualifiedType
+fromQualifiedTypeJs = toEither1 >>> either identity { typeName: _, moduleName: "" }
+
 type InputOptionsJs =
-  { gqlScalarsToPursTypes :: Nullable (Object String)
-  , externalTypes ::
+  { gqlToPursTypes ::
       Nullable
-        ( Object
-            { moduleName :: String
-            , typeName :: String
-            }
+        ( Object QualifiedTypeJs
         )
   , fieldTypeOverrides ::
       Nullable
         ( Object
-            ( Object
-                { moduleName :: String
-                , typeName :: String
-                }
+            ( Object QualifiedTypeJs
             )
         )
   , argTypeOverrides ::
       Nullable
         ( Object
             ( Object
-                ( Object
-                    { moduleName :: String
-                    , typeName :: String
-                    }
+                ( Object QualifiedTypeJs
                 )
             )
         )
   , nullableOverrides :: Nullable (Object (Object Boolean))
-  , idImport ::
-      Nullable
-        { moduleName :: String
-        , typeName :: String
-        }
+  , idImport :: Nullable QualifiedTypeJs
   , dir :: Nullable String
   , modulePath :: Nullable (Array String)
   , useNewtypesForRecords :: Nullable Boolean
@@ -103,3 +92,5 @@ type InputOptionsJs =
         }
   , enumValueNameTransform :: Nullable (String -> String)
   }
+
+type QualifiedTypeJs = QualifiedType |+| String

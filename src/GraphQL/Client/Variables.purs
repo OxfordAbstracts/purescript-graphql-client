@@ -1,13 +1,18 @@
 module GraphQL.Client.Variables
-  ( class GetVar
+  ( GetVarRec
+  , GqlQueryVars
+  , GqlQueryVarsN(..)
+  , PropGetVars
+  , WithVars(..)
+  , class GetGqlQueryVars
+  , class GetVar
   , class VarsTypeChecked
-  , GetVarRec
-  , WithVars
-  , getVarsJson
-  , getVarsTypeNames 
+  , getGqlQueryVars
   , getQuery
   , getQueryVars
   , getVar
+  , getVarsJson
+  , getVarsTypeNames
   , withVars
   , withVarsEncode
   ) where
@@ -17,15 +22,22 @@ import Prelude
 import Control.Apply (lift2)
 import Data.Argonaut.Core (Json, jsonEmptyObject)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
+import Data.Function (on)
+import Data.List (List(..), intercalate, nubBy)
 import Data.Maybe (Maybe)
-import Data.Symbol (class IsSymbol)
-import GraphQL.Client.Alias (Alias)
-import GraphQL.Client.Alias.Dynamic (Spread)
-import GraphQL.Client.Args (AndArg, Args, OrArg)
+import Data.Newtype (class Newtype)
+import Data.Symbol (class IsSymbol, reflectSymbol)
+import GraphQL.Client.Alias (Alias(..))
+import GraphQL.Client.Alias.Dynamic (Spread(..))
+import GraphQL.Client.Args (AndArg, Args(..), OrArg)
+import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.Directive (ApplyDirective(..))
+import GraphQL.Client.ErrorBoundary (ErrorBoundary(..))
+import GraphQL.Client.GqlType (class GqlType, printGqlType)
+import GraphQL.Client.GqlTypeArgs (class GqlTypeArgs, printGqlTypeArgs)
+import GraphQL.Client.Union (GqlUnion(..))
 import GraphQL.Client.Variable (Var)
-import GraphQL.Client.Variables.TypeName (VarTypeNameProps, varTypeNameRecord)
-import Heterogeneous.Folding (class Folding, class HFoldl, class HFoldlWithIndex, hfoldl)
+import Heterogeneous.Folding (class Folding, class FoldingWithIndex, class HFoldl, class HFoldlWithIndex, hfoldlWithIndex)
 import Prim.Row as Row
 import Record as Record
 import Type.Proxy (Proxy(..))
@@ -39,7 +51,7 @@ instance getVarVar ::
   , Row.Cons name a () var
   ) =>
   GetVar (Var name a) { | var } where
-  getVar _ = lift2 (Record.insert (Proxy :: Proxy name)) (Proxy :: Proxy a) (Proxy :: Proxy {})
+  getVar _ = Proxy -- lift2 (Record.insert (Proxy :: Proxy name)) (Proxy :: Proxy a) (Proxy :: Proxy {})
 else instance getVarAlias ::
   ( GetVar query var
   ) =>
@@ -50,6 +62,11 @@ else instance getVarMaybe ::
   ( GetVar a { | vars }
   ) =>
   GetVar (Maybe a) { | vars } where
+  getVar _ = getVar (Proxy :: _ a)
+else instance getVarAsGql ::
+  ( GetVar a { | vars }
+  ) =>
+  GetVar (AsGql sym a) { | vars } where
   getVar _ = getVar (Proxy :: _ a)
 else instance getVarArray ::
   ( GetVar a { | vars }
@@ -103,15 +120,7 @@ else instance getVarAndArg ::
   , Row.Nub trash var
   ) =>
   GetVar (AndArg l r) { | var } where
-  getVar _ =
-    let
-      varL :: Proxy { | varL }
-      varL = getVar (Proxy :: _ l)
-
-      varR :: Proxy { | varR }
-      varR = getVar (Proxy :: _ r)
-    in
-      lift2 Record.merge varL varR
+  getVar _ = Proxy
 else instance getVarOrArg ::
   ( GetVar l { | varL }
   , GetVar r { | varR }
@@ -131,15 +140,14 @@ else instance getVarOrArg ::
       lift2 Record.merge varL varR
 else instance getVarRecord ::
   ( HFoldl GetVarRec (Proxy {}) { | query } (Proxy { | var })
-    ) =>
+  ) =>
   GetVar { | query } { | var } where
-  getVar q = q >>= \query -> hfoldl GetVarRec (Proxy :: _ {}) (query :: { | query })
+  getVar _ = Proxy -- q >>= \query -> hfoldl GetVarRec (Proxy :: _ {}) (query :: { | query })
 else instance getVarSkip :: GetVar a {} where
   getVar _ = Proxy
 
 -- | Get variables from a record, recursively
-data GetVarRec
-  = GetVarRec
+data GetVarRec = GetVarRec
 
 instance getVarRec ::
   ( GetVar val { | subRes }
@@ -153,52 +161,184 @@ instance getVarRec ::
 getQueryVars :: forall query vars. GetVar query vars => query -> Proxy vars
 getQueryVars _ = getVar (Proxy :: _ query)
 
-data WithVars :: forall k. Type -> k -> Type
-data WithVars query vars
-  = WithVars query String Json
+-- data WithVars :: forall k. Type -> k -> Type
+data WithVars query vars = WithVars (vars -> Json) query vars
 
 -- | Add variables to a query with a custom encoder
-withVarsEncode ::
-  forall query vars.
-  HFoldlWithIndex VarTypeNameProps String {|vars} String =>
-  HFoldl GetVarRec (Proxy {}) query (Proxy {|vars}) =>
-  ({|vars} -> Json) ->
-  query -> {|vars} -> WithVars query {|vars}
-withVarsEncode encode query vars = WithVars query (varTypeNameRecord vars) $ encode vars
+withVarsEncode
+  :: forall query vars
+   . ({ | vars } -> Json)
+  -> query
+  -> { | vars }
+  -> WithVars query { | vars }
+withVarsEncode = WithVars
 
 -- | Add variables to a query
-withVars ::
-  forall query vars.
-  HFoldlWithIndex VarTypeNameProps String {|vars} String =>
-  HFoldl GetVarRec (Proxy {}) query (Proxy {|vars}) =>
-  EncodeJson {|vars} =>
-  query -> {|vars} -> WithVars query {|vars}
+withVars
+  :: forall query vars
+   . EncodeJson { | vars }
+  => query
+  -> { | vars }
+  -> WithVars query { | vars }
 withVars = withVarsEncode encodeJson
 
 getQuery :: forall query vars. WithVars query vars -> query
-getQuery (WithVars query _ _) = query
+getQuery (WithVars _ query _) = query
 
-class VarsTypeChecked query where
-  getVarsJson :: query -> Json
-  getVarsTypeNames :: query -> String 
+class VarsTypeChecked :: forall k. k -> Type -> Constraint
+class VarsTypeChecked schema query where
+  getVarsJson :: Proxy schema -> query -> Json
+  getVarsTypeNames :: Proxy schema -> query -> String
 
-instance varsTypeCheckedWithVars :: VarsTypeChecked (WithVars query vars) where
-  getVarsJson (WithVars _ _ json) = json
-  getVarsTypeNames (WithVars _ varsTypeNames _) = varsTypeNames
+instance varsTypeCheckedWithVars ::
+  ( GetGqlQueryVars schema query
+  ) =>
+  VarsTypeChecked schema (WithVars query { | vars }) where
+  getVarsJson _ (WithVars encode _ vars) = encode vars
+  getVarsTypeNames _ q =
+    getGqlQueryVars false (Proxy :: _ schema) q
+      # nubBy (compare `on` _.varName)
+      <#> (\{ varName, varType } -> varName <> ": " <> varType)
+      # intercalate ", $"
+      # \d ->
+          if d == "" then "" else "($" <> d <> ")"
+
 else instance varsTypeCheckedApplyDirective ::
   GetVar { | query } {} =>
-  VarsTypeChecked (ApplyDirective name args {|query}) where
-  getVarsJson (ApplyDirective _ _) = jsonEmptyObject
-  getVarsTypeNames _ = ""
+  VarsTypeChecked schema (ApplyDirective name args { | query }) where
+  getVarsJson _ (ApplyDirective _ _) = jsonEmptyObject
+  getVarsTypeNames _ _ = ""
+
 else instance varsTypeCheckedWithoutVars ::
   GetVar { | query } {} =>
-  VarsTypeChecked { | query } where
-  getVarsJson _ = jsonEmptyObject
-  getVarsTypeNames _ = ""
+  VarsTypeChecked schema { | query } where
+  getVarsJson _ _ = jsonEmptyObject
+  getVarsTypeNames _ _ = ""
 
 else instance varsTypeCheckedSpread ::
-  GetVar (Spread alias arg fields)  {} =>
-  VarsTypeChecked (Spread alias arg fields) where
-  getVarsJson _ = jsonEmptyObject
-  getVarsTypeNames _ = ""
+  GetVar (Spread alias arg fields) {} =>
+  VarsTypeChecked schema (Spread alias arg fields) where
+  getVarsJson _ _ = jsonEmptyObject
+  getVarsTypeNames _ _ = ""
 
+-- | The vars in the query and their GraphQL type
+
+type GqlQueryVars = List { varName :: String, varType :: String }
+
+newtype GqlQueryVarsN = GqlQueryVarsN GqlQueryVars
+
+-- | Get 
+class GetGqlQueryVars :: forall k. k -> Type -> Constraint
+class GetGqlQueryVars schema query where
+  getGqlQueryVars :: Boolean -> Proxy schema -> query -> GqlQueryVars
+
+instance queryVarsWithVars :: GetGqlQueryVars a q => GetGqlQueryVars a (WithVars q vars) where
+  getGqlQueryVars dn a (WithVars _ q _) = getGqlQueryVars dn a q
+else instance queryVarsVar ::
+  ( GetGqlQueryVars a q
+  , IsSymbol name
+  , GqlType a gqlName
+  , GqlTypeArgs a gqlNameArgs
+  , IsSymbol gqlName
+  , IsSymbol gqlNameArgs
+  ) =>
+  GetGqlQueryVars a (Var name q) where
+  getGqlQueryVars isArgs _ _ = pure
+    { varName: reflectSymbol (Proxy :: Proxy name)
+    , varType: if isArgs then printGqlTypeArgs (Proxy :: _ a) else printGqlType (Proxy :: _ a)
+    }
+else instance queryVarsGqlType :: GetGqlQueryVars a q => GetGqlQueryVars (AsGql gql a) q where
+  getGqlQueryVars dn _ q = getGqlQueryVars dn (Proxy :: Proxy a) q
+else instance queryVarsApplyDirective :: GetGqlQueryVars a q => GetGqlQueryVars a (ApplyDirective name args q) where
+  getGqlQueryVars dn a (ApplyDirective _args q) = getGqlQueryVars dn a q
+else instance queryReturnErrorBoundary :: GetGqlQueryVars a q => GetGqlQueryVars a (ErrorBoundary q) where
+  getGqlQueryVars dn a (ErrorBoundary q) = getGqlQueryVars dn a q
+else instance queryVarsSpread ::
+  ( IsSymbol alias
+  , Row.Cons alias subSchema rest schema
+  , GetGqlQueryVars subSchema (Args (Array args) q)
+  ) =>
+  GetGqlQueryVars { | schema } (Spread (Proxy alias) args q) where
+  getGqlQueryVars dn _ (Spread _alias args fields) =
+    getGqlQueryVars dn (Proxy :: Proxy subSchema) (Args args fields)
+else instance queryVarsSpreadNewtype ::
+  ( GetGqlQueryVars { | schema } (Spread (Proxy alias) args q)
+  , Newtype newtypeSchema { | schema }
+  ) =>
+  GetGqlQueryVars newtypeSchema (Spread (Proxy alias) args q) where
+  getGqlQueryVars dn _ _ = getGqlQueryVars dn (Proxy :: Proxy { | schema }) (Proxy :: Proxy (Spread (Proxy alias) args q))
+else instance queryVarsArray :: GetGqlQueryVars a q => GetGqlQueryVars (Array a) q where
+  getGqlQueryVars dn _ q = getGqlQueryVars dn (Proxy :: Proxy a) q
+else instance queryVarsMaybe :: GetGqlQueryVars a q => GetGqlQueryVars (Maybe a) q where
+  getGqlQueryVars dn _ q = getGqlQueryVars dn (Proxy :: Proxy a) q
+else instance queryVarsUnion ::
+  HFoldlWithIndex (PropGetVars { | schema }) GqlQueryVarsN ({ | query }) GqlQueryVarsN =>
+  GetGqlQueryVars (GqlUnion schema) (GqlUnion query) where
+  getGqlQueryVars dn _ (GqlUnion q) = propGetVars dn (Proxy :: Proxy { | schema }) q
+else instance queryVarsParamsArgs ::
+  ( GetGqlQueryVars t q
+  , GetGqlQueryVars { | params } { | args }
+  ) =>
+  GetGqlQueryVars ({ | params } -> t) (Args { | args } q) where
+  getGqlQueryVars _dn _ (Args args q) =
+    getGqlQueryVars true (Proxy :: _ { | params }) args -- in args values are nullable by default
+
+      <> getGqlQueryVars false (Proxy :: Proxy t) q
+else instance queryVarsParamsNoArgs ::
+  ( GetGqlQueryVars t q
+  ) =>
+  GetGqlQueryVars ({ | params } -> t) q where
+  getGqlQueryVars dn _ q = getGqlQueryVars dn (Proxy :: Proxy t) q
+else instance queryVarsRecord ::
+  HFoldlWithIndex (PropGetVars { | schema }) GqlQueryVarsN ({ | query }) GqlQueryVarsN =>
+  GetGqlQueryVars { | schema } { | query } where
+  getGqlQueryVars dn = propGetVars dn
+else instance queryVarsNewtype ::
+  ( Newtype newtypeSchema { | schema }
+  , HFoldlWithIndex (PropGetVars { | schema }) GqlQueryVarsN ({ | query }) GqlQueryVarsN
+  , GetGqlQueryVars { | schema } (Proxy { | query })
+  ) =>
+  GetGqlQueryVars newtypeSchema { | query } where
+  getGqlQueryVars dn _sch query = getGqlQueryVars dn (Proxy :: Proxy { | schema }) query
+
+else instance queryVarsAll :: GetGqlQueryVars a q where
+  getGqlQueryVars _ _a _ = Nil
+
+-- -- | For internal use only but must be exported for other modules to compile
+data PropGetVars :: forall k. k -> Type
+data PropGetVars schema = PropGetVars Boolean
+
+instance propGetVarsAlias ::
+  ( IsSymbol sym
+  , IsSymbol al
+  , Row.Cons al subSchema rest schema
+  , GetGqlQueryVars subSchema val
+  ) =>
+  FoldingWithIndex (PropGetVars { | schema }) (Proxy sym) GqlQueryVarsN ((Alias (Proxy al) val)) GqlQueryVarsN where
+  foldingWithIndex (PropGetVars dn) _sym (GqlQueryVarsN qv) (Alias _ val) =
+    GqlQueryVarsN $ qv <> getGqlQueryVars dn (Proxy :: Proxy subSchema) val
+else instance propGetVarsProxy ::
+  FoldingWithIndex (PropGetVars { | schema }) (Proxy sym) GqlQueryVarsN (Proxy val) GqlQueryVarsN where
+  foldingWithIndex (PropGetVars _) _ (GqlQueryVarsN qv) _ =
+    GqlQueryVarsN qv
+else instance propGetVars_ ::
+  ( IsSymbol sym
+  , Row.Cons sym subSchema rest schema
+  , GetGqlQueryVars subSchema val
+  ) =>
+  FoldingWithIndex (PropGetVars { | schema }) (Proxy sym) GqlQueryVarsN val GqlQueryVarsN where
+  foldingWithIndex (PropGetVars dn) _sym (GqlQueryVarsN qv) val =
+    GqlQueryVarsN $ qv <> getGqlQueryVars dn (Proxy :: Proxy subSchema) val
+
+propGetVars
+  :: forall query schema
+   . HFoldlWithIndex (PropGetVars schema) GqlQueryVarsN (query) GqlQueryVarsN
+  => Boolean
+  -> Proxy schema
+  -> query
+  -> GqlQueryVars
+propGetVars dn _schema _q = unwrapGqlQueryVars $
+  hfoldlWithIndex (PropGetVars dn :: PropGetVars schema) (GqlQueryVarsN mempty) _q
+  where
+  unwrapGqlQueryVars :: GqlQueryVarsN -> GqlQueryVars
+  unwrapGqlQueryVars (GqlQueryVarsN qv) = qv

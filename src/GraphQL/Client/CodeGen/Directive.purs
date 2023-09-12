@@ -1,40 +1,63 @@
 -- | Create purescript directive code from a graphQL schema
-module GraphQL.Client.CodeGen.Directive where
+module GraphQL.Client.CodeGen.Directive
+  ( getDocumentDirectivesPurs
+  ) where
 
 import Prelude
-import Data.Foldable (null)
+
+import Data.Array (mapMaybe, null, uncons)
+import Data.Array as Array
+import Data.Array.NonEmpty as NonEmpty
 import Data.GraphQL.AST as AST
-import Data.List (List, fold, foldMap, mapMaybe)
+import Data.List (List, fold, foldMap)
 import Data.Map (Map)
-import Data.Maybe (Maybe(..))
-import GraphQL.Client.CodeGen.Lines (indent)
-import GraphQL.Client.CodeGen.Util (inputValueDefinitionsToPurs)
+import Data.Maybe (Maybe(..), maybe)
+import Data.Newtype (unwrap)
+import GraphQL.Client.CodeGen.Types (QualifiedType)
+import GraphQL.Client.CodeGen.UtilCst (inputValueDefinitionToPurs)
+import Partial.Unsafe (unsafePartial)
+import PureScript.CST.Types (Declaration)
+import PureScript.CST.Types as CST
+import Tidy.Codegen (binaryOp, declImport, declSignature, declType, declTypeSignature, declValue, exprApp, exprCtor, exprIdent, exprTyped, importType, importTypeAll, importTypeOp, importValue, module_, printModule, typeApp, typeArrow, typeCtor, typeForall, typeOp, typeRecord, typeString, typeVar, typeWildcard)
 
-getDocumentDirectivesPurs :: Map String String -> AST.Document -> String
-getDocumentDirectivesPurs gqlScalarsToPursTypes (AST.Document defs) =
-  """import Prelude
+getDocumentDirectivesPurs :: Map String QualifiedType -> QualifiedType -> String -> AST.Document -> String
+getDocumentDirectivesPurs gqlScalarsToPursTypes id moduleName (AST.Document defs) =
+  unsafePartial $ printModule $
+    module_ moduleName exports imports decls
 
-import GraphQL.Client.Args (NotNull)
-import GraphQL.Client.Directive (ApplyDirective, applyDir)
-import GraphQL.Client.Directive.Definition (Directive)
-import GraphQL.Client.Directive.Location (MUTATION, QUERY, SUBSCRIPTION)
-import GraphQL.Client.Operation (OpMutation(..), OpQuery(..), OpSubscription(..))
-import Type.Data.List (type (:>), Nil')
-import Type.Proxy (Proxy(..))
-
-type Directives =
-    ( """
-    <> directiveDefinitionsPurs
-    <> """Nil'
-    )
-"""
-    <> directiveAppliers
   where
+  exports = []
+  imports = unsafePartial
+    [ declImport "Prelude" []
+    , declImport "GraphQL.Client.Args" [ importType "NotNull" ]
+    , declImport "GraphQL.Client.Directive" [ importType "ApplyDirective", importValue "applyDir" ]
+    , declImport "GraphQL.Client.Directive.Definition" [ importType "Directive" ]
+    , declImport "GraphQL.Client.Directive.Location" [ importType "MUTATION", importType "QUERY", importType "SUBSCRIPTION" ]
+    , declImport "GraphQL.Client.Operation" [ importTypeAll "OpMutation", importTypeAll "OpQuery", importTypeAll "OpSubscription" ]
+    , declImport "Type.Data.List" [ importTypeOp ":>", importType "List'", importType "Nil'" ]
+    , declImport "Type.Proxy" [ importTypeAll "Proxy" ]
+    ]
+
+  decls :: Array (Declaration Void)
+  decls = unsafePartial $
+    [ declTypeSignature "Directives" $ typeApp (typeCtor "List'") [ typeCtor "Type" ]
+    , declType "Directives" [] directiveDefinitionsPurs
+    ]
+      <>
+        directiveAppliers
+
   directives = getDirectiveDefinitions defs
 
-  directiveDefinitionsPurs =
-    directives
-      # foldMap (directiveToPurs gqlScalarsToPursTypes)
+  directiveDefinitionsPurs :: CST.Type Void
+  directiveDefinitionsPurs = unsafePartial case NonEmpty.uncons directiveTypeWithNil of
+    { head, tail } ->
+      typeOp head $ tail <#> (binaryOp ":>")
+
+  directiveTypeWithNil = unsafePartial $ NonEmpty.snoc' directiveTypes (typeCtor "Nil'")
+
+  directiveTypes = directives
+    # Array.fromFoldable
+    # mapMaybe (directiveToPurs gqlScalarsToPursTypes id)
 
   directiveAppliers =
     directives
@@ -44,53 +67,61 @@ getDirectiveDefinitions :: List AST.Definition -> List AST.DirectiveDefinition
 getDirectiveDefinitions defs =
   defs
     >>= case _ of
-        AST.Definition_TypeSystemDefinition (AST.TypeSystemDefinition_DirectiveDefinition def) -> pure def
-        _ -> mempty
+      AST.Definition_TypeSystemDefinition (AST.TypeSystemDefinition_DirectiveDefinition def) -> pure def
+      _ -> mempty
 
-directiveToPurs :: Map String String -> AST.DirectiveDefinition -> String
-directiveToPurs gqlScalarsToPursTypes (AST.DirectiveDefinition { name, description, argumentsDefinition, directiveLocations }) =
-  if null locations then
-    ""
-  else
-    indent
-      $ "Directive "
-      <> show name
-      <> " "
-      <> show (fold description)
-      <> foldMap (\(AST.ArgumentsDefinition inputs) -> inputValueDefinitionsToPurs gqlScalarsToPursTypes inputs) argumentsDefinition
-      <> " ("
-      <> locationsStr
-      <> "Nil')\n  :> "
+directiveToPurs :: Map String QualifiedType -> QualifiedType -> AST.DirectiveDefinition -> Maybe (CST.Type Void)
+directiveToPurs gqlScalarsToPursTypes id (AST.DirectiveDefinition { name, description, argumentsDefinition, directiveLocations }) =
+  unsafePartial
+    if null locationTypes then
+      Nothing
+    else
+      Just $
+        typeApp (typeCtor "Directive")
+          [ typeString name
+          , typeString (fold description)
+          , typeRecord args Nothing
+          , locations
+          ]
+
   where
-  locations = directiveLocationsToPurs directiveLocations
+  args = unsafePartial $
+    argumentsDefinition # maybe [] (unwrap >>> Array.fromFoldable) <#> (inputValueDefinitionToPurs gqlScalarsToPursTypes id)
 
-  locationsStr = fold locations
+  locationsArr :: Array (AST.DirectiveLocation)
+  locationsArr = Array.fromFoldable $ unwrap directiveLocations
 
-directiveToApplierPurs :: AST.DirectiveDefinition -> String
-directiveToApplierPurs (AST.DirectiveDefinition { name }) =
-  "\n"
-    <> name
-    <> " :: forall q args. args -> q -> ApplyDirective "
-    <> show name
-    <> " args q \n"
-    <> name
-    <> " = applyDir (Proxy :: _ "
-    <> show name
-    <> ")"
+  locationTypes = mapMaybe directiveLocationToPurs locationsArr
 
-directiveLocationsToPurs :: AST.DirectiveLocations -> List String
-directiveLocationsToPurs (AST.DirectiveLocations locations) = mapMaybe directiveLocationToPurs locations
+  locations = unsafePartial case uncons locationTypes of
+    Nothing -> nilType
+    Just { head, tail } -> typeOp head $ (tail <> [ nilType ]) <#> (binaryOp ":>")
 
-directiveLocationToPurs :: AST.DirectiveLocation -> Maybe String
+nilType :: CST.Type Void
+nilType = unsafePartial $ typeCtor "Nil'"
+
+directiveToApplierPurs :: AST.DirectiveDefinition -> Array (CST.Declaration Void)
+directiveToApplierPurs (AST.DirectiveDefinition { name }) = unsafePartial $
+  [ declSignature name $ typeForall [ typeVar "q", typeVar "args" ] $ typeArrow [ typeVar "args", typeVar "q" ]
+      (typeApp (typeCtor "ApplyDirective") [ typeString name, typeVar "args", typeVar "q" ])
+
+  , declValue name []
+      ( exprApp (exprIdent "applyDir")
+          [ exprTyped (exprCtor "Proxy") (typeApp typeWildcard [ typeString name ])
+          ]
+      )
+  ]
+
+directiveLocationToPurs :: AST.DirectiveLocation -> Maybe (CST.Type Void)
 directiveLocationToPurs = case _ of
-  AST.DirectiveLocation_ExecutableDirectiveLocation location -> executableDirectiveLocationtoPurs location <#> (_ <> " :> ")
+  AST.DirectiveLocation_ExecutableDirectiveLocation location -> executableDirectiveLocationtoPurs location
   _ -> Nothing
 
-executableDirectiveLocationtoPurs :: AST.ExecutableDirectiveLocation -> Maybe String
-executableDirectiveLocationtoPurs = case _ of
-  AST.QUERY -> Just "QUERY"
-  AST.MUTATION -> Just "MUTATION"
-  AST.SUBSCRIPTION -> Just "SUBSCRIPTION"
+executableDirectiveLocationtoPurs :: AST.ExecutableDirectiveLocation -> Maybe (CST.Type Void)
+executableDirectiveLocationtoPurs = unsafePartial case _ of
+  AST.QUERY -> Just $ typeCtor "QUERY"
+  AST.MUTATION -> Just $ typeCtor "MUTATION"
+  AST.SUBSCRIPTION -> Just $ typeCtor "SUBSCRIPTION"
   AST.FIELD -> Nothing
   AST.FRAGMENT_DEFINITION -> Nothing
   AST.FRAGMENT_SPREAD -> Nothing

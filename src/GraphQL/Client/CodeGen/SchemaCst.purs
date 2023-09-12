@@ -1,0 +1,391 @@
+-- | Codegen functions to get purs schema code from graphQL schemas
+module GraphQL.Client.CodeGen.SchemaCst
+  ( gqlToPursSchema
+  ) where
+
+import Prelude
+
+import Control.Alt ((<|>))
+import Control.Monad.Writer (tell)
+import Data.Array (notElem)
+import Data.Array as Array
+import Data.CodePoint.Unicode (isLower)
+import Data.Filterable (class Filterable, filter)
+import Data.GraphQL.AST as AST
+import Data.List (List(..), any, mapMaybe, (:))
+import Data.List as List
+import Data.Map (Map, lookup)
+import Data.Map as Map
+import Data.Maybe (Maybe(..), fromMaybe', maybe)
+import Data.Monoid (guard)
+import Data.Newtype (unwrap, wrap)
+import Data.String (codePointFromChar)
+import Data.String as String
+import Data.String.CodeUnits (charAt)
+import Data.String.Extra (pascalCase)
+import Data.Traversable (class Foldable, class Traversable, for, traverse)
+import Data.Tuple (Tuple(..))
+import Data.Unfoldable (none)
+import GraphQL.Client.CodeGen.Types (InputOptions, GqlEnum)
+import GraphQL.Client.CodeGen.UtilCst (qualifiedTypeToName)
+import Partial.Unsafe (unsafePartial)
+import PureScript.CST.Types (Module, Proper, QualifiedName)
+import PureScript.CST.Types as CST
+import Tidy.Codegen (declDerive, declNewtype, declType, docComments, leading, lineComments, typeApp, typeArrow, typeCtor, typeRecord, typeRecordEmpty, typeRow, typeString, typeWildcard)
+import Tidy.Codegen.Class (class OverLeadingComments, class ToModuleName, class ToToken, toQualifiedName)
+import Tidy.Codegen.Monad (CodegenT, codegenModule, importClass, importFrom, importType)
+import Tidy.Codegen.Types (Qualified)
+
+gqlToPursSchema :: InputOptions -> String -> String -> AST.Document -> Array GqlEnum -> Module Void
+gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides, useNewtypesForRecords } directivesMName mName (AST.Document defs) enums = do
+  unsafePartial $ codegenModule mName do
+    directives <- importFrom directivesMName (importType "Directives")
+    voidT <- importFrom "Data.Void" (importType "Void")
+    proxyT <- importFrom "Type.Proxy" (importType "Proxy")
+    maybe_ <- importFrom "Data.Maybe" (importType "Maybe")
+    newType <- importFrom "Data.Newtype" (importClass "Newtype")
+    argsM <- importFrom "GraphQL.Client.Args"
+      { notNull: importType "NotNull"
+      }
+    gqlUnion <- importFrom "GraphQL.Client.Union" (importType "GqlUnion")
+    asGql <- importFrom "GraphQL.Client.AsGql" (importType "AsGql")
+    id <- case idImport of
+      Nothing -> importFrom "GraphQL.Client.ID" (importType "ID")
+      Just idImport_ -> importFrom idImport_.moduleName (importType idImport_.typeName)
+
+    let
+      enumsMap = Map.fromFoldable $ enums <#> \e ->
+        let
+          name = pascalCase e.name
+        in
+          Tuple name { moduleName: mName <> ".Enum." <> name, typeName: name }
+
+    enumsM :: Map String _ <- genImports enumsMap
+
+    gqlToPursTypesMs <- genImports gqlToPursTypes
+
+    fieldTypeOverridesMs <- for fieldTypeOverrides genImports
+
+    argTypeOverridesMs <- for argTypeOverrides (traverse genImports)
+
+    json <- importFrom "Data.Argonaut.Core" (importType "Json")
+
+    let
+      unknownJson tName = leading (lineComments $ "Unknown scalar type. Add " <> tName <> " to gqlToPursTypes in codegen options to override this behaviour") json
+
+      definitionToPurs :: AST.Definition -> List Decl
+      definitionToPurs = case _ of
+        AST.Definition_ExecutableDefinition _ -> mempty
+        AST.Definition_TypeSystemDefinition def -> typeSystemDefinitionToPurs def
+        AST.Definition_TypeSystemExtension _ -> mempty
+
+      typeSystemDefinitionToPurs :: AST.TypeSystemDefinition -> List Decl
+      typeSystemDefinitionToPurs = case _ of
+        AST.TypeSystemDefinition_SchemaDefinition schemaDefinition -> schemaDefinitionToPurs schemaDefinition
+        AST.TypeSystemDefinition_TypeDefinition typeDefinition -> typeDefinitionToPurs typeDefinition
+        AST.TypeSystemDefinition_DirectiveDefinition _directiveDefinition -> mempty
+
+      schemaDefinitionToPurs :: AST.SchemaDefinition -> List Decl
+      schemaDefinitionToPurs (AST.SchemaDefinition { rootOperationTypeDefinition }) = mapMaybe rootOperationTypeDefinitionToPurs rootOperationTypeDefinition
+
+      typeDefinitionToPurs :: AST.TypeDefinition -> List Decl
+      typeDefinitionToPurs = case _ of
+        AST.TypeDefinition_ScalarTypeDefinition scalarTypeDefinition -> List.fromFoldable $ scalarTypeDefinitionToPurs scalarTypeDefinition
+        AST.TypeDefinition_ObjectTypeDefinition objectTypeDefinition -> objectTypeDefinitionToPurs objectTypeDefinition
+        AST.TypeDefinition_InterfaceTypeDefinition _interfaceTypeDefinition -> mempty
+        AST.TypeDefinition_UnionTypeDefinition unionTypeDefinition -> List.fromFoldable $ unionTypeDefinitionToPurs unionTypeDefinition
+        AST.TypeDefinition_EnumTypeDefinition _enumTypeDefinition -> mempty
+        AST.TypeDefinition_InputObjectTypeDefinition inputObjectTypeDefinition ->
+          (inputObjectTypeDefinitionToPurs (_.name $ unwrap inputObjectTypeDefinition)) inputObjectTypeDefinition
+
+      rootOperationTypeDefinitionToPurs :: AST.RootOperationTypeDefinition -> Maybe Decl
+      rootOperationTypeDefinitionToPurs (AST.RootOperationTypeDefinition { operationType, namedType }) =
+        if opStr /= actualType then
+          pure $ declType opStr [] (typeCtor actualType)
+        else
+          none
+        where
+        actualType = pascalCase $ unwrap namedType
+
+        opStr = case operationType of
+          AST.Query -> "Query"
+          AST.Mutation -> "Mutation"
+          AST.Subscription -> "Subscription"
+
+      scalarTypeDefinitionToPurs :: AST.ScalarTypeDefinition -> Maybe Decl
+      scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name }) =
+        if (notElem tName builtInTypes) then
+          pure $ comment description $ declType tName [] (typeCtor scalarType)
+        else
+          none
+        where
+        tName = pascalCase name
+
+        scalarType =
+          lookup tName gqlToPursTypesMs
+            <|> (qualifiedTypeToName <$> lookup tName gqlToPursTypes)
+            <|> lookup tName enumsM
+            # fromMaybe' \_ -> unknownJson tName
+
+        builtInTypes = [ "Int", "Number", "String", "Boolean", "ID" ]
+
+      objectTypeDefinitionToPurs :: AST.ObjectTypeDefinition -> List Decl
+      objectTypeDefinitionToPurs
+        ( AST.ObjectTypeDefinition
+            { description
+            , fieldsDefinition
+            , name
+            }
+        ) =
+
+        let
+          tName = pascalCase name
+          record = maybe typeRecordEmpty (fieldsDefinitionToPurs name) fieldsDefinition
+        in
+
+          if useNewtypesForRecords then
+            comment description (declNewtype tName [] tName record)
+              : declDerive Nothing [] newType [ typeCtor tName, typeWildcard ]
+              : Nil
+
+          else
+            comment description (declType tName [] record)
+              : Nil
+
+      -- tipe
+      --   : declDerive Nothing [] newType [ typeCtor tName, typeWildcard ]
+      --   : Nil
+
+      fieldsDefinitionToPurs :: String -> AST.FieldsDefinition -> CST.Type Void
+      fieldsDefinitionToPurs objectName (AST.FieldsDefinition fieldsDefinition) =
+        typeRecord (map (fieldDefinitionToPurs objectName) $ Array.fromFoldable fieldsDefinition) Nothing
+
+      fieldDefinitionToPurs :: String -> AST.FieldDefinition -> Tuple String (CST.Type Void)
+      fieldDefinitionToPurs
+        objectName
+        ( AST.FieldDefinition
+            { description
+            , name
+            , argumentsDefinition
+            , type: tipe
+            }
+        ) = Tuple (safeFieldname name) case argumentsDefinition of
+        Nothing -> pursType
+        Just def ->
+          [ argumentsDefinitionToPurs objectName name def
+          ] `typeArrow` pursType
+        where
+        pursType :: CST.Type Void
+        pursType = comment description case lookup objectName fieldTypeOverridesMs >>= lookup name of
+          Nothing -> typeToPurs tipe
+          Just out -> case tipe of
+            AST.Type_NonNullType _ -> typeCtor out
+            AST.Type_ListType _ -> wrapArray $ typeCtor out
+            _ -> wrapMaybe $ typeCtor out
+
+      argumentsDefinitionToPurs :: String -> String -> AST.ArgumentsDefinition -> (CST.Type Void)
+      argumentsDefinitionToPurs objectName fieldName (AST.ArgumentsDefinition inputValueDefinitions) =
+        typeRecord (map (inputValueDefinitionToPurs objectName fieldName) $ Array.fromFoldable inputValueDefinitions) Nothing
+
+      inputValueDefinitionToPurs :: String -> String -> AST.InputValueDefinition -> Tuple String (CST.Type Void)
+      inputValueDefinitionToPurs
+        objectName
+        fieldName
+        ( AST.InputValueDefinition
+            { description
+            , name
+            , type: tipe
+            }
+        ) = Tuple (safeFieldname name) $ comment description
+        case lookup objectName fieldTypeOverridesMs >>= lookup name of
+          Nothing -> argTypeToPurs objectName fieldName name tipe
+          Just out -> case tipe of
+            AST.Type_NonNullType _ -> wrapNotNull $ typeCtor out
+            AST.Type_ListType _ -> wrapArray $ typeCtor out
+            _ -> typeCtor out
+
+      unionTypeDefinitionToPurs :: AST.UnionTypeDefinition -> Maybe Decl
+      unionTypeDefinitionToPurs
+        ( AST.UnionTypeDefinition
+            { description
+            , name
+            , directives: Nothing
+            , unionMemberTypes: Just (AST.UnionMemberTypes unionMemberTypes)
+            }
+        ) = Just $ comment description $ declType name [] $ typeApp (typeCtor gqlUnion)
+        [ typeRow (map (unionMemberTypeToPurs <<< unwrap) $ Array.fromFoldable unionMemberTypes) Nothing
+        ]
+
+      unionTypeDefinitionToPurs _ = Nothing
+
+      unionMemberTypeToPurs :: String -> Tuple String (CST.Type Void)
+      unionMemberTypeToPurs ty = Tuple ty $ typeCtor ty
+
+      -- TODO make fieldName Maybe
+      inputObjectTypeDefinitionToPurs :: String -> AST.InputObjectTypeDefinition -> List Decl
+      inputObjectTypeDefinitionToPurs
+        fieldName
+        ( AST.InputObjectTypeDefinition
+            { description
+            , inputFieldsDefinition
+            , name
+            }
+        ) =
+        let
+          tName = pascalCase name
+          record = maybe typeRecordEmpty (unwrap >>> (inputValueToFieldsDefinitionToPurs tName fieldName)) inputFieldsDefinition
+        in
+          (comment description $ declNewtype tName [] tName record)
+            : declDerive Nothing [] tName [ typeCtor tName, typeWildcard ]
+            : Nil
+
+      inputValueToFieldsDefinitionToPurs :: String -> String -> List AST.InputValueDefinition -> CST.Type Void
+      inputValueToFieldsDefinitionToPurs objectName fieldName definitions =
+        typeRecord (map (inputValueDefinitionToPurs objectName fieldName) $ Array.fromFoldable definitions) Nothing
+
+      getPursTypeName = namedTypeToPurs gqlToPursTypesMs id
+
+      pursTypeCtr gqlT =
+        annotateGqlType gqlT $ typeCtor $ getPursTypeName gqlT
+
+      annotateGqlType gqlT pursT =
+        typeApp (typeCtor asGql) [ typeString $ unwrap gqlT, pursT ]
+
+      typeToPurs :: AST.Type -> CST.Type Void
+      typeToPurs = case _ of
+        (AST.Type_NamedType namedType) -> namedTypeToPursNullable namedType
+        (AST.Type_ListType listType) -> listTypeToPursNullable listType
+        (AST.Type_NonNullType notNullType) -> notNullTypeToPurs notNullType
+
+      namedTypeToPursNullable :: AST.NamedType -> CST.Type Void
+      namedTypeToPursNullable t = wrapMaybe $ annotateGqlType t $ typeCtor $ getPursTypeName t
+
+      listTypeToPursNullable :: AST.ListType -> CST.Type Void
+      listTypeToPursNullable t = wrapMaybe $ listTypeToPurs t
+
+      wrapMaybe :: CST.Type Void -> CST.Type Void
+      wrapMaybe s = typeApp (typeCtor maybe_) [ s ]
+
+      wrapArray :: CST.Type Void -> CST.Type Void
+      wrapArray s = typeApp (typeCtor "Array") [ s ]
+
+      notNullTypeToPurs :: AST.NonNullType -> CST.Type Void
+      notNullTypeToPurs = case _ of
+        AST.NonNullType_NamedType t -> pursTypeCtr t
+        AST.NonNullType_ListType t -> listTypeToPurs t
+
+      listTypeToPurs :: AST.ListType -> CST.Type Void
+      listTypeToPurs (AST.ListType t) = wrapArray $ typeToPurs t
+
+      argTypeToPurs :: String -> String -> String -> AST.Type -> CST.Type Void
+      argTypeToPurs objectName fieldName argName tipe = case tipe of
+        (AST.Type_NamedType namedType) -> case lookup objectName argTypeOverridesMs >>= lookup fieldName >>= lookup argName of
+          Nothing -> pursTypeCtr namedType
+          Just out -> annotateGqlType namedType $ typeCtor out
+        (AST.Type_ListType listType) -> argListTypeToPurs objectName fieldName argName listType
+        (AST.Type_NonNullType notNullType) -> wrapNotNull $ argNotNullTypeToPurs objectName fieldName argName notNullType
+
+      argNotNullTypeToPurs :: String -> String -> String -> AST.NonNullType -> CST.Type Void
+      argNotNullTypeToPurs objectName fieldName argName = case _ of
+        AST.NonNullType_NamedType t -> case lookup objectName argTypeOverridesMs >>= lookup fieldName >>= lookup argName of
+          Nothing -> pursTypeCtr t
+          Just out -> annotateGqlType t $ typeCtor out
+        AST.NonNullType_ListType t -> argListTypeToPurs objectName fieldName argName t
+
+      argListTypeToPurs :: String -> String -> String -> AST.ListType -> CST.Type Void
+      argListTypeToPurs objectName fieldName argName (AST.ListType t) =
+        wrapArray $ argTypeToPurs objectName fieldName argName t
+
+      wrapNotNull s = typeApp (typeCtor argsM.notNull) [ s ]
+
+      declarations = defs
+        >>= definitionToPurs
+        # Array.fromFoldable
+
+      hasMutation = hasRootOp defs AST.Mutation
+      hasSubscription = hasRootOp defs AST.Subscription
+
+      schema = declType "Schema" [] $ typeRecord
+        [ Tuple "directives" $ typeApp (typeCtor proxyT) [ typeCtor directives ]
+        , Tuple "query" $ typeCtor "Query"
+        , Tuple "mutation" $ if hasMutation then typeCtor "Mutation" else typeCtor voidT
+        , Tuple "subscription" $ if hasSubscription then typeCtor "Subscription" else typeCtor voidT
+        ]
+        Nothing
+    tell
+      $ [ schema ] <> declarations
+
+hasRootOp :: forall f. Foldable f => f AST.Definition -> AST.OperationType -> Boolean
+hasRootOp defs op = defs # any case _ of
+  AST.Definition_TypeSystemDefinition (AST.TypeSystemDefinition_SchemaDefinition (AST.SchemaDefinition d)) ->
+    d.rootOperationTypeDefinition # any (unwrap >>> _.operationType >>> eq op)
+  _ -> false
+
+genImports
+  :: forall f e m name r
+   . Filterable f
+  => Traversable f
+  => Monad m
+  => Partial
+  => ToToken name (Qualified Proper)
+  => f
+       { moduleName :: String
+       , typeName :: name
+       | r
+       }
+  -> CodegenT e m (f (QualifiedName Proper))
+genImports = filter (_.moduleName >>> not String.null) >>> traverse genImport
+
+genImport
+  :: forall e m mod name r
+   . Monad m
+  => ToModuleName mod
+  => ToToken name (Qualified Proper)
+  => { moduleName :: mod
+     , typeName :: name
+     | r
+     }
+  -> CodegenT e m (QualifiedName Proper)
+genImport t = importFrom t.moduleName (importType t.typeName)
+
+comment :: ∀ a. OverLeadingComments a ⇒ Maybe String → a → a
+comment = maybe identity (leading <<< docComments)
+
+type Decl = CST.Declaration Void
+
+namedTypeToPurs :: Map String (QualifiedName Proper) -> QualifiedName Proper -> AST.NamedType -> QualifiedName Proper
+namedTypeToPurs gqlToPursTypes id (AST.NamedType str) = typeName gqlToPursTypes id str
+
+typeName :: Map String (QualifiedName Proper) -> QualifiedName Proper -> String -> QualifiedName Proper
+typeName gqlToPursTypes id str =
+  lookup str gqlToPursTypes
+    # fromMaybe' \_ -> case pascalCase str of
+        "Id" -> id
+        notId -> qualifiy case notId of
+          "Float" -> "Number"
+          "Numeric" -> "Number"
+          "Bigint" -> "Number"
+          "Smallint" -> "Int"
+          "Integer" -> "Int"
+          "Int" -> "Int"
+          "Int2" -> "Int"
+          "Int4" -> "Int"
+          "Int8" -> "Int"
+          "Text" -> "String"
+          "Citext" -> "String"
+          "Jsonb" -> "Json"
+          "Timestamp" -> "DateTime"
+          "Timestamptz" -> "DateTime"
+          s -> s
+
+  where
+  qualifiy :: String -> QualifiedName Proper
+  qualifiy = toQualifiedName <<< (wrap :: _ -> Proper)
+
+safeFieldname :: String -> String
+safeFieldname s = if isSafe then s else show s
+  where
+  isSafe =
+    charAt 0 s
+      # maybe false \c ->
+          c == '_' || (isLower $ codePointFromChar c)

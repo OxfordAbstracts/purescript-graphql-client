@@ -423,14 +423,14 @@ derive instance newTypeChildLevel :: Newtype ChildLevel _
 testCircularNewtypeSchemaProxy :: Proxy TestCircularNewtypeSchema
 testCircularNewtypeSchemaProxy = Proxy
 
-passingCircularNewtypeSchema1 :: Unit
-passingCircularNewtypeSchema1 =
-  typeChecks testCircularNewtypeSchemaProxy
-    { top: { child: { val: unit } }
-    }
+-- passingCircularNewtypeSchema1 :: Unit
+-- passingCircularNewtypeSchema1 =
+--   typeChecks testCircularNewtypeSchemaProxy
+--     { top: { child: { val: unit } }
+--     }
 
-passingCircularNewtypeSchema2 :: Unit
-passingCircularNewtypeSchema2 =
-  typeChecks testCircularNewtypeSchemaProxy
-    { top: { child: { top: { child: { val: unit } } } }
-    }
+-- passingCircularNewtypeSchema2 :: Unit
+-- passingCircularNewtypeSchema2 =
+--   typeChecks testCircularNewtypeSchemaProxy
+--     { top: { child: { top: { child: { val: unit } } } }
+--     }

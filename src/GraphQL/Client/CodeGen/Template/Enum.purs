@@ -25,7 +25,7 @@ template ::
   , customCode :: { name :: String, values :: Array { gql :: String, transformed :: String} } -> String
   } ->
   String
-template modulePrefix opts@{ name, schemaName, description, values, imports, customCode } =
+template modulePrefix opts@{ name, schemaName, description, values, imports, customCode } = 
   """module """ <> modulePrefix <> "Schema." <> schemaName <> """.Enum.""" <> name
     <> """ where
 
@@ -42,7 +42,6 @@ import GraphQL.Client.Args (class ArgGql)
 import GraphQL.Client.ToGqlString (class GqlArgString)
 import GraphQL.Hasura.Decode (class DecodeHasura)
 import GraphQL.Hasura.Encode (class EncodeHasura)
-import GraphQL.Client.Variables.TypeName (class VarTypeName)
 """
     <> intercalate "\n" imports
     <> """
@@ -121,15 +120,6 @@ instance encodeHasura"""
     <> name
     <> """ where 
   encodeHasura = encodeJson
-
-instance varTypeName"""
-    <> name
-    <> """ :: VarTypeName """
-    <> name
-    <> """ where 
-  varTypeName _ = """
-    <> show (name <> "!")
-    <> """
 
 instance show"""
     <> name

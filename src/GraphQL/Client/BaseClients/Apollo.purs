@@ -37,6 +37,7 @@ import GraphQL.Client.BaseClients.Apollo.FetchPolicy (FetchPolicy)
 import GraphQL.Client.Operation (OpQuery)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
 import GraphQL.Client.Types (class GqlQuery, class QueryClient, class SubscriptionClient, class WatchQueryClient, Client(..))
+import Type.Proxy (Proxy)
 
 type ApolloClientOptions =
   { url :: URL
@@ -86,16 +87,16 @@ defMutationOpts =
   , optimisticResponse: Nothing
   }
 
-
-createClient ::
-  forall directives querySchema mutationSchema subscriptionSchema.
-  ApolloClientOptions -> Effect (Client ApolloClient directives querySchema mutationSchema subscriptionSchema)
+createClient
+  :: forall schema
+   . ApolloClientOptions
+  -> Effect (Client ApolloClient schema)
 createClient = clientOptsToForeign >>> createClientImpl >>> map Client
 
-createSubscriptionClient ::
-  forall directives querySchema mutationSchema subscriptionSchema.
-  ApolloSubClientOptions ->
-  Effect (Client ApolloSubClient directives querySchema mutationSchema subscriptionSchema)
+createSubscriptionClient
+  :: forall schema
+   . ApolloSubClientOptions
+  -> Effect (Client ApolloSubClient schema)
 createSubscriptionClient = clientOptsToForeign >>> createSubscriptionClientImpl >>> map Client
 
 clientOptsToForeign
@@ -193,26 +194,29 @@ instance isApolloClient :: IsApollo ApolloClient
 instance isApolloSubClient :: IsApollo ApolloSubClient
 
 -- Update the query results in the cache, using default encoding and decoding
-updateCacheJson ::
-  forall s directives m q qSchema c res.
-  IsApollo c =>
-  GqlQuery directives OpQuery qSchema q res =>
-  EncodeJson res =>
-  DecodeJson res =>
-  Client c directives qSchema m s -> q -> (res -> res) -> Effect Unit
+updateCacheJson
+  :: forall s directives m q qSchema c res sr
+   . IsApollo c
+  => GqlQuery directives OpQuery qSchema q res
+  => EncodeJson res
+  => DecodeJson res
+  => (Client c { directives :: Proxy directives, query :: qSchema | sr })
+  -> q
+  -> (res -> res)
+  -> Effect Unit
 updateCacheJson = updateCache encodeJson decodeJson
 
 -- Update the query results in the cache
-updateCache ::
-  forall c directives qSchema q m s res.
-  IsApollo c =>
-  GqlQuery directives OpQuery qSchema q res =>
-  (res -> Json) ->
-  (Json -> Either JsonDecodeError res) ->
-  (Client c directives qSchema m s) ->
-  q ->
-  (res -> res) ->
-  Effect Unit
+updateCache
+  :: forall c directives qSchema q m s res sr
+   . IsApollo c
+  => GqlQuery directives OpQuery qSchema q res
+  => (res -> Json)
+  -> (Json -> Either JsonDecodeError res)
+  -> (Client c { directives :: Proxy directives, query :: qSchema | sr })
+  -> q
+  -> (res -> res)
+  -> Effect Unit
 updateCache encoder decoder client query f = do
   may <- readQuery decoder client query
   case may of
@@ -220,11 +224,14 @@ updateCache encoder decoder client query f = do
     Just res -> writeQuery encoder client query $ f res
 
 -- | read a query result from the cache
-readQuery ::
-  forall c directives qSchema q m s res.
-  IsApollo c =>
-  GqlQuery directives OpQuery  qSchema q res =>
-  (Json -> Either JsonDecodeError res) -> (Client c directives  qSchema m s) -> q -> Effect (Maybe res)
+readQuery
+  :: forall c directives qSchema q m s res sr
+   . IsApollo c
+  => GqlQuery directives OpQuery qSchema q res
+  => (Json -> Either JsonDecodeError res)
+  -> (Client c { directives :: Proxy directives, query :: qSchema | sr })
+  -> q
+  -> Effect (Maybe res)
 readQuery decoder client query = do
   json <- toMaybe <$> readQueryImpl client (toGqlQueryString query)
   case map decoder json of
@@ -233,11 +240,15 @@ readQuery decoder client query = do
     Just (Right res) -> pure $ Just res
 
 -- | write a query result to the cache
-writeQuery ::
-  forall c directives qSchema q m s res.
-  IsApollo c =>
-  GqlQuery directives OpQuery  qSchema q res =>
-  (res -> Json) -> (Client c directives qSchema m s) -> q -> res -> Effect Unit
+writeQuery
+  :: forall c directives qSchema q m s res sr
+   . IsApollo c
+  => GqlQuery directives OpQuery qSchema q res
+  => (res -> Json)
+  -> (Client c { directives :: Proxy directives, query :: qSchema | sr })
+  -> q
+  -> res
+  -> Effect Unit
 writeQuery encoder client query newData = do
   writeQueryImpl client (toGqlQueryString query) (encoder newData)
 
