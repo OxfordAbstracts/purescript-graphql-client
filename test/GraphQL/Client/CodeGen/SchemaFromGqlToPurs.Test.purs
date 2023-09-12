@@ -290,7 +290,7 @@ import Test.Spec.Assertions (shouldEqual)
 --     -> (Maybe AlsoUnkown)
 --   }
 -- derive instance newtypeQuery :: Newtype Query _
--- instance argToQueriable :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }"""
+-- instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }"""
 --         gql
 --           ` ( shouldParseToOpts
 --               defaultOpts
@@ -326,7 +326,7 @@ import Test.Spec.Assertions (shouldEqual)
 -- --   , my_type_c :: (Array MyModule.MyTypeC)
 -- --   }
 -- -- derive instance newtypeQuery :: Newtype Query _
--- -- instance argToQueriable :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }"""
+-- -- instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }"""
 --         gql
 --           ` ( shouldParseToOpts
 --               defaultOpts
@@ -375,7 +375,7 @@ import Test.Spec.Assertions (shouldEqual)
 --   , my_type_c :: (Array AlsoUnkown)
 --   }
 -- derive instance newtypeQuery :: Newtype Query _
--- instance argToQueriable :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
+-- instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
 
 -- type SomethingUnknown = Data.Argonaut.Core.Json -- Unknown scalar type. Add SomethingUnknown to externalTypes in codegen options to override this behaviour
 
@@ -407,7 +407,7 @@ import Test.Spec.Assertions (shouldEqual)
 --   { int :: Int
 --   }
 -- derive instance newtypeQuery :: Newtype Query _
--- instance argToQueriable :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
+-- instance argToGqlQuery :: (Newtype Query {| p},  RecordArg p a u) => ArgGql Query { | a }
 
 -- newtype X = X 
 --   { int :: Int
