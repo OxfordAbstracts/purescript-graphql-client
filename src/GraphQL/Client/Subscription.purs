@@ -9,7 +9,7 @@ import GraphQL.Client.Operation (OpSubscription)
 import GraphQL.Client.Query (decodeGqlRes, getFullRes)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (toGqlQueryString)
-import GraphQL.Client.Types (class GqlQuery, class SubscriptionClient, Client(..), GqlRes, GqlResJson(..), subscriptionEventOpts)
+import GraphQL.Client.Types (class Queriable, class SubscriptionClient, Client(..), GqlRes, GqlResJson(..), subscriptionEventOpts)
 import GraphQL.Client.Variables (getVarsJson)
 import Halogen.Subscription (Emitter)
 import Type.Proxy (Proxy(..))
@@ -17,7 +17,7 @@ import Type.Proxy (Proxy(..))
 subscriptionOpts
   :: forall a returns query schema client directives opts
    . SubscriptionClient client opts
-  => GqlQuery directives OpSubscription schema query returns
+  => Queriable directives OpSubscription schema query returns
   => DecodeJson returns
   => (opts -> opts)
   -> Client client { directives :: Proxy directives, subscription :: schema | a }
@@ -29,7 +29,7 @@ subscriptionOpts = subscriptionOptsWithDecoder decodeJson
 subscriptionOptsWithDecoder
   :: forall client directives opts schema query returns a
    . SubscriptionClient client opts
-  => GqlQuery directives OpSubscription schema query returns
+  => Queriable directives OpSubscription schema query returns
   => (Json -> Either JsonDecodeError returns)
   -> (opts -> opts)
   -> (Client client { directives :: Proxy directives, subscription :: schema | a })
@@ -47,7 +47,7 @@ subscriptionOptsWithDecoder decodeFn optsF (Client client) queryNameUnsafe q =
 subscription
   :: forall a returns query schema client directives opts
    . SubscriptionClient client opts
-  => GqlQuery directives OpSubscription schema query returns
+  => Queriable directives OpSubscription schema query returns
   => DecodeJson returns
   => Client client { directives :: Proxy directives, subscription :: schema | a }
   -> String
@@ -58,7 +58,7 @@ subscription = subscriptionWithDecoder decodeJson
 subscriptionWithDecoder
   :: forall client directives opts schema query returns a
    . SubscriptionClient client opts
-  => GqlQuery directives OpSubscription schema query returns
+  => Queriable directives OpSubscription schema query returns
   => (Json -> Either JsonDecodeError returns)
   -> (Client client { directives :: Proxy directives, subscription :: schema | a })
   -> String
@@ -71,7 +71,7 @@ subscriptionWithDecoder decodeFn = subscriptionOptsWithDecoder decodeFn identity
 subscriptionFullRes
   :: forall client directives schema subscription returns a subOpts
    . SubscriptionClient client subOpts
-  => GqlQuery directives OpSubscription schema subscription returns
+  => Queriable directives OpSubscription schema subscription returns
   => (Json -> Either JsonDecodeError returns)
   -> (subOpts -> subOpts)
   -> (Client client { directives :: Proxy directives, subscription :: schema | a })
@@ -87,7 +87,7 @@ subscriptionFullRes decodeFn optsF (Client client) queryNameUnsafe q = ado
 subscriptionJson
   :: forall client directives schema subscription returns a subOpts
    . SubscriptionClient client subOpts
-  => GqlQuery directives OpSubscription schema subscription returns
+  => Queriable directives OpSubscription schema subscription returns
   => (subOpts -> subOpts)
   -> (Client client { directives :: Proxy directives, subscription :: schema | a })
   -> String

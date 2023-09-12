@@ -13,7 +13,7 @@ import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Args (NotNull, (=>>))
 import GraphQL.Client.Operation (OpQuery)
 import GraphQL.Client.Query (query_)
-import GraphQL.Client.Types (class GqlQuery)
+import GraphQL.Client.Types (class Queriable)
 import GraphQL.Client.Variable (Var(..))
 import GraphQL.Client.Variables (withVars)
 import Type.Data.List (Nil')
@@ -49,7 +49,7 @@ main =
 -- Run gql query
 queryGql
   :: forall query returns
-   . GqlQuery Nil' OpQuery Query query returns
+   . Queriable Nil' OpQuery Query query returns
   => DecodeJson returns
   => String
   -> query

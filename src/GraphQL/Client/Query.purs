@@ -40,7 +40,7 @@ import GraphQL.Client.GqlError (GqlError)
 import GraphQL.Client.Operation (OpMutation, OpQuery)
 import GraphQL.Client.SafeQueryName (safeQueryName)
 import GraphQL.Client.ToGqlString (class GqlQueryString, toGqlQueryString, toGqlQueryStringFormatted)
-import GraphQL.Client.Types (class GqlQuery, class QueryClient, Client(..), GqlRes, GqlResJson(..), clientMutation, clientQuery, defMutationOpts, defQueryOpts)
+import GraphQL.Client.Types (class Queriable, class QueryClient, Client(..), GqlRes, GqlResJson(..), clientMutation, clientQuery, defMutationOpts, defQueryOpts)
 import GraphQL.Client.Variables (class VarsTypeChecked, getVarsJson, getVarsTypeNames)
 import Type.Proxy (Proxy(..))
 
@@ -48,7 +48,7 @@ import Type.Proxy (Proxy(..))
 queryOptsWithDecoder
   :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
-  => GqlQuery directives OpQuery schema query returns
+  => Queriable directives OpQuery schema query returns
   => (Json -> Either JsonDecodeError returns)
   -> (queryOpts -> queryOpts)
   -> (Client client { directives :: Proxy directives, query :: schema | sr })
@@ -65,7 +65,7 @@ queryOptsWithDecoder d optsF (Client c) name q =
 queryOpts
   :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
-  => GqlQuery directives OpQuery schema query returns
+  => Queriable directives OpQuery schema query returns
   => DecodeJson returns
   => (queryOpts -> queryOpts)
   -> (Client client { directives :: Proxy directives, query :: schema | sr })
@@ -78,7 +78,7 @@ queryOpts = queryOptsWithDecoder decodeJson
 queryWithDecoder
   :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
-  => GqlQuery directives OpQuery schema query returns
+  => Queriable directives OpQuery schema query returns
   => (Json -> Either JsonDecodeError returns)
   -> (Client client { directives :: Proxy directives, query :: schema | sr })
   -> String
@@ -90,7 +90,7 @@ queryWithDecoder d (Client c) = runQuery d (defQueryOpts c) c (Proxy :: Proxy sc
 query
   :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
-  => GqlQuery directives OpQuery schema query returns
+  => Queriable directives OpQuery schema query returns
   => DecodeJson returns
   => (Client client { directives :: Proxy directives, query :: schema | sr })
   -> String
@@ -102,7 +102,7 @@ query = queryWithDecoder decodeJson
 -- | `query` is a safer option for production environments and should generally be used
 query_
   :: forall directives schema query returns
-   . GqlQuery directives OpQuery schema query returns
+   . Queriable directives OpQuery schema query returns
   => DecodeJson returns
   => URL
   -> Proxy schema
@@ -121,7 +121,7 @@ query_ url _ name q = do
 mutationWithDecoder
   :: forall client directives schema mutation returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
-  => GqlQuery directives OpMutation schema mutation returns
+  => Queriable directives OpMutation schema mutation returns
   => (Json -> Either JsonDecodeError returns)
   -> (Client client { directives :: Proxy directives, mutation :: schema | sr })
   -> String
@@ -132,7 +132,7 @@ mutationWithDecoder d (Client c) = runMutation d (defMutationOpts c) c (Proxy ::
 mutation
   :: forall client directives schema mutation returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
-  => GqlQuery directives OpMutation schema mutation returns
+  => Queriable directives OpMutation schema mutation returns
   => DecodeJson returns
   => (Client client { directives :: Proxy directives, mutation :: schema | sr })
   -> String
@@ -144,7 +144,7 @@ mutation = mutationWithDecoder decodeJson
 mutationOptsWithDecoder
   :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
-  => GqlQuery directives OpMutation schema query returns
+  => Queriable directives OpMutation schema query returns
   => (Json -> Either JsonDecodeError returns)
   -> (mutationOpts -> mutationOpts)
   -> (Client client { directives :: Proxy directives, mutation :: schema | sr })
@@ -159,7 +159,7 @@ mutationOptsWithDecoder d optsF (Client c) = runMutation d opts c (Proxy :: Prox
 mutationOpts
   :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
-  => GqlQuery directives OpMutation schema query returns
+  => Queriable directives OpMutation schema query returns
   => DecodeJson returns
   => (mutationOpts -> mutationOpts)
   -> (Client client { directives :: Proxy directives, mutation :: schema | sr })
@@ -170,7 +170,7 @@ mutationOpts = mutationOptsWithDecoder decodeJson
 
 mutation_
   :: forall directives schema mutation returns
-   . GqlQuery directives OpMutation schema mutation returns
+   . Queriable directives OpMutation schema mutation returns
   => DecodeJson returns
   => URL
   -> Proxy schema
@@ -189,7 +189,7 @@ mutation_ url _ name q = do
 runQuery
   :: forall client directives schema query returns qOpts mOpts
    . QueryClient client qOpts mOpts
-  => GqlQuery directives OpQuery schema query returns
+  => Queriable directives OpQuery schema query returns
   => VarsTypeChecked schema query
   => (Json -> Either JsonDecodeError returns)
   -> qOpts
@@ -209,7 +209,7 @@ runQuery decodeFn opts client _ queryNameUnsafe q =
 runMutation
   :: forall client directives schema query returns qOpts mOpts
    . QueryClient client qOpts mOpts
-  => GqlQuery directives OpMutation schema query returns
+  => Queriable directives OpMutation schema query returns
   => (Json -> Either JsonDecodeError returns)
   -> mOpts
   -> client
@@ -269,7 +269,7 @@ addErrorInfo queryName q =
 queryFullRes
   :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
-  => GqlQuery directives OpQuery schema query returns
+  => Queriable directives OpQuery schema query returns
   => (Json -> Either JsonDecodeError returns)
   -> (queryOpts -> queryOpts)
   -> (Client client { directives :: Proxy directives, query :: schema | sr })
@@ -288,7 +288,7 @@ queryFullRes decodeFn optsF (Client client) queryNameUnsafe q =
 queryJson
   :: forall client directives schema query returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
-  => GqlQuery directives OpQuery schema query returns
+  => Queriable directives OpQuery schema query returns
   => (queryOpts -> queryOpts)
   -> (Client client { directives :: Proxy directives, query :: schema | sr })
   -> String
@@ -307,7 +307,7 @@ queryJson optsF (Client client) queryNameUnsafe q =
 mutationFullRes
   :: forall client directives schema mutation returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
-  => GqlQuery directives OpMutation schema mutation returns
+  => Queriable directives OpMutation schema mutation returns
   => (Json -> Either JsonDecodeError returns)
   -> (mutationOpts -> mutationOpts)
   -> (Client client { directives :: Proxy directives, query :: schema | sr })
@@ -326,7 +326,7 @@ mutationFullRes decodeFn optsF (Client client) queryNameUnsafe q =
 mutationJson
   :: forall client directives schema mutation returns queryOpts mutationOpts sr
    . QueryClient client queryOpts mutationOpts
-  => GqlQuery directives OpMutation schema mutation returns
+  => Queriable directives OpMutation schema mutation returns
   => (mutationOpts -> mutationOpts)
   -> (Client client { directives :: Proxy directives, mutation :: schema | sr })
   -> String
