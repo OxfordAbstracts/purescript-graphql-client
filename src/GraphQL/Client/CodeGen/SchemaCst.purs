@@ -12,7 +12,7 @@ import Data.Array as Array
 import Data.CodePoint.Unicode (isLower)
 import Data.Filterable (class Filterable, filter)
 import Data.GraphQL.AST as AST
-import Data.List (List(..), any, mapMaybe, (:))
+import Data.List (List(..), any, mapMaybe, sort, (:))
 import Data.List as List
 import Data.Map (Map, lookup)
 import Data.Map as Map
@@ -163,7 +163,7 @@ gqlToPursSchema
 
       fieldsDefinitionToPurs :: String -> AST.FieldsDefinition -> CST.Type Void
       fieldsDefinitionToPurs objectName (AST.FieldsDefinition fieldsDefinition) =
-        typeRecord (map (fieldDefinitionToPurs objectName) $ Array.fromFoldable fieldsDefinition) Nothing
+        typeRecord (map (fieldDefinitionToPurs objectName) $ Array.fromFoldable $ sort fieldsDefinition) Nothing
 
       fieldDefinitionToPurs :: String -> AST.FieldDefinition -> Tuple String (CST.Type Void)
       fieldDefinitionToPurs
@@ -190,7 +190,7 @@ gqlToPursSchema
 
       argumentsDefinitionToPurs :: String -> String -> AST.ArgumentsDefinition -> (CST.Type Void)
       argumentsDefinitionToPurs objectName fieldName (AST.ArgumentsDefinition inputValueDefinitions) =
-        typeRecord (map (inputValueDefinitionToPurs objectName fieldName) $ Array.fromFoldable inputValueDefinitions) Nothing
+        typeRecord (map (inputValueDefinitionToPurs objectName fieldName) $ Array.fromFoldable $ sort inputValueDefinitions) Nothing
 
       inputValueDefinitionToPurs :: String -> String -> AST.InputValueDefinition -> Tuple String (CST.Type Void)
       inputValueDefinitionToPurs
@@ -238,7 +238,11 @@ gqlToPursSchema
         ) =
         let
           tName = pascalCase name
-          record = maybe typeRecordEmpty (unwrap >>> (inputValueToFieldsDefinitionToPurs tName fieldName)) inputFieldsDefinition
+          record = maybe typeRecordEmpty
+            ( unwrap >>>
+                (inputValueToFieldsDefinitionToPurs tName fieldName)
+            )
+            inputFieldsDefinition
         in
           (comment description $ declNewtype tName [] tName record)
             : declDerive Nothing [] newType [ typeCtor tName, typeWildcard ]
@@ -246,7 +250,7 @@ gqlToPursSchema
 
       inputValueToFieldsDefinitionToPurs :: String -> String -> List AST.InputValueDefinition -> CST.Type Void
       inputValueToFieldsDefinitionToPurs objectName fieldName definitions =
-        typeRecord (map (inputValueDefinitionToPurs objectName fieldName) $ Array.fromFoldable definitions) Nothing
+        typeRecord (map (inputValueDefinitionToPurs objectName fieldName) $ Array.fromFoldable $ sort definitions) Nothing
 
       getPursTypeName = namedTypeToPurs gqlToPursTypesMs id
 
@@ -303,9 +307,11 @@ gqlToPursSchema
 
       wrapNotNull s = typeApp (typeCtor argsM.notNull) [ s ]
 
-      declarations = defs
-        >>= definitionToPurs
-        # Array.fromFoldable
+      declarations =
+        defs
+          # sort
+          >>= definitionToPurs
+          # Array.fromFoldable
 
       hasMutation = hasRootOp defs AST.Mutation
       hasSubscription = hasRootOp defs AST.Subscription

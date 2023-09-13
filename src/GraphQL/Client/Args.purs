@@ -4,12 +4,9 @@ import Prelude
 
 import Data.Argonaut.Core (Json)
 import Data.Bifunctor (class Bifunctor)
-import Data.Date (Date)
-import Data.DateTime (DateTime)
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import Data.Symbol (class IsSymbol)
-import Data.Time (Time)
 import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.NullArray (NullArray)
 import GraphQL.Client.Variable (Var)
@@ -64,6 +61,8 @@ onlyArgs a = Args a unit
 class ArgGql :: forall k1 k2. k1 -> k2 -> Constraint
 class ArgGql params arg
 
+-- instance ArgGql p a 
+
 instance argToGqlNotNull :: (IsNotNull param arg, ArgGql param arg) => ArgGql (NotNull param) arg
 else instance argToGqlIgnore :: ArgGql param IgnoreArg
 else instance argAsGql :: ArgGql param arg => ArgGql (AsGql gqlName param) arg
@@ -76,9 +75,23 @@ else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql 
 else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
 else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
 else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
-
 else instance argToGqlRecord :: RecordArg p a u => ArgGql { | p } { | a }
+else instance argGqlIdentity :: ArgGql a a
 else instance argToGqlNewtypeRecord :: (Newtype n { | p }, RecordArg p a u) => ArgGql n { | a }
+else instance argMismatch ::
+  ( TE.Fail
+      ( TE.Above
+          (TE.Text "Argument type mismatch: ")
+          ( TE.Beside
+              (TE.Text "  ")
+              ( TE.Above
+                  (TE.Beside (TE.Text "Schema: ") (TE.Quote param))
+                  (TE.Beside (TE.Text "Query: ") (TE.Quote (Maybe arg)))
+              )
+          )
+      )
+  ) =>
+  ArgGql param arg
 
 class IsNotNull :: forall k1 k2. k1 -> k2 -> Constraint
 class IsNotNull param arg
@@ -123,19 +136,19 @@ else instance
   IsNotNull param (OrArg l r)
 else instance IsNotNull param arg
 
-instance argToGqlInt :: ArgGql Int Int
+-- instance argToGqlInt :: ArgGql Int Int
 
-instance argToGqlNumber :: ArgGql Number Number
+-- instance argToGqlNumber :: ArgGql Number Number
 
-instance argToGqlString :: ArgGql String String
+-- instance argToGqlString :: ArgGql String String
 
-instance argToGqlBoolean :: ArgGql Boolean Boolean
+-- instance argToGqlBoolean :: ArgGql Boolean Boolean
 
-instance argToGqlDate :: ArgGql Date Date
+-- instance argToGqlDate :: ArgGql Date Date
 
-instance argToGqlTime :: ArgGql Time Time
+-- instance argToGqlTime :: ArgGql Time Time
 
-instance argToGqlDateTime :: ArgGql DateTime DateTime
+-- instance argToGqlDateTime :: ArgGql DateTime DateTime
 
 class HMapWithIndex (ArgPropToGql p) { | a } u <= RecordArg p a u
 

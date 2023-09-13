@@ -467,11 +467,11 @@ var bottomNumber = Number.NEGATIVE_INFINITY;
 
 // output/Data.Ord/foreign.js
 var unsafeCompareImpl = function(lt) {
-  return function(eq11) {
+  return function(eq75) {
     return function(gt) {
       return function(x) {
         return function(y) {
-          return x < y ? lt : x === y ? eq11 : gt;
+          return x < y ? lt : x === y ? eq75 : gt;
         };
       };
     };
@@ -549,6 +549,9 @@ var eqChar = {
 var eqBoolean = {
   eq: eqBooleanImpl
 };
+var eq1 = function(dict) {
+  return dict.eq1;
+};
 var eq = function(dict) {
   return dict.eq;
 };
@@ -559,10 +562,10 @@ var eqArray = function(dictEq) {
   };
 };
 var notEq = function(dictEq) {
-  var eq34 = eq(dictEq);
+  var eq312 = eq(dictEq);
   return function(x) {
     return function(y) {
-      return eq2(eq34(x)(y))(false);
+      return eq2(eq312(x)(y))(false);
     };
   };
 };
@@ -802,25 +805,28 @@ var ordBoolean = /* @__PURE__ */ function() {
     }
   };
 }();
+var compare1 = function(dict) {
+  return dict.compare1;
+};
 var compare = function(dict) {
   return dict.compare;
 };
 var compare2 = /* @__PURE__ */ compare(ordInt);
 var comparing = function(dictOrd) {
-  var compare34 = compare(dictOrd);
+  var compare312 = compare(dictOrd);
   return function(f) {
     return function(x) {
       return function(y) {
-        return compare34(f(x))(f(y));
+        return compare312(f(x))(f(y));
       };
     };
   };
 };
 var max = function(dictOrd) {
-  var compare34 = compare(dictOrd);
+  var compare312 = compare(dictOrd);
   return function(x) {
     return function(y) {
-      var v = compare34(x)(y);
+      var v = compare312(x)(y);
       if (v instanceof LT) {
         return y;
       }
@@ -838,10 +844,10 @@ var max = function(dictOrd) {
   };
 };
 var min = function(dictOrd) {
-  var compare34 = compare(dictOrd);
+  var compare312 = compare(dictOrd);
   return function(x) {
     return function(y) {
-      var v = compare34(x)(y);
+      var v = compare312(x)(y);
       if (v instanceof LT) {
         return x;
       }
@@ -859,13 +865,13 @@ var min = function(dictOrd) {
   };
 };
 var ordArray = function(dictOrd) {
-  var compare34 = compare(dictOrd);
+  var compare312 = compare(dictOrd);
   var eqArray2 = eqArray(dictOrd.Eq0());
   return {
     compare: function() {
       var toDelta = function(x) {
         return function(y) {
-          var v = compare34(x)(y);
+          var v = compare312(x)(y);
           if (v instanceof EQ) {
             return 0;
           }
@@ -1040,7 +1046,7 @@ var fromJust = function() {
   };
 };
 var eqMaybe = function(dictEq) {
-  var eq11 = eq(dictEq);
+  var eq75 = eq(dictEq);
   return {
     eq: function(x) {
       return function(y) {
@@ -1049,7 +1055,7 @@ var eqMaybe = function(dictEq) {
         }
         ;
         if (x instanceof Just && y instanceof Just) {
-          return eq11(x.value0)(y.value0);
+          return eq75(x.value0)(y.value0);
         }
         ;
         return false;
@@ -1058,7 +1064,7 @@ var eqMaybe = function(dictEq) {
   };
 };
 var ordMaybe = function(dictOrd) {
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   var eqMaybe1 = eqMaybe(dictOrd.Eq0());
   return {
     compare: function(x) {
@@ -1076,7 +1082,7 @@ var ordMaybe = function(dictOrd) {
         }
         ;
         if (x instanceof Just && y instanceof Just) {
-          return compare11(x.value0)(y.value0);
+          return compare78(x.value0)(y.value0);
         }
         ;
         throw new Error("Failed pattern match at Data.Maybe (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
@@ -1709,28 +1715,28 @@ var fst = function(v) {
   return v.value0;
 };
 var eqTuple = function(dictEq) {
-  var eq11 = eq(dictEq);
+  var eq75 = eq(dictEq);
   return function(dictEq1) {
-    var eq16 = eq(dictEq1);
+    var eq114 = eq(dictEq1);
     return {
       eq: function(x) {
         return function(y) {
-          return eq11(x.value0)(y.value0) && eq16(x.value1)(y.value1);
+          return eq75(x.value0)(y.value0) && eq114(x.value1)(y.value1);
         };
       }
     };
   };
 };
 var ordTuple = function(dictOrd) {
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   var eqTuple1 = eqTuple(dictOrd.Eq0());
   return function(dictOrd1) {
-    var compare14 = compare(dictOrd1);
+    var compare112 = compare(dictOrd1);
     var eqTuple2 = eqTuple1(dictOrd1.Eq0());
     return {
       compare: function(x) {
         return function(y) {
-          var v = compare11(x.value0)(y.value0);
+          var v = compare78(x.value0)(y.value0);
           if (v instanceof LT) {
             return LT.value;
           }
@@ -1739,7 +1745,7 @@ var ordTuple = function(dictOrd) {
             return GT.value;
           }
           ;
-          return compare14(x.value1)(y.value1);
+          return compare112(x.value1)(y.value1);
         };
       },
       Eq0: function() {
@@ -2879,6 +2885,125 @@ var unfoldableList = {
   Unfoldable10: function() {
     return unfoldable1List;
   }
+};
+var eq1List = {
+  eq1: function(dictEq) {
+    var eq75 = eq(dictEq);
+    return function(xs) {
+      return function(ys) {
+        var go = function($copy_v) {
+          return function($copy_v1) {
+            return function($copy_v2) {
+              var $tco_var_v = $copy_v;
+              var $tco_var_v1 = $copy_v1;
+              var $tco_done = false;
+              var $tco_result;
+              function $tco_loop(v, v1, v2) {
+                if (!v2) {
+                  $tco_done = true;
+                  return false;
+                }
+                ;
+                if (v instanceof Nil && v1 instanceof Nil) {
+                  $tco_done = true;
+                  return v2;
+                }
+                ;
+                if (v instanceof Cons && v1 instanceof Cons) {
+                  $tco_var_v = v.value1;
+                  $tco_var_v1 = v1.value1;
+                  $copy_v2 = v2 && eq75(v1.value0)(v.value0);
+                  return;
+                }
+                ;
+                $tco_done = true;
+                return false;
+              }
+              ;
+              while (!$tco_done) {
+                $tco_result = $tco_loop($tco_var_v, $tco_var_v1, $copy_v2);
+              }
+              ;
+              return $tco_result;
+            };
+          };
+        };
+        return go(xs)(ys)(true);
+      };
+    };
+  }
+};
+var eq12 = /* @__PURE__ */ eq1(eq1List);
+var eqList = function(dictEq) {
+  return {
+    eq: eq12(dictEq)
+  };
+};
+var ord1List = {
+  compare1: function(dictOrd) {
+    var compare78 = compare(dictOrd);
+    return function(xs) {
+      return function(ys) {
+        var go = function($copy_v) {
+          return function($copy_v1) {
+            var $tco_var_v = $copy_v;
+            var $tco_done = false;
+            var $tco_result;
+            function $tco_loop(v, v1) {
+              if (v instanceof Nil && v1 instanceof Nil) {
+                $tco_done = true;
+                return EQ.value;
+              }
+              ;
+              if (v instanceof Nil) {
+                $tco_done = true;
+                return LT.value;
+              }
+              ;
+              if (v1 instanceof Nil) {
+                $tco_done = true;
+                return GT.value;
+              }
+              ;
+              if (v instanceof Cons && v1 instanceof Cons) {
+                var v2 = compare78(v.value0)(v1.value0);
+                if (v2 instanceof EQ) {
+                  $tco_var_v = v.value1;
+                  $copy_v1 = v1.value1;
+                  return;
+                }
+                ;
+                $tco_done = true;
+                return v2;
+              }
+              ;
+              throw new Error("Failed pattern match at Data.List.Types (line 60, column 5 - line 60, column 20): " + [v.constructor.name, v1.constructor.name]);
+            }
+            ;
+            while (!$tco_done) {
+              $tco_result = $tco_loop($tco_var_v, $copy_v1);
+            }
+            ;
+            return $tco_result;
+          };
+        };
+        return go(xs)(ys);
+      };
+    };
+  },
+  Eq10: function() {
+    return eq1List;
+  }
+};
+var compare12 = /* @__PURE__ */ compare1(ord1List);
+var ordList = function(dictOrd) {
+  var eqList1 = eqList(dictOrd.Eq0());
+  return {
+    compare: compare12(dictOrd),
+    Eq0: function() {
+      return eqList1;
+    }
+  };
 };
 var applyList = {
   apply: function(v) {
@@ -4825,9 +4950,9 @@ var sortBy = function(cmp) {
   };
 };
 var sort = function(dictOrd) {
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   return function(xs) {
-    return sortBy(compare11)(xs);
+    return sortBy(compare78)(xs);
   };
 };
 var reverse = /* @__PURE__ */ function() {
@@ -5448,7 +5573,7 @@ var toUnfoldable2 = function(dictUnfoldable) {
   };
 };
 var lookup = function(dictOrd) {
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   return function(k) {
     var go = function($copy_v) {
       var $tco_done = false;
@@ -5460,7 +5585,7 @@ var lookup = function(dictOrd) {
         }
         ;
         if (v instanceof Two2) {
-          var v2 = compare11(k)(v.value1);
+          var v2 = compare78(k)(v.value1);
           if (v2 instanceof EQ) {
             $tco_done = true;
             return new Just(v.value2);
@@ -5476,13 +5601,13 @@ var lookup = function(dictOrd) {
         }
         ;
         if (v instanceof Three2) {
-          var v3 = compare11(k)(v.value1);
+          var v3 = compare78(k)(v.value1);
           if (v3 instanceof EQ) {
             $tco_done = true;
             return new Just(v.value2);
           }
           ;
-          var v4 = compare11(k)(v.value4);
+          var v4 = compare78(k)(v.value4);
           if (v4 instanceof EQ) {
             $tco_done = true;
             return new Just(v.value5);
@@ -5628,7 +5753,7 @@ var fromZipper2 = function($copy_dictOrd) {
 };
 var insert = function(dictOrd) {
   var fromZipper1 = fromZipper2(dictOrd);
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   return function(k) {
     return function(v) {
       var up = function($copy_v1) {
@@ -5696,7 +5821,7 @@ var insert = function(dictOrd) {
             }
             ;
             if (v2 instanceof Two2) {
-              var v3 = compare11(k)(v2.value1);
+              var v3 = compare78(k)(v2.value1);
               if (v3 instanceof EQ) {
                 $tco_done1 = true;
                 return fromZipper1(v1)(new Two2(v2.value0, k, v, v2.value3));
@@ -5714,13 +5839,13 @@ var insert = function(dictOrd) {
             }
             ;
             if (v2 instanceof Three2) {
-              var v3 = compare11(k)(v2.value1);
+              var v3 = compare78(k)(v2.value1);
               if (v3 instanceof EQ) {
                 $tco_done1 = true;
                 return fromZipper1(v1)(new Three2(v2.value0, k, v, v2.value3, v2.value4, v2.value5, v2.value6));
               }
               ;
-              var v4 = compare11(k)(v2.value4);
+              var v4 = compare78(k)(v2.value4);
               if (v4 instanceof EQ) {
                 $tco_done1 = true;
                 return fromZipper1(v1)(new Three2(v2.value0, v2.value1, v2.value2, v2.value3, k, v, v2.value6));
@@ -5759,7 +5884,7 @@ var insert = function(dictOrd) {
 };
 var pop = function(dictOrd) {
   var fromZipper1 = fromZipper2(dictOrd);
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   return function(k) {
     var up = function($copy_ctxs) {
       return function($copy_tree) {
@@ -5965,7 +6090,7 @@ var pop = function(dictOrd) {
           }
           ;
           if (m instanceof Two2) {
-            var v = compare11(k)(m.value1);
+            var v = compare78(k)(m.value1);
             if (m.value3 instanceof Leaf2 && v instanceof EQ) {
               $tco_done3 = true;
               return new Just(new Tuple(m.value2, up(ctx)(Leaf2.value)));
@@ -5996,8 +6121,8 @@ var pop = function(dictOrd) {
               ;
               return false;
             }();
-            var v = compare11(k)(m.value4);
-            var v3 = compare11(k)(m.value1);
+            var v = compare78(k)(m.value4);
+            var v3 = compare78(k)(m.value1);
             if (leaves && v3 instanceof EQ) {
               $tco_done3 = true;
               return new Just(new Tuple(m.value2, fromZipper1(ctx)(new Two2(Leaf2.value, m.value4, m.value5, Leaf2.value))));
@@ -6509,7 +6634,7 @@ var partition2 = function(f) {
   };
 };
 var sortByImpl = function() {
-  function mergeFromTo(compare11, fromOrdering, xs1, xs2, from3, to2) {
+  function mergeFromTo(compare78, fromOrdering, xs1, xs2, from3, to2) {
     var mid;
     var i;
     var j;
@@ -6519,16 +6644,16 @@ var sortByImpl = function() {
     var c;
     mid = from3 + (to2 - from3 >> 1);
     if (mid - from3 > 1)
-      mergeFromTo(compare11, fromOrdering, xs2, xs1, from3, mid);
+      mergeFromTo(compare78, fromOrdering, xs2, xs1, from3, mid);
     if (to2 - mid > 1)
-      mergeFromTo(compare11, fromOrdering, xs2, xs1, mid, to2);
+      mergeFromTo(compare78, fromOrdering, xs2, xs1, mid, to2);
     i = from3;
     j = mid;
     k = from3;
     while (i < mid && j < to2) {
       x = xs2[i];
       y = xs2[j];
-      c = fromOrdering(compare11(x)(y));
+      c = fromOrdering(compare78(x)(y));
       if (c > 0) {
         xs1[k++] = y;
         ++j;
@@ -6544,14 +6669,14 @@ var sortByImpl = function() {
       xs1[k++] = xs2[j++];
     }
   }
-  return function(compare11) {
+  return function(compare78) {
     return function(fromOrdering) {
       return function(xs) {
         var out;
         if (xs.length < 2)
           return xs;
         out = xs.slice(0);
-        mergeFromTo(compare11, fromOrdering, out, xs.slice(0), 0, xs.length);
+        mergeFromTo(compare78, fromOrdering, out, xs.slice(0), 0, xs.length);
         return out;
       };
     };
@@ -6620,7 +6745,7 @@ function copyImpl(xs) {
 }
 var thaw = copyImpl;
 var sortByImpl2 = function() {
-  function mergeFromTo(compare11, fromOrdering, xs1, xs2, from3, to2) {
+  function mergeFromTo(compare78, fromOrdering, xs1, xs2, from3, to2) {
     var mid;
     var i;
     var j;
@@ -6630,16 +6755,16 @@ var sortByImpl2 = function() {
     var c;
     mid = from3 + (to2 - from3 >> 1);
     if (mid - from3 > 1)
-      mergeFromTo(compare11, fromOrdering, xs2, xs1, from3, mid);
+      mergeFromTo(compare78, fromOrdering, xs2, xs1, from3, mid);
     if (to2 - mid > 1)
-      mergeFromTo(compare11, fromOrdering, xs2, xs1, mid, to2);
+      mergeFromTo(compare78, fromOrdering, xs2, xs1, mid, to2);
     i = from3;
     j = mid;
     k = from3;
     while (i < mid && j < to2) {
       x = xs2[i];
       y = xs2[j];
-      c = fromOrdering(compare11(x)(y));
+      c = fromOrdering(compare78(x)(y));
       if (c > 0) {
         xs1[k++] = y;
         ++j;
@@ -6655,13 +6780,13 @@ var sortByImpl2 = function() {
       xs1[k++] = xs2[j++];
     }
   }
-  return function(compare11) {
+  return function(compare78) {
     return function(fromOrdering) {
       return function(xs) {
         return function() {
           if (xs.length < 2)
             return xs;
-          mergeFromTo(compare11, fromOrdering, xs, xs.slice(0), 0, xs.length);
+          mergeFromTo(compare78, fromOrdering, xs, xs.slice(0), 0, xs.length);
           return xs;
         };
       };
@@ -6799,9 +6924,9 @@ var sortWith = function(dictOrd) {
 };
 var sortWith1 = /* @__PURE__ */ sortWith(ordInt);
 var sort2 = function(dictOrd) {
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   return function(xs) {
-    return sortBy2(compare11)(xs);
+    return sortBy2(compare78)(xs);
   };
 };
 var snoc2 = function(xs) {
@@ -6926,10 +7051,10 @@ var findIndex2 = /* @__PURE__ */ function() {
   return findIndexImpl(Just.create)(Nothing.value);
 }();
 var elemIndex = function(dictEq) {
-  var eq25 = eq(dictEq);
+  var eq213 = eq(dictEq);
   return function(x) {
     return findIndex2(function(v) {
-      return eq25(v)(x);
+      return eq213(v)(x);
     });
   };
 };
@@ -8159,6 +8284,12 @@ var gEncodeJsonCons = function(dictEncodeJson) {
 };
 
 // output/Data.GraphQL.AST/index.js
+var compare4 = /* @__PURE__ */ compare(ordString);
+var compare13 = /* @__PURE__ */ compare(ordInt);
+var compare22 = /* @__PURE__ */ compare(ordNumber);
+var compare32 = /* @__PURE__ */ compare(ordBoolean);
+var eq4 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(eqString));
+var compare42 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(ordString));
 var SCHEMA = /* @__PURE__ */ function() {
   function SCHEMA2() {
   }
@@ -8382,15 +8513,245 @@ var DirectiveLocation_TypeSystemDirectiveLocation = /* @__PURE__ */ function() {
   };
   return DirectiveLocation_TypeSystemDirectiveLocation2;
 }();
+var Value_Variable = /* @__PURE__ */ function() {
+  function Value_Variable2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_Variable2.create = function(value0) {
+    return new Value_Variable2(value0);
+  };
+  return Value_Variable2;
+}();
+var Value_IntValue = /* @__PURE__ */ function() {
+  function Value_IntValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_IntValue2.create = function(value0) {
+    return new Value_IntValue2(value0);
+  };
+  return Value_IntValue2;
+}();
+var Value_FloatValue = /* @__PURE__ */ function() {
+  function Value_FloatValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_FloatValue2.create = function(value0) {
+    return new Value_FloatValue2(value0);
+  };
+  return Value_FloatValue2;
+}();
+var Value_StringValue = /* @__PURE__ */ function() {
+  function Value_StringValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_StringValue2.create = function(value0) {
+    return new Value_StringValue2(value0);
+  };
+  return Value_StringValue2;
+}();
+var Value_BooleanValue = /* @__PURE__ */ function() {
+  function Value_BooleanValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_BooleanValue2.create = function(value0) {
+    return new Value_BooleanValue2(value0);
+  };
+  return Value_BooleanValue2;
+}();
+var Value_NullValue = /* @__PURE__ */ function() {
+  function Value_NullValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_NullValue2.create = function(value0) {
+    return new Value_NullValue2(value0);
+  };
+  return Value_NullValue2;
+}();
+var Value_EnumValue = /* @__PURE__ */ function() {
+  function Value_EnumValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_EnumValue2.create = function(value0) {
+    return new Value_EnumValue2(value0);
+  };
+  return Value_EnumValue2;
+}();
+var Value_ListValue = /* @__PURE__ */ function() {
+  function Value_ListValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_ListValue2.create = function(value0) {
+    return new Value_ListValue2(value0);
+  };
+  return Value_ListValue2;
+}();
+var Value_ObjectValue = /* @__PURE__ */ function() {
+  function Value_ObjectValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_ObjectValue2.create = function(value0) {
+    return new Value_ObjectValue2(value0);
+  };
+  return Value_ObjectValue2;
+}();
 var EnumValuesDefinition = function(x) {
   return x;
 };
+var EnumTypeExtension_With_EnumValuesDefinition = /* @__PURE__ */ function() {
+  function EnumTypeExtension_With_EnumValuesDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  EnumTypeExtension_With_EnumValuesDefinition2.create = function(value0) {
+    return new EnumTypeExtension_With_EnumValuesDefinition2(value0);
+  };
+  return EnumTypeExtension_With_EnumValuesDefinition2;
+}();
+var EnumTypeExtension_With_Directives = /* @__PURE__ */ function() {
+  function EnumTypeExtension_With_Directives2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  EnumTypeExtension_With_Directives2.create = function(value0) {
+    return new EnumTypeExtension_With_Directives2(value0);
+  };
+  return EnumTypeExtension_With_Directives2;
+}();
+var SchemaExtension_With_OperationTypeDefinition = /* @__PURE__ */ function() {
+  function SchemaExtension_With_OperationTypeDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  SchemaExtension_With_OperationTypeDefinition2.create = function(value0) {
+    return new SchemaExtension_With_OperationTypeDefinition2(value0);
+  };
+  return SchemaExtension_With_OperationTypeDefinition2;
+}();
+var SchemaExtension_With_Directives = /* @__PURE__ */ function() {
+  function SchemaExtension_With_Directives2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  SchemaExtension_With_Directives2.create = function(value0) {
+    return new SchemaExtension_With_Directives2(value0);
+  };
+  return SchemaExtension_With_Directives2;
+}();
+var UnionTypeExtension_With_UnionMemberTypes = /* @__PURE__ */ function() {
+  function UnionTypeExtension_With_UnionMemberTypes2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  UnionTypeExtension_With_UnionMemberTypes2.create = function(value0) {
+    return new UnionTypeExtension_With_UnionMemberTypes2(value0);
+  };
+  return UnionTypeExtension_With_UnionMemberTypes2;
+}();
+var UnionTypeExtension_With_Directives = /* @__PURE__ */ function() {
+  function UnionTypeExtension_With_Directives2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  UnionTypeExtension_With_Directives2.create = function(value0) {
+    return new UnionTypeExtension_With_Directives2(value0);
+  };
+  return UnionTypeExtension_With_Directives2;
+}();
+var Selection_Field = /* @__PURE__ */ function() {
+  function Selection_Field2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Selection_Field2.create = function(value0) {
+    return new Selection_Field2(value0);
+  };
+  return Selection_Field2;
+}();
+var Selection_FragmentSpread = /* @__PURE__ */ function() {
+  function Selection_FragmentSpread2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Selection_FragmentSpread2.create = function(value0) {
+    return new Selection_FragmentSpread2(value0);
+  };
+  return Selection_FragmentSpread2;
+}();
+var Selection_InlineFragment = /* @__PURE__ */ function() {
+  function Selection_InlineFragment2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Selection_InlineFragment2.create = function(value0) {
+    return new Selection_InlineFragment2(value0);
+  };
+  return Selection_InlineFragment2;
+}();
 var ArgumentsDefinition = function(x) {
   return x;
 };
 var FieldsDefinition = function(x) {
   return x;
 };
+var InterfaceTypeExtension_With_FieldsDefinition = /* @__PURE__ */ function() {
+  function InterfaceTypeExtension_With_FieldsDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  InterfaceTypeExtension_With_FieldsDefinition2.create = function(value0) {
+    return new InterfaceTypeExtension_With_FieldsDefinition2(value0);
+  };
+  return InterfaceTypeExtension_With_FieldsDefinition2;
+}();
+var InterfaceTypeExtension_With_Directives = /* @__PURE__ */ function() {
+  function InterfaceTypeExtension_With_Directives2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  InterfaceTypeExtension_With_Directives2.create = function(value0) {
+    return new InterfaceTypeExtension_With_Directives2(value0);
+  };
+  return InterfaceTypeExtension_With_Directives2;
+}();
+var ObjectTypeExtension_With_FieldsDefinition = /* @__PURE__ */ function() {
+  function ObjectTypeExtension_With_FieldsDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  ObjectTypeExtension_With_FieldsDefinition2.create = function(value0) {
+    return new ObjectTypeExtension_With_FieldsDefinition2(value0);
+  };
+  return ObjectTypeExtension_With_FieldsDefinition2;
+}();
+var ObjectTypeExtension_With_Directives = /* @__PURE__ */ function() {
+  function ObjectTypeExtension_With_Directives2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  ObjectTypeExtension_With_Directives2.create = function(value0) {
+    return new ObjectTypeExtension_With_Directives2(value0);
+  };
+  return ObjectTypeExtension_With_Directives2;
+}();
+var ObjectTypeExtension_With_ImplementsInterfaces = /* @__PURE__ */ function() {
+  function ObjectTypeExtension_With_ImplementsInterfaces2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  ObjectTypeExtension_With_ImplementsInterfaces2.create = function(value0) {
+    return new ObjectTypeExtension_With_ImplementsInterfaces2(value0);
+  };
+  return ObjectTypeExtension_With_ImplementsInterfaces2;
+}();
 var InputFieldsDefinition = function(x) {
   return x;
 };
@@ -8484,6 +8845,146 @@ var TypeSystemDefinition_DirectiveDefinition = /* @__PURE__ */ function() {
   };
   return TypeSystemDefinition_DirectiveDefinition2;
 }();
+var InputObjectTypeExtension_With_InputFieldsDefinition = /* @__PURE__ */ function() {
+  function InputObjectTypeExtension_With_InputFieldsDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  InputObjectTypeExtension_With_InputFieldsDefinition2.create = function(value0) {
+    return new InputObjectTypeExtension_With_InputFieldsDefinition2(value0);
+  };
+  return InputObjectTypeExtension_With_InputFieldsDefinition2;
+}();
+var InputObjectTypeExtension_With_Directives = /* @__PURE__ */ function() {
+  function InputObjectTypeExtension_With_Directives2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  InputObjectTypeExtension_With_Directives2.create = function(value0) {
+    return new InputObjectTypeExtension_With_Directives2(value0);
+  };
+  return InputObjectTypeExtension_With_Directives2;
+}();
+var TypeExtension_ScalarTypeExtension = /* @__PURE__ */ function() {
+  function TypeExtension_ScalarTypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeExtension_ScalarTypeExtension2.create = function(value0) {
+    return new TypeExtension_ScalarTypeExtension2(value0);
+  };
+  return TypeExtension_ScalarTypeExtension2;
+}();
+var TypeExtension_ObjectTypeExtension = /* @__PURE__ */ function() {
+  function TypeExtension_ObjectTypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeExtension_ObjectTypeExtension2.create = function(value0) {
+    return new TypeExtension_ObjectTypeExtension2(value0);
+  };
+  return TypeExtension_ObjectTypeExtension2;
+}();
+var TypeExtension_InterfaceTypeExtension = /* @__PURE__ */ function() {
+  function TypeExtension_InterfaceTypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeExtension_InterfaceTypeExtension2.create = function(value0) {
+    return new TypeExtension_InterfaceTypeExtension2(value0);
+  };
+  return TypeExtension_InterfaceTypeExtension2;
+}();
+var TypeExtension_UnionTypeExtension = /* @__PURE__ */ function() {
+  function TypeExtension_UnionTypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeExtension_UnionTypeExtension2.create = function(value0) {
+    return new TypeExtension_UnionTypeExtension2(value0);
+  };
+  return TypeExtension_UnionTypeExtension2;
+}();
+var TypeExtension_EnumTypeExtension = /* @__PURE__ */ function() {
+  function TypeExtension_EnumTypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeExtension_EnumTypeExtension2.create = function(value0) {
+    return new TypeExtension_EnumTypeExtension2(value0);
+  };
+  return TypeExtension_EnumTypeExtension2;
+}();
+var TypeExtension_InputObjectTypeExtension = /* @__PURE__ */ function() {
+  function TypeExtension_InputObjectTypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeExtension_InputObjectTypeExtension2.create = function(value0) {
+    return new TypeExtension_InputObjectTypeExtension2(value0);
+  };
+  return TypeExtension_InputObjectTypeExtension2;
+}();
+var TypeSystemExtension_SchemaExtension = /* @__PURE__ */ function() {
+  function TypeSystemExtension_SchemaExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeSystemExtension_SchemaExtension2.create = function(value0) {
+    return new TypeSystemExtension_SchemaExtension2(value0);
+  };
+  return TypeSystemExtension_SchemaExtension2;
+}();
+var TypeSystemExtension_TypeExtension = /* @__PURE__ */ function() {
+  function TypeSystemExtension_TypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeSystemExtension_TypeExtension2.create = function(value0) {
+    return new TypeSystemExtension_TypeExtension2(value0);
+  };
+  return TypeSystemExtension_TypeExtension2;
+}();
+var OperationDefinition_SelectionSet = /* @__PURE__ */ function() {
+  function OperationDefinition_SelectionSet2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  OperationDefinition_SelectionSet2.create = function(value0) {
+    return new OperationDefinition_SelectionSet2(value0);
+  };
+  return OperationDefinition_SelectionSet2;
+}();
+var OperationDefinition_OperationType = /* @__PURE__ */ function() {
+  function OperationDefinition_OperationType2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  OperationDefinition_OperationType2.create = function(value0) {
+    return new OperationDefinition_OperationType2(value0);
+  };
+  return OperationDefinition_OperationType2;
+}();
+var ExecutableDefinition_OperationDefinition = /* @__PURE__ */ function() {
+  function ExecutableDefinition_OperationDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  ExecutableDefinition_OperationDefinition2.create = function(value0) {
+    return new ExecutableDefinition_OperationDefinition2(value0);
+  };
+  return ExecutableDefinition_OperationDefinition2;
+}();
+var ExecutableDefinition_FragmentDefinition = /* @__PURE__ */ function() {
+  function ExecutableDefinition_FragmentDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  ExecutableDefinition_FragmentDefinition2.create = function(value0) {
+    return new ExecutableDefinition_FragmentDefinition2(value0);
+  };
+  return ExecutableDefinition_FragmentDefinition2;
+}();
 var Definition_ExecutableDefinition = /* @__PURE__ */ function() {
   function Definition_ExecutableDefinition2(value0) {
     this.value0 = value0;
@@ -8517,6 +9018,231 @@ var Definition_TypeSystemExtension = /* @__PURE__ */ function() {
 var Document = function(x) {
   return x;
 };
+var variableEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq5 = /* @__PURE__ */ eq(variableEq);
+var variableOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare4(x)(y);
+    };
+  },
+  Eq0: function() {
+    return variableEq;
+  }
+};
+var compare5 = /* @__PURE__ */ compare(variableOrd);
+var typeSystemDirectiveLocationEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof SCHEMA && y instanceof SCHEMA) {
+        return true;
+      }
+      ;
+      if (x instanceof SCALAR && y instanceof SCALAR) {
+        return true;
+      }
+      ;
+      if (x instanceof OBJECT && y instanceof OBJECT) {
+        return true;
+      }
+      ;
+      if (x instanceof FIELD_DEFINITION && y instanceof FIELD_DEFINITION) {
+        return true;
+      }
+      ;
+      if (x instanceof ARGUMENT_DEFINITION && y instanceof ARGUMENT_DEFINITION) {
+        return true;
+      }
+      ;
+      if (x instanceof INTERFACE && y instanceof INTERFACE) {
+        return true;
+      }
+      ;
+      if (x instanceof UNION && y instanceof UNION) {
+        return true;
+      }
+      ;
+      if (x instanceof ENUM && y instanceof ENUM) {
+        return true;
+      }
+      ;
+      if (x instanceof ENUM_VALUE && y instanceof ENUM_VALUE) {
+        return true;
+      }
+      ;
+      if (x instanceof INPUT_OBJECT && y instanceof INPUT_OBJECT) {
+        return true;
+      }
+      ;
+      if (x instanceof INPUT_FIELD_DEFINITION && y instanceof INPUT_FIELD_DEFINITION) {
+        return true;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq6 = /* @__PURE__ */ eq(typeSystemDirectiveLocationEq);
+var typeSystemDirectiveLocationOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof SCHEMA && y instanceof SCHEMA) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof SCHEMA) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof SCHEMA) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof SCALAR && y instanceof SCALAR) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof SCALAR) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof SCALAR) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof OBJECT && y instanceof OBJECT) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof OBJECT) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof OBJECT) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof FIELD_DEFINITION && y instanceof FIELD_DEFINITION) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof FIELD_DEFINITION) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof FIELD_DEFINITION) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof ARGUMENT_DEFINITION && y instanceof ARGUMENT_DEFINITION) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof ARGUMENT_DEFINITION) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof ARGUMENT_DEFINITION) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof INTERFACE && y instanceof INTERFACE) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof INTERFACE) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof INTERFACE) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof UNION && y instanceof UNION) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof UNION) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof UNION) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof ENUM && y instanceof ENUM) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof ENUM) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof ENUM) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof ENUM_VALUE && y instanceof ENUM_VALUE) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof ENUM_VALUE) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof ENUM_VALUE) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof INPUT_OBJECT && y instanceof INPUT_OBJECT) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof INPUT_OBJECT) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof INPUT_OBJECT) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof INPUT_FIELD_DEFINITION && y instanceof INPUT_FIELD_DEFINITION) {
+        return EQ.value;
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return typeSystemDirectiveLocationEq;
+  }
+};
+var compare6 = /* @__PURE__ */ compare(typeSystemDirectiveLocationOrd);
+var stringValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq7 = /* @__PURE__ */ eq(stringValueEq);
+var stringValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare4(x)(y);
+    };
+  },
+  Eq0: function() {
+    return stringValueEq;
+  }
+};
+var compare7 = /* @__PURE__ */ compare(stringValueOrd);
 var operationTypeEq = {
   eq: function(x) {
     return function(y) {
@@ -8534,6 +9260,2728 @@ var operationTypeEq = {
       ;
       return false;
     };
+  }
+};
+var eq8 = /* @__PURE__ */ eq(operationTypeEq);
+var operationTypeOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof Query && y instanceof Query) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof Query) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Query) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Mutation && y instanceof Mutation) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof Mutation) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Mutation) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Subscription && y instanceof Subscription) {
+        return EQ.value;
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return operationTypeEq;
+  }
+};
+var compare8 = /* @__PURE__ */ compare(operationTypeOrd);
+var nullValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return true;
+    };
+  }
+};
+var eq9 = /* @__PURE__ */ eq(nullValueEq);
+var nullValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return EQ.value;
+    };
+  },
+  Eq0: function() {
+    return nullValueEq;
+  }
+};
+var compare9 = /* @__PURE__ */ compare(nullValueOrd);
+var namedTypeEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq10 = /* @__PURE__ */ eq(namedTypeEq);
+var eq11 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(namedTypeEq));
+var namedTypeOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare4(x)(y);
+    };
+  },
+  Eq0: function() {
+    return namedTypeEq;
+  }
+};
+var compare10 = /* @__PURE__ */ compare(namedTypeOrd);
+var compare11 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(namedTypeOrd));
+var operationTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq10(x.namedType)(y.namedType) && eq8(x.operationType)(y.operationType);
+    };
+  }
+};
+var eq122 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(operationTypeDefinitionEq));
+var operationTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare10(x.namedType)(y.namedType);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare8(x.operationType)(y.operationType);
+    };
+  },
+  Eq0: function() {
+    return operationTypeDefinitionEq;
+  }
+};
+var compare122 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(operationTypeDefinitionOrd));
+var rootOperationTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq10(x.namedType)(y.namedType) && eq8(x.operationType)(y.operationType);
+    };
+  }
+};
+var eq13 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(rootOperationTypeDefinitionEq));
+var rootOperationTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare10(x.namedType)(y.namedType);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare8(x.operationType)(y.operationType);
+    };
+  },
+  Eq0: function() {
+    return rootOperationTypeDefinitionEq;
+  }
+};
+var compare132 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(rootOperationTypeDefinitionOrd));
+var typeConditionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq10(x)(y);
+    };
+  }
+};
+var eq14 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(typeConditionEq));
+var eq15 = /* @__PURE__ */ eq(typeConditionEq);
+var typeConditionOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare10(x)(y);
+    };
+  },
+  Eq0: function() {
+    return typeConditionEq;
+  }
+};
+var compare14 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(typeConditionOrd));
+var compare15 = /* @__PURE__ */ compare(typeConditionOrd);
+var unionMemberTypesEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq11(x)(y);
+    };
+  }
+};
+var eq16 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(unionMemberTypesEq));
+var eq17 = /* @__PURE__ */ eq(unionMemberTypesEq);
+var unionMemberTypesOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare11(x)(y);
+    };
+  },
+  Eq0: function() {
+    return unionMemberTypesEq;
+  }
+};
+var compare16 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(unionMemberTypesOrd));
+var compare17 = /* @__PURE__ */ compare(unionMemberTypesOrd);
+var typeEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof Type_NamedType && y instanceof Type_NamedType) {
+        return eq10(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Type_ListType && y instanceof Type_ListType) {
+        return eq(listTypeEq)(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Type_NonNullType && y instanceof Type_NonNullType) {
+        return eq(nonNullTypeEq)(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var nonNullTypeEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof NonNullType_NamedType && y instanceof NonNullType_NamedType) {
+        return eq10(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof NonNullType_ListType && y instanceof NonNullType_ListType) {
+        return eq(listTypeEq)(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var listTypeEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq(typeEq)(x)(y);
+    };
+  }
+};
+var eq18 = /* @__PURE__ */ eq(typeEq);
+var typeOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof Type_NamedType && y instanceof Type_NamedType) {
+        return compare10(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Type_NamedType) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Type_NamedType) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Type_ListType && y instanceof Type_ListType) {
+        return compare(listTypeOrd)(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Type_ListType) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Type_ListType) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Type_NonNullType && y instanceof Type_NonNullType) {
+        return compare(nonNullTypeOrd)(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return typeEq;
+  }
+};
+var nonNullTypeOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof NonNullType_NamedType && y instanceof NonNullType_NamedType) {
+        return compare10(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof NonNullType_NamedType) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof NonNullType_NamedType) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof NonNullType_ListType && y instanceof NonNullType_ListType) {
+        return compare(listTypeOrd)(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return nonNullTypeEq;
+  }
+};
+var listTypeOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare(typeOrd)(x)(y);
+    };
+  },
+  Eq0: function() {
+    return listTypeEq;
+  }
+};
+var compare18 = /* @__PURE__ */ compare(typeOrd);
+var intValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq19 = /* @__PURE__ */ eq(intValueEq);
+var intValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare13(x)(y);
+    };
+  },
+  Eq0: function() {
+    return intValueEq;
+  }
+};
+var compare19 = /* @__PURE__ */ compare(intValueOrd);
+var implementsInterfacesEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq11(x)(y);
+    };
+  }
+};
+var eq20 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(implementsInterfacesEq));
+var eq21 = /* @__PURE__ */ eq(implementsInterfacesEq);
+var implementsInterfacesOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare11(x)(y);
+    };
+  },
+  Eq0: function() {
+    return implementsInterfacesEq;
+  }
+};
+var compare20 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(implementsInterfacesOrd));
+var compare21 = /* @__PURE__ */ compare(implementsInterfacesOrd);
+var floatValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq22 = /* @__PURE__ */ eq(floatValueEq);
+var floatValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare22(x)(y);
+    };
+  },
+  Eq0: function() {
+    return floatValueEq;
+  }
+};
+var compare222 = /* @__PURE__ */ compare(floatValueOrd);
+var executableDirectiveLocationEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof QUERY && y instanceof QUERY) {
+        return true;
+      }
+      ;
+      if (x instanceof MUTATION && y instanceof MUTATION) {
+        return true;
+      }
+      ;
+      if (x instanceof SUBSCRIPTION && y instanceof SUBSCRIPTION) {
+        return true;
+      }
+      ;
+      if (x instanceof FIELD && y instanceof FIELD) {
+        return true;
+      }
+      ;
+      if (x instanceof FRAGMENT_DEFINITION && y instanceof FRAGMENT_DEFINITION) {
+        return true;
+      }
+      ;
+      if (x instanceof FRAGMENT_SPREAD && y instanceof FRAGMENT_SPREAD) {
+        return true;
+      }
+      ;
+      if (x instanceof INLINE_FRAGMENT && y instanceof INLINE_FRAGMENT) {
+        return true;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq23 = /* @__PURE__ */ eq(executableDirectiveLocationEq);
+var executableDirectiveLocationOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof QUERY && y instanceof QUERY) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof QUERY) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof QUERY) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof MUTATION && y instanceof MUTATION) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof MUTATION) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof MUTATION) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof SUBSCRIPTION && y instanceof SUBSCRIPTION) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof SUBSCRIPTION) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof SUBSCRIPTION) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof FIELD && y instanceof FIELD) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof FIELD) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof FIELD) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof FRAGMENT_DEFINITION && y instanceof FRAGMENT_DEFINITION) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof FRAGMENT_DEFINITION) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof FRAGMENT_DEFINITION) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof FRAGMENT_SPREAD && y instanceof FRAGMENT_SPREAD) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof FRAGMENT_SPREAD) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof FRAGMENT_SPREAD) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof INLINE_FRAGMENT && y instanceof INLINE_FRAGMENT) {
+        return EQ.value;
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return executableDirectiveLocationEq;
+  }
+};
+var compare23 = /* @__PURE__ */ compare(executableDirectiveLocationOrd);
+var enumValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq24 = /* @__PURE__ */ eq(enumValueEq);
+var enumValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare4(x)(y);
+    };
+  },
+  Eq0: function() {
+    return enumValueEq;
+  }
+};
+var compare24 = /* @__PURE__ */ compare(enumValueOrd);
+var directiveLocationEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof DirectiveLocation_ExecutableDirectiveLocation && y instanceof DirectiveLocation_ExecutableDirectiveLocation) {
+        return eq23(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof DirectiveLocation_TypeSystemDirectiveLocation && y instanceof DirectiveLocation_TypeSystemDirectiveLocation) {
+        return eq6(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq25 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(directiveLocationEq));
+var directiveLocationOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof DirectiveLocation_ExecutableDirectiveLocation && y instanceof DirectiveLocation_ExecutableDirectiveLocation) {
+        return compare23(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof DirectiveLocation_ExecutableDirectiveLocation) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof DirectiveLocation_ExecutableDirectiveLocation) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof DirectiveLocation_TypeSystemDirectiveLocation && y instanceof DirectiveLocation_TypeSystemDirectiveLocation) {
+        return compare6(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return directiveLocationEq;
+  }
+};
+var compare25 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(directiveLocationOrd));
+var directiveLocationsEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq25(x)(y);
+    };
+  }
+};
+var eq26 = /* @__PURE__ */ eq(directiveLocationsEq);
+var directiveLocationsOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare25(x)(y);
+    };
+  },
+  Eq0: function() {
+    return directiveLocationsEq;
+  }
+};
+var compare26 = /* @__PURE__ */ compare(directiveLocationsOrd);
+var booleanValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq27 = /* @__PURE__ */ eq(booleanValueEq);
+var booleanValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare32(x)(y);
+    };
+  },
+  Eq0: function() {
+    return booleanValueEq;
+  }
+};
+var compare27 = /* @__PURE__ */ compare(booleanValueOrd);
+var valueEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof Value_Variable && y instanceof Value_Variable) {
+        return eq5(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_IntValue && y instanceof Value_IntValue) {
+        return eq19(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_FloatValue && y instanceof Value_FloatValue) {
+        return eq22(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_StringValue && y instanceof Value_StringValue) {
+        return eq7(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_BooleanValue && y instanceof Value_BooleanValue) {
+        return eq27(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_NullValue && y instanceof Value_NullValue) {
+        return eq9(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_EnumValue && y instanceof Value_EnumValue) {
+        return eq24(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_ListValue && y instanceof Value_ListValue) {
+        return eq(listValueEq)(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_ObjectValue && y instanceof Value_ObjectValue) {
+        return eq(objectValueEq)(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var objectValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq(eqList(argumentEq))(x)(y);
+    };
+  }
+};
+var listValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq(eqList(valueEq))(x)(y);
+    };
+  }
+};
+var argumentEq = {
+  eq: function(x) {
+    return function(y) {
+      return x.name === y.name && eq(valueEq)(x.value)(y.value);
+    };
+  }
+};
+var eq28 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(argumentEq));
+var eq29 = /* @__PURE__ */ eq(valueEq);
+var argumentsEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq28(x)(y);
+    };
+  }
+};
+var eq30 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(argumentsEq));
+var directiveEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq30(x["arguments"])(y["arguments"]) && x.name === y.name;
+    };
+  }
+};
+var eq31 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(directiveEq));
+var directivesEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq31(x)(y);
+    };
+  }
+};
+var eq32 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(directivesEq));
+var eq33 = /* @__PURE__ */ eq(directivesEq);
+var enumValueDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && eq24(x.enumValue)(y.enumValue);
+    };
+  }
+};
+var eq34 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(enumValueDefinitionEq));
+var enumValuesDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq34(x)(y);
+    };
+  }
+};
+var eq35 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(enumValuesDefinitionEq));
+var eq36 = /* @__PURE__ */ eq(enumValuesDefinitionEq);
+var enumTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && eq35(x.enumValuesDefinition)(y.enumValuesDefinition) && x.name === y.name;
+    };
+  }
+};
+var eq37 = /* @__PURE__ */ eq(enumTypeDefinitionEq);
+var enumTypeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof EnumTypeExtension_With_EnumValuesDefinition && y instanceof EnumTypeExtension_With_EnumValuesDefinition) {
+        return eq32(x.value0.directives)(y.value0.directives) && eq36(x.value0.enumValuesDefinition)(y.value0.enumValuesDefinition) && x.value0.name === y.value0.name;
+      }
+      ;
+      if (x instanceof EnumTypeExtension_With_Directives && y instanceof EnumTypeExtension_With_Directives) {
+        return eq33(x.value0.directives)(y.value0.directives) && x.value0.name === y.value0.name;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq38 = /* @__PURE__ */ eq(enumTypeExtensionEq);
+var fragmentSpreadEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq32(x.directives)(y.directives) && x.fragmentName === y.fragmentName;
+    };
+  }
+};
+var eq39 = /* @__PURE__ */ eq(fragmentSpreadEq);
+var scalarTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && x.name === y.name;
+    };
+  }
+};
+var eq40 = /* @__PURE__ */ eq(scalarTypeDefinitionEq);
+var scalarTypeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq33(x.directives)(y.directives) && x.name === y.name;
+    };
+  }
+};
+var eq41 = /* @__PURE__ */ eq(scalarTypeExtensionEq);
+var schemaDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq32(x.directives)(y.directives) && eq13(x.rootOperationTypeDefinition)(y.rootOperationTypeDefinition);
+    };
+  }
+};
+var eq42 = /* @__PURE__ */ eq(schemaDefinitionEq);
+var schemaExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof SchemaExtension_With_OperationTypeDefinition && y instanceof SchemaExtension_With_OperationTypeDefinition) {
+        return eq32(x.value0.directives)(y.value0.directives) && eq122(x.value0.operationTypesDefinition)(y.value0.operationTypesDefinition);
+      }
+      ;
+      if (x instanceof SchemaExtension_With_Directives && y instanceof SchemaExtension_With_Directives) {
+        return eq33(x.value0.directives)(y.value0.directives);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq43 = /* @__PURE__ */ eq(schemaExtensionEq);
+var unionTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && x.name === y.name && eq16(x.unionMemberTypes)(y.unionMemberTypes);
+    };
+  }
+};
+var eq44 = /* @__PURE__ */ eq(unionTypeDefinitionEq);
+var unionTypeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof UnionTypeExtension_With_UnionMemberTypes && y instanceof UnionTypeExtension_With_UnionMemberTypes) {
+        return eq32(x.value0.directives)(y.value0.directives) && x.value0.name === y.value0.name && eq17(x.value0.unionMemberTypes)(y.value0.unionMemberTypes);
+      }
+      ;
+      if (x instanceof UnionTypeExtension_With_Directives && y instanceof UnionTypeExtension_With_Directives) {
+        return eq33(x.value0.directives)(y.value0.directives) && x.value0.name === y.value0.name;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq45 = /* @__PURE__ */ eq(unionTypeExtensionEq);
+var selectionSetEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq(eqList(selectionEq))(x)(y);
+    };
+  }
+};
+var selectionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof Selection_Field && y instanceof Selection_Field) {
+        return eq(fieldEq)(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Selection_FragmentSpread && y instanceof Selection_FragmentSpread) {
+        return eq39(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Selection_InlineFragment && y instanceof Selection_InlineFragment) {
+        return eq(inlineFragmentEq)(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var inlineFragmentEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq32(x.directives)(y.directives) && eq(selectionSetEq)(x.selectionSet)(y.selectionSet) && eq14(x.typeCondition)(y.typeCondition);
+    };
+  }
+};
+var fieldEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.alias)(y.alias) && eq30(x["arguments"])(y["arguments"]) && eq32(x.directives)(y.directives) && x.name === y.name && eq(eqMaybe(selectionSetEq))(x.selectionSet)(y.selectionSet);
+    };
+  }
+};
+var eq46 = /* @__PURE__ */ eq(selectionSetEq);
+var fragmentDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq32(x.directives)(y.directives) && x.fragmentName === y.fragmentName && eq46(x.selectionSet)(y.selectionSet) && eq15(x.typeCondition)(y.typeCondition);
+    };
+  }
+};
+var eq47 = /* @__PURE__ */ eq(fragmentDefinitionEq);
+var defaultValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq29(x)(y);
+    };
+  }
+};
+var eq48 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(defaultValueEq));
+var inputValueDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq48(x.defaultValue)(y.defaultValue) && eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && x.name === y.name && eq18(x.type)(y.type);
+    };
+  }
+};
+var eq49 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(inputValueDefinitionEq));
+var argumentsDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq49(x)(y);
+    };
+  }
+};
+var eq50 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(argumentsDefinitionEq));
+var directiveDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq50(x.argumentsDefinition)(y.argumentsDefinition) && eq4(x.description)(y.description) && eq26(x.directiveLocations)(y.directiveLocations) && x.name === y.name;
+    };
+  }
+};
+var eq51 = /* @__PURE__ */ eq(directiveDefinitionEq);
+var fieldDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq50(x.argumentsDefinition)(y.argumentsDefinition) && eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && x.name === y.name && eq18(x.type)(y.type);
+    };
+  }
+};
+var eq52 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(fieldDefinitionEq));
+var fieldsDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq52(x)(y);
+    };
+  }
+};
+var eq53 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(fieldsDefinitionEq));
+var eq54 = /* @__PURE__ */ eq(fieldsDefinitionEq);
+var interfaceTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && eq53(x.fieldsDefinition)(y.fieldsDefinition) && x.name === y.name;
+    };
+  }
+};
+var eq55 = /* @__PURE__ */ eq(interfaceTypeDefinitionEq);
+var interfaceTypeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof InterfaceTypeExtension_With_FieldsDefinition && y instanceof InterfaceTypeExtension_With_FieldsDefinition) {
+        return eq32(x.value0.directives)(y.value0.directives) && eq54(x.value0.fieldsDefinition)(y.value0.fieldsDefinition) && x.value0.name === y.value0.name;
+      }
+      ;
+      if (x instanceof InterfaceTypeExtension_With_Directives && y instanceof InterfaceTypeExtension_With_Directives) {
+        return eq33(x.value0.directives)(y.value0.directives) && x.value0.name === y.value0.name;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq56 = /* @__PURE__ */ eq(interfaceTypeExtensionEq);
+var objectTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && eq53(x.fieldsDefinition)(y.fieldsDefinition) && eq20(x.implementsInterfaces)(y.implementsInterfaces) && x.name === y.name;
+    };
+  }
+};
+var eq57 = /* @__PURE__ */ eq(objectTypeDefinitionEq);
+var objectTypeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof ObjectTypeExtension_With_FieldsDefinition && y instanceof ObjectTypeExtension_With_FieldsDefinition) {
+        return eq32(x.value0.directives)(y.value0.directives) && eq54(x.value0.fieldsDefinition)(y.value0.fieldsDefinition) && eq20(x.value0.implementsInterfaces)(y.value0.implementsInterfaces) && x.value0.name === y.value0.name;
+      }
+      ;
+      if (x instanceof ObjectTypeExtension_With_Directives && y instanceof ObjectTypeExtension_With_Directives) {
+        return eq33(x.value0.directives)(y.value0.directives) && eq20(x.value0.implementsInterfaces)(y.value0.implementsInterfaces) && x.value0.name === y.value0.name;
+      }
+      ;
+      if (x instanceof ObjectTypeExtension_With_ImplementsInterfaces && y instanceof ObjectTypeExtension_With_ImplementsInterfaces) {
+        return eq21(x.value0.implementsInterfaces)(y.value0.implementsInterfaces) && x.value0.name === y.value0.name;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq58 = /* @__PURE__ */ eq(objectTypeExtensionEq);
+var inputFieldsDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq49(x)(y);
+    };
+  }
+};
+var eq59 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(inputFieldsDefinitionEq));
+var eq60 = /* @__PURE__ */ eq(inputFieldsDefinitionEq);
+var inputObjectTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && eq59(x.inputFieldsDefinition)(y.inputFieldsDefinition) && x.name === y.name;
+    };
+  }
+};
+var eq61 = /* @__PURE__ */ eq(inputObjectTypeDefinitionEq);
+var typeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof TypeDefinition_ScalarTypeDefinition && y instanceof TypeDefinition_ScalarTypeDefinition) {
+        return eq40(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_ObjectTypeDefinition && y instanceof TypeDefinition_ObjectTypeDefinition) {
+        return eq57(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_InterfaceTypeDefinition && y instanceof TypeDefinition_InterfaceTypeDefinition) {
+        return eq55(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_UnionTypeDefinition && y instanceof TypeDefinition_UnionTypeDefinition) {
+        return eq44(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_EnumTypeDefinition && y instanceof TypeDefinition_EnumTypeDefinition) {
+        return eq37(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_InputObjectTypeDefinition && y instanceof TypeDefinition_InputObjectTypeDefinition) {
+        return eq61(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq62 = /* @__PURE__ */ eq(typeDefinitionEq);
+var typeSystemDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof TypeSystemDefinition_SchemaDefinition && y instanceof TypeSystemDefinition_SchemaDefinition) {
+        return eq42(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeSystemDefinition_TypeDefinition && y instanceof TypeSystemDefinition_TypeDefinition) {
+        return eq62(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeSystemDefinition_DirectiveDefinition && y instanceof TypeSystemDefinition_DirectiveDefinition) {
+        return eq51(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq63 = /* @__PURE__ */ eq(typeSystemDefinitionEq);
+var inputObjectTypeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof InputObjectTypeExtension_With_InputFieldsDefinition && y instanceof InputObjectTypeExtension_With_InputFieldsDefinition) {
+        return eq32(x.value0.directives)(y.value0.directives) && eq60(x.value0.inputFieldsDefinition)(y.value0.inputFieldsDefinition) && x.value0.name === y.value0.name;
+      }
+      ;
+      if (x instanceof InputObjectTypeExtension_With_Directives && y instanceof InputObjectTypeExtension_With_Directives) {
+        return eq33(x.value0.directives)(y.value0.directives) && x.value0.name === y.value0.name;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq64 = /* @__PURE__ */ eq(inputObjectTypeExtensionEq);
+var typeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof TypeExtension_ScalarTypeExtension && y instanceof TypeExtension_ScalarTypeExtension) {
+        return eq41(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_ObjectTypeExtension && y instanceof TypeExtension_ObjectTypeExtension) {
+        return eq58(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_InterfaceTypeExtension && y instanceof TypeExtension_InterfaceTypeExtension) {
+        return eq56(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_UnionTypeExtension && y instanceof TypeExtension_UnionTypeExtension) {
+        return eq45(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_EnumTypeExtension && y instanceof TypeExtension_EnumTypeExtension) {
+        return eq38(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_InputObjectTypeExtension && y instanceof TypeExtension_InputObjectTypeExtension) {
+        return eq64(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq65 = /* @__PURE__ */ eq(typeExtensionEq);
+var typeSystemExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof TypeSystemExtension_SchemaExtension && y instanceof TypeSystemExtension_SchemaExtension) {
+        return eq43(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeSystemExtension_TypeExtension && y instanceof TypeSystemExtension_TypeExtension) {
+        return eq65(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq66 = /* @__PURE__ */ eq(typeSystemExtensionEq);
+var variableDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq48(x.defaultValue)(y.defaultValue) && eq18(x.type)(y.type) && eq5(x.variable)(y.variable);
+    };
+  }
+};
+var eq67 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(variableDefinitionEq));
+var variableDefinitionsEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq67(x)(y);
+    };
+  }
+};
+var eq68 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(variableDefinitionsEq));
+var operationDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof OperationDefinition_SelectionSet && y instanceof OperationDefinition_SelectionSet) {
+        return eq46(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof OperationDefinition_OperationType && y instanceof OperationDefinition_OperationType) {
+        return eq32(x.value0.directives)(y.value0.directives) && eq4(x.value0.name)(y.value0.name) && eq8(x.value0.operationType)(y.value0.operationType) && eq46(x.value0.selectionSet)(y.value0.selectionSet) && eq68(x.value0.variableDefinitions)(y.value0.variableDefinitions);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq69 = /* @__PURE__ */ eq(operationDefinitionEq);
+var executableDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof ExecutableDefinition_OperationDefinition && y instanceof ExecutableDefinition_OperationDefinition) {
+        return eq69(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof ExecutableDefinition_FragmentDefinition && y instanceof ExecutableDefinition_FragmentDefinition) {
+        return eq47(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq70 = /* @__PURE__ */ eq(executableDefinitionEq);
+var definitionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof Definition_ExecutableDefinition && y instanceof Definition_ExecutableDefinition) {
+        return eq70(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Definition_TypeSystemDefinition && y instanceof Definition_TypeSystemDefinition) {
+        return eq63(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Definition_TypeSystemExtension && y instanceof Definition_TypeSystemExtension) {
+        return eq66(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var valueOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof Value_Variable && y instanceof Value_Variable) {
+        return compare5(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_Variable) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_Variable) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_IntValue && y instanceof Value_IntValue) {
+        return compare19(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_IntValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_IntValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_FloatValue && y instanceof Value_FloatValue) {
+        return compare222(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_FloatValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_FloatValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_StringValue && y instanceof Value_StringValue) {
+        return compare7(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_StringValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_StringValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_BooleanValue && y instanceof Value_BooleanValue) {
+        return compare27(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_BooleanValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_BooleanValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_NullValue && y instanceof Value_NullValue) {
+        return compare9(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_NullValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_NullValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_EnumValue && y instanceof Value_EnumValue) {
+        return compare24(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_EnumValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_EnumValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_ListValue && y instanceof Value_ListValue) {
+        return compare(listValueOrd)(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_ListValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_ListValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_ObjectValue && y instanceof Value_ObjectValue) {
+        return compare(objectValueOrd)(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return valueEq;
+  }
+};
+var objectValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare(ordList(argumentOrd))(x)(y);
+    };
+  },
+  Eq0: function() {
+    return objectValueEq;
+  }
+};
+var listValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare(ordList(valueOrd))(x)(y);
+    };
+  },
+  Eq0: function() {
+    return listValueEq;
+  }
+};
+var argumentOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare4(x.name)(y.name);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare(valueOrd)(x.value)(y.value);
+    };
+  },
+  Eq0: function() {
+    return argumentEq;
+  }
+};
+var compare28 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(argumentOrd));
+var compare29 = /* @__PURE__ */ compare(valueOrd);
+var argumentsOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare28(x)(y);
+    };
+  },
+  Eq0: function() {
+    return argumentsEq;
+  }
+};
+var compare30 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(argumentsOrd));
+var directiveOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare30(x["arguments"])(y["arguments"]);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return directiveEq;
+  }
+};
+var compare31 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(directiveOrd));
+var directivesOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare31(x)(y);
+    };
+  },
+  Eq0: function() {
+    return directivesEq;
+  }
+};
+var compare322 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(directivesOrd));
+var compare33 = /* @__PURE__ */ compare(directivesOrd);
+var enumValueDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare24(x.enumValue)(y.enumValue);
+    };
+  },
+  Eq0: function() {
+    return enumValueDefinitionEq;
+  }
+};
+var compare34 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(enumValueDefinitionOrd));
+var enumValuesDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare34(x)(y);
+    };
+  },
+  Eq0: function() {
+    return enumValuesDefinitionEq;
+  }
+};
+var compare35 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(enumValuesDefinitionOrd));
+var compare36 = /* @__PURE__ */ compare(enumValuesDefinitionOrd);
+var enumTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare35(x.enumValuesDefinition)(y.enumValuesDefinition);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return enumTypeDefinitionEq;
+  }
+};
+var compare37 = /* @__PURE__ */ compare(enumTypeDefinitionOrd);
+var enumTypeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof EnumTypeExtension_With_EnumValuesDefinition && y instanceof EnumTypeExtension_With_EnumValuesDefinition) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare36(x.value0.enumValuesDefinition)(y.value0.enumValuesDefinition);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      if (x instanceof EnumTypeExtension_With_EnumValuesDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof EnumTypeExtension_With_EnumValuesDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof EnumTypeExtension_With_Directives && y instanceof EnumTypeExtension_With_Directives) {
+        var v = compare33(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return enumTypeExtensionEq;
+  }
+};
+var compare38 = /* @__PURE__ */ compare(enumTypeExtensionOrd);
+var fragmentSpreadOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare322(x.directives)(y.directives);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.fragmentName)(y.fragmentName);
+    };
+  },
+  Eq0: function() {
+    return fragmentSpreadEq;
+  }
+};
+var compare39 = /* @__PURE__ */ compare(fragmentSpreadOrd);
+var scalarTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return scalarTypeDefinitionEq;
+  }
+};
+var compare40 = /* @__PURE__ */ compare(scalarTypeDefinitionOrd);
+var scalarTypeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare33(x.directives)(y.directives);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return scalarTypeExtensionEq;
+  }
+};
+var compare41 = /* @__PURE__ */ compare(scalarTypeExtensionOrd);
+var schemaDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare322(x.directives)(y.directives);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare132(x.rootOperationTypeDefinition)(y.rootOperationTypeDefinition);
+    };
+  },
+  Eq0: function() {
+    return schemaDefinitionEq;
+  }
+};
+var compare422 = /* @__PURE__ */ compare(schemaDefinitionOrd);
+var schemaExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof SchemaExtension_With_OperationTypeDefinition && y instanceof SchemaExtension_With_OperationTypeDefinition) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare122(x.value0.operationTypesDefinition)(y.value0.operationTypesDefinition);
+      }
+      ;
+      if (x instanceof SchemaExtension_With_OperationTypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof SchemaExtension_With_OperationTypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof SchemaExtension_With_Directives && y instanceof SchemaExtension_With_Directives) {
+        return compare33(x.value0.directives)(y.value0.directives);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return schemaExtensionEq;
+  }
+};
+var compare43 = /* @__PURE__ */ compare(schemaExtensionOrd);
+var unionTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare4(x.name)(y.name);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare16(x.unionMemberTypes)(y.unionMemberTypes);
+    };
+  },
+  Eq0: function() {
+    return unionTypeDefinitionEq;
+  }
+};
+var compare44 = /* @__PURE__ */ compare(unionTypeDefinitionOrd);
+var unionTypeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof UnionTypeExtension_With_UnionMemberTypes && y instanceof UnionTypeExtension_With_UnionMemberTypes) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare4(x.value0.name)(y.value0.name);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare17(x.value0.unionMemberTypes)(y.value0.unionMemberTypes);
+      }
+      ;
+      if (x instanceof UnionTypeExtension_With_UnionMemberTypes) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof UnionTypeExtension_With_UnionMemberTypes) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof UnionTypeExtension_With_Directives && y instanceof UnionTypeExtension_With_Directives) {
+        var v = compare33(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return unionTypeExtensionEq;
+  }
+};
+var compare45 = /* @__PURE__ */ compare(unionTypeExtensionOrd);
+var selectionSetOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare(ordList(selectionOrd))(x)(y);
+    };
+  },
+  Eq0: function() {
+    return selectionSetEq;
+  }
+};
+var selectionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof Selection_Field && y instanceof Selection_Field) {
+        return compare(fieldOrd)(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Selection_Field) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Selection_Field) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Selection_FragmentSpread && y instanceof Selection_FragmentSpread) {
+        return compare39(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Selection_FragmentSpread) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Selection_FragmentSpread) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Selection_InlineFragment && y instanceof Selection_InlineFragment) {
+        return compare(inlineFragmentOrd)(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return selectionEq;
+  }
+};
+var inlineFragmentOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare322(x.directives)(y.directives);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare(selectionSetOrd)(x.selectionSet)(y.selectionSet);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare14(x.typeCondition)(y.typeCondition);
+    };
+  },
+  Eq0: function() {
+    return inlineFragmentEq;
+  }
+};
+var fieldOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.alias)(y.alias);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare30(x["arguments"])(y["arguments"]);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare322(x.directives)(y.directives);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v3 = compare4(x.name)(y.name);
+      if (v3 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v3 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare(ordMaybe(selectionSetOrd))(x.selectionSet)(y.selectionSet);
+    };
+  },
+  Eq0: function() {
+    return fieldEq;
+  }
+};
+var compare46 = /* @__PURE__ */ compare(selectionSetOrd);
+var fragmentDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare322(x.directives)(y.directives);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare4(x.fragmentName)(y.fragmentName);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare46(x.selectionSet)(y.selectionSet);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare15(x.typeCondition)(y.typeCondition);
+    };
+  },
+  Eq0: function() {
+    return fragmentDefinitionEq;
+  }
+};
+var compare47 = /* @__PURE__ */ compare(fragmentDefinitionOrd);
+var defaultValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare29(x)(y);
+    };
+  },
+  Eq0: function() {
+    return defaultValueEq;
+  }
+};
+var compare48 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(defaultValueOrd));
+var inputValueDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare48(x.defaultValue)(y.defaultValue);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare42(x.description)(y.description);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare322(x.directives)(y.directives);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v3 = compare4(x.name)(y.name);
+      if (v3 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v3 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare18(x.type)(y.type);
+    };
+  },
+  Eq0: function() {
+    return inputValueDefinitionEq;
+  }
+};
+var compare49 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(inputValueDefinitionOrd));
+var argumentsDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare49(x)(y);
+    };
+  },
+  Eq0: function() {
+    return argumentsDefinitionEq;
+  }
+};
+var compare50 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(argumentsDefinitionOrd));
+var directiveDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare50(x.argumentsDefinition)(y.argumentsDefinition);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare42(x.description)(y.description);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare26(x.directiveLocations)(y.directiveLocations);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return directiveDefinitionEq;
+  }
+};
+var compare51 = /* @__PURE__ */ compare(directiveDefinitionOrd);
+var fieldDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare50(x.argumentsDefinition)(y.argumentsDefinition);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare42(x.description)(y.description);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare322(x.directives)(y.directives);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v3 = compare4(x.name)(y.name);
+      if (v3 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v3 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare18(x.type)(y.type);
+    };
+  },
+  Eq0: function() {
+    return fieldDefinitionEq;
+  }
+};
+var compare52 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(fieldDefinitionOrd));
+var fieldsDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare52(x)(y);
+    };
+  },
+  Eq0: function() {
+    return fieldsDefinitionEq;
+  }
+};
+var compare53 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(fieldsDefinitionOrd));
+var compare54 = /* @__PURE__ */ compare(fieldsDefinitionOrd);
+var interfaceTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare53(x.fieldsDefinition)(y.fieldsDefinition);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return interfaceTypeDefinitionEq;
+  }
+};
+var compare55 = /* @__PURE__ */ compare(interfaceTypeDefinitionOrd);
+var interfaceTypeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof InterfaceTypeExtension_With_FieldsDefinition && y instanceof InterfaceTypeExtension_With_FieldsDefinition) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare54(x.value0.fieldsDefinition)(y.value0.fieldsDefinition);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      if (x instanceof InterfaceTypeExtension_With_FieldsDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof InterfaceTypeExtension_With_FieldsDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof InterfaceTypeExtension_With_Directives && y instanceof InterfaceTypeExtension_With_Directives) {
+        var v = compare33(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return interfaceTypeExtensionEq;
+  }
+};
+var compare56 = /* @__PURE__ */ compare(interfaceTypeExtensionOrd);
+var objectTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare53(x.fieldsDefinition)(y.fieldsDefinition);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v3 = compare20(x.implementsInterfaces)(y.implementsInterfaces);
+      if (v3 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v3 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return objectTypeDefinitionEq;
+  }
+};
+var compare57 = /* @__PURE__ */ compare(objectTypeDefinitionOrd);
+var objectTypeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof ObjectTypeExtension_With_FieldsDefinition && y instanceof ObjectTypeExtension_With_FieldsDefinition) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare54(x.value0.fieldsDefinition)(y.value0.fieldsDefinition);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v2 = compare20(x.value0.implementsInterfaces)(y.value0.implementsInterfaces);
+        if (v2 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v2 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      if (x instanceof ObjectTypeExtension_With_FieldsDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof ObjectTypeExtension_With_FieldsDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof ObjectTypeExtension_With_Directives && y instanceof ObjectTypeExtension_With_Directives) {
+        var v = compare33(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare20(x.value0.implementsInterfaces)(y.value0.implementsInterfaces);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      if (x instanceof ObjectTypeExtension_With_Directives) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof ObjectTypeExtension_With_Directives) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof ObjectTypeExtension_With_ImplementsInterfaces && y instanceof ObjectTypeExtension_With_ImplementsInterfaces) {
+        var v = compare21(x.value0.implementsInterfaces)(y.value0.implementsInterfaces);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return objectTypeExtensionEq;
+  }
+};
+var compare58 = /* @__PURE__ */ compare(objectTypeExtensionOrd);
+var inputFieldsDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare49(x)(y);
+    };
+  },
+  Eq0: function() {
+    return inputFieldsDefinitionEq;
+  }
+};
+var compare59 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(inputFieldsDefinitionOrd));
+var compare60 = /* @__PURE__ */ compare(inputFieldsDefinitionOrd);
+var inputObjectTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare59(x.inputFieldsDefinition)(y.inputFieldsDefinition);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return inputObjectTypeDefinitionEq;
+  }
+};
+var compare61 = /* @__PURE__ */ compare(inputObjectTypeDefinitionOrd);
+var typeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof TypeDefinition_ScalarTypeDefinition && y instanceof TypeDefinition_ScalarTypeDefinition) {
+        return compare40(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_ScalarTypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeDefinition_ScalarTypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeDefinition_ObjectTypeDefinition && y instanceof TypeDefinition_ObjectTypeDefinition) {
+        return compare57(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_ObjectTypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeDefinition_ObjectTypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeDefinition_InterfaceTypeDefinition && y instanceof TypeDefinition_InterfaceTypeDefinition) {
+        return compare55(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_InterfaceTypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeDefinition_InterfaceTypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeDefinition_UnionTypeDefinition && y instanceof TypeDefinition_UnionTypeDefinition) {
+        return compare44(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_UnionTypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeDefinition_UnionTypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeDefinition_EnumTypeDefinition && y instanceof TypeDefinition_EnumTypeDefinition) {
+        return compare37(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_EnumTypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeDefinition_EnumTypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeDefinition_InputObjectTypeDefinition && y instanceof TypeDefinition_InputObjectTypeDefinition) {
+        return compare61(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return typeDefinitionEq;
+  }
+};
+var compare62 = /* @__PURE__ */ compare(typeDefinitionOrd);
+var typeSystemDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof TypeSystemDefinition_SchemaDefinition && y instanceof TypeSystemDefinition_SchemaDefinition) {
+        return compare422(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeSystemDefinition_SchemaDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeSystemDefinition_SchemaDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeSystemDefinition_TypeDefinition && y instanceof TypeSystemDefinition_TypeDefinition) {
+        return compare62(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeSystemDefinition_TypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeSystemDefinition_TypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeSystemDefinition_DirectiveDefinition && y instanceof TypeSystemDefinition_DirectiveDefinition) {
+        return compare51(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return typeSystemDefinitionEq;
+  }
+};
+var compare63 = /* @__PURE__ */ compare(typeSystemDefinitionOrd);
+var inputObjectTypeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof InputObjectTypeExtension_With_InputFieldsDefinition && y instanceof InputObjectTypeExtension_With_InputFieldsDefinition) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare60(x.value0.inputFieldsDefinition)(y.value0.inputFieldsDefinition);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      if (x instanceof InputObjectTypeExtension_With_InputFieldsDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof InputObjectTypeExtension_With_InputFieldsDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof InputObjectTypeExtension_With_Directives && y instanceof InputObjectTypeExtension_With_Directives) {
+        var v = compare33(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return inputObjectTypeExtensionEq;
+  }
+};
+var compare64 = /* @__PURE__ */ compare(inputObjectTypeExtensionOrd);
+var typeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof TypeExtension_ScalarTypeExtension && y instanceof TypeExtension_ScalarTypeExtension) {
+        return compare41(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_ScalarTypeExtension) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeExtension_ScalarTypeExtension) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeExtension_ObjectTypeExtension && y instanceof TypeExtension_ObjectTypeExtension) {
+        return compare58(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_ObjectTypeExtension) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeExtension_ObjectTypeExtension) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeExtension_InterfaceTypeExtension && y instanceof TypeExtension_InterfaceTypeExtension) {
+        return compare56(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_InterfaceTypeExtension) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeExtension_InterfaceTypeExtension) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeExtension_UnionTypeExtension && y instanceof TypeExtension_UnionTypeExtension) {
+        return compare45(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_UnionTypeExtension) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeExtension_UnionTypeExtension) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeExtension_EnumTypeExtension && y instanceof TypeExtension_EnumTypeExtension) {
+        return compare38(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_EnumTypeExtension) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeExtension_EnumTypeExtension) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeExtension_InputObjectTypeExtension && y instanceof TypeExtension_InputObjectTypeExtension) {
+        return compare64(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return typeExtensionEq;
+  }
+};
+var compare65 = /* @__PURE__ */ compare(typeExtensionOrd);
+var typeSystemExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof TypeSystemExtension_SchemaExtension && y instanceof TypeSystemExtension_SchemaExtension) {
+        return compare43(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeSystemExtension_SchemaExtension) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeSystemExtension_SchemaExtension) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeSystemExtension_TypeExtension && y instanceof TypeSystemExtension_TypeExtension) {
+        return compare65(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return typeSystemExtensionEq;
+  }
+};
+var compare66 = /* @__PURE__ */ compare(typeSystemExtensionOrd);
+var variableDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare48(x.defaultValue)(y.defaultValue);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare18(x.type)(y.type);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare5(x.variable)(y.variable);
+    };
+  },
+  Eq0: function() {
+    return variableDefinitionEq;
+  }
+};
+var compare67 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(variableDefinitionOrd));
+var variableDefinitionsOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare67(x)(y);
+    };
+  },
+  Eq0: function() {
+    return variableDefinitionsEq;
+  }
+};
+var compare68 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(variableDefinitionsOrd));
+var operationDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof OperationDefinition_SelectionSet && y instanceof OperationDefinition_SelectionSet) {
+        return compare46(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof OperationDefinition_SelectionSet) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof OperationDefinition_SelectionSet) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof OperationDefinition_OperationType && y instanceof OperationDefinition_OperationType) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare42(x.value0.name)(y.value0.name);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v2 = compare8(x.value0.operationType)(y.value0.operationType);
+        if (v2 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v2 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v3 = compare46(x.value0.selectionSet)(y.value0.selectionSet);
+        if (v3 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v3 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare68(x.value0.variableDefinitions)(y.value0.variableDefinitions);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return operationDefinitionEq;
+  }
+};
+var compare69 = /* @__PURE__ */ compare(operationDefinitionOrd);
+var executableDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof ExecutableDefinition_OperationDefinition && y instanceof ExecutableDefinition_OperationDefinition) {
+        return compare69(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof ExecutableDefinition_OperationDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof ExecutableDefinition_OperationDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof ExecutableDefinition_FragmentDefinition && y instanceof ExecutableDefinition_FragmentDefinition) {
+        return compare47(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return executableDefinitionEq;
+  }
+};
+var compare70 = /* @__PURE__ */ compare(executableDefinitionOrd);
+var definitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof Definition_ExecutableDefinition && y instanceof Definition_ExecutableDefinition) {
+        return compare70(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Definition_ExecutableDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Definition_ExecutableDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Definition_TypeSystemDefinition && y instanceof Definition_TypeSystemDefinition) {
+        return compare63(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Definition_TypeSystemDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Definition_TypeSystemDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Definition_TypeSystemExtension && y instanceof Definition_TypeSystemExtension) {
+        return compare66(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return definitionEq;
   }
 };
 var _TypeSystemDefinition_TypeDefinition = /* @__PURE__ */ function() {
@@ -16224,7 +19672,7 @@ var convchars = [{
 var bsearch = function(a) {
   return function(array) {
     return function(size3) {
-      return function(compare11) {
+      return function(compare78) {
         var go = function($copy_i) {
           return function($copy_k) {
             var $tco_var_i = $copy_i;
@@ -16239,7 +19687,7 @@ var bsearch = function(a) {
               if (otherwise) {
                 var j = floor2(toNumber(i + k | 0) / 2);
                 var b = unsafeIndex2(array)(j);
-                var v = compare11(a)(b);
+                var v = compare78(a)(b);
                 if (v instanceof EQ) {
                   $tco_done = true;
                   return new Just(b);
@@ -29949,7 +33397,7 @@ var uGencat = function($$char2) {
 };
 
 // output/Data.CodePoint.Unicode.Internal.Casing/index.js
-var compare4 = /* @__PURE__ */ compare(ordInt);
+var compare71 = /* @__PURE__ */ compare(ordInt);
 var zeroRec = function(code) {
   return {
     code,
@@ -41114,7 +44562,7 @@ var rules = [{
 }];
 var recCmp = function(v) {
   return function(v1) {
-    return compare4(v.code)(v1.code);
+    return compare71(v.code)(v1.code);
   };
 };
 var findRule = function(code) {
@@ -41159,7 +44607,7 @@ var upper = function(code) {
 
 // output/Data.CodePoint.Unicode/index.js
 var fromEnum3 = /* @__PURE__ */ fromEnum(boundedEnumCodePoint);
-var compare5 = /* @__PURE__ */ compare(ordInt);
+var compare72 = /* @__PURE__ */ compare(ordInt);
 var UppercaseLetter = /* @__PURE__ */ function() {
   function UppercaseLetter2() {
   }
@@ -41762,7 +45210,7 @@ var eqGeneralCategory = {
 var ordGeneralCategory = {
   compare: function(catA) {
     return function(catB) {
-      return compare5(generalCatToInt(catA))(generalCatToInt(catB));
+      return compare72(generalCatToInt(catA))(generalCatToInt(catB));
     };
   },
   Eq0: function() {
@@ -44740,7 +48188,7 @@ var nameOf = function(v) {
 // output/Tidy.Doc/index.js
 var mempty4 = /* @__PURE__ */ mempty(monoidDoc);
 var sort3 = /* @__PURE__ */ sort2(ordInt);
-var eq4 = /* @__PURE__ */ eq(eqCodePoint);
+var eq71 = /* @__PURE__ */ eq(eqCodePoint);
 var voidLeft2 = /* @__PURE__ */ voidLeft(functorMaybe);
 var guard3 = /* @__PURE__ */ guard2(alternativeMaybe);
 var power3 = /* @__PURE__ */ power(monoidString);
@@ -44843,7 +48291,7 @@ var formatBlockComment = function($187) {
     ;
     if (v instanceof Just) {
       var prefixSpaces = head2(sort3(mapMaybe2(function(str) {
-        var spaces = length2(takeWhile3(eq4(codePointFromChar(" ")))(str));
+        var spaces = length2(takeWhile3(eq71(codePointFromChar(" ")))(str));
         return voidLeft2(guard3(spaces < length2(str)))(spaces);
       })(v.value0.tail)));
       if (prefixSpaces instanceof Nothing) {
@@ -44980,7 +48428,7 @@ var eqForceBreak = {
     };
   }
 };
-var eq22 = /* @__PURE__ */ eq(eqForceBreak);
+var eq210 = /* @__PURE__ */ eq(eqForceBreak);
 var ordForceBreak = {
   compare: function(x) {
     return function(y) {
@@ -45277,7 +48725,7 @@ var semigroupLeadingComment = {
       ;
       if (otherwise) {
         var br = max12(v.right)(v1.left);
-        var $165 = v1.lines > 0 || eq22(br)(ForceBreak.value);
+        var $165 = v1.lines > 0 || eq210(br)(ForceBreak.value);
         if ($165) {
           return {
             doc: append3(v.doc)(append3(breaks(ForceBreak.value)(v1.lines))(v1.doc)),
@@ -45523,7 +48971,7 @@ var align2 = function($189) {
 // output/Tidy.Hang/index.js
 var pure5 = /* @__PURE__ */ pure(applicativeNonEmptyArray);
 var append14 = /* @__PURE__ */ append(semigroupDoc);
-var eq5 = /* @__PURE__ */ eq(eqForceBreak);
+var eq72 = /* @__PURE__ */ eq(eqForceBreak);
 var mempty5 = /* @__PURE__ */ mempty(monoidDoc);
 var notEq4 = /* @__PURE__ */ notEq(eqForceBreak);
 var max5 = /* @__PURE__ */ max(ordForceBreak);
@@ -45670,11 +49118,11 @@ var forceBreaks = function(n) {
 };
 var breaks2 = function(fl) {
   return function(n) {
-    if (eq5(fl)(ForceBreak.value) || n > 0) {
+    if (eq72(fl)(ForceBreak.value) || n > 0) {
       return forceBreaks(n);
     }
     ;
-    if (eq5(fl)(ForceSpace.value)) {
+    if (eq72(fl)(ForceSpace.value)) {
       return space;
     }
     ;
@@ -45739,7 +49187,7 @@ var toFormatDoc = /* @__PURE__ */ function() {
     return function(v1) {
       return function(v2) {
         var $$break3 = function() {
-          if (eq5(v.leading.left)(ForceBreak.value) || v.leading.lines > 0) {
+          if (eq72(v.leading.left)(ForceBreak.value) || v.leading.lines > 0) {
             return $$break;
           }
           ;
@@ -45800,7 +49248,7 @@ var toFormatDoc = /* @__PURE__ */ function() {
     }
     ;
     if (otherwise) {
-      var $105 = eq5(v.leading.left)(ForceBreak.value) || v.leading.lines > 0;
+      var $105 = eq72(v.leading.left)(ForceBreak.value) || v.leading.lines > 0;
       if ($105) {
         return v;
       }
@@ -45998,7 +49446,7 @@ var toFormatDoc = /* @__PURE__ */ function() {
 }();
 
 // output/Tidy.Precedence/index.js
-var compare6 = /* @__PURE__ */ compare(ordInt);
+var compare73 = /* @__PURE__ */ compare(ordInt);
 var append4 = /* @__PURE__ */ append(semigroupNonEmptyArray);
 var ordMaybe2 = /* @__PURE__ */ ordMaybe(ordModuleName);
 var alter2 = /* @__PURE__ */ alter(ordMaybe2);
@@ -46159,7 +49607,7 @@ var push2 = function($copy_stk) {
         }
         ;
         if (stk instanceof OpPrec) {
-          var v = compare6(chs.value0.value0)(stk.value1);
+          var v = compare73(chs.value0.value0)(stk.value1);
           if (v instanceof EQ) {
             $tco_done = true;
             return new OpPrec(stk.value0, stk.value1, append4(stk.value2)(chs.value0.value1));
@@ -46190,7 +49638,7 @@ var push2 = function($copy_stk) {
         }
         ;
         if (stk instanceof OpPrec) {
-          var v = compare6(chs.value0.value0)(stk.value1);
+          var v = compare73(chs.value0.value0)(stk.value1);
           if (v instanceof EQ) {
             $tco_var_stk = new OpPrec(stk.value0, stk.value1, append4(stk.value2)(chs.value0.value1));
             $copy_chs = chs.value1;
@@ -46559,21 +50007,21 @@ var joinWithMap22 = /* @__PURE__ */ joinWithMap(foldableNonEmptyArray);
 var identity16 = /* @__PURE__ */ identity(categoryFn);
 var foldl13 = /* @__PURE__ */ foldl(foldableNonEmptyArray);
 var guard4 = /* @__PURE__ */ guard(monoidFormatDoc);
-var eq12 = /* @__PURE__ */ eq(eqUnicodeOption);
-var eq23 = /* @__PURE__ */ eq(eqProper);
-var eq32 = /* @__PURE__ */ eq(eqOperator);
-var eq52 = /* @__PURE__ */ eq(/* @__PURE__ */ eqArray(eqProper));
-var eq6 = /* @__PURE__ */ eq(eqIdent);
-var eq7 = /* @__PURE__ */ eq(eqModuleName);
-var eq9 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(eqModuleName));
-var compare7 = /* @__PURE__ */ compare(ordProper);
-var compare12 = /* @__PURE__ */ compare(ordOperator);
-var compare22 = /* @__PURE__ */ compare(ordBoolean);
-var compare32 = /* @__PURE__ */ compare(/* @__PURE__ */ ordArray(ordProper));
-var compare42 = /* @__PURE__ */ compare(ordIdent);
-var compare52 = /* @__PURE__ */ compare(ordModuleName);
-var compare62 = /* @__PURE__ */ compare(ordInt);
-var compare72 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(ordModuleName));
+var eq110 = /* @__PURE__ */ eq(eqUnicodeOption);
+var eq211 = /* @__PURE__ */ eq(eqProper);
+var eq310 = /* @__PURE__ */ eq(eqOperator);
+var eq510 = /* @__PURE__ */ eq(/* @__PURE__ */ eqArray(eqProper));
+var eq610 = /* @__PURE__ */ eq(eqIdent);
+var eq73 = /* @__PURE__ */ eq(eqModuleName);
+var eq92 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(eqModuleName));
+var compare74 = /* @__PURE__ */ compare(ordProper);
+var compare110 = /* @__PURE__ */ compare(ordOperator);
+var compare210 = /* @__PURE__ */ compare(ordBoolean);
+var compare310 = /* @__PURE__ */ compare(/* @__PURE__ */ ordArray(ordProper));
+var compare410 = /* @__PURE__ */ compare(ordIdent);
+var compare510 = /* @__PURE__ */ compare(ordModuleName);
+var compare610 = /* @__PURE__ */ compare(ordInt);
+var compare75 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(ordModuleName));
 var un2 = /* @__PURE__ */ un();
 var bindFlipped5 = /* @__PURE__ */ bindFlipped(bindFn);
 var foldMap33 = /* @__PURE__ */ foldMap14(monoidFormatDoc);
@@ -47698,7 +51146,7 @@ var formatDataCtor = function(conf) {
 var formatConstraints = function(conf) {
   return function(v) {
     var unicodeArr = function() {
-      if (v.value1.value instanceof TokOperator && (v.value1.value.value0 instanceof Nothing && (v.value1.value.value1 === "<=" && eq12(conf.unicode)(UnicodeAlways.value)))) {
+      if (v.value1.value instanceof TokOperator && (v.value1.value.value0 instanceof Nothing && (v.value1.value.value1 === "<=" && eq110(conf.unicode)(UnicodeAlways.value)))) {
         return {
           value: new TokOperator(Nothing.value, "\u21D0"),
           leadingComments: v.value1.leadingComments,
@@ -47707,7 +51155,7 @@ var formatConstraints = function(conf) {
         };
       }
       ;
-      if (v.value1.value instanceof TokOperator && (v.value1.value.value0 instanceof Nothing && (v.value1.value.value1 === "\u21D0" && eq12(conf.unicode)(UnicodeNever.value)))) {
+      if (v.value1.value instanceof TokOperator && (v.value1.value.value0 instanceof Nothing && (v.value1.value.value1 === "\u21D0" && eq110(conf.unicode)(UnicodeNever.value)))) {
         return {
           value: new TokOperator(Nothing.value, "<="),
           leadingComments: v.value1.leadingComments,
@@ -47827,23 +51275,23 @@ var eqImportComparison = {
   eq: function(x) {
     return function(y) {
       if (x instanceof ImportClassCmp && y instanceof ImportClassCmp) {
-        return eq23(x.value0)(y.value0);
+        return eq211(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportTypeOpCmp && y instanceof ImportTypeOpCmp) {
-        return eq32(x.value0)(y.value0);
+        return eq310(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportTypeCmp && y instanceof ImportTypeCmp) {
-        return eq23(x.value0)(y.value0) && x.value1 === y.value1 && eq52(x.value2)(y.value2);
+        return eq211(x.value0)(y.value0) && x.value1 === y.value1 && eq510(x.value2)(y.value2);
       }
       ;
       if (x instanceof ImportValueCmp && y instanceof ImportValueCmp) {
-        return eq6(x.value0)(y.value0);
+        return eq610(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportOpCmp && y instanceof ImportOpCmp) {
-        return eq32(x.value0)(y.value0);
+        return eq310(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportErrorCmp && y instanceof ImportErrorCmp) {
@@ -47854,11 +51302,11 @@ var eqImportComparison = {
     };
   }
 };
-var eq10 = /* @__PURE__ */ eq(/* @__PURE__ */ eqArray(eqImportComparison));
+var eq102 = /* @__PURE__ */ eq(/* @__PURE__ */ eqArray(eqImportComparison));
 var eqImportModuleComparison = {
   eq: function(x) {
     return function(y) {
-      return eq7(x.value0)(y.value0) && x.value1 === y.value1 && eq10(x.value2)(y.value2) && eq9(x.value3)(y.value3);
+      return eq73(x.value0)(y.value0) && x.value1 === y.value1 && eq102(x.value2)(y.value2) && eq92(x.value3)(y.value3);
     };
   }
 };
@@ -47866,7 +51314,7 @@ var ordImportComparison = {
   compare: function(x) {
     return function(y) {
       if (x instanceof ImportClassCmp && y instanceof ImportClassCmp) {
-        return compare7(x.value0)(y.value0);
+        return compare74(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportClassCmp) {
@@ -47878,7 +51326,7 @@ var ordImportComparison = {
       }
       ;
       if (x instanceof ImportTypeOpCmp && y instanceof ImportTypeOpCmp) {
-        return compare12(x.value0)(y.value0);
+        return compare110(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportTypeOpCmp) {
@@ -47890,7 +51338,7 @@ var ordImportComparison = {
       }
       ;
       if (x instanceof ImportTypeCmp && y instanceof ImportTypeCmp) {
-        var v = compare7(x.value0)(y.value0);
+        var v = compare74(x.value0)(y.value0);
         if (v instanceof LT) {
           return LT.value;
         }
@@ -47899,7 +51347,7 @@ var ordImportComparison = {
           return GT.value;
         }
         ;
-        var v1 = compare22(x.value1)(y.value1);
+        var v1 = compare210(x.value1)(y.value1);
         if (v1 instanceof LT) {
           return LT.value;
         }
@@ -47908,7 +51356,7 @@ var ordImportComparison = {
           return GT.value;
         }
         ;
-        return compare32(x.value2)(y.value2);
+        return compare310(x.value2)(y.value2);
       }
       ;
       if (x instanceof ImportTypeCmp) {
@@ -47920,7 +51368,7 @@ var ordImportComparison = {
       }
       ;
       if (x instanceof ImportValueCmp && y instanceof ImportValueCmp) {
-        return compare42(x.value0)(y.value0);
+        return compare410(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportValueCmp) {
@@ -47932,7 +51380,7 @@ var ordImportComparison = {
       }
       ;
       if (x instanceof ImportOpCmp && y instanceof ImportOpCmp) {
-        return compare12(x.value0)(y.value0);
+        return compare110(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportOpCmp) {
@@ -47954,12 +51402,12 @@ var ordImportComparison = {
     return eqImportComparison;
   }
 };
-var compare8 = /* @__PURE__ */ compare(/* @__PURE__ */ ordArray(ordImportComparison));
+var compare82 = /* @__PURE__ */ compare(/* @__PURE__ */ ordArray(ordImportComparison));
 var sortWith3 = /* @__PURE__ */ sortWith2(ordImportComparison);
 var ordImportModuleComparison = {
   compare: function(x) {
     return function(y) {
-      var v = compare52(x.value0)(y.value0);
+      var v = compare510(x.value0)(y.value0);
       if (v instanceof LT) {
         return LT.value;
       }
@@ -47968,7 +51416,7 @@ var ordImportModuleComparison = {
         return GT.value;
       }
       ;
-      var v1 = compare62(x.value1)(y.value1);
+      var v1 = compare610(x.value1)(y.value1);
       if (v1 instanceof LT) {
         return LT.value;
       }
@@ -47977,7 +51425,7 @@ var ordImportModuleComparison = {
         return GT.value;
       }
       ;
-      var v2 = compare8(x.value2)(y.value2);
+      var v2 = compare82(x.value2)(y.value2);
       if (v2 instanceof LT) {
         return LT.value;
       }
@@ -47986,7 +51434,7 @@ var ordImportModuleComparison = {
         return GT.value;
       }
       ;
-      return compare72(x.value3)(y.value3);
+      return compare75(x.value3)(y.value3);
     };
   },
   Eq0: function() {
@@ -48711,7 +52159,7 @@ var formatTopLevelGroups = /* @__PURE__ */ function() {
   var topDeclGroupSeparator = function(v) {
     return function(v1) {
       if (v instanceof DeclGroupValue && v1 instanceof DeclGroupValue) {
-        var $968 = eq6(v.value0)(v1.value0);
+        var $968 = eq610(v.value0)(v1.value0);
         if ($968) {
           return DeclGroupSame.value;
         }
@@ -48720,7 +52168,7 @@ var formatTopLevelGroups = /* @__PURE__ */ function() {
       }
       ;
       if (v instanceof DeclGroupValueSignature && v1 instanceof DeclGroupValue) {
-        var $971 = eq6(v.value0)(v1.value0);
+        var $971 = eq610(v.value0)(v1.value0);
         if ($971) {
           return DeclGroupSame.value;
         }
@@ -48737,7 +52185,7 @@ var formatTopLevelGroups = /* @__PURE__ */ function() {
       }
       ;
       if (v instanceof DeclGroupTypeSignature && v1 instanceof DeclGroupType) {
-        var $977 = eq23(v.value0)(v1.value0);
+        var $977 = eq211(v.value0)(v1.value0);
         if ($977) {
           return DeclGroupSame.value;
         }
@@ -48746,7 +52194,7 @@ var formatTopLevelGroups = /* @__PURE__ */ function() {
       }
       ;
       if (v instanceof DeclGroupTypeSignature && v1 instanceof DeclGroupClass) {
-        var $980 = eq23(v.value0)(v1.value0);
+        var $980 = eq211(v.value0)(v1.value0);
         if ($980) {
           return DeclGroupSame.value;
         }
@@ -49299,7 +52747,7 @@ var eqLayoutDelim = {
     };
   }
 };
-var eq13 = /* @__PURE__ */ eq(eqLayoutDelim);
+var eq111 = /* @__PURE__ */ eq(eqLayoutDelim);
 var insertLayout = function(v) {
   return function(nextPos) {
     return function(stack) {
@@ -49432,7 +52880,7 @@ var insertLayout = function(v) {
           }
           ;
           return popStack(function(v32) {
-            return eq13(v32)(LytProperty.value);
+            return eq111(v32)(LytProperty.value);
           })(v2);
         }
         ;
@@ -49443,7 +52891,7 @@ var insertLayout = function(v) {
           }
           ;
           return popStack(function(v32) {
-            return eq13(v32)(LytProperty.value);
+            return eq111(v32)(LytProperty.value);
           })(v2);
         }
         ;
@@ -49492,7 +52940,7 @@ var insertLayout = function(v) {
           }
           ;
           return popStack(function(v32) {
-            return eq13(v32)(LytProperty.value);
+            return eq111(v32)(LytProperty.value);
           })(insertDefault(v1));
         }
         ;
@@ -49530,7 +52978,7 @@ var insertLayout = function(v) {
           }
           ;
           return popStack(function(v32) {
-            return eq13(v32)(LytProperty.value);
+            return eq111(v32)(LytProperty.value);
           })(insertDefault(v2));
         }
         ;
@@ -49545,7 +52993,7 @@ var insertLayout = function(v) {
           }
           ;
           return popStack(function(v32) {
-            return eq13(v32)(LytProperty.value);
+            return eq111(v32)(LytProperty.value);
           })(insertDefault(v1));
         }
         ;
@@ -49561,7 +53009,7 @@ var insertLayout = function(v) {
           }
           ;
           return popStack(function(v4) {
-            return eq13(v4)(LytProperty.value);
+            return eq111(v4)(LytProperty.value);
           })(insertToken(v)(insertSep(v3)));
         }
         ;
@@ -49693,33 +53141,33 @@ var insertLayout = function(v) {
         ;
         if (v.value instanceof TokRightParen) {
           return insertToken(v)(popStack(function(v22) {
-            return eq13(v22)(LytParen.value);
+            return eq111(v22)(LytParen.value);
           })(collapse(indentedP)(v1)));
         }
         ;
         if (v.value instanceof TokRightBrace) {
           return insertToken(v)(popStack(function(v22) {
-            return eq13(v22)(LytBrace.value);
+            return eq111(v22)(LytBrace.value);
           })(popStack(function(v22) {
-            return eq13(v22)(LytProperty.value);
+            return eq111(v22)(LytProperty.value);
           })(collapse(indentedP)(v1))));
         }
         ;
         if (v.value instanceof TokRightSquare) {
           return insertToken(v)(popStack(function(v22) {
-            return eq13(v22)(LytSquare.value);
+            return eq111(v22)(LytSquare.value);
           })(collapse(indentedP)(v1)));
         }
         ;
         if (v.value instanceof TokString) {
           return popStack(function(v22) {
-            return eq13(v22)(LytProperty.value);
+            return eq111(v22)(LytProperty.value);
           })(insertDefault(v1));
         }
         ;
         if (v.value instanceof TokLowerName && v.value.value0 instanceof Nothing) {
           return popStack(function(v22) {
-            return eq13(v22)(LytProperty.value);
+            return eq111(v22)(LytProperty.value);
           })(insertDefault(v1));
         }
         ;
@@ -51136,7 +54584,7 @@ var eqSymbolName = eqString;
 // output/Tidy.Codegen.String/index.js
 var fromEnum4 = /* @__PURE__ */ fromEnum(boundedEnumCodePoint);
 var power4 = /* @__PURE__ */ power(monoidString);
-var eq8 = /* @__PURE__ */ eq(eqCodePoint);
+var eq74 = /* @__PURE__ */ eq(eqCodePoint);
 var escapeSourceString = /* @__PURE__ */ function() {
   var toHex = function(cp) {
     var hex = toStringAs(hexadecimal)(fromEnum4(cp));
@@ -51150,23 +54598,23 @@ var escapeSourceString = /* @__PURE__ */ function() {
     };
   }();
   var $$escape = function(cp) {
-    if (eq8(cp)(codePointFromChar("\n"))) {
+    if (eq74(cp)(codePointFromChar("\n"))) {
       return "\\n";
     }
     ;
-    if (eq8(cp)(codePointFromChar("\r"))) {
+    if (eq74(cp)(codePointFromChar("\r"))) {
       return "\\r";
     }
     ;
-    if (eq8(cp)(codePointFromChar("	"))) {
+    if (eq74(cp)(codePointFromChar("	"))) {
       return "\\t";
     }
     ;
-    if (eq8(cp)(codePointFromChar("\\"))) {
+    if (eq74(cp)(codePointFromChar("\\"))) {
       return "\\\\";
     }
     ;
-    if (eq8(cp)(codePointFromChar('"'))) {
+    if (eq74(cp)(codePointFromChar('"'))) {
       return '\\"';
     }
     ;
@@ -54177,13 +57625,13 @@ var buildFromScratch = /* @__PURE__ */ flip(build)({});
 
 // output/Tidy.Codegen.Monad/index.js
 var identity18 = /* @__PURE__ */ identity(categoryBuilder);
-var eq14 = /* @__PURE__ */ eq(eqProper);
-var eq24 = /* @__PURE__ */ eq(eqSymbolName);
-var eq33 = /* @__PURE__ */ eq(eqIdent);
-var compare9 = /* @__PURE__ */ compare(ordBoolean);
-var compare13 = /* @__PURE__ */ compare(ordProper);
-var compare23 = /* @__PURE__ */ compare(ordSymbolName);
-var compare33 = /* @__PURE__ */ compare(ordIdent);
+var eq112 = /* @__PURE__ */ eq(eqProper);
+var eq212 = /* @__PURE__ */ eq(eqSymbolName);
+var eq311 = /* @__PURE__ */ eq(eqIdent);
+var compare76 = /* @__PURE__ */ compare(ordBoolean);
+var compare111 = /* @__PURE__ */ compare(ordProper);
+var compare211 = /* @__PURE__ */ compare(ordSymbolName);
+var compare311 = /* @__PURE__ */ compare(ordIdent);
 var compose1 = /* @__PURE__ */ compose(semigroupoidBuilder);
 var insert8 = /* @__PURE__ */ insert7()();
 var insert1 = /* @__PURE__ */ insert4(ordModuleName);
@@ -54374,23 +57822,23 @@ var eqCodegenImport = {
   eq: function(x) {
     return function(y) {
       if (x instanceof CodegenImportType && y instanceof CodegenImportType) {
-        return x.value0 === y.value0 && eq14(x.value1)(y.value1);
+        return x.value0 === y.value0 && eq112(x.value1)(y.value1);
       }
       ;
       if (x instanceof CodegenImportTypeOp && y instanceof CodegenImportTypeOp) {
-        return eq24(x.value0)(y.value0);
+        return eq212(x.value0)(y.value0);
       }
       ;
       if (x instanceof CodegenImportClass && y instanceof CodegenImportClass) {
-        return eq14(x.value0)(y.value0);
+        return eq112(x.value0)(y.value0);
       }
       ;
       if (x instanceof CodegenImportValue && y instanceof CodegenImportValue) {
-        return eq33(x.value0)(y.value0);
+        return eq311(x.value0)(y.value0);
       }
       ;
       if (x instanceof CodegenImportOp && y instanceof CodegenImportOp) {
-        return eq24(x.value0)(y.value0);
+        return eq212(x.value0)(y.value0);
       }
       ;
       return false;
@@ -54401,7 +57849,7 @@ var ordCodegenImport = {
   compare: function(x) {
     return function(y) {
       if (x instanceof CodegenImportType && y instanceof CodegenImportType) {
-        var v = compare9(x.value0)(y.value0);
+        var v = compare76(x.value0)(y.value0);
         if (v instanceof LT) {
           return LT.value;
         }
@@ -54410,7 +57858,7 @@ var ordCodegenImport = {
           return GT.value;
         }
         ;
-        return compare13(x.value1)(y.value1);
+        return compare111(x.value1)(y.value1);
       }
       ;
       if (x instanceof CodegenImportType) {
@@ -54422,7 +57870,7 @@ var ordCodegenImport = {
       }
       ;
       if (x instanceof CodegenImportTypeOp && y instanceof CodegenImportTypeOp) {
-        return compare23(x.value0)(y.value0);
+        return compare211(x.value0)(y.value0);
       }
       ;
       if (x instanceof CodegenImportTypeOp) {
@@ -54434,7 +57882,7 @@ var ordCodegenImport = {
       }
       ;
       if (x instanceof CodegenImportClass && y instanceof CodegenImportClass) {
-        return compare13(x.value0)(y.value0);
+        return compare111(x.value0)(y.value0);
       }
       ;
       if (x instanceof CodegenImportClass) {
@@ -54446,7 +57894,7 @@ var ordCodegenImport = {
       }
       ;
       if (x instanceof CodegenImportValue && y instanceof CodegenImportValue) {
-        return compare33(x.value0)(y.value0);
+        return compare311(x.value0)(y.value0);
       }
       ;
       if (x instanceof CodegenImportValue) {
@@ -54458,7 +57906,7 @@ var ordCodegenImport = {
       }
       ;
       if (x instanceof CodegenImportOp && y instanceof CodegenImportOp) {
-        return compare23(x.value0)(y.value0);
+        return compare211(x.value0)(y.value0);
       }
       ;
       throw new Error("Failed pattern match at Tidy.Codegen.Monad (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
@@ -54791,7 +58239,7 @@ var toModuleNameString2 = /* @__PURE__ */ toModuleNameString();
 var importType4 = /* @__PURE__ */ importType3(/* @__PURE__ */ toTokenStringQualifiedPro());
 var any3 = /* @__PURE__ */ any(foldableList)(heytingAlgebraBoolean);
 var unwrap8 = /* @__PURE__ */ unwrap();
-var eq15 = /* @__PURE__ */ eq(operationTypeEq);
+var eq113 = /* @__PURE__ */ eq(operationTypeEq);
 var not4 = /* @__PURE__ */ not(/* @__PURE__ */ heytingAlgebraFunction(heytingAlgebraBoolean));
 var identity19 = /* @__PURE__ */ identity(categoryFn);
 var codegenModule2 = /* @__PURE__ */ codegenModule(/* @__PURE__ */ toNameStringModuleName());
@@ -54827,18 +58275,21 @@ var alt4 = /* @__PURE__ */ alt(altMaybe);
 var map114 = /* @__PURE__ */ map(functorMaybe);
 var notElem3 = /* @__PURE__ */ notElem2(eqString);
 var bind13 = /* @__PURE__ */ bind(bindMaybe);
+var sort5 = /* @__PURE__ */ sort(inputValueDefinitionOrd);
 var declNewtype2 = /* @__PURE__ */ declNewtype(toNameStringProper3)(toNameStringProper3);
 var declDerive2 = /* @__PURE__ */ declDerive(toQualifiedNameQualifiedN);
+var sort1 = /* @__PURE__ */ sort(fieldDefinitionOrd);
 var fromFoldable22 = /* @__PURE__ */ fromFoldable(foldableMaybe);
 var mempty9 = /* @__PURE__ */ mempty(monoidList);
 var bind22 = /* @__PURE__ */ bind(bindList);
+var sort22 = /* @__PURE__ */ sort(definitionOrd);
 var tell2 = /* @__PURE__ */ tell(/* @__PURE__ */ monadTellArrayDeclaration(freeMonad));
 var append18 = /* @__PURE__ */ append(semigroupArray);
 var typeName2 = function(gqlToPursTypes) {
   return function(id2) {
     return function(str) {
-      var qualifiy2 = function($275) {
-        return toQualifiedName3(wrap4($275));
+      var qualifiy2 = function($278) {
+        return toQualifiedName3(wrap4($278));
       };
       return fromMaybe$prime(function(v) {
         var v1 = pascalCase(str);
@@ -54942,11 +58393,11 @@ var hasRootOp = function(dictFoldable) {
       return any1(function(v) {
         if (v instanceof Definition_TypeSystemDefinition && v.value0 instanceof TypeSystemDefinition_SchemaDefinition) {
           return any3(function() {
-            var $276 = eq15(op);
-            return function($277) {
-              return $276(function(v1) {
+            var $279 = eq113(op);
+            return function($280) {
+              return $279(function(v1) {
                 return v1.operationType;
-              }(unwrap8($277)));
+              }(unwrap8($280)));
             };
           }())(v.value0.value0.rootOperationTypeDefinition);
         }
@@ -54971,17 +58422,17 @@ var genImportsUnqualified = function(dictFilterable) {
       var traverse22 = traverse13(applicativeCodegenT(dictMonad));
       var genImportUnqualified1 = genImportUnqualified(dictMonad);
       return function() {
-        var $278 = traverse22(genImportUnqualified1);
-        var $279 = filter5(function() {
-          var $281 = not4($$null2);
-          return function($282) {
-            return $281(function(v) {
+        var $281 = traverse22(genImportUnqualified1);
+        var $282 = filter5(function() {
+          var $284 = not4($$null2);
+          return function($285) {
+            return $284(function(v) {
               return v.moduleName;
-            }($282));
+            }($285));
           };
         }());
-        return function($280) {
-          return $278($279($280));
+        return function($283) {
+          return $281($282($283));
         };
       };
     };
@@ -55002,17 +58453,17 @@ var genImports = function(dictFilterable) {
       var traverse22 = traverse13(applicativeCodegenT(dictMonad));
       var genImport1 = genImport(dictMonad);
       return function() {
-        var $283 = traverse22(genImport1);
-        var $284 = filter5(function() {
-          var $286 = not4($$null2);
-          return function($287) {
-            return $286(function(v) {
+        var $286 = traverse22(genImport1);
+        var $287 = filter5(function() {
+          var $289 = not4($$null2);
+          return function($290) {
+            return $289(function(v) {
               return v.moduleName;
-            }($287));
+            }($290));
           };
         }());
-        return function($285) {
-          return $283($284($285));
+        return function($288) {
+          return $286($287($288));
         };
       };
     };
@@ -55021,9 +58472,9 @@ var genImports = function(dictFilterable) {
 var genImports1 = /* @__PURE__ */ genImports(filterableMap2)(traversableMap)(freeMonad)();
 var comment2 = function(dictOverLeadingComments) {
   return maybe(identity19)(function() {
-    var $288 = leading(dictOverLeadingComments);
-    return function($289) {
-      return $288(docComments($289));
+    var $291 = leading(dictOverLeadingComments);
+    return function($292) {
+      return $291(docComments($292));
     };
   }());
 };
@@ -55085,8 +58536,8 @@ var gqlToPursSchema = function(v) {
                                         };
                                         var unionTypeDefinitionToPurs = function(v3) {
                                           if (v3.directives instanceof Nothing && v3.unionMemberTypes instanceof Just) {
-                                            return new Just(comment1(v3.description)(declType3(v3.name)([])(typeApp(typeCtor4(gqlUnion))([typeRow2(map30(function($290) {
-                                              return unionMemberTypeToPurs(unwrap8($290));
+                                            return new Just(comment1(v3.description)(declType3(v3.name)([])(typeApp(typeCtor4(gqlUnion))([typeRow2(map30(function($293) {
+                                              return unionMemberTypeToPurs(unwrap8($293));
                                             })(fromFoldable12(v3.unionMemberTypes.value0)))(Nothing.value)]))));
                                           }
                                           ;
@@ -55109,8 +58560,8 @@ var gqlToPursSchema = function(v) {
                                             throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 113, column 17 - line 116, column 45): " + [v3.operationType.constructor.name]);
                                           }();
                                           var actualType = pascalCase(unwrap8(v3.namedType));
-                                          var $182 = opStr !== actualType;
-                                          if ($182) {
+                                          var $185 = opStr !== actualType;
+                                          if ($185) {
                                             return pure15(declType3(opStr)([])(typeCtor12(actualType)));
                                           }
                                           ;
@@ -55142,8 +58593,8 @@ var gqlToPursSchema = function(v) {
                                             var scalarType = fromMaybe$prime(function(v3) {
                                               return unknownJson(tName);
                                             })(alt4(lookup5(tName)(gqlToPursTypesMs))(alt4(map114(qualifiedTypeToName)(lookup5(tName)(v.gqlToPursTypes)))(lookup5(tName)(v2))));
-                                            var $189 = notElem3(tName)(builtInTypes);
-                                            if ($189) {
+                                            var $192 = notElem3(tName)(builtInTypes);
+                                            if ($192) {
                                               return pure15(comment22(description)(typeCtor4(scalarType)));
                                             }
                                             ;
@@ -55179,7 +58630,7 @@ var gqlToPursSchema = function(v) {
                                                     return annotateGqlType(tipe.value0)(typeCtor4(v3.value0));
                                                   }
                                                   ;
-                                                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 287, column 43 - line 289, column 63): " + [v3.constructor.name]);
+                                                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 291, column 43 - line 293, column 63): " + [v3.constructor.name]);
                                                 }
                                                 ;
                                                 if (tipe instanceof Type_ListType) {
@@ -55190,7 +58641,7 @@ var gqlToPursSchema = function(v) {
                                                   return wrapNotNull2(argNotNullTypeToPurs2(objectName)(fieldName)(argName)(tipe.value0));
                                                 }
                                                 ;
-                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 286, column 57 - line 291, column 122): " + [tipe.constructor.name]);
+                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 290, column 57 - line 295, column 122): " + [tipe.constructor.name]);
                                               };
                                             };
                                           };
@@ -55209,14 +58660,14 @@ var gqlToPursSchema = function(v) {
                                                     return annotateGqlType(v3.value0)(typeCtor4(v4.value0));
                                                   }
                                                   ;
-                                                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 295, column 40 - line 297, column 55): " + [v4.constructor.name]);
+                                                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 299, column 40 - line 301, column 55): " + [v4.constructor.name]);
                                                 }
                                                 ;
                                                 if (v3 instanceof NonNullType_ListType) {
                                                   return argListTypeToPurs2(objectName)(fieldName)(argName)(v3.value0);
                                                 }
                                                 ;
-                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 294, column 59 - line 298, column 87): " + [v3.constructor.name]);
+                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 298, column 59 - line 302, column 87): " + [v3.constructor.name]);
                                               };
                                             };
                                           };
@@ -55259,14 +58710,14 @@ var gqlToPursSchema = function(v) {
                                         var argumentsDefinitionToPurs = function(objectName) {
                                           return function(fieldName) {
                                             return function(v3) {
-                                              return typeRecord3(map30(inputValueDefinitionToPurs2(objectName)(fieldName))(fromFoldable12(v3)))(Nothing.value);
+                                              return typeRecord3(map30(inputValueDefinitionToPurs2(objectName)(fieldName))(fromFoldable12(sort5(v3))))(Nothing.value);
                                             };
                                           };
                                         };
                                         var inputValueToFieldsDefinitionToPurs = function(objectName) {
                                           return function(fieldName) {
                                             return function(definitions) {
-                                              return typeRecord3(map30(inputValueDefinitionToPurs2(objectName)(fieldName))(fromFoldable12(definitions)))(Nothing.value);
+                                              return typeRecord3(map30(inputValueDefinitionToPurs2(objectName)(fieldName))(fromFoldable12(sort5(definitions))))(Nothing.value);
                                             };
                                           };
                                         };
@@ -55274,9 +58725,9 @@ var gqlToPursSchema = function(v) {
                                           return function(v3) {
                                             var tName = pascalCase(v3.name);
                                             var record = maybe(typeRecordEmpty)(function() {
-                                              var $291 = inputValueToFieldsDefinitionToPurs(tName)(fieldName);
-                                              return function($292) {
-                                                return $291(unwrap8($292));
+                                              var $294 = inputValueToFieldsDefinitionToPurs(tName)(fieldName);
+                                              return function($295) {
+                                                return $294(unwrap8($295));
                                               };
                                             }())(v3.inputFieldsDefinition);
                                             return new Cons(comment1(v3.description)(declNewtype2(tName)([])(tName)(record)), new Cons(declDerive2(Nothing.value)([])(newType)([typeCtor12(tName), typeWildcard]), Nil.value));
@@ -55295,7 +58746,7 @@ var gqlToPursSchema = function(v) {
                                             return notNullTypeToPurs(v3.value0);
                                           }
                                           ;
-                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 260, column 20 - line 263, column 76): " + [v3.constructor.name]);
+                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 264, column 20 - line 267, column 76): " + [v3.constructor.name]);
                                         };
                                         var notNullTypeToPurs = function(v3) {
                                           if (v3 instanceof NonNullType_NamedType) {
@@ -55306,7 +58757,7 @@ var gqlToPursSchema = function(v) {
                                             return listTypeToPurs(v3.value0);
                                           }
                                           ;
-                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 278, column 27 - line 280, column 55): " + [v3.constructor.name]);
+                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 282, column 27 - line 284, column 55): " + [v3.constructor.name]);
                                         };
                                         var listTypeToPursNullable = function(t) {
                                           return wrapMaybe(listTypeToPurs(t));
@@ -55351,7 +58802,7 @@ var gqlToPursSchema = function(v) {
                                         };
                                         var fieldsDefinitionToPurs = function(objectName) {
                                           return function(v3) {
-                                            return typeRecord3(map30(fieldDefinitionToPurs(objectName))(fromFoldable12(v3)))(Nothing.value);
+                                            return typeRecord3(map30(fieldDefinitionToPurs(objectName))(fromFoldable12(sort1(v3))))(Nothing.value);
                                           };
                                         };
                                         var objectTypeDefinitionToPurs = function(v3) {
@@ -55422,7 +58873,7 @@ var gqlToPursSchema = function(v) {
                                           ;
                                           throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 80, column 26 - line 83, column 55): " + [v3.constructor.name]);
                                         };
-                                        var declarations = fromFoldable12(bind22(v1)(definitionToPurs));
+                                        var declarations = fromFoldable12(bind22(sort22(v1))(definitionToPurs));
                                         return tell2(append18([schema])(declarations));
                                       });
                                     });
@@ -55529,10 +58980,10 @@ var template = function(modulePrefix) {
       };
       return intercalate7("\n    ")(zipWith2(makeFromEnum)(v.values)(ints));
     }();
-    return "module " + (modulePrefix + ("Schema." + (v.schemaName + (".Enum." + (v.name + (" where\n\nimport Prelude\n\nimport Data.Argonaut.Decode (class DecodeJson, JsonDecodeError(..), decodeJson)\nimport Data.Argonaut.Encode (class EncodeJson, encodeJson)\nimport Data.Bounded (class Bounded)\nimport Data.Enum (class Enum, class BoundedEnum, Cardinality(..))\nimport Data.Either (Either(..))\nimport Data.Function (on)\nimport Data.Maybe (Maybe(..))\nimport GraphQL.Client.Args (class ArgGql)\nimport GraphQL.Client.ToGqlString (class GqlArgString)\nimport GraphQL.Hasura.Decode (class DecodeHasura)\nimport GraphQL.Hasura.Encode (class EncodeHasura)\n" + (intercalate7("\n")(v.imports) + ("\n\n" + (docComment2(v.description) + ("data " + (v.name + (" \n  = " + (enumCtrs + ("\n" + (v.customCode({
+    return "module " + (modulePrefix + ("Schema." + (v.schemaName + (".Enum." + (v.name + (" where\n\nimport Prelude\n\nimport Data.Argonaut.Decode (class DecodeJson, JsonDecodeError(..), decodeJson)\nimport Data.Argonaut.Encode (class EncodeJson, encodeJson)\nimport Data.Bounded (class Bounded)\nimport Data.Enum (class Enum, class BoundedEnum, Cardinality(..))\nimport Data.Either (Either(..))\nimport Data.Function (on)\nimport Data.Maybe (Maybe(..))\nimport GraphQL.Client.ToGqlString (class GqlArgString)\nimport GraphQL.Hasura.Decode (class DecodeHasura)\nimport GraphQL.Hasura.Encode (class EncodeHasura)\n" + (intercalate7("\n")(v.imports) + ("\n\n" + (docComment2(v.description) + ("data " + (v.name + (" \n  = " + (enumCtrs + ("\n" + (v.customCode({
       name: v.name,
       values: valuesAndTransforms
-    }) + ("\n\ninstance eq" + (v.name + (" :: Eq " + (v.name + (" where \n  eq = eq `on` show\n\ninstance ord" + (v.name + (" :: Ord " + (v.name + (" where\n  compare = compare `on` show\n\ninstance argToGql" + (v.name + (" :: ArgGql " + (v.name + (" " + (v.name + ("\n\ninstance gqlArgString" + (v.name + (" :: GqlArgString " + (v.name + (" where\n  toGqlArgStringImpl = show\n\ninstance decodeJson" + (v.name + (" :: DecodeJson " + (v.name + (" where\n  decodeJson = decodeJson >=> case _ of \n" + (decodeMember + ('\n    s -> Left $ TypeMismatch $ "Not a ' + (v.name + (': " <> s\n\ninstance encodeJson' + (v.name + (" :: EncodeJson " + (v.name + (" where \n  encodeJson = show >>> encodeJson\n\ninstance decdoeHasura" + (v.name + (" :: DecodeHasura " + (v.name + (" where \n  decodeHasura = decodeJson\n\ninstance encodeHasura" + (v.name + (" :: EncodeHasura " + (v.name + (" where \n  encodeHasura = encodeJson\n\ninstance show" + (v.name + (" :: Show " + (v.name + (" where\n  show a = case a of \n" + (showMember + ("\n\ninstance enum" + (v.name + (" :: Enum " + (v.name + (" where\n  succ a = case a of \n    " + (succMembers + ("\n  pred a = case a of \n    " + (predMembers + ("\n\ninstance bounded" + (v.name + (" :: Bounded " + (v.name + (" where\n  top = " + (enumValueName(v1.head) + ("\n  bottom = " + (enumValueName(v2.last) + ("\n\ninstance boundedEnum" + (v.name + (" :: BoundedEnum " + (v.name + (" where\n  cardinality = Cardinality " + (show4(length3(v.values)) + ("\n  toEnum a = case a of\n    " + (toEnumMembers + ("\n  fromEnum a = case a of\n    " + (fromEnumMembers + "\n\n")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+    }) + ("\n\ninstance eq" + (v.name + (" :: Eq " + (v.name + (" where \n  eq = eq `on` show\n\ninstance ord" + (v.name + (" :: Ord " + (v.name + (" where\n  compare = compare `on` show\n\ninstance gqlArgString" + (v.name + (" :: GqlArgString " + (v.name + (" where\n  toGqlArgStringImpl = show\n\ninstance decodeJson" + (v.name + (" :: DecodeJson " + (v.name + (" where\n  decodeJson = decodeJson >=> case _ of \n" + (decodeMember + ('\n    s -> Left $ TypeMismatch $ "Not a ' + (v.name + (': " <> s\n\ninstance encodeJson' + (v.name + (" :: EncodeJson " + (v.name + (" where \n  encodeJson = show >>> encodeJson\n\ninstance decdoeHasura" + (v.name + (" :: DecodeHasura " + (v.name + (" where \n  decodeHasura = decodeJson\n\ninstance encodeHasura" + (v.name + (" :: EncodeHasura " + (v.name + (" where \n  encodeHasura = encodeJson\n\ninstance show" + (v.name + (" :: Show " + (v.name + (" where\n  show a = case a of \n" + (showMember + ("\n\ninstance enum" + (v.name + (" :: Enum " + (v.name + (" where\n  succ a = case a of \n    " + (succMembers + ("\n  pred a = case a of \n    " + (predMembers + ("\n\ninstance bounded" + (v.name + (" :: Bounded " + (v.name + (" where\n  top = " + (enumValueName(v1.head) + ("\n  bottom = " + (enumValueName(v2.last) + ("\n\ninstance boundedEnum" + (v.name + (" :: BoundedEnum " + (v.name + (" where\n  cardinality = Cardinality " + (show4(length3(v.values)) + ("\n  toEnum a = case a of\n    " + (toEnumMembers + ("\n  fromEnum a = case a of\n    " + (fromEnumMembers + "\n\n")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
   };
 };
 
@@ -55887,7 +59338,7 @@ var unions2 = /* @__PURE__ */ unions(ordString)(foldableMap);
 var mapWithIndex4 = /* @__PURE__ */ mapWithIndex(functorWithIndexMap);
 var fromFoldable13 = /* @__PURE__ */ fromFoldable2(ordString)(foldableArray);
 var mapFlipped22 = /* @__PURE__ */ mapFlipped(functorArray);
-var compare10 = /* @__PURE__ */ compare(ordString);
+var compare77 = /* @__PURE__ */ compare(ordString);
 var bind23 = /* @__PURE__ */ bind(bindArray);
 var symbolsToCode2 = /* @__PURE__ */ symbolsToCode(foldableArray);
 var traverse4 = /* @__PURE__ */ traverse(traversableArray)(applicativeAff);
@@ -56045,7 +59496,7 @@ var schemasFromGqlToPurs = function(opts_) {
           path: opts.dir + ("/Schema/" + (pg.moduleName + ".purs"))
         };
       }),
-      enums: nubBy2(on(compare10)(function(v) {
+      enums: nubBy2(on(compare77)(function(v) {
         return v.path;
       }))(bind23(pursGqls)(function(pg) {
         return mapFlipped22(pg.enums)(function(v) {
