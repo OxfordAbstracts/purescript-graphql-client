@@ -29,7 +29,7 @@ import Data.Newtype (class Newtype)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
-import GraphQL.Client.Args (AndArg, Args(..), OrArg)
+import GraphQL.Client.Args (AndArg, Args(..), NotNull, OrArg)
 import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.Directive (ApplyDirective(..))
 import GraphQL.Client.ErrorBoundary (ErrorBoundary(..))
@@ -270,6 +270,8 @@ else instance queryVarsSpreadNewtype ::
 else instance queryVarsArray :: GetGqlQueryVars a q => GetGqlQueryVars (Array a) q where
   getGqlQueryVars dn _ q = getGqlQueryVars dn (Proxy :: Proxy a) q
 else instance queryVarsMaybe :: GetGqlQueryVars a q => GetGqlQueryVars (Maybe a) q where
+  getGqlQueryVars dn _ q = getGqlQueryVars dn (Proxy :: Proxy a) q
+else instance queryVarsNotNull :: GetGqlQueryVars a q => GetGqlQueryVars (NotNull a) q where
   getGqlQueryVars dn _ q = getGqlQueryVars dn (Proxy :: Proxy a) q
 else instance queryVarsUnion ::
   HFoldlWithIndex (PropGetVars { | schema }) GqlQueryVarsN ({ | query }) GqlQueryVarsN =>
