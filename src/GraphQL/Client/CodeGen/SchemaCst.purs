@@ -11,6 +11,7 @@ import Data.Array (notElem)
 import Data.Array as Array
 import Data.CodePoint.Unicode (isLower)
 import Data.Filterable (class Filterable, filter)
+import Data.GraphQL.AST (NamedType(..))
 import Data.GraphQL.AST as AST
 import Data.List (List(..), any, mapMaybe, sort, (:))
 import Data.List as List
@@ -21,10 +22,11 @@ import Data.Newtype (unwrap, wrap)
 import Data.String (codePointFromChar)
 import Data.String as String
 import Data.String.CodeUnits (charAt)
-import Data.String.Extra (pascalCase)
+import Data.String.Extra (pascalCase, snakeCase)
 import Data.Traversable (class Foldable, class Traversable, for, traverse)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (none)
+import Debug (spy)
 import GraphQL.Client.CodeGen.Types (InputOptions, GqlEnum)
 import GraphQL.Client.CodeGen.UtilCst (qualifiedTypeToName)
 import Partial.Unsafe (unsafePartial)
@@ -181,12 +183,19 @@ gqlToPursSchema
           ] `typeArrow` pursType
         where
         pursType :: CST.Type Void
-        pursType = comment description case lookup objectName fieldTypeOverridesMs >>= lookup name of
+        pursType = comment description case lookupOverride objectName name of
           Nothing -> typeToPurs tipe
           Just out -> case tipe of
-            AST.Type_NonNullType _ -> typeCtor out
-            AST.Type_ListType _ -> wrapArray $ typeCtor out
-            _ -> wrapMaybe $ typeCtor out
+            AST.Type_NonNullType nn -> annotateGqlType (getNonNullTypeName nn) $ typeCtor out
+            AST.Type_ListType (AST.ListType l) -> wrapArray $ annotateGqlType (getTypeName l) $ typeCtor out
+            AST.Type_NamedType n -> wrapMaybe $ annotateGqlType n $ typeCtor out
+
+      lookupOverride objectName fieldName =
+        ( lookup objectName fieldTypeOverridesMs
+            <|> lookup (snakeCase objectName) fieldTypeOverridesMs
+            <|> lookup (pascalCase objectName) fieldTypeOverridesMs
+        )
+          >>= lookup fieldName
 
       argumentsDefinitionToPurs :: String -> String -> AST.ArgumentsDefinition -> (CST.Type Void)
       argumentsDefinitionToPurs objectName fieldName (AST.ArgumentsDefinition inputValueDefinitions) =
@@ -202,12 +211,12 @@ gqlToPursSchema
             , type: tipe
             }
         ) = Tuple (safeFieldname name) $ comment description
-        case lookup objectName fieldTypeOverridesMs >>= lookup name of
+        case lookupOverride objectName name of
           Nothing -> argTypeToPurs objectName fieldName name tipe
           Just out -> case tipe of
-            AST.Type_NonNullType _ -> wrapNotNull $ typeCtor out
-            AST.Type_ListType _ -> wrapArray $ typeCtor out
-            _ -> typeCtor out
+            AST.Type_NonNullType nn -> wrapNotNull $ annotateGqlType (getNonNullTypeName nn) $ typeCtor out
+            AST.Type_ListType (AST.ListType l) -> wrapArray $ annotateGqlType (getTypeName l) $ typeCtor out
+            AST.Type_NamedType n -> annotateGqlType n $ typeCtor out
 
       unionTypeDefinitionToPurs :: AST.UnionTypeDefinition -> Maybe Decl
       unionTypeDefinitionToPurs
@@ -252,17 +261,20 @@ gqlToPursSchema
       inputValueToFieldsDefinitionToPurs objectName fieldName definitions =
         typeRecord (map (inputValueDefinitionToPurs objectName fieldName) $ Array.fromFoldable $ sort definitions) Nothing
 
+      getPursTypeName :: NamedType -> QualifiedName Proper
       getPursTypeName = namedTypeToPurs gqlToPursTypesMs id
 
+      pursTypeCtr :: NamedType -> CST.Type Void
       pursTypeCtr gqlT =
         annotateGqlType gqlT $ typeCtor $ getPursTypeName gqlT
 
+      annotateGqlType :: NamedType -> CST.Type Void -> CST.Type Void
       annotateGqlType gqlT pursT =
         typeApp (typeCtor asGql) [ typeString $ unwrap gqlT, pursT ]
 
       typeToPurs :: AST.Type -> CST.Type Void
       typeToPurs = case _ of
-        (AST.Type_NamedType namedType) -> namedTypeToPursNullable namedType
+        (AST.Type_NamedType namedType) -> annotateGqlType namedType $ namedTypeToPursNullable namedType
         (AST.Type_ListType listType) -> listTypeToPursNullable listType
         (AST.Type_NonNullType notNullType) -> notNullTypeToPurs notNullType
 
@@ -361,8 +373,8 @@ genImportsUnqualified
 genImportsUnqualified = filter (_.moduleName >>> not String.null) >>> traverse (genImportUnqualified)
 
 importQualified ∷ ∀ (e38 ∷ Type) (m39 ∷ Type -> Type). Monad m39 ⇒ String → String → CodegenT e38 m39 (QualifiedName Proper)
-importQualified moduleName typeName =
-  unsafePartial $ importFrom moduleName (importType $ moduleName <> "." <> typeName)
+importQualified moduleName typeName' =
+  unsafePartial $ importFrom moduleName (importType $ moduleName <> "." <> typeName')
 
 genImport
   :: forall e m r
@@ -425,3 +437,14 @@ safeFieldname s = if isSafe then s else show s
     charAt 0 s
       # maybe false \c ->
           c == '_' || (isLower $ codePointFromChar c)
+
+getTypeName :: AST.Type -> AST.NamedType
+getTypeName = case _ of
+  AST.Type_NamedType n -> n
+  AST.Type_ListType (AST.ListType l) -> getTypeName l
+  AST.Type_NonNullType nn -> getNonNullTypeName nn
+
+getNonNullTypeName :: AST.NonNullType -> AST.NamedType
+getNonNullTypeName = case _ of
+  AST.NonNullType_NamedType n -> n
+  AST.NonNullType_ListType (AST.ListType l) -> getTypeName l
