@@ -54367,6 +54367,9 @@ var toImportFromImportNameQua = {
 var monadCodegenT = function(dictMonad) {
   return monadStateT(dictMonad);
 };
+var functorCodegenT = function(dictFunctor) {
+  return functorStateT(dictFunctor);
+};
 var eqCodegenImport = {
   eq: function(x) {
     return function(y) {
@@ -54524,10 +54527,10 @@ var toImportFromRecordRecord = function() {
     var toImportFromRecord1 = toImportFromRecord(dictToImportFromRecord);
     return {
       toImportFrom: function(dictApplicative) {
-        var map212 = map(dictApplicative.Apply0().Functor0());
+        var map211 = map(dictApplicative.Apply0().Functor0());
         var toImportFromRecord2 = toImportFromRecord1(dictApplicative);
         return function(k) {
-          var $531 = map212(buildFromScratch);
+          var $531 = map211(buildFromScratch);
           var $532 = toImportFromRecord2(k)($$Proxy.value);
           return function($533) {
             return $531($532($533));
@@ -54554,13 +54557,13 @@ var toImportFromRecordConsRec = function(dictToImportFrom) {
               toImportFromRecord: function(dictApplicative) {
                 var Apply0 = dictApplicative.Apply0();
                 var apply6 = apply2(Apply0);
-                var map212 = map(Apply0.Functor0());
+                var map211 = map(Apply0.Functor0());
                 var toImportFrom2 = toImportFrom1(dictApplicative);
                 var toImportFromRecord2 = toImportFromRecord1(dictApplicative);
                 return function(k) {
                   return function(v) {
                     return function(r) {
-                      return apply6(map212(function(imp) {
+                      return apply6(map211(function(imp) {
                         return function(builder) {
                           return compose1(insert42($$Proxy.value)(imp))(builder);
                         };
@@ -54666,11 +54669,6 @@ var importFrom = function(dictMonad) {
     };
   };
 };
-var importClass2 = function(dictToToken) {
-  return withQualifiedName(dictToToken)(function($542) {
-    return ImportName.create(CodegenImportClass.create($542));
-  });
-};
 var codegenImportToCST = function(v) {
   if (v instanceof CodegenImportType) {
     if (v.value0) {
@@ -54761,11 +54759,11 @@ var moduleFromCodegenState = function(dictToName) {
   };
 };
 var runCodegenTModule = function(dictFunctor) {
-  var map212 = map(dictFunctor);
+  var map211 = map(dictFunctor);
   return function(dictToName) {
     var moduleFromCodegenState1 = moduleFromCodegenState(dictToName);
     return function(name2) {
-      var $563 = map212(map113(moduleFromCodegenState1(name2)));
+      var $563 = map211(map113(moduleFromCodegenState1(name2)));
       return function($564) {
         return $563(runCodegenT($564));
       };
@@ -54789,19 +54787,18 @@ var toQualifiedName3 = /* @__PURE__ */ toQualifiedName(toQualifiedNameProperProp
 var wrap4 = /* @__PURE__ */ wrap();
 var lookup5 = /* @__PURE__ */ lookup(ordString);
 var show3 = /* @__PURE__ */ show(showString);
+var toModuleNameString2 = /* @__PURE__ */ toModuleNameString();
+var importType4 = /* @__PURE__ */ importType3(/* @__PURE__ */ toTokenStringQualifiedPro());
 var any3 = /* @__PURE__ */ any(foldableList)(heytingAlgebraBoolean);
 var unwrap8 = /* @__PURE__ */ unwrap();
 var eq15 = /* @__PURE__ */ eq(operationTypeEq);
 var not4 = /* @__PURE__ */ not(/* @__PURE__ */ heytingAlgebraFunction(heytingAlgebraBoolean));
-var toModuleNameString2 = /* @__PURE__ */ toModuleNameString();
 var identity19 = /* @__PURE__ */ identity(categoryFn);
 var codegenModule2 = /* @__PURE__ */ codegenModule(/* @__PURE__ */ toNameStringModuleName());
-var bind8 = /* @__PURE__ */ bind(/* @__PURE__ */ bindCodegenT(freeMonad));
+var bindCodegenT2 = /* @__PURE__ */ bindCodegenT(freeMonad);
+var bind8 = /* @__PURE__ */ bind(bindCodegenT2);
 var importFrom2 = /* @__PURE__ */ importFrom(freeMonad)(toModuleNameString2);
 var importFrom1 = /* @__PURE__ */ importFrom2(toImportFromImportNameQua);
-var toTokenStringQualifiedPro2 = /* @__PURE__ */ toTokenStringQualifiedPro();
-var importType4 = /* @__PURE__ */ importType3(toTokenStringQualifiedPro2);
-var importClass3 = /* @__PURE__ */ importClass2(toTokenStringQualifiedPro2);
 var importFrom22 = /* @__PURE__ */ importFrom2(/* @__PURE__ */ toImportFromRecordRecord()(/* @__PURE__ */ toImportFromRecordConsRec(toImportFromImportNameQua)(toImportFromRecordNilReco)({
   reflectSymbol: function() {
     return "notNull";
@@ -54809,28 +54806,29 @@ var importFrom22 = /* @__PURE__ */ importFrom2(/* @__PURE__ */ toImportFromRecor
 })()()()));
 var fromFoldable9 = /* @__PURE__ */ fromFoldable2(ordString)(foldableArray);
 var mapFlipped4 = /* @__PURE__ */ mapFlipped(functorArray);
+var filterableMap2 = /* @__PURE__ */ filterableMap(ordString);
 var applicativeCodegenT2 = /* @__PURE__ */ applicativeCodegenT(freeMonad);
 var $$for2 = /* @__PURE__ */ $$for(applicativeCodegenT2)(traversableMap);
 var traverse3 = /* @__PURE__ */ traverse(traversableMap)(applicativeCodegenT2);
+var discard2 = /* @__PURE__ */ discard(discardUnit)(bindCodegenT2);
+var $$void5 = /* @__PURE__ */ $$void(/* @__PURE__ */ functorCodegenT(freeFunctor));
 var typeCtor4 = /* @__PURE__ */ typeCtor(toQualifiedNameQualifiedN);
-var toQualifiedNameString4 = /* @__PURE__ */ toQualifiedNameString()(fromTokenQualifiedProper);
-var typeCtor12 = /* @__PURE__ */ typeCtor(toQualifiedNameString4);
+var typeCtor12 = /* @__PURE__ */ typeCtor(/* @__PURE__ */ toQualifiedNameString()(fromTokenQualifiedProper));
 var leading4 = /* @__PURE__ */ leading(overLeadingCommentsQualif);
 var toNameStringProper3 = /* @__PURE__ */ toNameStringProper();
 var declType3 = /* @__PURE__ */ declType(toNameStringProper3);
 var typeRow2 = /* @__PURE__ */ typeRow(toNameStringLabel);
 var map30 = /* @__PURE__ */ map(functorArray);
 var fromFoldable12 = /* @__PURE__ */ fromFoldable3(foldableList);
-var alt4 = /* @__PURE__ */ alt(altMaybe);
-var map114 = /* @__PURE__ */ map(functorMaybe);
-var notElem3 = /* @__PURE__ */ notElem2(eqString);
 var pure15 = /* @__PURE__ */ pure(applicativeMaybe);
 var none2 = /* @__PURE__ */ none(unfoldableMaybe);
 var typeRecord3 = /* @__PURE__ */ typeRecord(toNameStringLabel);
+var alt4 = /* @__PURE__ */ alt(altMaybe);
+var map114 = /* @__PURE__ */ map(functorMaybe);
+var notElem3 = /* @__PURE__ */ notElem2(eqString);
 var bind13 = /* @__PURE__ */ bind(bindMaybe);
 var declNewtype2 = /* @__PURE__ */ declNewtype(toNameStringProper3)(toNameStringProper3);
-var declDerive2 = /* @__PURE__ */ declDerive(toQualifiedNameString4);
-var declDerive1 = /* @__PURE__ */ declDerive(toQualifiedNameQualifiedN);
+var declDerive2 = /* @__PURE__ */ declDerive(toQualifiedNameQualifiedN);
 var fromFoldable22 = /* @__PURE__ */ fromFoldable(foldableMaybe);
 var mempty9 = /* @__PURE__ */ mempty(monoidList);
 var bind22 = /* @__PURE__ */ bind(bindList);
@@ -54839,8 +54837,8 @@ var append18 = /* @__PURE__ */ append(semigroupArray);
 var typeName2 = function(gqlToPursTypes) {
   return function(id2) {
     return function(str) {
-      var qualifiy2 = function($258) {
-        return toQualifiedName3(wrap4($258));
+      var qualifiy2 = function($275) {
+        return toQualifiedName3(wrap4($275));
       };
       return fromMaybe$prime(function(v) {
         var v1 = pascalCase(str);
@@ -54928,6 +54926,15 @@ var namedTypeToPurs2 = function(gqlToPursTypes) {
     };
   };
 };
+var importQualified = function(dictMonad) {
+  var importFrom3 = importFrom(dictMonad)(toModuleNameString2)(toImportFromImportNameQua);
+  return function(moduleName) {
+    return function(typeName1) {
+      return importFrom3(moduleName)(importType4(moduleName + ("." + typeName1)));
+    };
+  };
+};
+var importQualified1 = /* @__PURE__ */ importQualified(freeMonad);
 var hasRootOp = function(dictFoldable) {
   var any1 = any(dictFoldable)(heytingAlgebraBoolean);
   return function(defs) {
@@ -54935,11 +54942,11 @@ var hasRootOp = function(dictFoldable) {
       return any1(function(v) {
         if (v instanceof Definition_TypeSystemDefinition && v.value0 instanceof TypeSystemDefinition_SchemaDefinition) {
           return any3(function() {
-            var $259 = eq15(op);
-            return function($260) {
-              return $259(function(v1) {
+            var $276 = eq15(op);
+            return function($277) {
+              return $276(function(v1) {
                 return v1.operationType;
-              }(unwrap8($260)));
+              }(unwrap8($277)));
             };
           }())(v.value0.value0.rootOperationTypeDefinition);
         }
@@ -54950,16 +54957,41 @@ var hasRootOp = function(dictFoldable) {
   };
 };
 var hasRootOp1 = /* @__PURE__ */ hasRootOp(foldableList);
-var genImport = function(dictMonad) {
-  var importFrom3 = importFrom(dictMonad);
-  return function(dictToModuleName) {
-    var importFrom4 = importFrom3(dictToModuleName)(toImportFromImportNameQua);
-    return function(dictToToken) {
-      var importType12 = importType3(dictToToken);
-      return function(t) {
-        return importFrom4(t.moduleName)(importType12(t.typeName));
+var genImportUnqualified = function(dictMonad) {
+  var importFrom3 = importFrom(dictMonad)(toModuleNameString2)(toImportFromImportNameQua);
+  return function(t) {
+    return importFrom3(t.moduleName)(importType4(t.typeName));
+  };
+};
+var genImportsUnqualified = function(dictFilterable) {
+  var filter5 = filter4(dictFilterable);
+  return function(dictTraversable) {
+    var traverse13 = traverse(dictTraversable);
+    return function(dictMonad) {
+      var traverse22 = traverse13(applicativeCodegenT(dictMonad));
+      var genImportUnqualified1 = genImportUnqualified(dictMonad);
+      return function() {
+        var $278 = traverse22(genImportUnqualified1);
+        var $279 = filter5(function() {
+          var $281 = not4($$null2);
+          return function($282) {
+            return $281(function(v) {
+              return v.moduleName;
+            }($282));
+          };
+        }());
+        return function($280) {
+          return $278($279($280));
+        };
       };
     };
+  };
+};
+var genImportsUnqualified1 = /* @__PURE__ */ genImportsUnqualified(filterableMap2)(traversableMap)(freeMonad)();
+var genImport = function(dictMonad) {
+  var importFrom3 = importFrom(dictMonad)(toModuleNameString2)(toImportFromImportNameQua);
+  return function(t) {
+    return importFrom3(t.moduleName)(importType4(t.moduleName + ("." + t.typeName)));
   };
 };
 var genImports = function(dictFilterable) {
@@ -54968,32 +55000,30 @@ var genImports = function(dictFilterable) {
     var traverse13 = traverse(dictTraversable);
     return function(dictMonad) {
       var traverse22 = traverse13(applicativeCodegenT(dictMonad));
-      var genImport1 = genImport(dictMonad)(toModuleNameString2);
+      var genImport1 = genImport(dictMonad);
       return function() {
-        return function(dictToToken) {
-          var $261 = traverse22(genImport1(dictToToken));
-          var $262 = filter5(function() {
-            var $264 = not4($$null2);
-            return function($265) {
-              return $264(function(v) {
-                return v.moduleName;
-              }($265));
-            };
-          }());
-          return function($263) {
-            return $261($262($263));
+        var $283 = traverse22(genImport1);
+        var $284 = filter5(function() {
+          var $286 = not4($$null2);
+          return function($287) {
+            return $286(function(v) {
+              return v.moduleName;
+            }($287));
           };
+        }());
+        return function($285) {
+          return $283($284($285));
         };
       };
     };
   };
 };
-var genImports1 = /* @__PURE__ */ genImports(/* @__PURE__ */ filterableMap(ordString))(traversableMap)(freeMonad)()(toTokenStringQualifiedPro2);
+var genImports1 = /* @__PURE__ */ genImports(filterableMap2)(traversableMap)(freeMonad)();
 var comment2 = function(dictOverLeadingComments) {
   return maybe(identity19)(function() {
-    var $266 = leading(dictOverLeadingComments);
-    return function($267) {
-      return $266(docComments($267));
+    var $288 = leading(dictOverLeadingComments);
+    return function($289) {
+      return $288(docComments($289));
     };
   }());
 };
@@ -55005,25 +55035,25 @@ var gqlToPursSchema = function(v) {
       return function(v1) {
         return function(enums) {
           return codegenModule2(mName)(bind8(importFrom1(directivesMName)(importType4("Directives")))(function(directives) {
-            return bind8(importFrom1("Data.Void")(importType4("Void")))(function(voidT) {
-              return bind8(importFrom1("Type.Proxy")(importType4("Proxy")))(function(proxyT) {
-                return bind8(importFrom1("Data.Maybe")(importType4("Maybe")))(function(maybe_) {
-                  return bind8(importFrom1("Data.Newtype")(importClass3("Newtype")))(function(newType) {
+            return bind8(importQualified1("Data.Void")("Void"))(function(voidT) {
+              return bind8(importQualified1("Type.Proxy")("Proxy"))(function(proxyT) {
+                return bind8(importQualified1("Data.Maybe")("Maybe"))(function(maybe_) {
+                  return bind8(importQualified1("Data.Newtype")("Newtype"))(function(newType) {
                     return bind8(importFrom22("GraphQL.Client.Args")({
                       notNull: importType4("NotNull")
                     }))(function(argsM) {
-                      return bind8(importFrom1("GraphQL.Client.Union")(importType4("GqlUnion")))(function(gqlUnion) {
+                      return bind8(importQualified1("GraphQL.Client.Union")("GqlUnion"))(function(gqlUnion) {
                         return bind8(importFrom1("GraphQL.Client.AsGql")(importType4("AsGql")))(function(asGql) {
                           return bind8(function() {
                             if (v.idImport instanceof Nothing) {
-                              return importFrom1("GraphQL.Client.ID")(importType4("ID"));
+                              return importQualified1("GraphQL.Client.ID")("ID");
                             }
                             ;
                             if (v.idImport instanceof Just) {
-                              return importFrom1(v.idImport.value0.moduleName)(importType4(v.idImport.value0.typeName));
+                              return importFrom1(v.idImport.value0.moduleName)(importType4("GraphQL.Client.ID." + v.idImport.value0.typeName));
                             }
                             ;
-                            throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 52, column 11 - line 54, column 88): " + [v.idImport.constructor.name]);
+                            throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 55, column 11 - line 57, column 114): " + [v.idImport.constructor.name]);
                           }())(function(id2) {
                             var enumsMap = fromFoldable9(mapFlipped4(enums)(function(e) {
                               var name2 = pascalCase(e.name);
@@ -55032,361 +55062,369 @@ var gqlToPursSchema = function(v) {
                                 typeName: name2
                               });
                             }));
-                            return bind8(genImports1(enumsMap))(function(v2) {
+                            return bind8(genImportsUnqualified1(enumsMap))(function(v2) {
                               return bind8(genImports1(v.gqlToPursTypes))(function(gqlToPursTypesMs) {
                                 return bind8($$for2(v.fieldTypeOverrides)(genImports1))(function(fieldTypeOverridesMs) {
                                   return bind8($$for2(v.argTypeOverrides)(traverse3(genImports1)))(function(argTypeOverridesMs) {
-                                    return bind8(importFrom1("Data.Argonaut.Core")(importType4("Json")))(function(json) {
-                                      var wrapNotNull2 = function(s) {
-                                        return typeApp(typeCtor4(argsM.notNull))([s]);
-                                      };
-                                      var wrapMaybe = function(s) {
-                                        return typeApp(typeCtor4(maybe_))([s]);
-                                      };
-                                      var wrapArray = function(s) {
-                                        return typeApp(typeCtor12("Array"))([s]);
-                                      };
-                                      var unknownJson = function(tName) {
-                                        return leading4(lineComments("Unknown scalar type. Add " + (tName + " to gqlToPursTypes in codegen options to override this behaviour")))(json);
-                                      };
-                                      var unionMemberTypeToPurs = function(ty) {
-                                        return new Tuple(ty, typeCtor12(ty));
-                                      };
-                                      var unionTypeDefinitionToPurs = function(v3) {
-                                        if (v3.directives instanceof Nothing && v3.unionMemberTypes instanceof Just) {
-                                          return new Just(comment1(v3.description)(declType3(v3.name)([])(typeApp(typeCtor4(gqlUnion))([typeRow2(map30(function($268) {
-                                            return unionMemberTypeToPurs(unwrap8($268));
-                                          })(fromFoldable12(v3.unionMemberTypes.value0)))(Nothing.value)]))));
-                                        }
-                                        ;
-                                        return Nothing.value;
-                                      };
-                                      var scalarTypeDefinitionToPurs = function(v3) {
-                                        var tName = pascalCase(v3.name);
-                                        var scalarType = fromMaybe$prime(function(v4) {
-                                          return unknownJson(tName);
-                                        })(alt4(lookup5(tName)(gqlToPursTypesMs))(alt4(map114(qualifiedTypeToName)(lookup5(tName)(v.gqlToPursTypes)))(lookup5(tName)(v2))));
-                                        var builtInTypes = ["Int", "Number", "String", "Boolean", "ID"];
-                                        var $164 = notElem3(tName)(builtInTypes);
-                                        if ($164) {
-                                          return pure15(comment1(v3.description)(declType3(tName)([])(typeCtor4(scalarType))));
-                                        }
-                                        ;
-                                        return none2;
-                                      };
-                                      var rootOperationTypeDefinitionToPurs = function(v3) {
-                                        var opStr = function() {
-                                          if (v3.operationType instanceof Query) {
-                                            return "Query";
-                                          }
-                                          ;
-                                          if (v3.operationType instanceof Mutation) {
-                                            return "Mutation";
-                                          }
-                                          ;
-                                          if (v3.operationType instanceof Subscription) {
-                                            return "Subscription";
-                                          }
-                                          ;
-                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 110, column 17 - line 113, column 45): " + [v3.operationType.constructor.name]);
-                                        }();
-                                        var actualType = pascalCase(unwrap8(v3.namedType));
-                                        var $169 = opStr !== actualType;
-                                        if ($169) {
-                                          return pure15(declType3(opStr)([])(typeCtor12(actualType)));
-                                        }
-                                        ;
-                                        return none2;
-                                      };
-                                      var schemaDefinitionToPurs = function(v3) {
-                                        return mapMaybe(rootOperationTypeDefinitionToPurs)(v3.rootOperationTypeDefinition);
-                                      };
-                                      var hasSubscription = hasRootOp1(v1)(Subscription.value);
-                                      var hasMutation = hasRootOp1(v1)(Mutation.value);
-                                      var schema = declType3("Schema")([])(typeRecord3([new Tuple("directives", typeApp(typeCtor4(proxyT))([typeCtor4(directives)])), new Tuple("query", typeCtor12("Query")), new Tuple("mutation", function() {
-                                        if (hasMutation) {
-                                          return typeCtor12("Mutation");
-                                        }
-                                        ;
-                                        return typeCtor4(voidT);
-                                      }()), new Tuple("subscription", function() {
-                                        if (hasSubscription) {
-                                          return typeCtor12("Subscription");
-                                        }
-                                        ;
-                                        return typeCtor4(voidT);
-                                      }())])(Nothing.value));
-                                      var getPursTypeName = namedTypeToPurs2(gqlToPursTypesMs)(id2);
-                                      var annotateGqlType = function(gqlT) {
-                                        return function(pursT) {
-                                          return typeApp(typeCtor4(asGql))([typeString(unwrap8(gqlT)), pursT]);
+                                    return discard2($$void5(importFrom1("Data.DateTime")(importType4("DateTime"))))(function() {
+                                      return bind8(importQualified1("Data.Argonaut.Core")("Json"))(function(json) {
+                                        var wrapNotNull2 = function(s) {
+                                          return typeApp(typeCtor4(argsM.notNull))([s]);
                                         };
-                                      };
-                                      var namedTypeToPursNullable = function(t) {
-                                        return wrapMaybe(annotateGqlType(t)(typeCtor4(getPursTypeName(t))));
-                                      };
-                                      var pursTypeCtr = function(gqlT) {
-                                        return annotateGqlType(gqlT)(typeCtor4(getPursTypeName(gqlT)));
-                                      };
-                                      var argTypeToPurs2 = function(objectName) {
-                                        return function(fieldName) {
-                                          return function(argName) {
-                                            return function(tipe) {
-                                              if (tipe instanceof Type_NamedType) {
-                                                var v3 = bind13(bind13(lookup5(objectName)(argTypeOverridesMs))(lookup5(fieldName)))(lookup5(argName));
-                                                if (v3 instanceof Nothing) {
-                                                  return pursTypeCtr(tipe.value0);
+                                        var wrapMaybe = function(s) {
+                                          return typeApp(typeCtor4(maybe_))([s]);
+                                        };
+                                        var wrapArray = function(s) {
+                                          return typeApp(typeCtor12("Array"))([s]);
+                                        };
+                                        var unknownJson = function(tName) {
+                                          return leading4(lineComments("Unknown scalar type. Add " + (tName + " to gqlToPursTypes in codegen options to override this behaviour")))(json);
+                                        };
+                                        var unionMemberTypeToPurs = function(ty) {
+                                          return new Tuple(ty, typeCtor12(ty));
+                                        };
+                                        var unionTypeDefinitionToPurs = function(v3) {
+                                          if (v3.directives instanceof Nothing && v3.unionMemberTypes instanceof Just) {
+                                            return new Just(comment1(v3.description)(declType3(v3.name)([])(typeApp(typeCtor4(gqlUnion))([typeRow2(map30(function($290) {
+                                              return unionMemberTypeToPurs(unwrap8($290));
+                                            })(fromFoldable12(v3.unionMemberTypes.value0)))(Nothing.value)]))));
+                                          }
+                                          ;
+                                          return Nothing.value;
+                                        };
+                                        var rootOperationTypeDefinitionToPurs = function(v3) {
+                                          var opStr = function() {
+                                            if (v3.operationType instanceof Query) {
+                                              return "Query";
+                                            }
+                                            ;
+                                            if (v3.operationType instanceof Mutation) {
+                                              return "Mutation";
+                                            }
+                                            ;
+                                            if (v3.operationType instanceof Subscription) {
+                                              return "Subscription";
+                                            }
+                                            ;
+                                            throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 113, column 17 - line 116, column 45): " + [v3.operationType.constructor.name]);
+                                          }();
+                                          var actualType = pascalCase(unwrap8(v3.namedType));
+                                          var $182 = opStr !== actualType;
+                                          if ($182) {
+                                            return pure15(declType3(opStr)([])(typeCtor12(actualType)));
+                                          }
+                                          ;
+                                          return none2;
+                                        };
+                                        var schemaDefinitionToPurs = function(v3) {
+                                          return mapMaybe(rootOperationTypeDefinitionToPurs)(v3.rootOperationTypeDefinition);
+                                        };
+                                        var hasSubscription = hasRootOp1(v1)(Subscription.value);
+                                        var hasMutation = hasRootOp1(v1)(Mutation.value);
+                                        var schema = declType3("Schema")([])(typeRecord3([new Tuple("directives", typeApp(typeCtor4(proxyT))([typeCtor4(directives)])), new Tuple("query", typeCtor12("Query")), new Tuple("mutation", function() {
+                                          if (hasMutation) {
+                                            return typeCtor12("Mutation");
+                                          }
+                                          ;
+                                          return typeCtor4(voidT);
+                                        }()), new Tuple("subscription", function() {
+                                          if (hasSubscription) {
+                                            return typeCtor12("Subscription");
+                                          }
+                                          ;
+                                          return typeCtor4(voidT);
+                                        }())])(Nothing.value));
+                                        var getPursTypeName = namedTypeToPurs2(gqlToPursTypesMs)(id2);
+                                        var builtInTypes = ["Int", "Number", "String", "Boolean", "ID"];
+                                        var descriptionAndNameToPurs = function(description) {
+                                          return function(name2) {
+                                            var tName = pascalCase(name2);
+                                            var scalarType = fromMaybe$prime(function(v3) {
+                                              return unknownJson(tName);
+                                            })(alt4(lookup5(tName)(gqlToPursTypesMs))(alt4(map114(qualifiedTypeToName)(lookup5(tName)(v.gqlToPursTypes)))(lookup5(tName)(v2))));
+                                            var $189 = notElem3(tName)(builtInTypes);
+                                            if ($189) {
+                                              return pure15(comment22(description)(typeCtor4(scalarType)));
+                                            }
+                                            ;
+                                            return none2;
+                                          };
+                                        };
+                                        var scalarTypeDefinitionToPurs = function(v3) {
+                                          var tName = pascalCase(v3.name);
+                                          return map114(declType3(tName)([]))(descriptionAndNameToPurs(v3.description)(v3.name));
+                                        };
+                                        var annotateGqlType = function(gqlT) {
+                                          return function(pursT) {
+                                            return typeApp(typeCtor4(asGql))([typeString(unwrap8(gqlT)), pursT]);
+                                          };
+                                        };
+                                        var namedTypeToPursNullable = function(t) {
+                                          return wrapMaybe(annotateGqlType(t)(typeCtor4(getPursTypeName(t))));
+                                        };
+                                        var pursTypeCtr = function(gqlT) {
+                                          return annotateGqlType(gqlT)(typeCtor4(getPursTypeName(gqlT)));
+                                        };
+                                        var argTypeToPurs2 = function(objectName) {
+                                          return function(fieldName) {
+                                            return function(argName) {
+                                              return function(tipe) {
+                                                if (tipe instanceof Type_NamedType) {
+                                                  var v3 = bind13(bind13(lookup5(objectName)(argTypeOverridesMs))(lookup5(fieldName)))(lookup5(argName));
+                                                  if (v3 instanceof Nothing) {
+                                                    return pursTypeCtr(tipe.value0);
+                                                  }
+                                                  ;
+                                                  if (v3 instanceof Just) {
+                                                    return annotateGqlType(tipe.value0)(typeCtor4(v3.value0));
+                                                  }
+                                                  ;
+                                                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 287, column 43 - line 289, column 63): " + [v3.constructor.name]);
                                                 }
                                                 ;
-                                                if (v3 instanceof Just) {
-                                                  return annotateGqlType(tipe.value0)(typeCtor4(v3.value0));
+                                                if (tipe instanceof Type_ListType) {
+                                                  return argListTypeToPurs2(objectName)(fieldName)(argName)(tipe.value0);
                                                 }
                                                 ;
-                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 282, column 43 - line 284, column 63): " + [v3.constructor.name]);
-                                              }
-                                              ;
-                                              if (tipe instanceof Type_ListType) {
-                                                return argListTypeToPurs2(objectName)(fieldName)(argName)(tipe.value0);
-                                              }
-                                              ;
-                                              if (tipe instanceof Type_NonNullType) {
-                                                return wrapNotNull2(argNotNullTypeToPurs2(objectName)(fieldName)(argName)(tipe.value0));
-                                              }
-                                              ;
-                                              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 281, column 57 - line 286, column 122): " + [tipe.constructor.name]);
+                                                if (tipe instanceof Type_NonNullType) {
+                                                  return wrapNotNull2(argNotNullTypeToPurs2(objectName)(fieldName)(argName)(tipe.value0));
+                                                }
+                                                ;
+                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 286, column 57 - line 291, column 122): " + [tipe.constructor.name]);
+                                              };
                                             };
                                           };
                                         };
-                                      };
-                                      var argNotNullTypeToPurs2 = function(objectName) {
-                                        return function(fieldName) {
-                                          return function(argName) {
+                                        var argNotNullTypeToPurs2 = function(objectName) {
+                                          return function(fieldName) {
+                                            return function(argName) {
+                                              return function(v3) {
+                                                if (v3 instanceof NonNullType_NamedType) {
+                                                  var v4 = bind13(bind13(lookup5(objectName)(argTypeOverridesMs))(lookup5(fieldName)))(lookup5(argName));
+                                                  if (v4 instanceof Nothing) {
+                                                    return pursTypeCtr(v3.value0);
+                                                  }
+                                                  ;
+                                                  if (v4 instanceof Just) {
+                                                    return annotateGqlType(v3.value0)(typeCtor4(v4.value0));
+                                                  }
+                                                  ;
+                                                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 295, column 40 - line 297, column 55): " + [v4.constructor.name]);
+                                                }
+                                                ;
+                                                if (v3 instanceof NonNullType_ListType) {
+                                                  return argListTypeToPurs2(objectName)(fieldName)(argName)(v3.value0);
+                                                }
+                                                ;
+                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 294, column 59 - line 298, column 87): " + [v3.constructor.name]);
+                                              };
+                                            };
+                                          };
+                                        };
+                                        var argListTypeToPurs2 = function(objectName) {
+                                          return function(fieldName) {
+                                            return function(argName) {
+                                              return function(v3) {
+                                                return wrapArray(argTypeToPurs2(objectName)(fieldName)(argName)(v3));
+                                              };
+                                            };
+                                          };
+                                        };
+                                        var inputValueDefinitionToPurs2 = function(objectName) {
+                                          return function(fieldName) {
                                             return function(v3) {
-                                              if (v3 instanceof NonNullType_NamedType) {
-                                                var v4 = bind13(bind13(lookup5(objectName)(argTypeOverridesMs))(lookup5(fieldName)))(lookup5(argName));
+                                              return new Tuple(safeFieldname(v3.name), comment22(v3.description)(function() {
+                                                var v4 = bind13(lookup5(objectName)(fieldTypeOverridesMs))(lookup5(v3.name));
                                                 if (v4 instanceof Nothing) {
-                                                  return pursTypeCtr(v3.value0);
+                                                  return argTypeToPurs2(objectName)(fieldName)(v3.name)(v3.type);
                                                 }
                                                 ;
                                                 if (v4 instanceof Just) {
-                                                  return annotateGqlType(v3.value0)(typeCtor4(v4.value0));
+                                                  if (v3.type instanceof Type_NonNullType) {
+                                                    return wrapNotNull2(typeCtor4(v4.value0));
+                                                  }
+                                                  ;
+                                                  if (v3.type instanceof Type_ListType) {
+                                                    return wrapArray(typeCtor4(v4.value0));
+                                                  }
+                                                  ;
+                                                  return typeCtor4(v4.value0);
                                                 }
                                                 ;
-                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 290, column 40 - line 292, column 55): " + [v4.constructor.name]);
-                                              }
-                                              ;
-                                              if (v3 instanceof NonNullType_ListType) {
-                                                return argListTypeToPurs2(objectName)(fieldName)(argName)(v3.value0);
-                                              }
-                                              ;
-                                              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 289, column 59 - line 293, column 87): " + [v3.constructor.name]);
+                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 205, column 9 - line 210, column 30): " + [v4.constructor.name]);
+                                              }()));
                                             };
                                           };
                                         };
-                                      };
-                                      var argListTypeToPurs2 = function(objectName) {
-                                        return function(fieldName) {
-                                          return function(argName) {
+                                        var argumentsDefinitionToPurs = function(objectName) {
+                                          return function(fieldName) {
                                             return function(v3) {
-                                              return wrapArray(argTypeToPurs2(objectName)(fieldName)(argName)(v3));
+                                              return typeRecord3(map30(inputValueDefinitionToPurs2(objectName)(fieldName))(fromFoldable12(v3)))(Nothing.value);
                                             };
                                           };
                                         };
-                                      };
-                                      var inputValueDefinitionToPurs2 = function(objectName) {
-                                        return function(fieldName) {
+                                        var inputValueToFieldsDefinitionToPurs = function(objectName) {
+                                          return function(fieldName) {
+                                            return function(definitions) {
+                                              return typeRecord3(map30(inputValueDefinitionToPurs2(objectName)(fieldName))(fromFoldable12(definitions)))(Nothing.value);
+                                            };
+                                          };
+                                        };
+                                        var inputObjectTypeDefinitionToPurs = function(fieldName) {
                                           return function(v3) {
-                                            return new Tuple(safeFieldname(v3.name), comment22(v3.description)(function() {
+                                            var tName = pascalCase(v3.name);
+                                            var record = maybe(typeRecordEmpty)(function() {
+                                              var $291 = inputValueToFieldsDefinitionToPurs(tName)(fieldName);
+                                              return function($292) {
+                                                return $291(unwrap8($292));
+                                              };
+                                            }())(v3.inputFieldsDefinition);
+                                            return new Cons(comment1(v3.description)(declNewtype2(tName)([])(tName)(record)), new Cons(declDerive2(Nothing.value)([])(newType)([typeCtor12(tName), typeWildcard]), Nil.value));
+                                          };
+                                        };
+                                        var typeToPurs = function(v3) {
+                                          if (v3 instanceof Type_NamedType) {
+                                            return namedTypeToPursNullable(v3.value0);
+                                          }
+                                          ;
+                                          if (v3 instanceof Type_ListType) {
+                                            return listTypeToPursNullable(v3.value0);
+                                          }
+                                          ;
+                                          if (v3 instanceof Type_NonNullType) {
+                                            return notNullTypeToPurs(v3.value0);
+                                          }
+                                          ;
+                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 260, column 20 - line 263, column 76): " + [v3.constructor.name]);
+                                        };
+                                        var notNullTypeToPurs = function(v3) {
+                                          if (v3 instanceof NonNullType_NamedType) {
+                                            return pursTypeCtr(v3.value0);
+                                          }
+                                          ;
+                                          if (v3 instanceof NonNullType_ListType) {
+                                            return listTypeToPurs(v3.value0);
+                                          }
+                                          ;
+                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 278, column 27 - line 280, column 55): " + [v3.constructor.name]);
+                                        };
+                                        var listTypeToPursNullable = function(t) {
+                                          return wrapMaybe(listTypeToPurs(t));
+                                        };
+                                        var listTypeToPurs = function(v3) {
+                                          return wrapArray(typeToPurs(v3));
+                                        };
+                                        var fieldDefinitionToPurs = function(objectName) {
+                                          return function(v3) {
+                                            var pursType = comment22(v3.description)(function() {
                                               var v4 = bind13(lookup5(objectName)(fieldTypeOverridesMs))(lookup5(v3.name));
                                               if (v4 instanceof Nothing) {
-                                                return argTypeToPurs2(objectName)(fieldName)(v3.name)(v3.type);
+                                                return typeToPurs(v3.type);
                                               }
                                               ;
                                               if (v4 instanceof Just) {
                                                 if (v3.type instanceof Type_NonNullType) {
-                                                  return wrapNotNull2(typeCtor4(v4.value0));
+                                                  return typeCtor4(v4.value0);
                                                 }
                                                 ;
                                                 if (v3.type instanceof Type_ListType) {
                                                   return wrapArray(typeCtor4(v4.value0));
                                                 }
                                                 ;
-                                                return typeCtor4(v4.value0);
+                                                return wrapMaybe(typeCtor4(v4.value0));
                                               }
                                               ;
-                                              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 200, column 9 - line 205, column 30): " + [v4.constructor.name]);
-                                            }()));
+                                              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 184, column 40 - line 189, column 42): " + [v4.constructor.name]);
+                                            }());
+                                            return new Tuple(safeFieldname(v3.name), function() {
+                                              if (v3.argumentsDefinition instanceof Nothing) {
+                                                return pursType;
+                                              }
+                                              ;
+                                              if (v3.argumentsDefinition instanceof Just) {
+                                                return typeArrow([argumentsDefinitionToPurs(objectName)(v3.name)(v3.argumentsDefinition.value0)])(pursType);
+                                              }
+                                              ;
+                                              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 177, column 40 - line 181, column 33): " + [v3.argumentsDefinition.constructor.name]);
+                                            }());
                                           };
                                         };
-                                      };
-                                      var argumentsDefinitionToPurs = function(objectName) {
-                                        return function(fieldName) {
+                                        var fieldsDefinitionToPurs = function(objectName) {
                                           return function(v3) {
-                                            return typeRecord3(map30(inputValueDefinitionToPurs2(objectName)(fieldName))(fromFoldable12(v3)))(Nothing.value);
+                                            return typeRecord3(map30(fieldDefinitionToPurs(objectName))(fromFoldable12(v3)))(Nothing.value);
                                           };
                                         };
-                                      };
-                                      var inputValueToFieldsDefinitionToPurs = function(objectName) {
-                                        return function(fieldName) {
-                                          return function(definitions) {
-                                            return typeRecord3(map30(inputValueDefinitionToPurs2(objectName)(fieldName))(fromFoldable12(definitions)))(Nothing.value);
-                                          };
-                                        };
-                                      };
-                                      var inputObjectTypeDefinitionToPurs = function(fieldName) {
-                                        return function(v3) {
+                                        var objectTypeDefinitionToPurs = function(v3) {
                                           var tName = pascalCase(v3.name);
-                                          var record = maybe(typeRecordEmpty)(function() {
-                                            var $269 = inputValueToFieldsDefinitionToPurs(tName)(fieldName);
-                                            return function($270) {
-                                              return $269(unwrap8($270));
-                                            };
-                                          }())(v3.inputFieldsDefinition);
-                                          return new Cons(comment1(v3.description)(declNewtype2(tName)([])(tName)(record)), new Cons(declDerive2(Nothing.value)([])(tName)([typeCtor12(tName), typeWildcard]), Nil.value));
+                                          var record = maybe(typeRecordEmpty)(fieldsDefinitionToPurs(v3.name))(v3.fieldsDefinition);
+                                          if (v.useNewtypesForRecords) {
+                                            return new Cons(comment1(v3.description)(declNewtype2(tName)([])(tName)(record)), new Cons(declDerive2(Nothing.value)([])(newType)([typeCtor12(tName), typeWildcard]), Nil.value));
+                                          }
+                                          ;
+                                          return new Cons(comment1(v3.description)(declType3(tName)([])(record)), Nil.value);
                                         };
-                                      };
-                                      var typeToPurs = function(v3) {
-                                        if (v3 instanceof Type_NamedType) {
-                                          return namedTypeToPursNullable(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof Type_ListType) {
-                                          return listTypeToPursNullable(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof Type_NonNullType) {
-                                          return notNullTypeToPurs(v3.value0);
-                                        }
-                                        ;
-                                        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 255, column 20 - line 258, column 76): " + [v3.constructor.name]);
-                                      };
-                                      var notNullTypeToPurs = function(v3) {
-                                        if (v3 instanceof NonNullType_NamedType) {
-                                          return pursTypeCtr(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof NonNullType_ListType) {
-                                          return listTypeToPurs(v3.value0);
-                                        }
-                                        ;
-                                        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 273, column 27 - line 275, column 55): " + [v3.constructor.name]);
-                                      };
-                                      var listTypeToPursNullable = function(t) {
-                                        return wrapMaybe(listTypeToPurs(t));
-                                      };
-                                      var listTypeToPurs = function(v3) {
-                                        return wrapArray(typeToPurs(v3));
-                                      };
-                                      var fieldDefinitionToPurs = function(objectName) {
-                                        return function(v3) {
-                                          var pursType = comment22(v3.description)(function() {
-                                            var v4 = bind13(lookup5(objectName)(fieldTypeOverridesMs))(lookup5(v3.name));
-                                            if (v4 instanceof Nothing) {
-                                              return typeToPurs(v3.type);
-                                            }
-                                            ;
-                                            if (v4 instanceof Just) {
-                                              if (v3.type instanceof Type_NonNullType) {
-                                                return typeCtor4(v4.value0);
-                                              }
-                                              ;
-                                              if (v3.type instanceof Type_ListType) {
-                                                return wrapArray(typeCtor4(v4.value0));
-                                              }
-                                              ;
-                                              return wrapMaybe(typeCtor4(v4.value0));
-                                            }
-                                            ;
-                                            throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 179, column 40 - line 184, column 42): " + [v4.constructor.name]);
-                                          }());
-                                          return new Tuple(safeFieldname(v3.name), function() {
-                                            if (v3.argumentsDefinition instanceof Nothing) {
-                                              return pursType;
-                                            }
-                                            ;
-                                            if (v3.argumentsDefinition instanceof Just) {
-                                              return typeArrow([argumentsDefinitionToPurs(objectName)(v3.name)(v3.argumentsDefinition.value0)])(pursType);
-                                            }
-                                            ;
-                                            throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 172, column 40 - line 176, column 33): " + [v3.argumentsDefinition.constructor.name]);
-                                          }());
+                                        var typeDefinitionToPurs = function(v3) {
+                                          if (v3 instanceof TypeDefinition_ScalarTypeDefinition) {
+                                            return fromFoldable22(scalarTypeDefinitionToPurs(v3.value0));
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeDefinition_ObjectTypeDefinition) {
+                                            return objectTypeDefinitionToPurs(v3.value0);
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeDefinition_InterfaceTypeDefinition) {
+                                            return mempty9;
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeDefinition_UnionTypeDefinition) {
+                                            return fromFoldable22(unionTypeDefinitionToPurs(v3.value0));
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeDefinition_EnumTypeDefinition) {
+                                            return mempty9;
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeDefinition_InputObjectTypeDefinition) {
+                                            return inputObjectTypeDefinitionToPurs(function(v4) {
+                                              return v4.name;
+                                            }(unwrap8(v3.value0)))(v3.value0);
+                                          }
+                                          ;
+                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 95, column 30 - line 102, column 114): " + [v3.constructor.name]);
                                         };
-                                      };
-                                      var fieldsDefinitionToPurs = function(objectName) {
-                                        return function(v3) {
-                                          return typeRecord3(map30(fieldDefinitionToPurs(objectName))(fromFoldable12(v3)))(Nothing.value);
+                                        var typeSystemDefinitionToPurs = function(v3) {
+                                          if (v3 instanceof TypeSystemDefinition_SchemaDefinition) {
+                                            return schemaDefinitionToPurs(v3.value0);
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeSystemDefinition_TypeDefinition) {
+                                            return typeDefinitionToPurs(v3.value0);
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeSystemDefinition_DirectiveDefinition) {
+                                            return mempty9;
+                                          }
+                                          ;
+                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 86, column 36 - line 89, column 84): " + [v3.constructor.name]);
                                         };
-                                      };
-                                      var objectTypeDefinitionToPurs = function(v3) {
-                                        var tName = pascalCase(v3.name);
-                                        var record = maybe(typeRecordEmpty)(fieldsDefinitionToPurs(v3.name))(v3.fieldsDefinition);
-                                        if (v.useNewtypesForRecords) {
-                                          return new Cons(comment1(v3.description)(declNewtype2(tName)([])(tName)(record)), new Cons(declDerive1(Nothing.value)([])(newType)([typeCtor12(tName), typeWildcard]), Nil.value));
-                                        }
-                                        ;
-                                        return new Cons(comment1(v3.description)(declType3(tName)([])(record)), Nil.value);
-                                      };
-                                      var typeDefinitionToPurs = function(v3) {
-                                        if (v3 instanceof TypeDefinition_ScalarTypeDefinition) {
-                                          return fromFoldable22(scalarTypeDefinitionToPurs(v3.value0));
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeDefinition_ObjectTypeDefinition) {
-                                          return objectTypeDefinitionToPurs(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeDefinition_InterfaceTypeDefinition) {
-                                          return mempty9;
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeDefinition_UnionTypeDefinition) {
-                                          return fromFoldable22(unionTypeDefinitionToPurs(v3.value0));
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeDefinition_EnumTypeDefinition) {
-                                          return mempty9;
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeDefinition_InputObjectTypeDefinition) {
-                                          return inputObjectTypeDefinitionToPurs(function(v4) {
-                                            return v4.name;
-                                          }(unwrap8(v3.value0)))(v3.value0);
-                                        }
-                                        ;
-                                        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 92, column 30 - line 99, column 114): " + [v3.constructor.name]);
-                                      };
-                                      var typeSystemDefinitionToPurs = function(v3) {
-                                        if (v3 instanceof TypeSystemDefinition_SchemaDefinition) {
-                                          return schemaDefinitionToPurs(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeSystemDefinition_TypeDefinition) {
-                                          return typeDefinitionToPurs(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeSystemDefinition_DirectiveDefinition) {
-                                          return mempty9;
-                                        }
-                                        ;
-                                        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 83, column 36 - line 86, column 84): " + [v3.constructor.name]);
-                                      };
-                                      var definitionToPurs = function(v3) {
-                                        if (v3 instanceof Definition_ExecutableDefinition) {
-                                          return mempty9;
-                                        }
-                                        ;
-                                        if (v3 instanceof Definition_TypeSystemDefinition) {
-                                          return typeSystemDefinitionToPurs(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof Definition_TypeSystemExtension) {
-                                          return mempty9;
-                                        }
-                                        ;
-                                        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 77, column 26 - line 80, column 55): " + [v3.constructor.name]);
-                                      };
-                                      var declarations = fromFoldable12(bind22(v1)(definitionToPurs));
-                                      return tell2(append18([schema])(declarations));
+                                        var definitionToPurs = function(v3) {
+                                          if (v3 instanceof Definition_ExecutableDefinition) {
+                                            return mempty9;
+                                          }
+                                          ;
+                                          if (v3 instanceof Definition_TypeSystemDefinition) {
+                                            return typeSystemDefinitionToPurs(v3.value0);
+                                          }
+                                          ;
+                                          if (v3 instanceof Definition_TypeSystemExtension) {
+                                            return mempty9;
+                                          }
+                                          ;
+                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 80, column 26 - line 83, column 55): " + [v3.constructor.name]);
+                                        };
+                                        var declarations = fromFoldable12(bind22(v1)(definitionToPurs));
+                                        return tell2(append18([schema])(declarations));
+                                      });
                                     });
                                   });
                                 });
@@ -55841,22 +55879,21 @@ var directivesIsSymbol = {
   }
 };
 var decodeJson2 = /* @__PURE__ */ decodeJson(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons8(/* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldId(/* @__PURE__ */ decodeArray2(/* @__PURE__ */ decodeRecord(/* @__PURE__ */ gDecodeJsonCons(/* @__PURE__ */ decodeFieldMaybe(decodeJsonString))(/* @__PURE__ */ gDecodeJsonCons8(/* @__PURE__ */ gDecodeJsonCons13(valuesIsSymbol)()())(nameIsSymbol3)()())(descriptionIsSymbol2)()())())))(/* @__PURE__ */ gDecodeJsonCons8(/* @__PURE__ */ gDecodeJsonCons8(/* @__PURE__ */ gDecodeJsonCons13(symbolsIsSymbol)()())(moduleNameIsSymbol)()())(mainSchemaCodeIsSymbol)()())(enumsIsSymbol)()())(directivesIsSymbol)()())());
-var discard2 = /* @__PURE__ */ discard(discardUnit)(bindAff);
+var discard3 = /* @__PURE__ */ discard(discardUnit)(bindAff);
 var gEncodeJsonCons2 = /* @__PURE__ */ gEncodeJsonCons(encodeJsonJString);
 var gEncodeJsonCons1 = /* @__PURE__ */ gEncodeJsonCons(/* @__PURE__ */ encodeJsonArray(encodeJsonJString))(gEncodeJsonNil);
 var encodeJson2 = /* @__PURE__ */ encodeJson(/* @__PURE__ */ encodeRecord(/* @__PURE__ */ gEncodeJsonCons2(/* @__PURE__ */ gEncodeJsonCons(/* @__PURE__ */ encodeJsonArray(/* @__PURE__ */ encodeRecord(/* @__PURE__ */ gEncodeJsonCons(/* @__PURE__ */ encodeJsonMaybe(encodeJsonJString))(/* @__PURE__ */ gEncodeJsonCons2(/* @__PURE__ */ gEncodeJsonCons1(valuesIsSymbol)())(nameIsSymbol3)())(descriptionIsSymbol2)())()))(/* @__PURE__ */ gEncodeJsonCons2(/* @__PURE__ */ gEncodeJsonCons2(/* @__PURE__ */ gEncodeJsonCons1(symbolsIsSymbol)())(moduleNameIsSymbol)())(mainSchemaCodeIsSymbol)())(enumsIsSymbol)())(directivesIsSymbol)())());
 var unions2 = /* @__PURE__ */ unions(ordString)(foldableMap);
 var mapWithIndex4 = /* @__PURE__ */ mapWithIndex(functorWithIndexMap);
 var fromFoldable13 = /* @__PURE__ */ fromFoldable2(ordString)(foldableArray);
-var map34 = /* @__PURE__ */ map(functorMap);
 var mapFlipped22 = /* @__PURE__ */ mapFlipped(functorArray);
 var compare10 = /* @__PURE__ */ compare(ordString);
 var bind23 = /* @__PURE__ */ bind(bindArray);
 var symbolsToCode2 = /* @__PURE__ */ symbolsToCode(foldableArray);
 var traverse4 = /* @__PURE__ */ traverse(traversableArray)(applicativeAff);
-var map115 = /* @__PURE__ */ map(functorAff);
+var map34 = /* @__PURE__ */ map(functorAff);
 var sequence2 = /* @__PURE__ */ sequence(traversableArray)(applicativeEither);
-var map210 = /* @__PURE__ */ map(functorEither);
+var map115 = /* @__PURE__ */ map(functorEither);
 var gqlToPursMainSchemaCode = function(opts) {
   return function(directiveModuleName) {
     return function(moduleName) {
@@ -55899,9 +55936,9 @@ var getDocumentEnums = /* @__PURE__ */ function() {
     ;
     return Nothing.value;
   };
-  var $163 = mapMaybe(definitionToEnum);
-  return function($164) {
-    return fromFoldable10($163(unwrap9($164)));
+  var $161 = mapMaybe(definitionToEnum);
+  return function($162) {
+    return fromFoldable10($161(unwrap9($162)));
   };
 }();
 var defaultIdImport = {
@@ -55940,12 +55977,12 @@ var schemaFromGqlToPursWithCache = function(opts) {
       ;
       if (v1 instanceof Just) {
         return bind9(v1.value0.get(stringSchema))(function(jsonMay) {
-          var v2 = bind14(jsonMay)(function($165) {
-            return hush(decodeJson2($165));
+          var v2 = bind14(jsonMay)(function($163) {
+            return hush(decodeJson2($163));
           });
           if (v2 instanceof Nothing) {
             return bind9(go(Nothing.value))(function(eVal) {
-              return discard2(function() {
+              return discard3(function() {
                 var v3 = schemaFromGqlToPurs(opts)({
                   schema: v.schema,
                   moduleName: v.moduleName
@@ -55968,11 +56005,11 @@ var schemaFromGqlToPursWithCache = function(opts) {
             return pure16(new Right(v2.value0));
           }
           ;
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 106, column 5 - line 113, column 35): " + [v2.constructor.name]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 107, column 5 - line 114, column 35): " + [v2.constructor.name]);
         });
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 102, column 3 - line 102, column 70): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 103, column 3 - line 103, column 70): " + [v1.constructor.name]);
     };
     return go(opts.cache);
   };
@@ -55980,12 +56017,7 @@ var schemaFromGqlToPursWithCache = function(opts) {
 var schemasFromGqlToPurs = function(opts_) {
   var fieldTypeOverrides = unions2(mapWithIndex4(function(gqlObjectName) {
     return function(obj) {
-      return fromFoldable13([new Tuple(gqlObjectName, obj), new Tuple(gqlObjectName + "InsertInput", obj), new Tuple(gqlObjectName + "MinFields", obj), new Tuple(gqlObjectName + "MaxFields", obj), new Tuple(gqlObjectName + "SetInput", obj), new Tuple(gqlObjectName + "BoolExp", map34(function(o) {
-        return {
-          typeName: o.typeName + "ComparisonExp",
-          moduleName: o.moduleName
-        };
-      })(obj))]);
+      return fromFoldable13([new Tuple(gqlObjectName, obj), new Tuple(gqlObjectName + "InsertInput", obj), new Tuple(gqlObjectName + "MinFields", obj), new Tuple(gqlObjectName + "MaxFields", obj), new Tuple(gqlObjectName + "SetInput", obj), new Tuple(gqlObjectName + "BoolExp", obj)]);
     };
   })(opts_.fieldTypeOverrides));
   var opts = {
@@ -56047,11 +56079,11 @@ var schemasFromGqlToPurs = function(opts_) {
       })
     };
   };
-  var $166 = map115(map210(collectSchemas));
-  var $167 = map115(sequence2);
-  var $168 = traverse4(schemaFromGqlToPursWithCache(opts));
-  return function($169) {
-    return $166($167($168($169)));
+  var $164 = map34(map115(collectSchemas));
+  var $165 = map34(sequence2);
+  var $166 = traverse4(schemaFromGqlToPursWithCache(opts));
+  return function($167) {
+    return $164($165($166($167)));
   };
 };
 
@@ -56143,7 +56175,7 @@ var toEither1 = function(dictHasRuntimeType) {
 var fromFoldableWithIndex2 = /* @__PURE__ */ fromFoldableWithIndex(ordString)(foldableWithIndexObject);
 var map35 = /* @__PURE__ */ map(functorObject);
 var map116 = /* @__PURE__ */ map(functorMap);
-var map211 = /* @__PURE__ */ map(functorMaybe);
+var map210 = /* @__PURE__ */ map(functorMaybe);
 var mapFlipped7 = /* @__PURE__ */ mapFlipped(functorMaybe);
 var map36 = /* @__PURE__ */ map(functorFn);
 var map42 = /* @__PURE__ */ map(functorAff);
@@ -56222,7 +56254,7 @@ var schemasFromGqlToPursJs = /* @__PURE__ */ function() {
       useNewtypesForRecords: fromNullable(true)(optsJs.useNewtypesForRecords),
       enumImports: fromNullable([])(optsJs.enumImports),
       customEnumCode: fromNullable($$const(""))(optsJs.customEnumCode),
-      idImport: map211(fromQualifiedTypeJs)(toMaybe(optsJs.idImport)),
+      idImport: map210(fromQualifiedTypeJs)(toMaybe(optsJs.idImport)),
       enumValueNameTransform: toMaybe(optsJs.enumValueNameTransform),
       cache: mapFlipped7(toMaybe(optsJs.cache))(function(v) {
         return {

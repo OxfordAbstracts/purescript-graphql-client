@@ -17,7 +17,6 @@ import Data.List as List
 import Data.Map (Map, lookup)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe', maybe)
-import Data.Monoid (guard)
 import Data.Newtype (unwrap, wrap)
 import Data.String (codePointFromChar)
 import Data.String as String
@@ -32,26 +31,30 @@ import Partial.Unsafe (unsafePartial)
 import PureScript.CST.Types (Module, Proper, QualifiedName)
 import PureScript.CST.Types as CST
 import Tidy.Codegen (declDerive, declNewtype, declType, docComments, leading, lineComments, typeApp, typeArrow, typeCtor, typeRecord, typeRecordEmpty, typeRow, typeString, typeWildcard)
-import Tidy.Codegen.Class (class OverLeadingComments, class ToModuleName, class ToToken, toQualifiedName)
-import Tidy.Codegen.Monad (CodegenT, codegenModule, importClass, importFrom, importType)
-import Tidy.Codegen.Types (Qualified)
+import Tidy.Codegen.Class (class OverLeadingComments, toQualifiedName)
+import Tidy.Codegen.Monad (CodegenT, codegenModule, importFrom, importType)
 
 gqlToPursSchema :: InputOptions -> String -> String -> AST.Document -> Array GqlEnum -> Module Void
-gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides, useNewtypesForRecords } directivesMName mName (AST.Document defs) enums = do
+gqlToPursSchema
+  { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides, useNewtypesForRecords }
+  directivesMName
+  mName
+  (AST.Document defs)
+  enums = do
   unsafePartial $ codegenModule mName do
     directives <- importFrom directivesMName (importType "Directives")
-    voidT <- importFrom "Data.Void" (importType "Void")
-    proxyT <- importFrom "Type.Proxy" (importType "Proxy")
-    maybe_ <- importFrom "Data.Maybe" (importType "Maybe")
-    newType <- importFrom "Data.Newtype" (importClass "Newtype")
+    voidT <- importQualified "Data.Void" "Void"
+    proxyT <- importQualified "Type.Proxy" "Proxy"
+    maybe_ <- importQualified "Data.Maybe" "Maybe"
+    newType <- importQualified "Data.Newtype" "Newtype"
     argsM <- importFrom "GraphQL.Client.Args"
       { notNull: importType "NotNull"
       }
-    gqlUnion <- importFrom "GraphQL.Client.Union" (importType "GqlUnion")
+    gqlUnion <- importQualified "GraphQL.Client.Union" "GqlUnion"
     asGql <- importFrom "GraphQL.Client.AsGql" (importType "AsGql")
     id <- case idImport of
-      Nothing -> importFrom "GraphQL.Client.ID" (importType "ID")
-      Just idImport_ -> importFrom idImport_.moduleName (importType idImport_.typeName)
+      Nothing -> importQualified "GraphQL.Client.ID" "ID"
+      Just idImport_ -> importFrom idImport_.moduleName (importType $ "GraphQL.Client.ID." <> idImport_.typeName)
 
     let
       enumsMap = Map.fromFoldable $ enums <#> \e ->
@@ -60,15 +63,15 @@ gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides
         in
           Tuple name { moduleName: mName <> ".Enum." <> name, typeName: name }
 
-    enumsM :: Map String _ <- genImports enumsMap
+    enumsM :: Map String _ <- genImportsUnqualified enumsMap
 
     gqlToPursTypesMs <- genImports gqlToPursTypes
 
     fieldTypeOverridesMs <- for fieldTypeOverrides genImports
 
     argTypeOverridesMs <- for argTypeOverrides (traverse genImports)
-
-    json <- importFrom "Data.Argonaut.Core" (importType "Json")
+    void $ importFrom "Data.DateTime" $ importType "DateTime"
+    json <- importQualified "Data.Argonaut.Core" "Json"
 
     let
       unknownJson tName = leading (lineComments $ "Unknown scalar type. Add " <> tName <> " to gqlToPursTypes in codegen options to override this behaviour") json
@@ -114,8 +117,16 @@ gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides
 
       scalarTypeDefinitionToPurs :: AST.ScalarTypeDefinition -> Maybe Decl
       scalarTypeDefinitionToPurs (AST.ScalarTypeDefinition { description, name }) =
+        declType tName [] <$> descriptionAndNameToPurs description name
+        where
+        tName = pascalCase name
+
+      builtInTypes = [ "Int", "Number", "String", "Boolean", "ID" ]
+
+      descriptionAndNameToPurs :: Maybe String -> String -> Maybe (CST.Type Void)
+      descriptionAndNameToPurs description name =
         if (notElem tName builtInTypes) then
-          pure $ comment description $ declType tName [] (typeCtor scalarType)
+          pure $ comment description (typeCtor scalarType)
         else
           none
         where
@@ -126,8 +137,6 @@ gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides
             <|> (qualifiedTypeToName <$> lookup tName gqlToPursTypes)
             <|> lookup tName enumsM
             # fromMaybe' \_ -> unknownJson tName
-
-        builtInTypes = [ "Int", "Number", "String", "Boolean", "ID" ]
 
       objectTypeDefinitionToPurs :: AST.ObjectTypeDefinition -> List Decl
       objectTypeDefinitionToPurs
@@ -151,10 +160,6 @@ gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides
           else
             comment description (declType tName [] record)
               : Nil
-
-      -- tipe
-      --   : declDerive Nothing [] newType [ typeCtor tName, typeWildcard ]
-      --   : Nil
 
       fieldsDefinitionToPurs :: String -> AST.FieldsDefinition -> CST.Type Void
       fieldsDefinitionToPurs objectName (AST.FieldsDefinition fieldsDefinition) =
@@ -236,7 +241,7 @@ gqlToPursSchema { gqlToPursTypes, idImport, fieldTypeOverrides, argTypeOverrides
           record = maybe typeRecordEmpty (unwrap >>> (inputValueToFieldsDefinitionToPurs tName fieldName)) inputFieldsDefinition
         in
           (comment description $ declNewtype tName [] tName record)
-            : declDerive Nothing [] tName [ typeCtor tName, typeWildcard ]
+            : declDerive Nothing [] newType [ typeCtor tName, typeWildcard ]
             : Nil
 
       inputValueToFieldsDefinitionToPurs :: String -> String -> List AST.InputValueDefinition -> CST.Type Void
@@ -322,31 +327,56 @@ hasRootOp defs op = defs # any case _ of
   _ -> false
 
 genImports
-  :: forall f e m name r
+  :: forall f e m r
    . Filterable f
   => Traversable f
   => Monad m
   => Partial
-  => ToToken name (Qualified Proper)
   => f
        { moduleName :: String
-       , typeName :: name
+       , typeName :: String
        | r
        }
   -> CodegenT e m (f (QualifiedName Proper))
-genImports = filter (_.moduleName >>> not String.null) >>> traverse genImport
+genImports = filter (_.moduleName >>> not String.null) >>> traverse (genImport)
+
+genImportsUnqualified
+  :: forall f e m r
+   . Filterable f
+  => Traversable f
+  => Monad m
+  => Partial
+  => f
+       { moduleName :: String
+       , typeName :: String
+       | r
+       }
+  -> CodegenT e m (f (QualifiedName Proper))
+genImportsUnqualified = filter (_.moduleName >>> not String.null) >>> traverse (genImportUnqualified)
+
+importQualified ∷ ∀ (e38 ∷ Type) (m39 ∷ Type -> Type). Monad m39 ⇒ String → String → CodegenT e38 m39 (QualifiedName Proper)
+importQualified moduleName typeName =
+  unsafePartial $ importFrom moduleName (importType $ moduleName <> "." <> typeName)
 
 genImport
-  :: forall e m mod name r
+  :: forall e m r
    . Monad m
-  => ToModuleName mod
-  => ToToken name (Qualified Proper)
-  => { moduleName :: mod
-     , typeName :: name
+  => { moduleName :: String
+     , typeName :: String
      | r
      }
   -> CodegenT e m (QualifiedName Proper)
-genImport t = importFrom t.moduleName (importType t.typeName)
+genImport t = unsafePartial $ importFrom t.moduleName (importType $ t.moduleName <> "." <> t.typeName)
+
+genImportUnqualified
+  :: forall e m r
+   . Monad m
+  => { moduleName :: String
+     , typeName :: String
+     | r
+     }
+  -> CodegenT e m (QualifiedName Proper)
+genImportUnqualified t = unsafePartial $ importFrom t.moduleName (importType t.typeName)
 
 comment :: ∀ a. OverLeadingComments a ⇒ Maybe String → a → a
 comment = maybe identity (leading <<< docComments)

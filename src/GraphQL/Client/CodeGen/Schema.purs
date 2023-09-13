@@ -52,7 +52,8 @@ schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> ma
                 , Tuple (gqlObjectName <> "MinFields") obj
                 , Tuple (gqlObjectName <> "MaxFields") obj
                 , Tuple (gqlObjectName <> "SetInput") obj
-                , Tuple (gqlObjectName <> "BoolExp") $ map (\o -> o { typeName = o.typeName <> "ComparisonExp" }) obj
+                , Tuple (gqlObjectName <> "BoolExp")  obj
+                --    $ map (\o -> o { typeName = o.typeName <> "ComparisonExp" }) obj
                 ]
 
   collectSchemas :: Array PursGql -> FilesToWrite
