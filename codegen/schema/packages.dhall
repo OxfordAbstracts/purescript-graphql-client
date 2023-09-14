@@ -3,6 +3,7 @@ let upstream =
         sha256:eafb4e5bcbc2de6172e9457f321764567b33bc7279bd6952468d0d422aa33948
 
 in  upstream
+  with graphql-client = ../../spago.dhall as Location
   with tidy-codegen =
     { dependencies =
       [ "aff"
