@@ -27,6 +27,8 @@ jobs:
           path: |
             .spago
             output
+            codegen/schema/.spago
+            codegen/schema/output
             examples/1-simple/.spago
             examples/1-simple/output
             examples/2-codegen/.spago
