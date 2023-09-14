@@ -11,7 +11,7 @@ import Data.Array (notElem)
 import Data.Array as Array
 import Data.CodePoint.Unicode (isLower)
 import Data.Filterable (class Filterable, filter)
-import Data.GraphQL.AST (NamedType(..))
+import Data.GraphQL.AST (NamedType)
 import Data.GraphQL.AST as AST
 import Data.List (List(..), any, mapMaybe, sort, (:))
 import Data.List as List
@@ -22,11 +22,10 @@ import Data.Newtype (unwrap, wrap)
 import Data.String (codePointFromChar)
 import Data.String as String
 import Data.String.CodeUnits (charAt)
-import Data.String.Extra (pascalCase, snakeCase)
+import Data.String.Extra (pascalCase)
 import Data.Traversable (class Foldable, class Traversable, for, traverse)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (none)
-import Debug (spy)
 import GraphQL.Client.CodeGen.Types (InputOptions, GqlEnum)
 import GraphQL.Client.CodeGen.UtilCst (qualifiedTypeToName)
 import Partial.Unsafe (unsafePartial)
@@ -192,8 +191,6 @@ gqlToPursSchema
 
       lookupOverride objectName fieldName =
         ( lookup objectName fieldTypeOverridesMs
-            <|> lookup (snakeCase objectName) fieldTypeOverridesMs
-            <|> lookup (pascalCase objectName) fieldTypeOverridesMs
         )
           >>= lookup fieldName
 
@@ -249,7 +246,7 @@ gqlToPursSchema
           tName = pascalCase name
           record = maybe typeRecordEmpty
             ( unwrap >>>
-                (inputValueToFieldsDefinitionToPurs tName fieldName)
+                (inputValueToFieldsDefinitionToPurs name fieldName)
             )
             inputFieldsDefinition
         in
