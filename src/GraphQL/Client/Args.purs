@@ -7,6 +7,7 @@ import Data.Bifunctor (class Bifunctor)
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import Data.Symbol (class IsSymbol)
+import GraphQL.Client.Args.AllowedMismatch (AllowedMismatch)
 import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.NullArray (NullArray)
 import GraphQL.Client.Variable (Var)
@@ -76,6 +77,7 @@ else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
 else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
 else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
 else instance argToGqlRecord :: RecordArg p a u => ArgGql { | p } { | a }
+else instance allowedArgMismatch :: ArgGql p schemaType => ArgGql p (AllowedMismatch schemaType a)
 else instance argGqlIdentity :: ArgGql a a
 else instance argToGqlNewtypeRecord :: (Newtype n { | p }, RecordArg p a u) => ArgGql n { | a }
 else instance argMismatch ::
