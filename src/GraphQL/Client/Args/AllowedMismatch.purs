@@ -5,7 +5,6 @@ import Prelude
 import Data.Argonaut.Decode (class DecodeJson)
 import Data.Argonaut.Encode (class EncodeJson)
 import Data.Newtype (class Newtype)
-import GraphQL.Client.ToGqlString (class GqlArgString)
 import GraphQL.Hasura.Decode (class DecodeHasura)
 import GraphQL.Hasura.Encode (class EncodeHasura)
 
@@ -22,6 +21,5 @@ derive newtype instance EncodeJson arg => EncodeJson (AllowedMismatch schemaType
 derive newtype instance DecodeHasura arg => DecodeHasura (AllowedMismatch schemaType arg)
 derive newtype instance EncodeHasura arg => EncodeHasura (AllowedMismatch schemaType arg)
 derive newtype instance Eq arg => Eq (AllowedMismatch schemaType arg)
-derive newtype instance GqlArgString arg => GqlArgString (AllowedMismatch schemaType arg)
 
 

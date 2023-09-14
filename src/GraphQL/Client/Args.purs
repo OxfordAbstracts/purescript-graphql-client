@@ -138,20 +138,6 @@ else instance
   IsNotNull param (OrArg l r)
 else instance IsNotNull param arg
 
--- instance argToGqlInt :: ArgGql Int Int
-
--- instance argToGqlNumber :: ArgGql Number Number
-
--- instance argToGqlString :: ArgGql String String
-
--- instance argToGqlBoolean :: ArgGql Boolean Boolean
-
--- instance argToGqlDate :: ArgGql Date Date
-
--- instance argToGqlTime :: ArgGql Time Time
-
--- instance argToGqlDateTime :: ArgGql DateTime DateTime
-
 class HMapWithIndex (ArgPropToGql p) { | a } u <= RecordArg p a u
 
 instance recordArg :: HMapWithIndex (ArgPropToGql p) { | a } u => RecordArg p a u
@@ -187,4 +173,7 @@ instance argsSatisifyNotNulls_ ::
 else instance argsSatisifyOthers_ ::
   FoldingWithIndex (ArgsSatisifyNotNullsProps args) (Proxy sym) Unit param Unit where
   foldingWithIndex (ArgsSatisifyNotNullsProps _) _ _ _ = unit
+
+
+
 
