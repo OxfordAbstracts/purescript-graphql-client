@@ -59,27 +59,25 @@ guardArg b args =
 onlyArgs :: forall a. a -> Args a Unit
 onlyArgs a = Args a unit
 
-class ArgGql :: forall k1 k2. k1 -> k2 -> Constraint
-class ArgGql params arg
+-- class ArgGql :: forall k1 k2. k1 -> k2 -> Constraint
+class ArgGql at params arg
 
--- instance ArgGql p a 
-
-instance argToGqlNotNull :: (IsNotNull param arg, ArgGql param arg) => ArgGql (NotNull param) arg
-else instance argToGqlIgnore :: ArgGql param IgnoreArg
-else instance argAsGql :: ArgGql param arg => ArgGql (AsGql gqlName param) arg
-else instance argVarJson :: ArgGql Json (Var sym Json) -- Json can only be used with a variable 
-else instance argToGqlJsonNotAllowed :: TE.Fail (TE.Text "A `Json` query argument can only be used as a variable ") => ArgGql Json Json
-else instance argVar :: ArgGql param arg => ArgGql param (Var sym arg)
-else instance argToGqlArrayNull :: ArgGql (Array param) NullArray
-else instance argToGqlArrayAnds :: (ArgGql (Array param) a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArgs a1 a2)
-else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql param (OrArg argL argR)
-else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
-else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
-else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
-else instance argToGqlRecord :: RecordArg p a u => ArgGql { | p } { | a }
-else instance allowedArgMismatch :: ArgGql p schemaType => ArgGql p (AllowedMismatch schemaType a)
-else instance argGqlIdentity :: ArgGql a a
-else instance argToGqlNewtypeRecord :: (Newtype n { | p }, RecordArg p a u) => ArgGql n { | a }
+instance argToGqlNotNull :: (IsNotNull param arg, ArgGql  at param arg) => ArgGql  at (NotNull param) arg
+else instance argToGqlIgnore :: ArgGql  at param IgnoreArg
+else instance argAsGql :: ArgGql  at param arg => ArgGql  at (AsGql gqlName param) arg
+else instance argVarJson :: ArgGql  at Json (Var sym Json) -- Json can only be used with a variable 
+else instance argToGqlJsonNotAllowed :: TE.Fail (TE.Text "A `Json` query argument can only be used as a variable ") => ArgGql  at Json Json
+else instance argVar :: ArgGql  at param arg => ArgGql  at param (Var sym arg)
+else instance argToGqlArrayNull :: ArgGql  at (Array param) NullArray
+else instance argToGqlArrayAnds :: (ArgGql  at (Array param) a1, ArgGql  at (Array param) a2) => ArgGql  at (Array param) (AndArgs a1 a2)
+else instance argToGqlOrArg :: (ArgGql  at param argL, ArgGql  at param argR) => ArgGql  at param (OrArg argL argR)
+else instance argToGqlMaybe :: ArgGql  at param arg => ArgGql  at param (Maybe arg)
+else instance argToGqlArray :: ArgGql  at param arg => ArgGql  at (Array param) (Array arg)
+else instance argToGqlArrayOne :: ArgGql  at param arg => ArgGql  at (Array param) arg
+else instance argToGqlRecord :: RecordArg p a u => ArgGql  at { | p } { | a }
+else instance allowedArgMismatch :: ArgGql  at p schemaType => ArgGql  at p (AllowedMismatch schemaType a)
+else instance argGqlIdentity :: ArgGql  at a a
+else instance argToGqlNewtypeRecord :: (Newtype n { | p }, RecordArg p a u) => ArgGql  at n { | a }
 else instance argMismatch ::
   ( TE.Fail
       ( TE.Above
@@ -88,12 +86,13 @@ else instance argMismatch ::
               (TE.Text "  ")
               ( TE.Above
                   (TE.Beside (TE.Text "Schema: ") (TE.Quote param))
-                  (TE.Beside (TE.Text "Query: ") (TE.Quote arg))
+                  (TE.Above (TE.Beside (TE.Text "Query: ") (TE.Quote arg))
+                    (TE.Beside (TE.Text "At: ") (TE.Quote at)))
               )
           )
       )
   ) =>
-  ArgGql param arg
+  ArgGql at param arg
 
 class IsNotNull :: forall k1 k2. k1 -> k2 -> Constraint
 class IsNotNull param arg
@@ -147,7 +146,7 @@ newtype ArgPropToGql params = ArgPropToGql { | params }
 instance
   ( IsSymbol sym
   , Row.Cons sym param rest params
-  , ArgGql param arg
+  , ArgGql sym param arg
   , SatisifyNotNullParam param arg
   ) =>
   MappingWithIndex (ArgPropToGql params) (Proxy sym) arg Unit where

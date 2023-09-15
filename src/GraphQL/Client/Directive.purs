@@ -41,7 +41,7 @@ class DirectivesTypeCheckTopLevelLocation location directiveDeclarations q bool 
 
 instance directivesTypeCheckTopLevelLocationFound ::
   ( IsMember location locations result
-  , ArgGql { | params } { | args }
+  , ArgGql name { | params } { | args }
   , SatisifyNotNullParam { | params } { | args }
   ) =>
   DirectivesTypeCheckTopLevelLocation location (Cons' (Directive name description { | params } locations) tail) (ApplyDirective name { | args } q) result

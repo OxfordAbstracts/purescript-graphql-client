@@ -19,12 +19,13 @@ import Data.Map (Map, lookup)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe', maybe)
 import Data.Newtype (unwrap, wrap)
-import Data.String (codePointFromChar)
+import Data.String (codePointFromChar, toLower)
 import Data.String as String
 import Data.String.CodeUnits (charAt)
 import Data.String.Extra (pascalCase)
 import Data.Traversable (class Foldable, class Traversable, for, traverse)
 import Data.Tuple (Tuple(..))
+import Data.Tuple.Nested ((/\))
 import Data.Unfoldable (none)
 import GraphQL.Client.CodeGen.Types (InputOptions, GqlEnum)
 import GraphQL.Client.CodeGen.UtilCst (qualifiedTypeToName)
@@ -76,11 +77,15 @@ gqlToPursSchema
 
     let
       imports :: Imports
-      imports = 
+      imports =
         { json
-        , id  
+        , unknownJson
+        , id
         , dateTime
         }
+
+      defaultTypes = getDefaultTypeNames imports
+
       unknownJson tName = leading (lineComments $ "Unknown scalar type. Add " <> tName <> " to gqlToPursTypes in codegen options to override this behaviour") json
 
       definitionToPurs :: AST.Definition -> List Decl
@@ -128,22 +133,22 @@ gqlToPursSchema
         where
         tName = pascalCase name
 
-      builtInTypes = [ "Int", "Number", "String", "Boolean", "ID" ]
-
       descriptionAndNameToPurs :: Maybe String -> String -> Maybe (CST.Type Void)
       descriptionAndNameToPurs description name =
-        if (notElem tName builtInTypes) then
-          pure $ comment description (typeCtor scalarType)
-        else
-          none
+        comment description <<< typeCtor <$> scalarType
         where
         tName = pascalCase name
 
         scalarType =
-          lookup tName gqlToPursTypesMs
-            <|> (qualifiedTypeToName <$> lookup tName gqlToPursTypes)
-            <|> lookup tName enumsM
-            # fromMaybe' \_ -> unknownJson tName
+          case lookup tName gqlToPursTypesMs of
+            Just t -> Just t
+            _ -> case lookup tName enumsM of
+              Just t -> Just t
+              _ ->
+                if Map.member (toLower name) defaultTypes then
+                  Nothing
+                else
+                  Just $ unknownJson name
 
       objectTypeDefinitionToPurs :: AST.ObjectTypeDefinition -> List Decl
       objectTypeDefinitionToPurs
@@ -265,7 +270,7 @@ gqlToPursSchema
         typeRecord (map (inputValueDefinitionToPurs objectName fieldName) $ Array.fromFoldable $ sort definitions) Nothing
 
       getPursTypeName :: NamedType -> QualifiedName Proper
-      getPursTypeName = namedTypeToPurs gqlToPursTypesMs imports
+      getPursTypeName = namedTypeToPurs gqlToPursTypesMs defaultTypes
 
       pursTypeCtr :: NamedType -> CST.Type Void
       pursTypeCtr gqlT =
@@ -404,41 +409,50 @@ comment = maybe identity (leading <<< docComments)
 
 type Decl = CST.Declaration Void
 
-namedTypeToPurs :: Map String (QualifiedName Proper) -> Imports -> AST.NamedType -> QualifiedName Proper
-namedTypeToPurs gqlToPursTypes id (AST.NamedType str) = typeName gqlToPursTypes id str
+namedTypeToPurs :: Map String (QualifiedName Proper) -> Map String (QualifiedName Proper) -> AST.NamedType -> QualifiedName Proper
+namedTypeToPurs gqlToPursTypes defaultTypes (AST.NamedType str) = typeName gqlToPursTypes defaultTypes str
 
 type Imports =
   { id :: QualifiedName Proper
   , json :: QualifiedName Proper
+  , unknownJson :: String -> QualifiedName Proper
   , dateTime :: QualifiedName Proper
   }
 
-typeName :: Map String (QualifiedName Proper) -> Imports -> String -> QualifiedName Proper
-typeName gqlToPursTypes {id, json, dateTime} str =
-  lookup str gqlToPursTypes
-    # fromMaybe' \_ -> case pascalCase str of
-        "Id" -> id
-        "Json" -> json 
-        "Jsonb" -> json
-        "Timestamp" -> dateTime
-        "Timestampz" -> dateTime
-        other -> qualifiy case other of
-          "Float" -> "Number"
-          "Numeric" -> "Number"
-          "Bigint" -> "Number"
-          "Smallint" -> "Int"
-          "Integer" -> "Int"
-          "Int" -> "Int"
-          "Int2" -> "Int"
-          "Int4" -> "Int"
-          "Int8" -> "Int"
-          "Text" -> "String"
-          "Citext" -> "String"
-          s -> s
+typeName :: Map String (QualifiedName Proper) -> Map String (QualifiedName Proper) -> String -> QualifiedName Proper
+typeName gqlToPursTypes defaultTypes str =
+  case lookup str gqlToPursTypes of
+    Just t -> t
+    _ -> case lookup (toLower str) defaultTypes of
+      Just t -> t
+      _ -> qualify (pascalCase str)
 
-  where
-  qualifiy :: String -> QualifiedName Proper
-  qualifiy = toQualifiedName <<< (wrap :: _ -> Proper)
+qualify :: String -> QualifiedName Proper
+qualify = toQualifiedName <<< (wrap :: _ -> Proper)
+
+getDefaultTypeNames :: Imports -> Map String (QualifiedName Proper)
+getDefaultTypeNames { id, json, dateTime } = Map.fromFoldable
+  [ "id" /\ id
+  , "json" /\ json
+  , "jsonb" /\ json
+  , "timestamp" /\ dateTime
+  , "timestampz" /\ dateTime
+  , "float" /\ qualify "Number"
+  , "numeric" /\ qualify "Number"
+  , "bigint" /\ qualify "Number"
+  , "number" /\ qualify "Number"
+  , "smallint" /\ qualify "Int"
+  , "integer" /\ qualify "Int"
+  , "int" /\ qualify "Int"
+  , "int2" /\ qualify "Int"
+  , "int4" /\ qualify "Int"
+  , "int8" /\ qualify "Int"
+  , "text" /\ qualify "String"
+  , "citext" /\ qualify "String"
+  , "string" /\ qualify "String"
+  , "boolean" /\ qualify "Boolean"
+  , "bool" /\ qualify "Boolean"
+  ]
 
 safeFieldname :: String -> String
 safeFieldname s = if isSafe then s else show s
