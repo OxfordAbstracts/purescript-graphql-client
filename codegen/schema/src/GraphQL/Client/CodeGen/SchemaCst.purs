@@ -79,7 +79,6 @@ gqlToPursSchema
       imports :: Imports
       imports =
         { json
-        , unknownJson
         , id
         , dateTime
         }
@@ -142,12 +141,12 @@ gqlToPursSchema
         tName = pascalCase name
 
         scalarType =
-          case lookup tName gqlToPursTypesMs of
-            Just t -> Just t
-            _ ->
-              if elem tName builtin then
-                Nothing
-              else case lookup tName enumsM of
+          if elem tName builtin then
+            Nothing
+          else
+            case lookup tName gqlToPursTypesMs of
+              Just t -> Just t
+              _ -> case lookup tName enumsM of
                 Just t -> Just t
                 _ -> case Map.lookup (toLower name) defaultTypes of
                   Just t -> Just t
@@ -418,7 +417,6 @@ namedTypeToPurs gqlToPursTypes defaultTypes (AST.NamedType str) = typeName gqlTo
 type Imports =
   { id :: QualifiedName Proper
   , json :: QualifiedName Proper
-  , unknownJson :: String -> QualifiedName Proper
   , dateTime :: QualifiedName Proper
   }
 
@@ -439,7 +437,7 @@ getDefaultTypeNames { id, json, dateTime } = Map.fromFoldable
   , "json" /\ json
   , "jsonb" /\ json
   , "timestamp" /\ dateTime
-  , "timestampz" /\ dateTime
+  , "timestamptz" /\ dateTime
   , "float" /\ qualify "Number"
   , "numeric" /\ qualify "Number"
   , "bigint" /\ qualify "Number"
