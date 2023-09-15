@@ -1,4 +1,11 @@
-module GraphQL.Client.QueryReturns (queryReturns, class QueryReturns, queryReturnsImpl, PropToSchemaType) where
+module GraphQL.Client.QueryReturns
+  ( PropToSchemaType
+  , class QueryReturns
+  , class QueryReturnsAt
+  , queryReturns
+  , queryReturnsImpl
+  , queryReturnsAtImpl
+  ) where
 
 import Prelude
 
@@ -35,62 +42,70 @@ class QueryReturns schema query returns | schema query -> returns where
   -- | Do not use this. Use `queryReturns` instead. Only exported due to compiler restrictions
   queryReturnsImpl :: schema -> query -> returns -- TODO: use Proxies or remove member here so undefined is not needed
 
-instance queryReturnsWithVars :: QueryReturns a q t => QueryReturns a (WithVars q vars) t where
-  queryReturnsImpl a _ = queryReturnsImpl a (undefined :: q)
-else instance queryReturnsVar :: QueryReturns a q t => QueryReturns a (Var name q) t where
-  queryReturnsImpl a _ = queryReturnsImpl a (undefined :: q)
-else instance queryReturnsGqlType :: QueryReturns a q t => QueryReturns (AsGql gql a) q t where
-  queryReturnsImpl _ q = queryReturnsImpl (undefined :: a) q
-else instance queryReturnsApplyDirective :: QueryReturns a q t => QueryReturns a (ApplyDirective name args q) t where
-  queryReturnsImpl a _ = queryReturnsImpl a (undefined :: q)
-else instance queryReturnErrorBoundary :: QueryReturns a q t => QueryReturns a (ErrorBoundary q) (BoundaryResult Unit t) where
-  queryReturnsImpl a _ = ErrorBoundary.Result $ queryReturnsImpl a (undefined :: q)
+instance QueryReturnsAt "root" schema query returns => QueryReturns schema query returns where
+  queryReturnsImpl = queryReturnsAtImpl (Proxy :: _ "root")
+
+class QueryReturnsAt :: Symbol -> Type -> Type -> Type -> Constraint
+class QueryReturnsAt at schema query returns | schema query -> returns where
+  -- | Do not use this. Use `queryReturns` instead. Only exported due to compiler restrictions
+  queryReturnsAtImpl :: Proxy at -> schema -> query -> returns -- TODO: use Proxies or remove member here so undefined is not needed
+
+instance queryReturnsWithVars :: QueryReturnsAt at a q t => QueryReturnsAt at a (WithVars q vars) t where
+  queryReturnsAtImpl at a _ = queryReturnsAtImpl at a (undefined :: q)
+else instance queryReturnsVar :: QueryReturnsAt at a q t => QueryReturnsAt at a (Var name q) t where
+  queryReturnsAtImpl at a _ = queryReturnsAtImpl at a (undefined :: q)
+else instance queryReturnsGqlType :: QueryReturnsAt at a q t => QueryReturnsAt at (AsGql gql a) q t where
+  queryReturnsAtImpl at _ q = queryReturnsAtImpl at (undefined :: a) q
+else instance queryReturnsApplyDirective :: QueryReturnsAt at a q t => QueryReturnsAt at a (ApplyDirective name args q) t where
+  queryReturnsAtImpl at a _ = queryReturnsAtImpl at a (undefined :: q)
+else instance queryReturnErrorBoundary :: QueryReturnsAt at a q t => QueryReturnsAt at a (ErrorBoundary q) (BoundaryResult Unit t) where
+  queryReturnsAtImpl at a _ = ErrorBoundary.Result $ queryReturnsAtImpl at a (undefined :: q)
 else instance queryReturnsSpread ::
   ( IsSymbol alias
   , Row.Cons alias subSchema rest schema
-  , QueryReturns subSchema (Args args q) returns
+  , QueryReturnsAt at subSchema (Args args q) returns
   ) =>
-  QueryReturns { | schema } (Spread (Proxy alias) args q) (SpreadRes returns) where
-  queryReturnsImpl _ _ = undefined
+  QueryReturnsAt at { | schema } (Spread (Proxy alias) args q) (SpreadRes returns) where
+  queryReturnsAtImpl at _ _ = undefined
 else instance queryReturnsSpreadNewtype ::
-  ( QueryReturns { | schema } (Spread (Proxy alias) args q) (SpreadRes returns)
+  ( QueryReturnsAt at { | schema } (Spread (Proxy alias) args q) (SpreadRes returns)
   , Newtype newtypeSchema { | schema }
   ) =>
-  QueryReturns newtypeSchema (Spread (Proxy alias) args q) (SpreadRes returns) where
-  queryReturnsImpl _ _ = undefined
-else instance queryReturnsArray :: QueryReturns a q t => QueryReturns (Array a) q (Array t) where
-  queryReturnsImpl _ q = pure $ queryReturnsImpl (undefined :: a) q
-else instance queryReturnsMaybe :: QueryReturns a q t => QueryReturns (Maybe a) q (Maybe t) where
-  queryReturnsImpl _ q = pure $ queryReturnsImpl (undefined :: a) q
+  QueryReturnsAt at newtypeSchema (Spread (Proxy alias) args q) (SpreadRes returns) where
+  queryReturnsAtImpl at _ _ = undefined
+else instance queryReturnsArray :: QueryReturnsAt at a q t => QueryReturnsAt at (Array a) q (Array t) where
+  queryReturnsAtImpl at _ q = pure $ queryReturnsAtImpl at (undefined :: a) q
+else instance queryReturnsMaybe :: QueryReturnsAt at a q t => QueryReturnsAt at (Maybe a) q (Maybe t) where
+  queryReturnsAtImpl at _ q = pure $ queryReturnsAtImpl at (undefined :: a) q
 else instance queryReturnsUnion ::
   HMapWithIndex (PropToSchemaType schema) (Record query) (Record returns) =>
-  QueryReturns (GqlUnion schema) (GqlUnion query) (UnionReturned returns) where
-  queryReturnsImpl _ _ = undefined
+  QueryReturnsAt at (GqlUnion schema) (GqlUnion query) (UnionReturned returns) where
+  queryReturnsAtImpl at _ _ = undefined
 else instance queryReturnsParamsArgs ::
-  ( QueryReturns t q result
+  ( QueryReturnsAt at t q result
   , HMapWithIndex (ArgPropToGql params) { | args } s
   , SatisifyNotNullParam { | params } { | args }
   ) =>
-  QueryReturns ({ | params } -> t) (Args { | args } q) result where
-  queryReturnsImpl _ (Args _ q) = queryReturnsImpl (undefined :: t) q
+  QueryReturnsAt at ({ | params } -> t) (Args { | args } q) result where
+  queryReturnsAtImpl at _ (Args _ q) = queryReturnsAtImpl at (undefined :: t) q
 else instance queryReturnsParamsNoArgs ::
-  ( QueryReturns t q result
+  ( QueryReturnsAt at t q result
   , SatisifyNotNullParam { | params } {}
   ) =>
-  QueryReturns ({ | params } -> t) q result where
-  queryReturnsImpl _ q = queryReturnsImpl (undefined :: t) q
+  QueryReturnsAt at ({ | params } -> t) q result where
+  queryReturnsAtImpl at _ q = queryReturnsAtImpl at (undefined :: t) q
 else instance queryReturnsRecord ::
   HMapWithIndex (PropToSchemaType schema) query returns =>
-  QueryReturns { | schema } query returns where
-  queryReturnsImpl = propToSchemaType
+  QueryReturnsAt at { | schema } query returns where
+  queryReturnsAtImpl at = propToSchemaType
 else instance queryReturnsNewtype ::
   ( Newtype newtypeSchema { | schema }
-  , QueryReturns { | schema } { | query } returns
+  , QueryReturnsAt at { | schema } { | query } returns
   ) =>
-  QueryReturns newtypeSchema { | query } returns where
-  queryReturnsImpl sch query = queryReturnsImpl (unwrap sch) query
-else instance queryReturnsAll :: QueryReturns a q a where
-  queryReturnsImpl a _ = a
+  QueryReturnsAt at newtypeSchema { | query } returns where
+  queryReturnsAtImpl at sch query = queryReturnsAtImpl at (unwrap sch) query
+else instance queryReturnsAll :: QueryReturnsAt at a q a where
+  queryReturnsAtImpl _ a _ = a
 else instance queryReturnsMismatch ::
   ( TE.Fail
       ( TE.Above
@@ -98,14 +113,17 @@ else instance queryReturnsMismatch ::
           ( TE.Beside
               (TE.Text "  ")
               ( TE.Above
-                  (TE.Beside (TE.Text "Schema return type: ") (TE.Quote schema))
-                  (TE.Beside (TE.Text "Incorrect return type: ") (TE.Quote returns))
+                  (TE.Beside (TE.Text "Schema type: ") (TE.Quote schema))
+                  ( TE.Above (TE.Beside (TE.Text "Incorrect return type: ") (TE.Quote returns))
+                      (TE.Beside (TE.Text "At: ") (TE.Quote at))
+                  )
+
               )
           )
       )
   ) =>
-  QueryReturns schema query returns where
-  queryReturnsImpl _ _ = undefined
+  QueryReturnsAt at schema query returns where
+  queryReturnsAtImpl _ _ _ = undefined
 
 -- | For internal use only but must be exported for other modules to compile
 newtype PropToSchemaType schema = PropToSchemaType { | schema }
@@ -114,37 +132,37 @@ instance propToSchemaTypeAlias ::
   ( IsSymbol sym
   , IsSymbol al
   , Row.Cons al subSchema rest schema
-  , QueryReturns subSchema val returns
+  , QueryReturnsAt sym subSchema val returns
   ) =>
   MappingWithIndex (PropToSchemaType schema) (Proxy sym) (Alias (Proxy al) val) returns where
   mappingWithIndex (PropToSchemaType schema) _ (Alias al val) =
     let
       subSchema = Record.get al schema
     in
-      queryReturnsImpl subSchema val
+      queryReturnsAtImpl (Proxy :: _ sym) subSchema val
 else instance propToSchemaTypeProxyAlias ::
   ( IsSymbol sym
   , IsSymbol val
   , Row.Cons val subSchema rest schema
-  , QueryReturns subSchema (Proxy val) returns
+  , QueryReturnsAt sym subSchema (Proxy val) returns
   ) =>
   MappingWithIndex (PropToSchemaType schema) (Proxy sym) (Proxy val) returns where
   mappingWithIndex (PropToSchemaType schema) _ val =
     let
       subSchema = Record.get val schema
     in
-      queryReturnsImpl subSchema val
+      queryReturnsAtImpl (Proxy :: _ sym) subSchema val
 else instance propToSchemaType_ ::
   ( IsSymbol sym
   , Row.Cons sym subSchema rest schema
-  , QueryReturns subSchema val returns
+  , QueryReturnsAt sym subSchema val returns
   ) =>
   MappingWithIndex (PropToSchemaType schema) (Proxy sym) val returns where
   mappingWithIndex (PropToSchemaType schema) sym val =
     let
       subSchema = Record.get sym schema
     in
-      queryReturnsImpl subSchema val
+      queryReturnsAtImpl (Proxy :: _ sym) subSchema val
 
 propToSchemaType
   :: forall query returns schema

@@ -59,25 +59,31 @@ guardArg b args =
 onlyArgs :: forall a. a -> Args a Unit
 onlyArgs a = Args a unit
 
--- class ArgGql :: forall k1 k2. k1 -> k2 -> Constraint
-class ArgGql at params arg
 
-instance argToGqlNotNull :: (IsNotNull param arg, ArgGql  at param arg) => ArgGql  at (NotNull param) arg
-else instance argToGqlIgnore :: ArgGql  at param IgnoreArg
-else instance argAsGql :: ArgGql  at param arg => ArgGql  at (AsGql gqlName param) arg
-else instance argVarJson :: ArgGql  at Json (Var sym Json) -- Json can only be used with a variable 
-else instance argToGqlJsonNotAllowed :: TE.Fail (TE.Text "A `Json` query argument can only be used as a variable ") => ArgGql  at Json Json
-else instance argVar :: ArgGql  at param arg => ArgGql  at param (Var sym arg)
-else instance argToGqlArrayNull :: ArgGql  at (Array param) NullArray
-else instance argToGqlArrayAnds :: (ArgGql  at (Array param) a1, ArgGql  at (Array param) a2) => ArgGql  at (Array param) (AndArgs a1 a2)
-else instance argToGqlOrArg :: (ArgGql  at param argL, ArgGql  at param argR) => ArgGql  at param (OrArg argL argR)
-else instance argToGqlMaybe :: ArgGql  at param arg => ArgGql  at param (Maybe arg)
-else instance argToGqlArray :: ArgGql  at param arg => ArgGql  at (Array param) (Array arg)
-else instance argToGqlArrayOne :: ArgGql  at param arg => ArgGql  at (Array param) arg
-else instance argToGqlRecord :: RecordArg p a u => ArgGql  at { | p } { | a }
-else instance allowedArgMismatch :: ArgGql  at p schemaType => ArgGql  at p (AllowedMismatch schemaType a)
-else instance argGqlIdentity :: ArgGql  at a a
-else instance argToGqlNewtypeRecord :: (Newtype n { | p }, RecordArg p a u) => ArgGql  at n { | a }
+class ArgGql :: forall param arg. param -> arg -> Constraint
+class ArgGql params args 
+
+instance ArgGqlAt any params args => ArgGql params args
+
+class ArgGqlAt :: forall param arg. Symbol -> param -> arg -> Constraint
+class ArgGqlAt at params arg
+
+instance argToGqlNotNull :: (IsNotNull param arg, ArgGqlAt  at param arg) => ArgGqlAt  at (NotNull param) arg
+else instance argToGqlIgnore :: ArgGqlAt  at param IgnoreArg
+else instance argAsGql :: ArgGqlAt  at param arg => ArgGqlAt  at (AsGql gqlName param) arg
+else instance argVarJson :: ArgGqlAt  at Json (Var sym Json) -- Json can only be used with a variable 
+else instance argToGqlJsonNotAllowed :: TE.Fail (TE.Text "A `Json` query argument can only be used as a variable ") => ArgGqlAt  at Json Json
+else instance argVar :: ArgGqlAt  at param arg => ArgGqlAt  at param (Var sym arg)
+else instance argToGqlArrayNull :: ArgGqlAt  at (Array param) NullArray
+else instance argToGqlArrayAnds :: (ArgGqlAt  at (Array param) a1, ArgGqlAt  at (Array param) a2) => ArgGqlAt  at (Array param) (AndArgs a1 a2)
+else instance argToGqlOrArg :: (ArgGqlAt  at param argL, ArgGqlAt  at param argR) => ArgGqlAt  at param (OrArg argL argR)
+else instance argToGqlMaybe :: ArgGqlAt  at param arg => ArgGqlAt  at param (Maybe arg)
+else instance argToGqlArray :: ArgGqlAt  at param arg => ArgGqlAt  at (Array param) (Array arg)
+else instance argToGqlArrayOne :: ArgGqlAt  at param arg => ArgGqlAt  at (Array param) arg
+else instance argToGqlRecord :: RecordArg p a u => ArgGqlAt  at { | p } { | a }
+else instance allowedArgMismatch :: ArgGqlAt  at p schemaType => ArgGqlAt  at p (AllowedMismatch schemaType a)
+else instance argGqlIdentity :: ArgGqlAt  at a a
+else instance argToGqlNewtypeRecord :: (Newtype n { | p }, RecordArg p a u) => ArgGqlAt  at n { | a }
 else instance argMismatch ::
   ( TE.Fail
       ( TE.Above
@@ -92,7 +98,7 @@ else instance argMismatch ::
           )
       )
   ) =>
-  ArgGql at param arg
+  ArgGqlAt at param arg
 
 class IsNotNull :: forall k1 k2. k1 -> k2 -> Constraint
 class IsNotNull param arg
@@ -146,7 +152,7 @@ newtype ArgPropToGql params = ArgPropToGql { | params }
 instance
   ( IsSymbol sym
   , Row.Cons sym param rest params
-  , ArgGql sym param arg
+  , ArgGqlAt sym param arg
   , SatisifyNotNullParam param arg
   ) =>
   MappingWithIndex (ArgPropToGql params) (Proxy sym) arg Unit where
