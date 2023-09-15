@@ -71,10 +71,16 @@ gqlToPursSchema
     fieldTypeOverridesMs <- for fieldTypeOverrides genImports
 
     argTypeOverridesMs <- for argTypeOverrides (traverse genImports)
-    void $ importFrom "Data.DateTime" $ importType "DateTime"
+    dateTime <- importFrom "Data.DateTime" $ importType "DateTime"
     json <- importQualified "Data.Argonaut.Core" "Json"
 
     let
+      imports :: Imports
+      imports = 
+        { json
+        , id  
+        , dateTime
+        }
       unknownJson tName = leading (lineComments $ "Unknown scalar type. Add " <> tName <> " to gqlToPursTypes in codegen options to override this behaviour") json
 
       definitionToPurs :: AST.Definition -> List Decl
@@ -259,7 +265,7 @@ gqlToPursSchema
         typeRecord (map (inputValueDefinitionToPurs objectName fieldName) $ Array.fromFoldable $ sort definitions) Nothing
 
       getPursTypeName :: NamedType -> QualifiedName Proper
-      getPursTypeName = namedTypeToPurs gqlToPursTypesMs id
+      getPursTypeName = namedTypeToPurs gqlToPursTypesMs imports
 
       pursTypeCtr :: NamedType -> CST.Type Void
       pursTypeCtr gqlT =
@@ -398,15 +404,25 @@ comment = maybe identity (leading <<< docComments)
 
 type Decl = CST.Declaration Void
 
-namedTypeToPurs :: Map String (QualifiedName Proper) -> QualifiedName Proper -> AST.NamedType -> QualifiedName Proper
+namedTypeToPurs :: Map String (QualifiedName Proper) -> Imports -> AST.NamedType -> QualifiedName Proper
 namedTypeToPurs gqlToPursTypes id (AST.NamedType str) = typeName gqlToPursTypes id str
 
-typeName :: Map String (QualifiedName Proper) -> QualifiedName Proper -> String -> QualifiedName Proper
-typeName gqlToPursTypes id str =
+type Imports =
+  { id :: QualifiedName Proper
+  , json :: QualifiedName Proper
+  , dateTime :: QualifiedName Proper
+  }
+
+typeName :: Map String (QualifiedName Proper) -> Imports -> String -> QualifiedName Proper
+typeName gqlToPursTypes {id, json, dateTime} str =
   lookup str gqlToPursTypes
     # fromMaybe' \_ -> case pascalCase str of
         "Id" -> id
-        notId -> qualifiy case notId of
+        "Json" -> json 
+        "Jsonb" -> json
+        "Timestamp" -> dateTime
+        "Timestampz" -> dateTime
+        other -> qualifiy case other of
           "Float" -> "Number"
           "Numeric" -> "Number"
           "Bigint" -> "Number"
@@ -418,9 +434,6 @@ typeName gqlToPursTypes id str =
           "Int8" -> "Int"
           "Text" -> "String"
           "Citext" -> "String"
-          "Jsonb" -> "Json"
-          "Timestamp" -> "DateTime"
-          "Timestamptz" -> "DateTime"
           s -> s
 
   where
