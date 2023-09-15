@@ -7,7 +7,7 @@ import Prelude
 
 import Control.Alt ((<|>))
 import Control.Monad.Writer (tell)
-import Data.Array (notElem)
+import Data.Array (elem, notElem)
 import Data.Array as Array
 import Data.CodePoint.Unicode (isLower)
 import Data.Filterable (class Filterable, filter)
@@ -133,6 +133,8 @@ gqlToPursSchema
         where
         tName = pascalCase name
 
+      builtin = [ "String", "Boolean", "Int", "Float" ]
+
       descriptionAndNameToPurs :: Maybe String -> String -> Maybe (CST.Type Void)
       descriptionAndNameToPurs description name =
         comment description <<< typeCtor <$> scalarType
@@ -142,13 +144,14 @@ gqlToPursSchema
         scalarType =
           case lookup tName gqlToPursTypesMs of
             Just t -> Just t
-            _ -> case lookup tName enumsM of
-              Just t -> Just t
-              _ ->
-                if Map.member (toLower name) defaultTypes then
-                  Nothing
-                else
-                  Just $ unknownJson name
+            _ ->
+              if elem tName builtin then
+                Nothing
+              else case lookup tName enumsM of
+                Just t -> Just t
+                _ -> case Map.lookup (toLower name) defaultTypes of
+                  Just t -> Just t
+                  _ -> Just $ unknownJson name
 
       objectTypeDefinitionToPurs :: AST.ObjectTypeDefinition -> List Decl
       objectTypeDefinitionToPurs
