@@ -3,7 +3,6 @@ module GraphQL.Client.QueryReturns
   , class QueryReturns
   , class QueryReturnsAt
   , queryReturns
-  , queryReturnsImpl
   , queryReturnsAtImpl
   ) where
 
@@ -38,6 +37,7 @@ queryReturns
   -> Proxy returns
 queryReturns _ _ = Proxy
 
+class QueryReturns :: forall k1 k2 k3. k1 -> k2 -> k3 -> Constraint
 class QueryReturns schema query returns | schema query -> returns
 
 instance QueryReturnsAt any schema query returns => QueryReturns schema query returns
