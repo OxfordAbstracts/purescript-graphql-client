@@ -38,12 +38,9 @@ queryReturns
   -> Proxy returns
 queryReturns _ _ = Proxy
 
-class QueryReturns schema query returns | schema query -> returns where
-  -- | Do not use this. Use `queryReturns` instead. Only exported due to compiler restrictions
-  queryReturnsImpl :: schema -> query -> returns -- TODO: use Proxies or remove member here so undefined is not needed
+class QueryReturns schema query returns | schema query -> returns
 
-instance QueryReturnsAt "root" schema query returns => QueryReturns schema query returns where
-  queryReturnsImpl = queryReturnsAtImpl (Proxy :: _ "root")
+instance QueryReturnsAt any schema query returns => QueryReturns schema query returns
 
 class QueryReturnsAt :: Symbol -> Type -> Type -> Type -> Constraint
 class QueryReturnsAt at schema query returns | schema query -> returns where
