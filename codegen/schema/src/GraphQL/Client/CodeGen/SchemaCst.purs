@@ -5,9 +5,8 @@ module GraphQL.Client.CodeGen.SchemaCst
 
 import Prelude
 
-import Control.Alt ((<|>))
 import Control.Monad.Writer (tell)
-import Data.Array (elem, notElem)
+import Data.Array (elem)
 import Data.Array as Array
 import Data.CodePoint.Unicode (isLower)
 import Data.Filterable (class Filterable, filter)
@@ -17,7 +16,7 @@ import Data.List (List(..), any, mapMaybe, sort, (:))
 import Data.List as List
 import Data.Map (Map, lookup)
 import Data.Map as Map
-import Data.Maybe (Maybe(..), fromMaybe', maybe)
+import Data.Maybe (Maybe(..), maybe)
 import Data.Newtype (unwrap, wrap)
 import Data.String (codePointFromChar, toLower)
 import Data.String as String
@@ -144,13 +143,16 @@ gqlToPursSchema
           if elem tName builtin then
             Nothing
           else
-            case lookup tName gqlToPursTypesMs of
+            case lookup name gqlToPursTypesMs of
               Just t -> Just t
-              _ -> case lookup tName enumsM of
-                Just t -> Just t
-                _ -> case Map.lookup (toLower name) defaultTypes of
-                  Just t -> Just t
-                  _ -> Just $ unknownJson name
+              _ -> case lookup name gqlToPursTypes of
+                Just t -> Just $ qualifiedTypeToName t
+                _ ->
+                  case lookup tName enumsM of
+                    Just t -> Just t
+                    _ -> case Map.lookup (toLower name) defaultTypes of
+                      Just t -> Just t
+                      _ -> Just $ unknownJson name
 
       objectTypeDefinitionToPurs :: AST.ObjectTypeDefinition -> List Decl
       objectTypeDefinitionToPurs
