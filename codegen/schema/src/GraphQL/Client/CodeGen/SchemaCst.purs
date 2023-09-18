@@ -148,7 +148,7 @@ gqlToPursSchema
               _ -> case lookup name gqlToPursTypes of
                 Just t -> Just $ qualifiedTypeToName t
                 _ ->
-                  case lookup tName enumsM of
+                  case lookup name enumsM of
                     Just t -> Just t
                     _ -> case Map.lookup (toLower name) defaultTypes of
                       Just t -> Just t

@@ -58538,7 +58538,7 @@ var gqlToPursSchema = function(v) {
                                                 return new Just(qualifiedTypeToName(v4.value0));
                                               }
                                               ;
-                                              var v5 = lookup5(tName)(v2);
+                                              var v5 = lookup5(name2)(v2);
                                               if (v5 instanceof Just) {
                                                 return new Just(v5.value0);
                                               }
