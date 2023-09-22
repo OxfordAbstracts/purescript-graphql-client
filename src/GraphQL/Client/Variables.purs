@@ -233,7 +233,7 @@ class GetGqlQueryVars schema query where
   getGqlQueryVars :: Boolean -> Proxy schema -> query -> GqlQueryVars
 
 instance queryVarsWithVars :: GetGqlQueryVars a q => GetGqlQueryVars a (WithVars q vars) where
-  getGqlQueryVars dn a (WithVars _ q _) = getGqlQueryVars dn a q
+  getGqlQueryVars isArgs a (WithVars _ q _) = getGqlQueryVars isArgs a q
 else instance queryVarsVar ::
   ( IsSymbol name
   , GqlType a gqlName
@@ -247,35 +247,35 @@ else instance queryVarsVar ::
     , varType: if isArgs then printGqlTypeArgs (Proxy :: _ a) else printGqlType (Proxy :: _ a)
     }
 else instance queryVarsGqlType :: GetGqlQueryVars a q => GetGqlQueryVars (AsGql gql a) q where
-  getGqlQueryVars dn _ q = getGqlQueryVars dn (Proxy :: Proxy a) q
+  getGqlQueryVars isArgs _ q = getGqlQueryVars isArgs (Proxy :: Proxy a) q
 else instance queryVarsApplyDirective :: GetGqlQueryVars a q => GetGqlQueryVars a (ApplyDirective name args q) where
-  getGqlQueryVars dn a (ApplyDirective _args q) = getGqlQueryVars dn a q
+  getGqlQueryVars isArgs a (ApplyDirective _args q) = getGqlQueryVars isArgs a q
 else instance queryReturnErrorBoundary :: GetGqlQueryVars a q => GetGqlQueryVars a (ErrorBoundary q) where
-  getGqlQueryVars dn a (ErrorBoundary q) = getGqlQueryVars dn a q
+  getGqlQueryVars isArgs a (ErrorBoundary q) = getGqlQueryVars isArgs a q
 else instance queryVarsSpread ::
   ( IsSymbol alias
   , Row.Cons alias subSchema rest schema
   , GetGqlQueryVars subSchema (Args (Array args) q)
   ) =>
   GetGqlQueryVars { | schema } (Spread (Proxy alias) args q) where
-  getGqlQueryVars dn _ (Spread _alias args fields) =
-    getGqlQueryVars dn (Proxy :: Proxy subSchema) (Args args fields)
+  getGqlQueryVars isArgs _ (Spread _alias args fields) =
+    getGqlQueryVars isArgs (Proxy :: Proxy subSchema) (Args args fields)
 else instance queryVarsSpreadNewtype ::
   ( GetGqlQueryVars { | schema } (Spread (Proxy alias) args q)
   , Newtype newtypeSchema { | schema }
   ) =>
   GetGqlQueryVars newtypeSchema (Spread (Proxy alias) args q) where
-  getGqlQueryVars dn _ _ = getGqlQueryVars dn (Proxy :: Proxy { | schema }) (Proxy :: Proxy (Spread (Proxy alias) args q))
+  getGqlQueryVars isArgs _ _ = getGqlQueryVars isArgs (Proxy :: Proxy { | schema }) (Proxy :: Proxy (Spread (Proxy alias) args q))
 else instance queryVarsArray :: GetGqlQueryVars a q => GetGqlQueryVars (Array a) q where
-  getGqlQueryVars dn _ q = getGqlQueryVars dn (Proxy :: Proxy a) q
+  getGqlQueryVars isArgs _ q = getGqlQueryVars isArgs (Proxy :: Proxy a) q
 else instance queryVarsMaybe :: GetGqlQueryVars a q => GetGqlQueryVars (Maybe a) q where
-  getGqlQueryVars dn _ q = getGqlQueryVars dn (Proxy :: Proxy a) q
+  getGqlQueryVars isArgs _ q = getGqlQueryVars isArgs (Proxy :: Proxy a) q
 else instance queryVarsNotNull :: GetGqlQueryVars a q => GetGqlQueryVars (NotNull a) q where
-  getGqlQueryVars dn _ q = getGqlQueryVars dn (Proxy :: Proxy a) q
+  getGqlQueryVars isArgs _ q = getGqlQueryVars isArgs (Proxy :: Proxy a) q
 else instance queryVarsUnion ::
   HFoldlWithIndex (PropGetVars { | schema }) GqlQueryVarsN ({ | query }) GqlQueryVarsN =>
   GetGqlQueryVars (GqlUnion schema) (GqlUnion query) where
-  getGqlQueryVars dn _ (GqlUnion q) = propGetVars dn (Proxy :: Proxy { | schema }) q
+  getGqlQueryVars isArgs _ (GqlUnion q) = propGetVars isArgs (Proxy :: Proxy { | schema }) q
 else instance queryVarsParamsArgs ::
   ( GetGqlQueryVars t q
   , GetGqlQueryVars { | params } { | args }
@@ -289,18 +289,18 @@ else instance queryVarsParamsNoArgs ::
   ( GetGqlQueryVars t q
   ) =>
   GetGqlQueryVars ({ | params } -> t) q where
-  getGqlQueryVars dn _ q = getGqlQueryVars dn (Proxy :: Proxy t) q
+  getGqlQueryVars isArgs _ q = getGqlQueryVars isArgs (Proxy :: Proxy t) q
 else instance queryVarsRecord ::
   HFoldlWithIndex (PropGetVars { | schema }) GqlQueryVarsN ({ | query }) GqlQueryVarsN =>
   GetGqlQueryVars { | schema } { | query } where
-  getGqlQueryVars dn = propGetVars dn
+  getGqlQueryVars isArgs = propGetVars isArgs
 else instance queryVarsNewtype ::
   ( Newtype newtypeSchema { | schema }
   , HFoldlWithIndex (PropGetVars { | schema }) GqlQueryVarsN ({ | query }) GqlQueryVarsN
   , GetGqlQueryVars { | schema } (Proxy { | query })
   ) =>
   GetGqlQueryVars newtypeSchema { | query } where
-  getGqlQueryVars dn _sch query = getGqlQueryVars dn (Proxy :: Proxy { | schema }) query
+  getGqlQueryVars isArgs _sch query = getGqlQueryVars isArgs (Proxy :: Proxy { | schema }) query
 
 else instance queryVarsAll :: GetGqlQueryVars a q where
   getGqlQueryVars _ _a _ = Nil
@@ -316,8 +316,8 @@ instance propGetVarsAlias ::
   , GetGqlQueryVars subSchema val
   ) =>
   FoldingWithIndex (PropGetVars { | schema }) (Proxy sym) GqlQueryVarsN ((Alias (Proxy al) val)) GqlQueryVarsN where
-  foldingWithIndex (PropGetVars dn) _sym (GqlQueryVarsN qv) (Alias _ val) =
-    GqlQueryVarsN $ qv <> getGqlQueryVars dn (Proxy :: Proxy subSchema) val
+  foldingWithIndex (PropGetVars isArgs) _sym (GqlQueryVarsN qv) (Alias _ val) =
+    GqlQueryVarsN $ qv <> getGqlQueryVars isArgs (Proxy :: Proxy subSchema) val
 else instance propGetVarsProxy ::
   FoldingWithIndex (PropGetVars { | schema }) (Proxy sym) GqlQueryVarsN (Proxy val) GqlQueryVarsN where
   foldingWithIndex (PropGetVars _) _ (GqlQueryVarsN qv) _ =
@@ -328,8 +328,8 @@ else instance propGetVars_ ::
   , GetGqlQueryVars subSchema val
   ) =>
   FoldingWithIndex (PropGetVars { | schema }) (Proxy sym) GqlQueryVarsN val GqlQueryVarsN where
-  foldingWithIndex (PropGetVars dn) _sym (GqlQueryVarsN qv) val =
-    GqlQueryVarsN $ qv <> getGqlQueryVars dn (Proxy :: Proxy subSchema) val
+  foldingWithIndex (PropGetVars isArgs) _sym (GqlQueryVarsN qv) val =
+    GqlQueryVarsN $ qv <> getGqlQueryVars isArgs (Proxy :: Proxy subSchema) val
 
 propGetVars
   :: forall query schema
@@ -338,8 +338,8 @@ propGetVars
   -> Proxy schema
   -> query
   -> GqlQueryVars
-propGetVars dn _schema _q = unwrapGqlQueryVars $
-  hfoldlWithIndex (PropGetVars dn :: PropGetVars schema) (GqlQueryVarsN mempty) _q
+propGetVars isArgs _schema _q = unwrapGqlQueryVars $
+  hfoldlWithIndex (PropGetVars isArgs :: PropGetVars schema) (GqlQueryVarsN mempty) _q
   where
   unwrapGqlQueryVars :: GqlQueryVarsN -> GqlQueryVars
   unwrapGqlQueryVars (GqlQueryVarsN qv) = qv
