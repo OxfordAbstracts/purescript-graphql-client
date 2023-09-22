@@ -6,7 +6,7 @@ import Data.Maybe (Maybe)
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (OrArg(..), (++), (=>>))
-import GraphQL.Client.AsGql (AsGql(..))
+import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.Variable (Var(..))
 import GraphQL.Client.Variables (getQueryVars, getVarsTypeNames, withVars)
 import Test.Spec (Spec, describe, it)
@@ -34,6 +34,20 @@ spec =
             }
         getVarsTypeNames testSchemaProxy (q `withVars` {}) `shouldEqual`
           "($nameVar: Name, $myOtherVar: UserId!, $myVar: customId!)"
+
+      it "should return vars for a query with vars in arrays in arguments" do
+        let
+          q =
+            { users:
+                { is_in_rec:
+                    [ { string: Var :: Var "strVar" String
+                      }
+                    ]
+                } =>> { id: unit }
+            } `withVars` { strVar: "strVal" }
+
+        getVarsTypeNames testSchemaProxy (q `withVars` {strVar: "val"}) `shouldEqual`
+          "($strVar: String)"
 
 type TestSchema =
   { users ::

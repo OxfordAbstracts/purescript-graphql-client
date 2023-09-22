@@ -23,7 +23,7 @@ import Control.Apply (lift2)
 import Data.Argonaut.Core (Json, jsonEmptyObject)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Function (on)
-import Data.List (List(..), intercalate, nubBy)
+import Data.List (List(..), foldMap, intercalate, nubBy)
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import Data.Symbol (class IsSymbol, reflectSymbol)
@@ -266,10 +266,14 @@ else instance queryVarsSpreadNewtype ::
   ) =>
   GetGqlQueryVars newtypeSchema (Spread (Proxy alias) args q) where
   getGqlQueryVars isArgs _ _ = getGqlQueryVars isArgs (Proxy :: Proxy { | schema }) (Proxy :: Proxy (Spread (Proxy alias) args q))
-else instance queryVarsArray :: GetGqlQueryVars a q => GetGqlQueryVars (Array a) q where
+else instance queryVarsArrayParam :: GetGqlQueryVars a q => GetGqlQueryVars (Array a) q where
   getGqlQueryVars isArgs _ q = getGqlQueryVars isArgs (Proxy :: Proxy a) q
-else instance queryVarsMaybe :: GetGqlQueryVars a q => GetGqlQueryVars (Maybe a) q where
+else instance queryVarsArrayArg :: GetGqlQueryVars a q => GetGqlQueryVars a (Array q) where
+  getGqlQueryVars isArgs proxy = foldMap (getGqlQueryVars isArgs proxy)
+else instance queryVarsMaybeParam :: GetGqlQueryVars a q => GetGqlQueryVars (Maybe a) q where
   getGqlQueryVars isArgs _ q = getGqlQueryVars isArgs (Proxy :: Proxy a) q
+else instance queryVarsMaybeArg :: GetGqlQueryVars a q => GetGqlQueryVars a (Maybe q) where
+  getGqlQueryVars isArgs proxy = foldMap (getGqlQueryVars isArgs proxy)
 else instance queryVarsNotNull :: GetGqlQueryVars a q => GetGqlQueryVars (NotNull a) q where
   getGqlQueryVars isArgs _ q = getGqlQueryVars isArgs (Proxy :: Proxy a) q
 else instance queryVarsUnion ::
@@ -282,7 +286,7 @@ else instance queryVarsParamsArgs ::
   ) =>
   GetGqlQueryVars ({ | params } -> t) (Args { | args } q) where
   getGqlQueryVars _dn _ (Args args q) =
-    getGqlQueryVars true (Proxy :: _ { | params }) args -- in args values are nullable by default
+    (getGqlQueryVars true (Proxy :: _ { | params }) args) -- in args values are nullable by default
 
       <> getGqlQueryVars false (Proxy :: Proxy t) q
 else instance queryVarsParamsNoArgs ::
