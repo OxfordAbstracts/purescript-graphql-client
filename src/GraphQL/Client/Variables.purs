@@ -1,22 +1,4 @@
-module GraphQL.Client.Variables
-  -- ( GetVarRec
-  -- , GqlQueryVars
-  -- , GqlQueryVarsN(..)
-  -- , PropGetGqlVars
-  -- , WithVars(..)
-  -- , class GetGqlQueryVars
-  -- , class GetVar
-  -- , class VarsTypeChecked
-  -- , getGqlQueryVars
-  -- , getQuery
-  -- , getQueryVars
-  -- , getVar
-  -- , getVarsJson
-  -- , getVarsTypeNames
-  -- , withVars
-  -- , withVarsEncode
-  -- )
-  where
+module GraphQL.Client.Variables where
 
 import Prelude
 
