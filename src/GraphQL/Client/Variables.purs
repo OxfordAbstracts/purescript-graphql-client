@@ -23,13 +23,12 @@ import Prim.Row as Row
 import Record as Record
 import Type.Proxy (Proxy(..))
 
-class GetVar :: forall k. Type -> k -> Constraint
+class GetVar :: Type -> Type -> Constraint
 class GetVar query var | query -> var where
   getVar :: Proxy query -> Proxy var
 
 instance getVarVar ::
-  ( IsSymbol name
-  , Row.Cons name a () var
+  ( Row.Cons name a () var
   ) =>
   GetVar (Var name a) { | var } where
   getVar _ = Proxy
@@ -166,19 +165,19 @@ withVars = withVarsEncode encodeJson
 getQuery :: forall query vars. WithVars query vars -> query
 getQuery (WithVars _ query _) = query
 
-class VarsTypeChecked :: forall k. k -> Type -> Constraint
+class VarsTypeChecked :: Type -> Type -> Constraint
 class VarsTypeChecked schema query where
   getVarsJson :: Proxy schema -> query -> Json
   getVarsTypeNames :: Proxy schema -> query -> String
 
 instance varsTypeCheckedWithVars ::
-  ( GetGqlQueryVars schema query gqlVars
-  , HFoldlWithIndex (CombineVarsProp gqlVars) GqlQueryVarsN { | vars } GqlQueryVarsN
+  ( GetGqlQueryVars schema query { | gqlVars }
+  , HFoldlWithIndex (CombineVarsProp { | gqlVars }) GqlQueryVarsN { | vars } GqlQueryVarsN
   ) =>
   VarsTypeChecked schema (WithVars query { | vars }) where
   getVarsJson _ (WithVars encode _ vars) = encode vars
   getVarsTypeNames _ (WithVars _ _ vars) =
-    combineVars vars (Proxy :: _ gqlVars)
+    combineVars vars (Proxy :: _ { | gqlVars })
       # unwrap
       <#> (\{ varName, varType } -> varName <> ": " <> varType)
       # intercalate ", "
@@ -210,6 +209,7 @@ class GetGqlQueryVars schema query vars | schema query -> vars
 
 instance queryVarsAsGqlVar ::
   ( Row.Cons name (Proxy gqlName) () result
+  , IsSymbol gqlName
   ) =>
   GetGqlQueryVars (AsGql gqlName a) (Var name q) { | result }
 
@@ -225,19 +225,6 @@ else instance queryVarsApplyDirective :: GetGqlQueryVars a q vars => GetGqlQuery
 
 else instance queryReturnErrorBoundary :: GetGqlQueryVars a q vars => GetGqlQueryVars a (ErrorBoundary q) vars
 
-else instance queryVarsSpread ::
-  ( IsSymbol alias
-  , Row.Cons alias subSchema rest schema
-  , GetGqlQueryVars subSchema (Args (Array args) q) vars
-  ) =>
-  GetGqlQueryVars { | schema } (Spread (Proxy alias) args q) vars
-
-else instance queryVarsSpreadNewtype ::
-  ( GetGqlQueryVars { | schema } (Spread (Proxy alias) args q) vars
-  , Newtype newtypeSchema { | schema }
-  ) =>
-  GetGqlQueryVars newtypeSchema (Spread (Proxy alias) args q) vars
-
 else instance queryVarsArrayParam :: GetGqlQueryVars a q vars => GetGqlQueryVars (Array a) q vars
 
 else instance queryVarsArrayArg :: GetGqlQueryVars a q vars => GetGqlQueryVars a (Array q) vars
@@ -247,6 +234,18 @@ else instance queryVarsMaybeParam :: GetGqlQueryVars a q vars => GetGqlQueryVars
 else instance queryVarsMaybeArg :: GetGqlQueryVars a q vars => GetGqlQueryVars a (Maybe q) vars
 
 else instance queryVarsNotNull :: GetGqlQueryVars a q vars => GetGqlQueryVars (NotNull a) q vars
+
+else instance queryVarsSpread ::
+  ( Row.Cons alias subSchema rest schema
+  , GetGqlQueryVars subSchema (Args (Array args) q) vars
+  ) =>
+  GetGqlQueryVars { | schema } (Spread (Proxy alias) args q) vars
+
+else instance queryVarsSpreadNewtype ::
+  ( GetGqlQueryVars { | schema } (Spread (Proxy alias) args q) vars
+  , Newtype newtypeSchema { | schema }
+  ) =>
+  GetGqlQueryVars newtypeSchema (Spread (Proxy alias) args q) vars
 
 else instance queryVarsUnion ::
   ( GetGqlQueryVarsRecord { | schema } { | query } vars
@@ -287,9 +286,7 @@ data PropGetGqlVars :: Type -> Type
 data PropGetGqlVars schema = PropGetGqlVars
 
 instance propGetGqlVarsAlias ::
-  ( IsSymbol sym
-  , IsSymbol al
-  , Row.Cons al subSchema rest schema
+  ( Row.Cons al subSchema rest schema
   , GetGqlQueryVars subSchema val { | vars }
   , Row.Union vars prev row
   , Row.Nub row result
@@ -316,12 +313,12 @@ propGetGqlVars _ queryProxy =
 
 combineVars
   :: forall vars gqlVars
-   . HFoldlWithIndex (CombineVarsProp gqlVars) GqlQueryVarsN vars GqlQueryVarsN
+   . HFoldlWithIndex (CombineVarsProp { | gqlVars }) GqlQueryVarsN vars GqlQueryVarsN
   => vars
-  -> Proxy gqlVars
+  -> Proxy { | gqlVars }
   -> GqlQueryVarsN
 combineVars vars _ =
-  hfoldlWithIndex (CombineVarsProp :: _ gqlVars) (GqlQueryVarsN Nil) vars
+  hfoldlWithIndex (CombineVarsProp :: _ { | gqlVars }) (GqlQueryVarsN Nil) vars
 
 type GqlQueryVars = List { varName :: String, varType :: String }
 
@@ -337,7 +334,6 @@ instance
   , IsSymbol gql
   , Row.Cons sym (Proxy gql) rest gqlVars
   , GqlArrayAndMaybeType val
-  , Show val
   ) =>
   FoldingWithIndex (CombineVarsProp { | gqlVars }) (Proxy sym) GqlQueryVarsN val GqlQueryVarsN where
   foldingWithIndex _ _ (GqlQueryVarsN vars) _ = GqlQueryVarsN $
@@ -345,7 +341,7 @@ instance
     , varType: gqlArrayAndMaybeType (Proxy :: _ val) $ reflectSymbol (Proxy :: _ gql)
     } `Cons` vars
 
-class GqlArrayAndMaybeType :: forall k. k -> Constraint
+class GqlArrayAndMaybeType :: Type -> Constraint
 class GqlArrayAndMaybeType a where
   gqlArrayAndMaybeType :: Proxy a -> String -> String
 

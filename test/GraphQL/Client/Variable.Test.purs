@@ -106,7 +106,7 @@ spec =
                 { is_in: (Var :: _ "arrVar" (Array (Maybe Int)))
                 } =>>
                   { id: unit }
-            } `withVars` { arrVar:  [ Just 1 ] }
+            } `withVars` { arrVar: [ Just 1 ] }
 
         getVarsTypeNames testSchemaProxy q `shouldEqual`
           "($arrVar: [Int]!)"
@@ -190,6 +190,15 @@ testGqlVarsBasic2 =
   getGqlQueryVars $
     { orders:
         { user_id: Var :: Var "myOtherVar" Int }
+    }
+
+testGqlVarsBasic3
+  :: Proxy
+       { myVar :: Proxy "name"
+       }
+testGqlVarsBasic3 =
+  getGqlQueryVars $
+    { users: { other_names: Var :: Var "myVar" Int }
     }
 
 testGqlVarsBasic
