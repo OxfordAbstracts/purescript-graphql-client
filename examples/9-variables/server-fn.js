@@ -33,7 +33,7 @@ module.exports = (onListening) => {
       widgets
         .filter(w => !colour || colour === w.colour)
         .filter(w => !ids || ids.includes(w.id))
-g
+
   }
 
   const widgets = [
