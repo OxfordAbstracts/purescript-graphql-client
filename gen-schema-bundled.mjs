@@ -47402,8 +47402,8 @@ var modify3 = function(f) {
     }
     ;
     return {
-      buffer: f(v.buffer),
-      queue: v.queue
+      queue: v.queue,
+      buffer: f(v.buffer)
     };
   };
 };
@@ -47636,19 +47636,19 @@ var storeOptions = function(prevIndent) {
         ribbonRatio: localOptions.ribbonRatio
       };
       return {
+        buffer: state2.buffer,
+        annotations: state2.annotations,
+        flexGroup: state2.flexGroup,
+        indentSpaces: localOptions.indentSpaces,
+        options: newOptions,
         position: {
           line: state2.position.line,
           column: state2.position.column,
           indent: state2.position.indent,
-          nextIndent: localOptions.indent,
           pageWidth: newOptions.pageWidth,
-          ribbonWidth: calcRibbonWidth(newOptions)(prevIndent)
-        },
-        buffer: state2.buffer,
-        annotations: state2.annotations,
-        indentSpaces: localOptions.indentSpaces,
-        flexGroup: state2.flexGroup,
-        options: newOptions
+          ribbonWidth: calcRibbonWidth(newOptions)(prevIndent),
+          nextIndent: localOptions.indent
+        }
       };
     };
   };
@@ -47657,9 +47657,9 @@ var print = function(v) {
   return function(opts) {
     var initOptions = {
       pageWidth: opts.pageWidth,
-      ribbonRatio: max1(0)(min3(1)(opts.ribbonRatio)),
       indentUnit: opts.indentUnit,
-      indentWidth: opts.indentWidth
+      indentWidth: opts.indentWidth,
+      ribbonRatio: max1(0)(min3(1)(opts.ribbonRatio))
     };
     var initState = {
       position: {
@@ -47699,19 +47699,19 @@ var print = function(v) {
                 if (state2.position.column === 0 && state2.position.indent > 0) {
                   $tco_var_stack = stack;
                   $copy_state = {
-                    position: {
-                      line: state2.position.line,
-                      column: state2.position.indent,
-                      indent: state2.position.indent,
-                      nextIndent: state2.position.nextIndent,
-                      pageWidth: state2.position.pageWidth,
-                      ribbonWidth: state2.position.ribbonWidth
-                    },
-                    buffer: modify3(v.writeIndent(state2.position.indent)(state2.indentSpaces))(state2.buffer),
                     annotations: state2.annotations,
                     indentSpaces: state2.indentSpaces,
                     flexGroup: state2.flexGroup,
-                    options: state2.options
+                    options: state2.options,
+                    position: {
+                      line: state2.position.line,
+                      indent: state2.position.indent,
+                      nextIndent: state2.position.nextIndent,
+                      pageWidth: state2.position.pageWidth,
+                      ribbonWidth: state2.position.ribbonWidth,
+                      column: state2.position.indent
+                    },
+                    buffer: modify3(v.writeIndent(state2.position.indent)(state2.indentSpaces))(state2.buffer)
                   };
                   return;
                 }
@@ -47719,19 +47719,19 @@ var print = function(v) {
                 if ((state2.position.column + stack.value0.value0.value0 | 0) <= (state2.position.indent + state2.position.ribbonWidth | 0)) {
                   $tco_var_stack = stack.value1;
                   $copy_state = {
-                    position: {
-                      line: state2.position.line,
-                      column: state2.position.column + stack.value0.value0.value0 | 0,
-                      indent: state2.position.indent,
-                      nextIndent: state2.position.nextIndent,
-                      pageWidth: state2.position.pageWidth,
-                      ribbonWidth: state2.position.ribbonWidth
-                    },
-                    buffer: modify3(v.writeText(stack.value0.value0.value0)(stack.value0.value0.value1))(state2.buffer),
                     annotations: state2.annotations,
                     indentSpaces: state2.indentSpaces,
                     flexGroup: state2.flexGroup,
-                    options: state2.options
+                    options: state2.options,
+                    position: {
+                      line: state2.position.line,
+                      indent: state2.position.indent,
+                      nextIndent: state2.position.nextIndent,
+                      pageWidth: state2.position.pageWidth,
+                      ribbonWidth: state2.position.ribbonWidth,
+                      column: state2.position.column + stack.value0.value0.value0 | 0
+                    },
+                    buffer: modify3(v.writeText(stack.value0.value0.value0)(stack.value0.value0.value1))(state2.buffer)
                   };
                   return;
                 }
@@ -47745,19 +47745,19 @@ var print = function(v) {
                   ;
                   $tco_var_stack = stack.value1;
                   $copy_state = {
+                    annotations: state2.annotations,
+                    indentSpaces: state2.indentSpaces,
+                    options: state2.options,
                     position: {
                       line: state2.position.line,
-                      column: state2.position.column + stack.value0.value0.value0 | 0,
                       indent: state2.position.indent,
                       nextIndent: state2.position.nextIndent,
                       pageWidth: state2.position.pageWidth,
-                      ribbonWidth: state2.position.ribbonWidth
+                      ribbonWidth: state2.position.ribbonWidth,
+                      column: state2.position.column + stack.value0.value0.value0 | 0
                     },
-                    buffer: modify3(v.writeText(stack.value0.value0.value0)(stack.value0.value0.value1))(state2.buffer),
-                    annotations: state2.annotations,
-                    indentSpaces: state2.indentSpaces,
                     flexGroup: NoFlexGroup.value,
-                    options: state2.options
+                    buffer: modify3(v.writeText(stack.value0.value0.value0)(stack.value0.value0.value1))(state2.buffer)
                   };
                   return;
                 }
@@ -47773,19 +47773,19 @@ var print = function(v) {
                 ;
                 $tco_var_stack = stack.value1;
                 $copy_state = {
+                  annotations: state2.annotations,
+                  indentSpaces: state2.indentSpaces,
+                  options: state2.options,
                   position: {
+                    nextIndent: state2.position.nextIndent,
+                    pageWidth: state2.position.pageWidth,
                     line: state2.position.line + 1 | 0,
                     column: 0,
                     indent: state2.position.nextIndent,
-                    nextIndent: state2.position.nextIndent,
-                    pageWidth: state2.position.pageWidth,
                     ribbonWidth: calcRibbonWidth(state2.options)(state2.position.nextIndent)
                   },
                   buffer: modify3(v.writeBreak)(state2.buffer),
-                  annotations: state2.annotations,
-                  indentSpaces: state2.indentSpaces,
-                  flexGroup: NoFlexGroup.value,
-                  options: state2.options
+                  flexGroup: NoFlexGroup.value
                 };
                 return;
               }
@@ -47794,19 +47794,19 @@ var print = function(v) {
                 if (state2.position.column === 0) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value0), new Cons(new Dedent(state2.indentSpaces, state2.position.nextIndent), stack.value1));
                   $copy_state = {
+                    buffer: state2.buffer,
+                    annotations: state2.annotations,
+                    flexGroup: state2.flexGroup,
+                    options: state2.options,
                     position: {
                       line: state2.position.line,
                       column: state2.position.column,
+                      pageWidth: state2.position.pageWidth,
                       indent: state2.position.nextIndent + opts.indentWidth | 0,
                       nextIndent: state2.position.nextIndent + opts.indentWidth | 0,
-                      pageWidth: state2.position.pageWidth,
                       ribbonWidth: calcRibbonWidth(state2.options)(state2.position.nextIndent + opts.indentWidth | 0)
                     },
-                    buffer: state2.buffer,
-                    annotations: state2.annotations,
-                    indentSpaces: state2.indentSpaces + opts.indentUnit,
-                    flexGroup: state2.flexGroup,
-                    options: state2.options
+                    indentSpaces: state2.indentSpaces + opts.indentUnit
                   };
                   return;
                 }
@@ -47814,19 +47814,19 @@ var print = function(v) {
                 if (otherwise) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value0), new Cons(new Dedent(state2.indentSpaces, state2.position.nextIndent), stack.value1));
                   $copy_state = {
+                    buffer: state2.buffer,
+                    annotations: state2.annotations,
+                    flexGroup: state2.flexGroup,
+                    options: state2.options,
                     position: {
                       line: state2.position.line,
                       column: state2.position.column,
                       indent: state2.position.indent,
-                      nextIndent: state2.position.nextIndent + opts.indentWidth | 0,
                       pageWidth: state2.position.pageWidth,
-                      ribbonWidth: state2.position.ribbonWidth
+                      ribbonWidth: state2.position.ribbonWidth,
+                      nextIndent: state2.position.nextIndent + opts.indentWidth | 0
                     },
-                    buffer: state2.buffer,
-                    annotations: state2.annotations,
-                    indentSpaces: state2.indentSpaces + opts.indentUnit,
-                    flexGroup: state2.flexGroup,
-                    options: state2.options
+                    indentSpaces: state2.indentSpaces + opts.indentUnit
                   };
                   return;
                 }
@@ -47837,19 +47837,19 @@ var print = function(v) {
                 if (state2.position.column === 0) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value1), new Cons(new Dedent(state2.indentSpaces, state2.position.nextIndent), stack.value1));
                   $copy_state = {
+                    buffer: state2.buffer,
+                    annotations: state2.annotations,
+                    flexGroup: state2.flexGroup,
+                    options: state2.options,
                     position: {
                       line: state2.position.line,
                       column: state2.position.column,
+                      pageWidth: state2.position.pageWidth,
                       indent: state2.position.nextIndent + stack.value0.value0.value0 | 0,
                       nextIndent: state2.position.nextIndent + stack.value0.value0.value0 | 0,
-                      pageWidth: state2.position.pageWidth,
                       ribbonWidth: calcRibbonWidth(state2.options)(state2.position.nextIndent + stack.value0.value0.value0 | 0)
                     },
-                    buffer: state2.buffer,
-                    annotations: state2.annotations,
-                    indentSpaces: state2.indentSpaces + power2(" ")(stack.value0.value0.value0),
-                    flexGroup: state2.flexGroup,
-                    options: state2.options
+                    indentSpaces: state2.indentSpaces + power2(" ")(stack.value0.value0.value0)
                   };
                   return;
                 }
@@ -47857,19 +47857,19 @@ var print = function(v) {
                 if (otherwise) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value1), new Cons(new Dedent(state2.indentSpaces, state2.position.nextIndent), stack.value1));
                   $copy_state = {
+                    buffer: state2.buffer,
+                    annotations: state2.annotations,
+                    flexGroup: state2.flexGroup,
+                    options: state2.options,
                     position: {
                       line: state2.position.line,
                       column: state2.position.column,
                       indent: state2.position.indent,
-                      nextIndent: state2.position.nextIndent + stack.value0.value0.value0 | 0,
                       pageWidth: state2.position.pageWidth,
-                      ribbonWidth: state2.position.ribbonWidth
+                      ribbonWidth: state2.position.ribbonWidth,
+                      nextIndent: state2.position.nextIndent + stack.value0.value0.value0 | 0
                     },
-                    buffer: state2.buffer,
-                    annotations: state2.annotations,
-                    indentSpaces: state2.indentSpaces + power2(" ")(stack.value0.value0.value0),
-                    flexGroup: state2.flexGroup,
-                    options: state2.options
+                    indentSpaces: state2.indentSpaces + power2(" ")(stack.value0.value0.value0)
                   };
                   return;
                 }
@@ -47884,8 +47884,8 @@ var print = function(v) {
                     buffer: state2.buffer,
                     annotations: state2.annotations,
                     indentSpaces: state2.indentSpaces,
-                    flexGroup: FlexGroupPending.value,
-                    options: state2.options
+                    options: state2.options,
+                    flexGroup: FlexGroupPending.value
                   };
                   return;
                 }
@@ -47894,11 +47894,11 @@ var print = function(v) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value0), new Cons(new Doc(stack.value0.value0.value1), stack.value1));
                   $copy_state = {
                     position: state2.position,
-                    buffer: branch(state2.buffer),
                     annotations: state2.annotations,
                     indentSpaces: state2.indentSpaces,
+                    options: state2.options,
                     flexGroup: new FlexGroupReset(storeState(stack)(state2)),
-                    options: state2.options
+                    buffer: branch(state2.buffer)
                   };
                   return;
                 }
@@ -47919,11 +47919,11 @@ var print = function(v) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value0), stack.value1);
                   $copy_state = {
                     position: state2.position,
-                    buffer: branch(state2.buffer),
                     annotations: state2.annotations,
                     indentSpaces: state2.indentSpaces,
+                    options: state2.options,
                     flexGroup: new FlexGroupReset(storeState(new Cons(new Doc(stack.value0.value0.value1), stack.value1))(state2)),
-                    options: state2.options
+                    buffer: branch(state2.buffer)
                   };
                   return;
                 }
@@ -47937,11 +47937,11 @@ var print = function(v) {
                 if (state2.position.column === 0 && state2.position.nextIndent > 0) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value0({
                     line: state2.position.line,
-                    column: state2.position.nextIndent,
                     indent: state2.position.indent,
                     nextIndent: state2.position.nextIndent,
                     pageWidth: state2.position.pageWidth,
-                    ribbonWidth: state2.position.ribbonWidth
+                    ribbonWidth: state2.position.ribbonWidth,
+                    column: state2.position.nextIndent
                   })), stack.value1);
                   $copy_state = state2;
                   return;
@@ -47959,11 +47959,11 @@ var print = function(v) {
                 $tco_var_stack = new Cons(new Doc(stack.value0.value0.value1), new Cons(new LeaveAnnotation(stack.value0.value0.value0, state2.annotations), stack.value1));
                 $copy_state = {
                   position: state2.position,
-                  buffer: modify3(v.enterAnnotation(stack.value0.value0.value0)(state2.annotations))(state2.buffer),
-                  annotations: new Cons(stack.value0.value0.value0, state2.annotations),
                   indentSpaces: state2.indentSpaces,
                   flexGroup: state2.flexGroup,
-                  options: state2.options
+                  options: state2.options,
+                  annotations: new Cons(stack.value0.value0.value0, state2.annotations),
+                  buffer: modify3(v.enterAnnotation(stack.value0.value0.value0)(state2.annotations))(state2.buffer)
                 };
                 return;
               }
@@ -47997,11 +47997,11 @@ var print = function(v) {
                 $tco_var_stack = new Cons(new Doc(stack.value0.value1), stack.value1);
                 $copy_state = {
                   position: state2.position,
-                  buffer: commit(state2.buffer),
                   annotations: state2.annotations,
                   indentSpaces: state2.indentSpaces,
                   flexGroup: state2.flexGroup,
-                  options: state2.options
+                  options: state2.options,
+                  buffer: commit(state2.buffer)
                 };
                 return;
               }
@@ -48009,11 +48009,11 @@ var print = function(v) {
               $tco_var_stack = new Cons(new Doc(stack.value0.value0), stack.value1);
               $copy_state = {
                 position: state2.position,
-                buffer: commit(state2.buffer),
                 annotations: state2.annotations,
                 indentSpaces: state2.indentSpaces,
+                options: state2.options,
                 flexGroup: NoFlexGroup.value,
-                options: state2.options
+                buffer: commit(state2.buffer)
               };
               return;
             }
@@ -48021,19 +48021,19 @@ var print = function(v) {
             if (stack.value0 instanceof Dedent) {
               $tco_var_stack = stack.value1;
               $copy_state = {
+                buffer: state2.buffer,
+                annotations: state2.annotations,
+                flexGroup: state2.flexGroup,
+                options: state2.options,
                 position: {
                   line: state2.position.line,
                   column: state2.position.column,
                   indent: state2.position.indent,
-                  nextIndent: stack.value0.value1,
                   pageWidth: state2.position.pageWidth,
-                  ribbonWidth: state2.position.ribbonWidth
+                  ribbonWidth: state2.position.ribbonWidth,
+                  nextIndent: stack.value0.value1
                 },
-                buffer: state2.buffer,
-                annotations: state2.annotations,
-                indentSpaces: stack.value0.value0,
-                flexGroup: state2.flexGroup,
-                options: state2.options
+                indentSpaces: stack.value0.value0
               };
               return;
             }
@@ -48042,11 +48042,11 @@ var print = function(v) {
               $tco_var_stack = stack.value1;
               $copy_state = {
                 position: state2.position,
-                buffer: modify3(v.leaveAnnotation(stack.value0.value0)(stack.value0.value1))(state2.buffer),
-                annotations: stack.value0.value1,
                 indentSpaces: state2.indentSpaces,
                 flexGroup: state2.flexGroup,
-                options: state2.options
+                options: state2.options,
+                annotations: stack.value0.value1,
+                buffer: modify3(v.leaveAnnotation(stack.value0.value0)(stack.value0.value1))(state2.buffer)
               };
               return;
             }
@@ -48114,9 +48114,9 @@ var splitLines = /* @__PURE__ */ split2(/* @__PURE__ */ unsafeRegex("\\r?\\n")(g
 var overLabel = function(k) {
   return function(v) {
     return {
-      label: k(v.label),
       separator: v.separator,
-      value: v.value
+      value: v.value,
+      label: k(v.label)
     };
   };
 };
@@ -48163,16 +48163,16 @@ var sourceBreak = function(n) {
   return function(v) {
     return {
       doc: v.doc,
+      multiline: v.multiline,
+      trailing: v.trailing,
       isEmpty: false,
       leading: {
         doc: v.leading.doc,
         left: v.leading.left,
-        lines: v.leading.lines + n | 0,
         multiline: v.leading.multiline,
-        right: v.leading.right
-      },
-      multiline: v.multiline,
-      trailing: v.trailing
+        right: v.leading.right,
+        lines: v.leading.lines + n | 0
+      }
     };
   };
 };
@@ -48185,21 +48185,21 @@ var mapDocs = function(k) {
     ;
     if (otherwise) {
       return {
-        doc: k(v.doc),
         isEmpty: v.isEmpty,
+        multiline: v.multiline,
+        doc: k(v.doc),
         leading: {
-          doc: k(v.leading.doc),
           left: v.leading.left,
           lines: v.leading.lines,
           multiline: v.leading.multiline,
-          right: v.leading.right
+          right: v.leading.right,
+          doc: k(v.leading.doc)
         },
-        multiline: v.multiline,
         trailing: {
-          doc: k(v.trailing.doc),
           left: v.trailing.left,
           multiline: v.trailing.multiline,
-          right: v.trailing.right
+          right: v.trailing.right,
+          doc: k(v.trailing.doc)
         }
       };
     }
@@ -48210,11 +48210,11 @@ var mapDocs = function(k) {
 var locally2 = function(k) {
   return function(v) {
     return {
-      doc: locally(k)(v.doc),
       isEmpty: v.isEmpty,
       leading: v.leading,
       multiline: v.multiline,
-      trailing: v.trailing
+      trailing: v.trailing,
+      doc: locally(k)(v.doc)
     };
   };
 };
@@ -48255,12 +48255,12 @@ var formatBlockComment = function($187) {
             var $112 = newIndent < prev.indent;
             if ($112) {
               return {
-                indent: newIndent,
-                indentSpaces: spaces,
                 indentUnit: prev.indentUnit,
                 indentWidth: prev.indentWidth,
                 pageWidth: prev.pageWidth,
-                ribbonRatio: prev.ribbonRatio
+                ribbonRatio: prev.ribbonRatio,
+                indentSpaces: spaces,
+                indent: newIndent
               };
             }
             ;
@@ -48285,15 +48285,15 @@ var forceMinSourceBreaks = function(n) {
       return {
         doc: v.doc,
         isEmpty: v.isEmpty,
+        multiline: v.multiline,
+        trailing: v.trailing,
         leading: {
           doc: v.leading.doc,
           left: v.leading.left,
-          lines: max4(v.leading.lines)(n),
           multiline: v.leading.multiline,
-          right: v.leading.right
-        },
-        multiline: v.multiline,
-        trailing: v.trailing
+          right: v.leading.right,
+          lines: max4(v.leading.lines)(n)
+        }
       };
     }
     ;
@@ -48320,11 +48320,11 @@ var flexGroup2 = function(v) {
   ;
   if (otherwise) {
     return {
-      doc: flexGroup(v.doc),
       isEmpty: v.isEmpty,
       leading: v.leading,
       multiline: v.multiline,
-      trailing: v.trailing
+      trailing: v.trailing,
+      doc: flexGroup(v.doc)
     };
   }
   ;
@@ -48335,15 +48335,15 @@ var flattenMax = function(n) {
     return {
       doc: v.doc,
       isEmpty: v.isEmpty,
+      multiline: v.multiline,
+      trailing: v.trailing,
       leading: {
         doc: v.leading.doc,
         left: v.leading.left,
-        lines: min4(v.leading.lines)(n),
         multiline: v.leading.multiline,
-        right: v.leading.right
-      },
-      multiline: v.multiline,
-      trailing: v.trailing
+        right: v.leading.right,
+        lines: min4(v.leading.lines)(n)
+      }
     };
   };
 };
@@ -48477,18 +48477,18 @@ var flexDoubleBreak = function(v) {
       var $139 = v1.leading.lines >= 2 || v.multiline;
       if ($139) {
         return {
-          doc: append3(docLeft)(append3($$break)(append3($$break)(docRight))),
           isEmpty: v.isEmpty,
           leading: v.leading,
+          doc: append3(docLeft)(append3($$break)(append3($$break)(docRight))),
           multiline: true,
           trailing: v1.trailing
         };
       }
       ;
       return {
-        doc: append3(flexSelect(docLeft)(mempty4)($$break))(append3($$break)(docRight)),
         isEmpty: v.isEmpty,
         leading: v.leading,
+        doc: append3(flexSelect(docLeft)(mempty4)($$break))(append3($$break)(docRight)),
         multiline: true,
         trailing: v1.trailing
       };
@@ -48514,9 +48514,9 @@ var joinDoc = function(spaceFn) {
         var $145 = v1.leading.lines > 0;
         if ($145) {
           return {
-            doc: append3(docLeft)(append3(breaks(ForceBreak.value)(v1.leading.lines))(docRight)),
             isEmpty: v.isEmpty,
             leading: v.leading,
+            doc: append3(docLeft)(append3(breaks(ForceBreak.value)(v1.leading.lines))(docRight)),
             multiline: true,
             trailing: v1.trailing
           };
@@ -48524,9 +48524,9 @@ var joinDoc = function(spaceFn) {
         ;
         var v2 = spaceFn(max12(v.trailing.right)(v1.leading.left))(v1.leading.multiline || v1.multiline)(docRight);
         return {
-          doc: append3(docLeft)(v2.value1),
           isEmpty: v.isEmpty,
           leading: v.leading,
+          doc: append3(docLeft)(v2.value1),
           multiline: v.trailing.multiline || (v.multiline || v2.value0),
           trailing: v1.trailing
         };
@@ -48638,18 +48638,18 @@ var semigroupLeadingComment = {
       if (isEmpty2(v.doc)) {
         return {
           doc: v1.doc,
-          left: max12(v.left)(v1.left),
-          lines: v.lines + v1.lines | 0,
           multiline: v1.multiline,
-          right: v1.right
+          right: v1.right,
+          left: max12(v.left)(v1.left),
+          lines: v.lines + v1.lines | 0
         };
       }
       ;
       if (isEmpty2(v1.doc)) {
         return {
-          doc: append3(v.doc)(breaks(ForceNone.value)(v1.lines)),
           left: v.left,
           lines: v.lines,
+          doc: append3(v.doc)(breaks(ForceNone.value)(v1.lines)),
           multiline: v.multiline || v1.lines > 0,
           right: function() {
             var $164 = v1.lines > 0;
@@ -48667,18 +48667,18 @@ var semigroupLeadingComment = {
         var $165 = v1.lines > 0 || eq210(br)(ForceBreak.value);
         if ($165) {
           return {
-            doc: append3(v.doc)(append3(breaks(ForceBreak.value)(v1.lines))(v1.doc)),
             left: v.left,
             lines: v.lines,
+            doc: append3(v.doc)(append3(breaks(ForceBreak.value)(v1.lines))(v1.doc)),
             multiline: true,
             right: v1.right
           };
         }
         ;
         return {
-          doc: append3(v.doc)(breakDoc(br)(v1.doc)),
           left: v.left,
           lines: v.lines,
+          doc: append3(v.doc)(breakDoc(br)(v1.doc)),
           multiline: v.multiline || v1.multiline,
           right: v1.right
         };
@@ -48701,10 +48701,10 @@ var leadingBlockComment = function(str) {
     };
     return {
       doc: v.doc,
-      isEmpty: false,
-      leading: append13(comm)(v.leading),
       multiline: v.multiline,
-      trailing: v.trailing
+      trailing: v.trailing,
+      leading: append13(comm)(v.leading),
+      isEmpty: false
     };
   };
 };
@@ -48719,10 +48719,10 @@ var leadingLineComment = function(str) {
     };
     return {
       doc: v.doc,
-      isEmpty: false,
-      leading: append13(comm)(v.leading),
       multiline: v.multiline,
-      trailing: v.trailing
+      trailing: v.trailing,
+      leading: append13(comm)(v.leading),
+      isEmpty: false
     };
   };
 };
@@ -48747,9 +48747,9 @@ var semigroupTrailingComment = {
       if (isEmpty2(v.doc)) {
         return {
           doc: v1.doc,
-          left: max12(v.left)(v1.left),
           multiline: v1.multiline,
-          right: v1.right
+          right: v1.right,
+          left: max12(v.left)(v1.left)
         };
       }
       ;
@@ -48764,8 +48764,8 @@ var semigroupTrailingComment = {
       ;
       if (otherwise) {
         return {
-          doc: append3(v.doc)(breakDoc(max12(v.right)(v1.left))(v1.doc)),
           left: v.left,
+          doc: append3(v.doc)(breakDoc(max12(v.right)(v1.left))(v1.doc)),
           multiline: v.multiline || v1.multiline,
           right: v1.right
         };
@@ -48787,10 +48787,10 @@ var trailingBlockComment = function(str) {
     };
     return {
       doc: v.doc,
-      isEmpty: false,
       leading: v.leading,
       multiline: v.multiline,
-      trailing: append22(comm)(v.trailing)
+      trailing: append22(comm)(v.trailing),
+      isEmpty: false
     };
   };
 };
@@ -48804,10 +48804,10 @@ var trailingLineComment = function(str) {
     };
     return {
       doc: v.doc,
-      isEmpty: false,
       leading: v.leading,
       multiline: v.multiline,
-      trailing: append22(comm)(v.trailing)
+      trailing: append22(comm)(v.trailing),
+      isEmpty: false
     };
   };
 };
@@ -48888,15 +48888,15 @@ var anchor = function(v) {
     return {
       doc: v.doc,
       isEmpty: v.isEmpty,
+      trailing: v.trailing,
       leading: {
         doc: v.leading.doc,
         left: v.leading.left,
-        lines: 0,
         multiline: v.leading.multiline,
-        right: v.leading.right
+        right: v.leading.right,
+        lines: 0
       },
-      multiline: true,
-      trailing: v.trailing
+      multiline: true
     };
   }
   ;
@@ -49198,11 +49198,11 @@ var toFormatDoc = /* @__PURE__ */ function() {
       }
       ;
       return {
-        doc: append14(spaceBreak)(append14(v.leading.doc)(breakDoc(v.leading.right)(v.doc))),
         isEmpty: v.isEmpty,
-        leading: mempty12,
         multiline: v.multiline,
-        trailing: v.trailing
+        trailing: v.trailing,
+        doc: append14(spaceBreak)(append14(v.leading.doc)(breakDoc(v.leading.right)(v.doc))),
+        leading: mempty12
       };
     }
     ;
@@ -50399,12 +50399,12 @@ var formatRawString = /* @__PURE__ */ function() {
     ;
     return fromDoc(lines3([text(v.head), locally(function(v1) {
       return {
-        indent: 0,
-        indentSpaces: "",
         indentUnit: v1.indentUnit,
         indentWidth: v1.indentWidth,
         pageWidth: v1.pageWidth,
-        ribbonRatio: v1.ribbonRatio
+        ribbonRatio: v1.ribbonRatio,
+        indent: 0,
+        indentSpaces: ""
       };
     })(intercalate6($$break)(map17(text)(v.tail)))]));
   });
@@ -51087,19 +51087,19 @@ var formatConstraints = function(conf) {
     var unicodeArr = function() {
       if (v.value1.value instanceof TokOperator && (v.value1.value.value0 instanceof Nothing && (v.value1.value.value1 === "<=" && eq110(conf.unicode)(UnicodeAlways.value)))) {
         return {
-          value: new TokOperator(Nothing.value, "\u21D0"),
           leadingComments: v.value1.leadingComments,
           range: v.value1.range,
-          trailingComments: v.value1.trailingComments
+          trailingComments: v.value1.trailingComments,
+          value: new TokOperator(Nothing.value, "\u21D0")
         };
       }
       ;
       if (v.value1.value instanceof TokOperator && (v.value1.value.value0 instanceof Nothing && (v.value1.value.value1 === "\u21D0" && eq110(conf.unicode)(UnicodeNever.value)))) {
         return {
-          value: new TokOperator(Nothing.value, "<="),
           leadingComments: v.value1.leadingComments,
           range: v.value1.range,
-          trailingComments: v.value1.trailingComments
+          trailingComments: v.value1.trailingComments,
+          value: new TokOperator(Nothing.value, "<=")
         };
       }
       ;
@@ -51631,9 +51631,9 @@ var formatLetBinding = function(conf) {
   return function(v) {
     if (v instanceof LetBindingSignature) {
       return formatSignature(conf)({
-        label: formatName(conf)(v.value0.label),
         separator: v.value0.separator,
-        value: v.value0.value
+        value: v.value0.value,
+        label: formatName(conf)(v.value0.label)
       });
     }
     ;
@@ -52279,8 +52279,8 @@ var formatModule = function(conf) {
             return new Tuple(new ImportModuleCmp(modName, order, v2.value0, qualName), {
               keyword: v12.keyword,
               module: v12.module,
-              names: new Just(new Tuple(v12.names.value0.value0, v2.value1)),
-              qualified: v12.qualified
+              qualified: v12.qualified,
+              names: new Just(new Tuple(v12.names.value0.value0, v2.value1))
             });
           }
           ;
@@ -54645,8 +54645,8 @@ var overTrailingCommentsModul = {
     return function(v) {
       return {
         decls: v.decls,
-        trailingComments: k(v.trailingComments),
-        end: v.end
+        end: v.end,
+        trailingComments: k(v.trailingComments)
       };
     };
   }
@@ -54795,10 +54795,10 @@ var overLeadingCommentsImport = {
   overLeadingComments: function(k) {
     return function(v) {
       return {
-        keyword: overLeadingComments1(k)(v.keyword),
         module: v.module,
         names: v.names,
-        qualified: v.qualified
+        qualified: v.qualified,
+        keyword: overLeadingComments1(k)(v.keyword)
       };
     };
   }
@@ -54807,14 +54807,14 @@ var overLeadingCommentsInstan = {
   overLeadingComments: function(k) {
     return function(v) {
       return {
+        body: v.body,
         head: {
-          keyword: overLeadingComments1(k)(v.head.keyword),
           name: v.head.name,
           constraints: v.head.constraints,
           className: v.head.className,
-          types: v.head.types
-        },
-        body: v.body
+          types: v.head.types,
+          keyword: overLeadingComments1(k)(v.head.keyword)
+        }
       };
     };
   }
@@ -54825,9 +54825,9 @@ var overLeadingCommentsLabele = function(dictOverLeadingComments) {
     overLeadingComments: function(k) {
       return function(v) {
         return {
-          label: overLeadingComments8(k)(v.label),
           separator: v.separator,
-          value: v.value
+          value: v.value,
+          label: overLeadingComments8(k)(v.label)
         };
       };
     }
@@ -54837,8 +54837,8 @@ var overLeadingCommentsName = {
   overLeadingComments: function(k) {
     return function(v) {
       return {
-        token: overLeadingComments1(k)(v.token),
-        name: v.name
+        name: v.name,
+        token: overLeadingComments1(k)(v.token)
       };
     };
   }
@@ -54849,9 +54849,9 @@ var overLeadingCommentsQualif = {
   overLeadingComments: function(k) {
     return function(v) {
       return {
-        token: overLeadingComments1(k)(v.token),
         module: v.module,
-        name: v.name
+        name: v.name,
+        token: overLeadingComments1(k)(v.token)
       };
     };
   }
@@ -54878,35 +54878,35 @@ var overLeadingCommentsDeclar = function(dictOverLeadingComments) {
       return function(v) {
         if (v instanceof DeclData) {
           return new DeclData({
-            keyword: overLeadingComments1(k)(v.value0.keyword),
             name: v.value0.name,
-            vars: v.value0.vars
+            vars: v.value0.vars,
+            keyword: overLeadingComments1(k)(v.value0.keyword)
           }, v.value1);
         }
         ;
         if (v instanceof DeclType) {
           return new DeclType({
-            keyword: overLeadingComments1(k)(v.value0.keyword),
             name: v.value0.name,
-            vars: v.value0.vars
+            vars: v.value0.vars,
+            keyword: overLeadingComments1(k)(v.value0.keyword)
           }, v.value1, v.value2);
         }
         ;
         if (v instanceof DeclNewtype) {
           return new DeclNewtype({
-            keyword: overLeadingComments1(k)(v.value0.keyword),
             name: v.value0.name,
-            vars: v.value0.vars
+            vars: v.value0.vars,
+            keyword: overLeadingComments1(k)(v.value0.keyword)
           }, v.value1, v.value2, v.value3);
         }
         ;
         if (v instanceof DeclClass) {
           return new DeclClass({
-            keyword: overLeadingComments1(k)(v.value0.keyword),
             "super": v["value0"]["super"],
             name: v.value0.name,
             vars: v.value0.vars,
-            fundeps: v.value0.fundeps
+            fundeps: v.value0.fundeps,
+            keyword: overLeadingComments1(k)(v.value0.keyword)
           }, v.value1);
         }
         ;
@@ -54928,17 +54928,17 @@ var overLeadingCommentsDeclar = function(dictOverLeadingComments) {
         ;
         if (v instanceof DeclValue) {
           return new DeclValue({
-            name: overLeadingComments4(k)(v.value0.name),
             binders: v.value0.binders,
-            guarded: v.value0.guarded
+            guarded: v.value0.guarded,
+            name: overLeadingComments4(k)(v.value0.name)
           });
         }
         ;
         if (v instanceof DeclFixity) {
           return new DeclFixity({
-            keyword: lmap4(overLeadingComments1(k))(v.value0.keyword),
             prec: v.value0.prec,
-            operator: v.value0.operator
+            operator: v.value0.operator,
+            keyword: lmap4(overLeadingComments1(k))(v.value0.keyword)
           });
         }
         ;
@@ -54963,9 +54963,9 @@ var overLeadingCommentsWrappe = {
   overLeadingComments: function(k) {
     return function(v) {
       return {
-        open: overLeadingComments1(k)(v.open),
         value: v.value,
-        close: v.close
+        close: v.close,
+        open: overLeadingComments1(k)(v.open)
       };
     };
   }
@@ -55659,17 +55659,14 @@ var lineBreaks = /* @__PURE__ */ function() {
 }();
 var printModuleWithOptions = function(options) {
   return function(mod4) {
-    var formatOptions = function() {
-      var ref = defaultFormatOptions(formatErrorVoid);
-      return {
-        importWrap: options.importWrap,
-        operators: force(options.operators),
-        typeArrowPlacement: options.typeArrowPlacement,
-        unicode: options.unicode,
-        formatError: ref.formatError,
-        importSort: ref.importSort
-      };
-    }();
+    var formatOptions = {
+      formatError: defaultFormatOptions(formatErrorVoid).formatError,
+      importSort: defaultFormatOptions(formatErrorVoid).importSort,
+      importWrap: options.importWrap,
+      operators: force(options.operators),
+      typeArrowPlacement: options.typeArrowPlacement,
+      unicode: options.unicode
+    };
     var dodoOptions = {
       indentUnit: options.indentUnit,
       indentWidth: options.indentWidth,

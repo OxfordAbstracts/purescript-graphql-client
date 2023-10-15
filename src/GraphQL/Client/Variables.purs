@@ -180,7 +180,7 @@ instance varsTypeCheckedWithVars ::
     combineVars vars (Proxy :: _ { | gqlVars })
       # unwrap
       <#> (\{ varName, varType } -> varName <> ": " <> varType)
-      # intercalate ", "
+      # intercalate ", $"
       # \d ->
           if d == "" then "" else "($" <> d <> ")"
 
