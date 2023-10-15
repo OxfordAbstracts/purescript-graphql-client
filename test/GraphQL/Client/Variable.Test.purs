@@ -44,7 +44,7 @@ spec =
               , myOtherVar: 2
               }
           ) `shouldEqual`
-          "($nameVar: Name!, myVar: customId!, myOtherVar: UserId!)"
+          "($nameVar: Name!, $myVar: customId!, $myOtherVar: UserId!)"
 
       it "should return vars for a query with vars in arrays in arguments" do
         let
