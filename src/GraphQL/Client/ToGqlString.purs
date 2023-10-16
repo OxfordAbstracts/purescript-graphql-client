@@ -33,6 +33,8 @@ module GraphQL.Client.ToGqlString
 
 import Prelude
 
+import Data.Argonaut.Decode (class DecodeJson)
+import Data.Argonaut.Encode (class EncodeJson)
 import Data.Array (fold, foldMap, intercalate, length, mapWithIndex)
 import Data.Array as Array
 import Data.Date (Date)
@@ -47,6 +49,7 @@ import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), isJust, maybe)
 import Data.Monoid (guard, power)
+import Data.Newtype (class Newtype, unwrap)
 import Data.String (codePointFromChar, fromCodePointArray, joinWith, toCodePointArray)
 import Data.String.CodeUnits as String
 import Data.String.Regex (split)
@@ -60,12 +63,15 @@ import Foreign.Object as Object
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (AndArgs(AndArgs), Args(..), IgnoreArg, OrArg(..))
+import GraphQL.Client.Args.AllowedMismatch (AllowedMismatch)
 import GraphQL.Client.Directive (ApplyDirective(..))
 import GraphQL.Client.ErrorBoundary (ErrorBoundary(..))
 import GraphQL.Client.NullArray (NullArray)
 import GraphQL.Client.Union (GqlUnion(..))
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars, getQuery)
+import GraphQL.Hasura.Decode (class DecodeHasura)
+import GraphQL.Hasura.Encode (class EncodeHasura)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
 import Type.Proxy (Proxy(..))
 import Unsafe.Coerce (unsafeCoerce)
@@ -307,6 +313,8 @@ else instance gqlArgStringArray :: GqlArgString a => GqlArgString (Array a) wher
   toGqlArgStringImpl = map toGqlArgStringImpl >>> \as -> "[" <> intercalate ", " as <> "]"
 else instance gqlArgStringErrorBoundary :: GqlArgString a => GqlArgString (ErrorBoundary a) where
   toGqlArgStringImpl (ErrorBoundary a) = toGqlArgStringImpl a
+else instance gqlArgStringAllowedMismatch :: GqlArgString a => GqlArgString (AllowedMismatch t a) where
+  toGqlArgStringImpl = unwrap >>> toGqlArgStringImpl
 else instance gqlArgStringVar :: IsSymbol sym => GqlArgString (Var sym a) where
   toGqlArgStringImpl _ = "$" <> reflectSymbol (Proxy :: Proxy sym)
 else instance gqlArgStringOrArg ::
@@ -483,3 +491,4 @@ else instance isIgnoreArgOrArg :: (IsIgnoreArg l, IsIgnoreArg r) => IsIgnoreArg 
     ArgR r -> isIgnoreArg r
 else instance isIgnoreArgOther :: IsIgnoreArg a where
   isIgnoreArg _ = false
+

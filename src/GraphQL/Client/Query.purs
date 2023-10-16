@@ -1,6 +1,5 @@
 module GraphQL.Client.Query
-  ( addErrorInfo
-  , decodeError
+  ( decodeError
   , decodeErrorsMaybe
   , decodeGqlRes
   , getFullRes
@@ -199,7 +198,7 @@ runQuery
   -> query
   -> Aff returns
 runQuery decodeFn opts client _ queryNameUnsafe q =
-  addErrorInfo queryName q do
+  addErrorInfo (Proxy @schema) queryName q do
     json <- clientQuery opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
       (getVarsJson (Proxy :: _ schema) q)
     decodeJsonData decodeFn json
@@ -218,7 +217,7 @@ runMutation
   -> query
   -> Aff returns
 runMutation decodeFn opts client _ queryNameUnsafe q =
-  addErrorInfo queryName q do
+  addErrorInfo (Proxy @schema) queryName q do
     json <- clientMutation opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
       (getVarsJson (Proxy :: _ schema) q)
     decodeJsonData decodeFn json
@@ -245,23 +244,27 @@ decodeGqlRes decodeFn json = do
   decodeFn data_
 
 addErrorInfo
-  :: forall m a q
+  :: forall m a q schema
    . MonadError Error m
+  => VarsTypeChecked schema q
   => GqlQueryString q
-  => String
+  => Proxy schema
+  -> String
   -> q
   -> m a
   -> m a
-addErrorInfo queryName q =
+addErrorInfo schema queryName q =
   flip catchError \err -> do
     throwError
       $ error
-      $ "GraphQL "
-          <> ".\nname: "
+      $ "\nGraphQL error: \nname: "
           <> show queryName
           <> ".\nerror: "
           <> message err
           <> ".\nquery: "
+          <> queryName
+          <> " "
+          <> getVarsTypeNames schema q
           <> toGqlQueryStringFormatted q
 
 -- | Run a graphQL query, getting the full response,
@@ -277,7 +280,7 @@ queryFullRes
   -> query
   -> Aff (GqlRes returns)
 queryFullRes decodeFn optsF (Client client) queryNameUnsafe q =
-  addErrorInfo queryName q do
+  addErrorInfo (Proxy @schema) queryName q do
     (GqlResJson json) :: GqlResJson schema query returns <- queryJson optsF (Client client) queryNameUnsafe q
     pure $ getFullRes decodeFn json
   where
@@ -315,7 +318,7 @@ mutationFullRes
   -> mutation
   -> Aff (GqlRes returns)
 mutationFullRes decodeFn optsF (Client client) queryNameUnsafe q =
-  addErrorInfo queryName q do
+  addErrorInfo (Proxy @schema) queryName q do
     (GqlResJson json) :: GqlResJson schema mutation returns <- mutationJson optsF (Client client) queryNameUnsafe q
     pure $ getFullRes decodeFn json
   where

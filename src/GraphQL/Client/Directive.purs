@@ -1,7 +1,7 @@
 module GraphQL.Client.Directive where
 
 import Data.Symbol (class IsSymbol)
-import GraphQL.Client.Args (class ArgGql, class SatisifyNotNullParam)
+import GraphQL.Client.Args (class ArgGql, class ArgGqlAt, class SatisifyNotNullParam)
 import GraphQL.Client.Directive.Definition (Directive)
 import GraphQL.Client.Directive.Location (MUTATION, QUERY, SUBSCRIPTION)
 import GraphQL.Client.Operation (class GqlOperation, OpMutation, OpQuery, OpSubscription)
@@ -41,7 +41,7 @@ class DirectivesTypeCheckTopLevelLocation location directiveDeclarations q bool 
 
 instance directivesTypeCheckTopLevelLocationFound ::
   ( IsMember location locations result
-  , ArgGql { | params } { | args }
+  , ArgGqlAt name { | params } { | args }
   , SatisifyNotNullParam { | params } { | args }
   ) =>
   DirectivesTypeCheckTopLevelLocation location (Cons' (Directive name description { | params } locations) tail) (ApplyDirective name { | args } q) result

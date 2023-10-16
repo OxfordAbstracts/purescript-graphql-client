@@ -2,13 +2,12 @@ module GraphQL.Client.Args where
 
 import Prelude
 
+import Data.Argonaut.Core (Json)
 import Data.Bifunctor (class Bifunctor)
-import Data.Date (Date)
-import Data.DateTime (DateTime)
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import Data.Symbol (class IsSymbol)
-import Data.Time (Time)
+import GraphQL.Client.Args.AllowedMismatch (AllowedMismatch)
 import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.NullArray (NullArray)
 import GraphQL.Client.Variable (Var)
@@ -60,25 +59,50 @@ guardArg b args =
 onlyArgs :: forall a. a -> Args a Unit
 onlyArgs a = Args a unit
 
-class ArgGql :: forall k1 k2. k1 -> k2 -> Constraint
-class ArgGql params arg
+class ArgGql :: forall param arg. param -> arg -> Constraint
+class ArgGql params args
 
-instance argToGqlNotNull :: (IsNotNull param arg, ArgGql param arg) => ArgGql (NotNull param) arg
-else instance argToGqlIgnore :: ArgGql param IgnoreArg
-else instance argAsGql :: ArgGql param arg => ArgGql (AsGql gqlName param) arg
-else instance argVar :: ArgGql param arg => ArgGql param (Var sym arg)
-else instance argToGqlArrayNull :: ArgGql (Array param) NullArray
-else instance argToGqlArrayAnds :: (ArgGql (Array param) a1, ArgGql (Array param) a2) => ArgGql (Array param) (AndArgs a1 a2)
-else instance argToGqlOrArg :: (ArgGql param argL, ArgGql param argR) => ArgGql param (OrArg argL argR)
-else instance argToGqlMaybe :: ArgGql param arg => ArgGql param (Maybe arg)
-else instance argToGqlArray :: ArgGql param arg => ArgGql (Array param) (Array arg)
-else instance argToGqlArrayOne :: ArgGql param arg => ArgGql (Array param) arg
+instance ArgGqlAt any params args => ArgGql params args
 
-else instance argToGqlRecord :: RecordArg p a u => ArgGql { | p } { | a }
-else instance argToGqlNewtypeRecord :: (Newtype n { | p }, RecordArg p a u) => ArgGql n { | a }
+class ArgGqlAt :: forall param arg. Symbol -> param -> arg -> Constraint
+class ArgGqlAt at params arg
 
-class IsNotNull :: forall k1 k2. k1 -> k2 -> Constraint
-class IsNotNull param arg
+instance argAsGql :: ArgGqlAt at param arg => ArgGqlAt at (AsGql gqlName param) arg
+else instance argToGqlNotNull :: (IsNotNull at param arg, ArgGqlAt at param arg) => ArgGqlAt at (NotNull param) arg
+else instance argToGqlIgnore :: ArgGqlAt at param IgnoreArg
+else instance argVarJson :: ArgGqlAt at Json (Var sym Json) -- Json can only be used with a variable 
+else instance argToGqlJsonNotAllowed :: TE.Fail (TE.Text "A `Json` query argument can only be used as a variable ") => ArgGqlAt at Json Json
+else instance argVar :: ArgGqlAt at param arg => ArgGqlAt at param (Var sym arg)
+else instance argToGqlArrayNull :: ArgGqlAt at (Array param) NullArray
+else instance argToGqlArrayAnds :: (ArgGqlAt at (Array param) a1, ArgGqlAt at (Array param) a2) => ArgGqlAt at (Array param) (AndArgs a1 a2)
+else instance argToGqlOrArg :: (ArgGqlAt at param argL, ArgGqlAt at param argR) => ArgGqlAt at param (OrArg argL argR)
+else instance argToGqlMaybe :: ArgGqlAt at param arg => ArgGqlAt at param (Maybe arg)
+else instance argToGqlArray :: ArgGqlAt at param arg => ArgGqlAt at (Array param) (Array arg)
+else instance argToGqlArrayOne :: ArgGqlAt at param arg => ArgGqlAt at (Array param) arg
+else instance argToGqlRecord :: RecordArg p a u => ArgGqlAt at { | p } { | a }
+else instance allowedArgMismatchSame :: ArgGqlAt at p (AllowedMismatch p a)
+else instance allowedArgMismatchNested ::  ArgGqlAt at p a => ArgGqlAt at p (AllowedMismatch schema a)
+else instance argGqlIdentity :: ArgGqlAt at a a
+else instance argToGqlNewtypeRecord :: (Newtype n { | p }, RecordArg p a u) => ArgGqlAt at n { | a }
+else instance argMismatch ::
+  ( TE.Fail
+      ( TE.Above
+          (TE.Text "Argument type mismatch: ")
+          ( TE.Beside
+              (TE.Text "  ")
+              ( TE.Above
+                  (TE.Beside (TE.Text "Schema: ") (TE.Quote param))
+                  ( TE.Above (TE.Beside (TE.Text "Query: ") (TE.Quote arg))
+                      (TE.Beside (TE.Text "At: ") (TE.Quote at))
+                  )
+              )
+          )
+      )
+  ) =>
+  ArgGqlAt at param arg
+
+class IsNotNull :: forall k1 k2. Symbol -> k1 -> k2 -> Constraint
+class IsNotNull at param arg
 
 instance
   ( TE.Fail
@@ -88,12 +112,14 @@ instance
               (TE.Text "  ")
               ( TE.Above
                   (TE.Beside (TE.Text "Schema: ") (TE.Quote param))
-                  (TE.Beside (TE.Text "Query: ") (TE.Quote (Maybe arg)))
+                  ( TE.Above (TE.Beside (TE.Text "Query: ") (TE.Quote arg))
+                      (TE.Beside (TE.Text "At: ") (TE.Quote at))
+                  )
               )
           )
       )
   ) =>
-  IsNotNull param (Maybe arg)
+  IsNotNull at param (Maybe arg)
 
 else instance
   ( TE.Fail
@@ -103,36 +129,24 @@ else instance
               (TE.Text "  ")
               ( TE.Above
                   (TE.Beside (TE.Text "Schema: ") (TE.Quote param))
-                  (TE.Beside (TE.Text "Query: ") (TE.Quote IgnoreArg))
+                  ( TE.Above (TE.Beside (TE.Text "Query: ") (TE.Quote IgnoreArg))
+                      (TE.Beside (TE.Text "At: ") (TE.Quote at))
+                  )
               )
           )
       )
   ) =>
-  IsNotNull param IgnoreArg
+  IsNotNull at param IgnoreArg
 else instance
-  ( IsNotNull param arg
+  ( IsNotNull at param arg
   ) =>
-  IsNotNull (AsGql gqlName param) arg
+  IsNotNull at (AsGql gqlName param) arg
 else instance
-  ( IsNotNull param l
-  , IsNotNull param r
+  ( IsNotNull at param l
+  , IsNotNull at param r
   ) =>
-  IsNotNull param (OrArg l r)
-else instance IsNotNull param arg
-
-instance argToGqlInt :: ArgGql Int Int
-
-instance argToGqlNumber :: ArgGql Number Number
-
-instance argToGqlString :: ArgGql String String
-
-instance argToGqlBoolean :: ArgGql Boolean Boolean
-
-instance argToGqlDate :: ArgGql Date Date
-
-instance argToGqlTime :: ArgGql Time Time
-
-instance argToGqlDateTime :: ArgGql DateTime DateTime
+  IsNotNull at param (OrArg l r)
+else instance IsNotNull at param arg
 
 class HMapWithIndex (ArgPropToGql p) { | a } u <= RecordArg p a u
 
@@ -143,7 +157,7 @@ newtype ArgPropToGql params = ArgPropToGql { | params }
 instance
   ( IsSymbol sym
   , Row.Cons sym param rest params
-  , ArgGql param arg
+  , ArgGqlAt sym param arg
   , SatisifyNotNullParam param arg
   ) =>
   MappingWithIndex (ArgPropToGql params) (Proxy sym) arg Unit where

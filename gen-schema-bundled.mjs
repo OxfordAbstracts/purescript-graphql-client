@@ -467,11 +467,11 @@ var bottomNumber = Number.NEGATIVE_INFINITY;
 
 // output/Data.Ord/foreign.js
 var unsafeCompareImpl = function(lt) {
-  return function(eq11) {
+  return function(eq75) {
     return function(gt) {
       return function(x) {
         return function(y) {
-          return x < y ? lt : x === y ? eq11 : gt;
+          return x < y ? lt : x === y ? eq75 : gt;
         };
       };
     };
@@ -549,6 +549,9 @@ var eqChar = {
 var eqBoolean = {
   eq: eqBooleanImpl
 };
+var eq1 = function(dict) {
+  return dict.eq1;
+};
 var eq = function(dict) {
   return dict.eq;
 };
@@ -559,10 +562,10 @@ var eqArray = function(dictEq) {
   };
 };
 var notEq = function(dictEq) {
-  var eq34 = eq(dictEq);
+  var eq312 = eq(dictEq);
   return function(x) {
     return function(y) {
-      return eq2(eq34(x)(y))(false);
+      return eq2(eq312(x)(y))(false);
     };
   };
 };
@@ -802,25 +805,28 @@ var ordBoolean = /* @__PURE__ */ function() {
     }
   };
 }();
+var compare1 = function(dict) {
+  return dict.compare1;
+};
 var compare = function(dict) {
   return dict.compare;
 };
 var compare2 = /* @__PURE__ */ compare(ordInt);
 var comparing = function(dictOrd) {
-  var compare34 = compare(dictOrd);
+  var compare312 = compare(dictOrd);
   return function(f) {
     return function(x) {
       return function(y) {
-        return compare34(f(x))(f(y));
+        return compare312(f(x))(f(y));
       };
     };
   };
 };
 var max = function(dictOrd) {
-  var compare34 = compare(dictOrd);
+  var compare312 = compare(dictOrd);
   return function(x) {
     return function(y) {
-      var v = compare34(x)(y);
+      var v = compare312(x)(y);
       if (v instanceof LT) {
         return y;
       }
@@ -838,10 +844,10 @@ var max = function(dictOrd) {
   };
 };
 var min = function(dictOrd) {
-  var compare34 = compare(dictOrd);
+  var compare312 = compare(dictOrd);
   return function(x) {
     return function(y) {
-      var v = compare34(x)(y);
+      var v = compare312(x)(y);
       if (v instanceof LT) {
         return x;
       }
@@ -859,13 +865,13 @@ var min = function(dictOrd) {
   };
 };
 var ordArray = function(dictOrd) {
-  var compare34 = compare(dictOrd);
+  var compare312 = compare(dictOrd);
   var eqArray2 = eqArray(dictOrd.Eq0());
   return {
     compare: function() {
       var toDelta = function(x) {
         return function(y) {
-          var v = compare34(x)(y);
+          var v = compare312(x)(y);
           if (v instanceof EQ) {
             return 0;
           }
@@ -1040,7 +1046,7 @@ var fromJust = function() {
   };
 };
 var eqMaybe = function(dictEq) {
-  var eq11 = eq(dictEq);
+  var eq75 = eq(dictEq);
   return {
     eq: function(x) {
       return function(y) {
@@ -1049,7 +1055,7 @@ var eqMaybe = function(dictEq) {
         }
         ;
         if (x instanceof Just && y instanceof Just) {
-          return eq11(x.value0)(y.value0);
+          return eq75(x.value0)(y.value0);
         }
         ;
         return false;
@@ -1058,7 +1064,7 @@ var eqMaybe = function(dictEq) {
   };
 };
 var ordMaybe = function(dictOrd) {
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   var eqMaybe1 = eqMaybe(dictOrd.Eq0());
   return {
     compare: function(x) {
@@ -1076,7 +1082,7 @@ var ordMaybe = function(dictOrd) {
         }
         ;
         if (x instanceof Just && y instanceof Just) {
-          return compare11(x.value0)(y.value0);
+          return compare78(x.value0)(y.value0);
         }
         ;
         throw new Error("Failed pattern match at Data.Maybe (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
@@ -1709,28 +1715,28 @@ var fst = function(v) {
   return v.value0;
 };
 var eqTuple = function(dictEq) {
-  var eq11 = eq(dictEq);
+  var eq75 = eq(dictEq);
   return function(dictEq1) {
-    var eq16 = eq(dictEq1);
+    var eq114 = eq(dictEq1);
     return {
       eq: function(x) {
         return function(y) {
-          return eq11(x.value0)(y.value0) && eq16(x.value1)(y.value1);
+          return eq75(x.value0)(y.value0) && eq114(x.value1)(y.value1);
         };
       }
     };
   };
 };
 var ordTuple = function(dictOrd) {
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   var eqTuple1 = eqTuple(dictOrd.Eq0());
   return function(dictOrd1) {
-    var compare14 = compare(dictOrd1);
+    var compare112 = compare(dictOrd1);
     var eqTuple2 = eqTuple1(dictOrd1.Eq0());
     return {
       compare: function(x) {
         return function(y) {
-          var v = compare11(x.value0)(y.value0);
+          var v = compare78(x.value0)(y.value0);
           if (v instanceof LT) {
             return LT.value;
           }
@@ -1739,7 +1745,7 @@ var ordTuple = function(dictOrd) {
             return GT.value;
           }
           ;
-          return compare14(x.value1)(y.value1);
+          return compare112(x.value1)(y.value1);
         };
       },
       Eq0: function() {
@@ -2411,11 +2417,11 @@ var $$for = function(dictApplicative) {
 // output/Data.TraversableWithIndex/index.js
 var traverseWithIndexDefault = function(dictTraversableWithIndex) {
   var sequence3 = sequence(dictTraversableWithIndex.Traversable2());
-  var mapWithIndex5 = mapWithIndex(dictTraversableWithIndex.FunctorWithIndex0());
+  var mapWithIndex4 = mapWithIndex(dictTraversableWithIndex.FunctorWithIndex0());
   return function(dictApplicative) {
     var sequence12 = sequence3(dictApplicative);
     return function(f) {
-      var $174 = mapWithIndex5(f);
+      var $174 = mapWithIndex4(f);
       return function($175) {
         return sequence12($174($175));
       };
@@ -2879,6 +2885,125 @@ var unfoldableList = {
   Unfoldable10: function() {
     return unfoldable1List;
   }
+};
+var eq1List = {
+  eq1: function(dictEq) {
+    var eq75 = eq(dictEq);
+    return function(xs) {
+      return function(ys) {
+        var go = function($copy_v) {
+          return function($copy_v1) {
+            return function($copy_v2) {
+              var $tco_var_v = $copy_v;
+              var $tco_var_v1 = $copy_v1;
+              var $tco_done = false;
+              var $tco_result;
+              function $tco_loop(v, v1, v2) {
+                if (!v2) {
+                  $tco_done = true;
+                  return false;
+                }
+                ;
+                if (v instanceof Nil && v1 instanceof Nil) {
+                  $tco_done = true;
+                  return v2;
+                }
+                ;
+                if (v instanceof Cons && v1 instanceof Cons) {
+                  $tco_var_v = v.value1;
+                  $tco_var_v1 = v1.value1;
+                  $copy_v2 = v2 && eq75(v1.value0)(v.value0);
+                  return;
+                }
+                ;
+                $tco_done = true;
+                return false;
+              }
+              ;
+              while (!$tco_done) {
+                $tco_result = $tco_loop($tco_var_v, $tco_var_v1, $copy_v2);
+              }
+              ;
+              return $tco_result;
+            };
+          };
+        };
+        return go(xs)(ys)(true);
+      };
+    };
+  }
+};
+var eq12 = /* @__PURE__ */ eq1(eq1List);
+var eqList = function(dictEq) {
+  return {
+    eq: eq12(dictEq)
+  };
+};
+var ord1List = {
+  compare1: function(dictOrd) {
+    var compare78 = compare(dictOrd);
+    return function(xs) {
+      return function(ys) {
+        var go = function($copy_v) {
+          return function($copy_v1) {
+            var $tco_var_v = $copy_v;
+            var $tco_done = false;
+            var $tco_result;
+            function $tco_loop(v, v1) {
+              if (v instanceof Nil && v1 instanceof Nil) {
+                $tco_done = true;
+                return EQ.value;
+              }
+              ;
+              if (v instanceof Nil) {
+                $tco_done = true;
+                return LT.value;
+              }
+              ;
+              if (v1 instanceof Nil) {
+                $tco_done = true;
+                return GT.value;
+              }
+              ;
+              if (v instanceof Cons && v1 instanceof Cons) {
+                var v2 = compare78(v.value0)(v1.value0);
+                if (v2 instanceof EQ) {
+                  $tco_var_v = v.value1;
+                  $copy_v1 = v1.value1;
+                  return;
+                }
+                ;
+                $tco_done = true;
+                return v2;
+              }
+              ;
+              throw new Error("Failed pattern match at Data.List.Types (line 60, column 5 - line 60, column 20): " + [v.constructor.name, v1.constructor.name]);
+            }
+            ;
+            while (!$tco_done) {
+              $tco_result = $tco_loop($tco_var_v, $copy_v1);
+            }
+            ;
+            return $tco_result;
+          };
+        };
+        return go(xs)(ys);
+      };
+    };
+  },
+  Eq10: function() {
+    return eq1List;
+  }
+};
+var compare12 = /* @__PURE__ */ compare1(ord1List);
+var ordList = function(dictOrd) {
+  var eqList1 = eqList(dictOrd.Eq0());
+  return {
+    compare: compare12(dictOrd),
+    Eq0: function() {
+      return eqList1;
+    }
+  };
 };
 var applyList = {
   apply: function(v) {
@@ -4825,9 +4950,9 @@ var sortBy = function(cmp) {
   };
 };
 var sort = function(dictOrd) {
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   return function(xs) {
-    return sortBy(compare11)(xs);
+    return sortBy(compare78)(xs);
   };
 };
 var reverse = /* @__PURE__ */ function() {
@@ -5448,7 +5573,7 @@ var toUnfoldable2 = function(dictUnfoldable) {
   };
 };
 var lookup = function(dictOrd) {
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   return function(k) {
     var go = function($copy_v) {
       var $tco_done = false;
@@ -5460,7 +5585,7 @@ var lookup = function(dictOrd) {
         }
         ;
         if (v instanceof Two2) {
-          var v2 = compare11(k)(v.value1);
+          var v2 = compare78(k)(v.value1);
           if (v2 instanceof EQ) {
             $tco_done = true;
             return new Just(v.value2);
@@ -5476,13 +5601,13 @@ var lookup = function(dictOrd) {
         }
         ;
         if (v instanceof Three2) {
-          var v3 = compare11(k)(v.value1);
+          var v3 = compare78(k)(v.value1);
           if (v3 instanceof EQ) {
             $tco_done = true;
             return new Just(v.value2);
           }
           ;
-          var v4 = compare11(k)(v.value4);
+          var v4 = compare78(k)(v.value4);
           if (v4 instanceof EQ) {
             $tco_done = true;
             return new Just(v.value5);
@@ -5539,28 +5664,6 @@ var functorMap = {
       ;
       throw new Error("Failed pattern match at Data.Map.Internal (line 116, column 1 - line 119, column 110): " + [v.constructor.name, v1.constructor.name]);
     };
-  }
-};
-var functorWithIndexMap = {
-  mapWithIndex: function(v) {
-    return function(v1) {
-      if (v1 instanceof Leaf2) {
-        return Leaf2.value;
-      }
-      ;
-      if (v1 instanceof Two2) {
-        return new Two2(mapWithIndex(functorWithIndexMap)(v)(v1.value0), v1.value1, v(v1.value1)(v1.value2), mapWithIndex(functorWithIndexMap)(v)(v1.value3));
-      }
-      ;
-      if (v1 instanceof Three2) {
-        return new Three2(mapWithIndex(functorWithIndexMap)(v)(v1.value0), v1.value1, v(v1.value1)(v1.value2), mapWithIndex(functorWithIndexMap)(v)(v1.value3), v1.value4, v(v1.value4)(v1.value5), mapWithIndex(functorWithIndexMap)(v)(v1.value6));
-      }
-      ;
-      throw new Error("Failed pattern match at Data.Map.Internal (line 121, column 1 - line 124, column 152): " + [v.constructor.name, v1.constructor.name]);
-    };
-  },
-  Functor0: function() {
-    return functorMap;
   }
 };
 var fromZipper2 = function($copy_dictOrd) {
@@ -5628,7 +5731,7 @@ var fromZipper2 = function($copy_dictOrd) {
 };
 var insert = function(dictOrd) {
   var fromZipper1 = fromZipper2(dictOrd);
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   return function(k) {
     return function(v) {
       var up = function($copy_v1) {
@@ -5696,7 +5799,7 @@ var insert = function(dictOrd) {
             }
             ;
             if (v2 instanceof Two2) {
-              var v3 = compare11(k)(v2.value1);
+              var v3 = compare78(k)(v2.value1);
               if (v3 instanceof EQ) {
                 $tco_done1 = true;
                 return fromZipper1(v1)(new Two2(v2.value0, k, v, v2.value3));
@@ -5714,13 +5817,13 @@ var insert = function(dictOrd) {
             }
             ;
             if (v2 instanceof Three2) {
-              var v3 = compare11(k)(v2.value1);
+              var v3 = compare78(k)(v2.value1);
               if (v3 instanceof EQ) {
                 $tco_done1 = true;
                 return fromZipper1(v1)(new Three2(v2.value0, k, v, v2.value3, v2.value4, v2.value5, v2.value6));
               }
               ;
-              var v4 = compare11(k)(v2.value4);
+              var v4 = compare78(k)(v2.value4);
               if (v4 instanceof EQ) {
                 $tco_done1 = true;
                 return fromZipper1(v1)(new Three2(v2.value0, v2.value1, v2.value2, v2.value3, k, v, v2.value6));
@@ -5759,7 +5862,7 @@ var insert = function(dictOrd) {
 };
 var pop = function(dictOrd) {
   var fromZipper1 = fromZipper2(dictOrd);
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   return function(k) {
     var up = function($copy_ctxs) {
       return function($copy_tree) {
@@ -5965,7 +6068,7 @@ var pop = function(dictOrd) {
           }
           ;
           if (m instanceof Two2) {
-            var v = compare11(k)(m.value1);
+            var v = compare78(k)(m.value1);
             if (m.value3 instanceof Leaf2 && v instanceof EQ) {
               $tco_done3 = true;
               return new Just(new Tuple(m.value2, up(ctx)(Leaf2.value)));
@@ -5996,8 +6099,8 @@ var pop = function(dictOrd) {
               ;
               return false;
             }();
-            var v = compare11(k)(m.value4);
-            var v3 = compare11(k)(m.value1);
+            var v = compare78(k)(m.value4);
+            var v3 = compare78(k)(m.value1);
             if (leaves && v3 instanceof EQ) {
               $tco_done3 = true;
               return new Just(new Tuple(m.value2, fromZipper1(ctx)(new Two2(Leaf2.value, m.value4, m.value5, Leaf2.value))));
@@ -6176,7 +6279,6 @@ var foldableWithIndexMap = {
   }
 };
 var foldrWithIndex2 = /* @__PURE__ */ foldrWithIndex(foldableWithIndexMap);
-var foldlWithIndex2 = /* @__PURE__ */ foldlWithIndex(foldableWithIndexMap);
 var keys = /* @__PURE__ */ function() {
   return foldrWithIndex2(function(k) {
     return function(v) {
@@ -6272,37 +6374,6 @@ var alter = function(dictOrd) {
         throw new Error("Failed pattern match at Data.Map.Internal (line 596, column 15 - line 598, column 25): " + [v.constructor.name]);
       };
     };
-  };
-};
-var unionWith = function(dictOrd) {
-  var alter1 = alter(dictOrd);
-  return function(f) {
-    return function(m1) {
-      return function(m2) {
-        var go = function(k) {
-          return function(m) {
-            return function(v) {
-              return alter1(function() {
-                var $936 = maybe(v)(f(v));
-                return function($937) {
-                  return Just.create($936($937));
-                };
-              }())(k)(m);
-            };
-          };
-        };
-        return foldlWithIndex2(go)(m2)(m1);
-      };
-    };
-  };
-};
-var union2 = function(dictOrd) {
-  return unionWith(dictOrd)($$const);
-};
-var unions = function(dictOrd) {
-  var union1 = union2(dictOrd);
-  return function(dictFoldable) {
-    return foldl(dictFoldable)(union1)(empty2);
   };
 };
 
@@ -6509,7 +6580,7 @@ var partition2 = function(f) {
   };
 };
 var sortByImpl = function() {
-  function mergeFromTo(compare11, fromOrdering, xs1, xs2, from3, to2) {
+  function mergeFromTo(compare78, fromOrdering, xs1, xs2, from3, to2) {
     var mid;
     var i;
     var j;
@@ -6519,16 +6590,16 @@ var sortByImpl = function() {
     var c;
     mid = from3 + (to2 - from3 >> 1);
     if (mid - from3 > 1)
-      mergeFromTo(compare11, fromOrdering, xs2, xs1, from3, mid);
+      mergeFromTo(compare78, fromOrdering, xs2, xs1, from3, mid);
     if (to2 - mid > 1)
-      mergeFromTo(compare11, fromOrdering, xs2, xs1, mid, to2);
+      mergeFromTo(compare78, fromOrdering, xs2, xs1, mid, to2);
     i = from3;
     j = mid;
     k = from3;
     while (i < mid && j < to2) {
       x = xs2[i];
       y = xs2[j];
-      c = fromOrdering(compare11(x)(y));
+      c = fromOrdering(compare78(x)(y));
       if (c > 0) {
         xs1[k++] = y;
         ++j;
@@ -6544,14 +6615,14 @@ var sortByImpl = function() {
       xs1[k++] = xs2[j++];
     }
   }
-  return function(compare11) {
+  return function(compare78) {
     return function(fromOrdering) {
       return function(xs) {
         var out;
         if (xs.length < 2)
           return xs;
         out = xs.slice(0);
-        mergeFromTo(compare11, fromOrdering, out, xs.slice(0), 0, xs.length);
+        mergeFromTo(compare78, fromOrdering, out, xs.slice(0), 0, xs.length);
         return out;
       };
     };
@@ -6620,7 +6691,7 @@ function copyImpl(xs) {
 }
 var thaw = copyImpl;
 var sortByImpl2 = function() {
-  function mergeFromTo(compare11, fromOrdering, xs1, xs2, from3, to2) {
+  function mergeFromTo(compare78, fromOrdering, xs1, xs2, from3, to2) {
     var mid;
     var i;
     var j;
@@ -6630,16 +6701,16 @@ var sortByImpl2 = function() {
     var c;
     mid = from3 + (to2 - from3 >> 1);
     if (mid - from3 > 1)
-      mergeFromTo(compare11, fromOrdering, xs2, xs1, from3, mid);
+      mergeFromTo(compare78, fromOrdering, xs2, xs1, from3, mid);
     if (to2 - mid > 1)
-      mergeFromTo(compare11, fromOrdering, xs2, xs1, mid, to2);
+      mergeFromTo(compare78, fromOrdering, xs2, xs1, mid, to2);
     i = from3;
     j = mid;
     k = from3;
     while (i < mid && j < to2) {
       x = xs2[i];
       y = xs2[j];
-      c = fromOrdering(compare11(x)(y));
+      c = fromOrdering(compare78(x)(y));
       if (c > 0) {
         xs1[k++] = y;
         ++j;
@@ -6655,13 +6726,13 @@ var sortByImpl2 = function() {
       xs1[k++] = xs2[j++];
     }
   }
-  return function(compare11) {
+  return function(compare78) {
     return function(fromOrdering) {
       return function(xs) {
         return function() {
           if (xs.length < 2)
             return xs;
-          mergeFromTo(compare11, fromOrdering, xs, xs.slice(0), 0, xs.length);
+          mergeFromTo(compare78, fromOrdering, xs, xs.slice(0), 0, xs.length);
           return xs;
         };
       };
@@ -6799,9 +6870,9 @@ var sortWith = function(dictOrd) {
 };
 var sortWith1 = /* @__PURE__ */ sortWith(ordInt);
 var sort2 = function(dictOrd) {
-  var compare11 = compare(dictOrd);
+  var compare78 = compare(dictOrd);
   return function(xs) {
-    return sortBy2(compare11)(xs);
+    return sortBy2(compare78)(xs);
   };
 };
 var snoc2 = function(xs) {
@@ -6926,19 +6997,11 @@ var findIndex2 = /* @__PURE__ */ function() {
   return findIndexImpl(Just.create)(Nothing.value);
 }();
 var elemIndex = function(dictEq) {
-  var eq25 = eq(dictEq);
+  var eq213 = eq(dictEq);
   return function(x) {
     return findIndex2(function(v) {
-      return eq25(v)(x);
+      return eq213(v)(x);
     });
-  };
-};
-var notElem2 = function(dictEq) {
-  var elemIndex1 = elemIndex(dictEq);
-  return function(a) {
-    return function(arr) {
-      return isNothing(elemIndex1(a)(arr));
-    };
   };
 };
 var elem2 = function(dictEq) {
@@ -7637,6 +7700,9 @@ var split = function(sep) {
     return s.split(sep);
   };
 };
+var toLower = function(s) {
+  return s.toLowerCase();
+};
 var joinWith = function(s) {
   return function(xs) {
     return xs.join(s);
@@ -8159,6 +8225,12 @@ var gEncodeJsonCons = function(dictEncodeJson) {
 };
 
 // output/Data.GraphQL.AST/index.js
+var compare4 = /* @__PURE__ */ compare(ordString);
+var compare13 = /* @__PURE__ */ compare(ordInt);
+var compare22 = /* @__PURE__ */ compare(ordNumber);
+var compare32 = /* @__PURE__ */ compare(ordBoolean);
+var eq4 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(eqString));
+var compare42 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(ordString));
 var SCHEMA = /* @__PURE__ */ function() {
   function SCHEMA2() {
   }
@@ -8382,15 +8454,245 @@ var DirectiveLocation_TypeSystemDirectiveLocation = /* @__PURE__ */ function() {
   };
   return DirectiveLocation_TypeSystemDirectiveLocation2;
 }();
+var Value_Variable = /* @__PURE__ */ function() {
+  function Value_Variable2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_Variable2.create = function(value0) {
+    return new Value_Variable2(value0);
+  };
+  return Value_Variable2;
+}();
+var Value_IntValue = /* @__PURE__ */ function() {
+  function Value_IntValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_IntValue2.create = function(value0) {
+    return new Value_IntValue2(value0);
+  };
+  return Value_IntValue2;
+}();
+var Value_FloatValue = /* @__PURE__ */ function() {
+  function Value_FloatValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_FloatValue2.create = function(value0) {
+    return new Value_FloatValue2(value0);
+  };
+  return Value_FloatValue2;
+}();
+var Value_StringValue = /* @__PURE__ */ function() {
+  function Value_StringValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_StringValue2.create = function(value0) {
+    return new Value_StringValue2(value0);
+  };
+  return Value_StringValue2;
+}();
+var Value_BooleanValue = /* @__PURE__ */ function() {
+  function Value_BooleanValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_BooleanValue2.create = function(value0) {
+    return new Value_BooleanValue2(value0);
+  };
+  return Value_BooleanValue2;
+}();
+var Value_NullValue = /* @__PURE__ */ function() {
+  function Value_NullValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_NullValue2.create = function(value0) {
+    return new Value_NullValue2(value0);
+  };
+  return Value_NullValue2;
+}();
+var Value_EnumValue = /* @__PURE__ */ function() {
+  function Value_EnumValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_EnumValue2.create = function(value0) {
+    return new Value_EnumValue2(value0);
+  };
+  return Value_EnumValue2;
+}();
+var Value_ListValue = /* @__PURE__ */ function() {
+  function Value_ListValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_ListValue2.create = function(value0) {
+    return new Value_ListValue2(value0);
+  };
+  return Value_ListValue2;
+}();
+var Value_ObjectValue = /* @__PURE__ */ function() {
+  function Value_ObjectValue2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Value_ObjectValue2.create = function(value0) {
+    return new Value_ObjectValue2(value0);
+  };
+  return Value_ObjectValue2;
+}();
 var EnumValuesDefinition = function(x) {
   return x;
 };
+var EnumTypeExtension_With_EnumValuesDefinition = /* @__PURE__ */ function() {
+  function EnumTypeExtension_With_EnumValuesDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  EnumTypeExtension_With_EnumValuesDefinition2.create = function(value0) {
+    return new EnumTypeExtension_With_EnumValuesDefinition2(value0);
+  };
+  return EnumTypeExtension_With_EnumValuesDefinition2;
+}();
+var EnumTypeExtension_With_Directives = /* @__PURE__ */ function() {
+  function EnumTypeExtension_With_Directives2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  EnumTypeExtension_With_Directives2.create = function(value0) {
+    return new EnumTypeExtension_With_Directives2(value0);
+  };
+  return EnumTypeExtension_With_Directives2;
+}();
+var SchemaExtension_With_OperationTypeDefinition = /* @__PURE__ */ function() {
+  function SchemaExtension_With_OperationTypeDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  SchemaExtension_With_OperationTypeDefinition2.create = function(value0) {
+    return new SchemaExtension_With_OperationTypeDefinition2(value0);
+  };
+  return SchemaExtension_With_OperationTypeDefinition2;
+}();
+var SchemaExtension_With_Directives = /* @__PURE__ */ function() {
+  function SchemaExtension_With_Directives2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  SchemaExtension_With_Directives2.create = function(value0) {
+    return new SchemaExtension_With_Directives2(value0);
+  };
+  return SchemaExtension_With_Directives2;
+}();
+var UnionTypeExtension_With_UnionMemberTypes = /* @__PURE__ */ function() {
+  function UnionTypeExtension_With_UnionMemberTypes2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  UnionTypeExtension_With_UnionMemberTypes2.create = function(value0) {
+    return new UnionTypeExtension_With_UnionMemberTypes2(value0);
+  };
+  return UnionTypeExtension_With_UnionMemberTypes2;
+}();
+var UnionTypeExtension_With_Directives = /* @__PURE__ */ function() {
+  function UnionTypeExtension_With_Directives2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  UnionTypeExtension_With_Directives2.create = function(value0) {
+    return new UnionTypeExtension_With_Directives2(value0);
+  };
+  return UnionTypeExtension_With_Directives2;
+}();
+var Selection_Field = /* @__PURE__ */ function() {
+  function Selection_Field2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Selection_Field2.create = function(value0) {
+    return new Selection_Field2(value0);
+  };
+  return Selection_Field2;
+}();
+var Selection_FragmentSpread = /* @__PURE__ */ function() {
+  function Selection_FragmentSpread2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Selection_FragmentSpread2.create = function(value0) {
+    return new Selection_FragmentSpread2(value0);
+  };
+  return Selection_FragmentSpread2;
+}();
+var Selection_InlineFragment = /* @__PURE__ */ function() {
+  function Selection_InlineFragment2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  Selection_InlineFragment2.create = function(value0) {
+    return new Selection_InlineFragment2(value0);
+  };
+  return Selection_InlineFragment2;
+}();
 var ArgumentsDefinition = function(x) {
   return x;
 };
 var FieldsDefinition = function(x) {
   return x;
 };
+var InterfaceTypeExtension_With_FieldsDefinition = /* @__PURE__ */ function() {
+  function InterfaceTypeExtension_With_FieldsDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  InterfaceTypeExtension_With_FieldsDefinition2.create = function(value0) {
+    return new InterfaceTypeExtension_With_FieldsDefinition2(value0);
+  };
+  return InterfaceTypeExtension_With_FieldsDefinition2;
+}();
+var InterfaceTypeExtension_With_Directives = /* @__PURE__ */ function() {
+  function InterfaceTypeExtension_With_Directives2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  InterfaceTypeExtension_With_Directives2.create = function(value0) {
+    return new InterfaceTypeExtension_With_Directives2(value0);
+  };
+  return InterfaceTypeExtension_With_Directives2;
+}();
+var ObjectTypeExtension_With_FieldsDefinition = /* @__PURE__ */ function() {
+  function ObjectTypeExtension_With_FieldsDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  ObjectTypeExtension_With_FieldsDefinition2.create = function(value0) {
+    return new ObjectTypeExtension_With_FieldsDefinition2(value0);
+  };
+  return ObjectTypeExtension_With_FieldsDefinition2;
+}();
+var ObjectTypeExtension_With_Directives = /* @__PURE__ */ function() {
+  function ObjectTypeExtension_With_Directives2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  ObjectTypeExtension_With_Directives2.create = function(value0) {
+    return new ObjectTypeExtension_With_Directives2(value0);
+  };
+  return ObjectTypeExtension_With_Directives2;
+}();
+var ObjectTypeExtension_With_ImplementsInterfaces = /* @__PURE__ */ function() {
+  function ObjectTypeExtension_With_ImplementsInterfaces2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  ObjectTypeExtension_With_ImplementsInterfaces2.create = function(value0) {
+    return new ObjectTypeExtension_With_ImplementsInterfaces2(value0);
+  };
+  return ObjectTypeExtension_With_ImplementsInterfaces2;
+}();
 var InputFieldsDefinition = function(x) {
   return x;
 };
@@ -8484,6 +8786,146 @@ var TypeSystemDefinition_DirectiveDefinition = /* @__PURE__ */ function() {
   };
   return TypeSystemDefinition_DirectiveDefinition2;
 }();
+var InputObjectTypeExtension_With_InputFieldsDefinition = /* @__PURE__ */ function() {
+  function InputObjectTypeExtension_With_InputFieldsDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  InputObjectTypeExtension_With_InputFieldsDefinition2.create = function(value0) {
+    return new InputObjectTypeExtension_With_InputFieldsDefinition2(value0);
+  };
+  return InputObjectTypeExtension_With_InputFieldsDefinition2;
+}();
+var InputObjectTypeExtension_With_Directives = /* @__PURE__ */ function() {
+  function InputObjectTypeExtension_With_Directives2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  InputObjectTypeExtension_With_Directives2.create = function(value0) {
+    return new InputObjectTypeExtension_With_Directives2(value0);
+  };
+  return InputObjectTypeExtension_With_Directives2;
+}();
+var TypeExtension_ScalarTypeExtension = /* @__PURE__ */ function() {
+  function TypeExtension_ScalarTypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeExtension_ScalarTypeExtension2.create = function(value0) {
+    return new TypeExtension_ScalarTypeExtension2(value0);
+  };
+  return TypeExtension_ScalarTypeExtension2;
+}();
+var TypeExtension_ObjectTypeExtension = /* @__PURE__ */ function() {
+  function TypeExtension_ObjectTypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeExtension_ObjectTypeExtension2.create = function(value0) {
+    return new TypeExtension_ObjectTypeExtension2(value0);
+  };
+  return TypeExtension_ObjectTypeExtension2;
+}();
+var TypeExtension_InterfaceTypeExtension = /* @__PURE__ */ function() {
+  function TypeExtension_InterfaceTypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeExtension_InterfaceTypeExtension2.create = function(value0) {
+    return new TypeExtension_InterfaceTypeExtension2(value0);
+  };
+  return TypeExtension_InterfaceTypeExtension2;
+}();
+var TypeExtension_UnionTypeExtension = /* @__PURE__ */ function() {
+  function TypeExtension_UnionTypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeExtension_UnionTypeExtension2.create = function(value0) {
+    return new TypeExtension_UnionTypeExtension2(value0);
+  };
+  return TypeExtension_UnionTypeExtension2;
+}();
+var TypeExtension_EnumTypeExtension = /* @__PURE__ */ function() {
+  function TypeExtension_EnumTypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeExtension_EnumTypeExtension2.create = function(value0) {
+    return new TypeExtension_EnumTypeExtension2(value0);
+  };
+  return TypeExtension_EnumTypeExtension2;
+}();
+var TypeExtension_InputObjectTypeExtension = /* @__PURE__ */ function() {
+  function TypeExtension_InputObjectTypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeExtension_InputObjectTypeExtension2.create = function(value0) {
+    return new TypeExtension_InputObjectTypeExtension2(value0);
+  };
+  return TypeExtension_InputObjectTypeExtension2;
+}();
+var TypeSystemExtension_SchemaExtension = /* @__PURE__ */ function() {
+  function TypeSystemExtension_SchemaExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeSystemExtension_SchemaExtension2.create = function(value0) {
+    return new TypeSystemExtension_SchemaExtension2(value0);
+  };
+  return TypeSystemExtension_SchemaExtension2;
+}();
+var TypeSystemExtension_TypeExtension = /* @__PURE__ */ function() {
+  function TypeSystemExtension_TypeExtension2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  TypeSystemExtension_TypeExtension2.create = function(value0) {
+    return new TypeSystemExtension_TypeExtension2(value0);
+  };
+  return TypeSystemExtension_TypeExtension2;
+}();
+var OperationDefinition_SelectionSet = /* @__PURE__ */ function() {
+  function OperationDefinition_SelectionSet2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  OperationDefinition_SelectionSet2.create = function(value0) {
+    return new OperationDefinition_SelectionSet2(value0);
+  };
+  return OperationDefinition_SelectionSet2;
+}();
+var OperationDefinition_OperationType = /* @__PURE__ */ function() {
+  function OperationDefinition_OperationType2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  OperationDefinition_OperationType2.create = function(value0) {
+    return new OperationDefinition_OperationType2(value0);
+  };
+  return OperationDefinition_OperationType2;
+}();
+var ExecutableDefinition_OperationDefinition = /* @__PURE__ */ function() {
+  function ExecutableDefinition_OperationDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  ExecutableDefinition_OperationDefinition2.create = function(value0) {
+    return new ExecutableDefinition_OperationDefinition2(value0);
+  };
+  return ExecutableDefinition_OperationDefinition2;
+}();
+var ExecutableDefinition_FragmentDefinition = /* @__PURE__ */ function() {
+  function ExecutableDefinition_FragmentDefinition2(value0) {
+    this.value0 = value0;
+  }
+  ;
+  ExecutableDefinition_FragmentDefinition2.create = function(value0) {
+    return new ExecutableDefinition_FragmentDefinition2(value0);
+  };
+  return ExecutableDefinition_FragmentDefinition2;
+}();
 var Definition_ExecutableDefinition = /* @__PURE__ */ function() {
   function Definition_ExecutableDefinition2(value0) {
     this.value0 = value0;
@@ -8517,6 +8959,231 @@ var Definition_TypeSystemExtension = /* @__PURE__ */ function() {
 var Document = function(x) {
   return x;
 };
+var variableEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq5 = /* @__PURE__ */ eq(variableEq);
+var variableOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare4(x)(y);
+    };
+  },
+  Eq0: function() {
+    return variableEq;
+  }
+};
+var compare5 = /* @__PURE__ */ compare(variableOrd);
+var typeSystemDirectiveLocationEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof SCHEMA && y instanceof SCHEMA) {
+        return true;
+      }
+      ;
+      if (x instanceof SCALAR && y instanceof SCALAR) {
+        return true;
+      }
+      ;
+      if (x instanceof OBJECT && y instanceof OBJECT) {
+        return true;
+      }
+      ;
+      if (x instanceof FIELD_DEFINITION && y instanceof FIELD_DEFINITION) {
+        return true;
+      }
+      ;
+      if (x instanceof ARGUMENT_DEFINITION && y instanceof ARGUMENT_DEFINITION) {
+        return true;
+      }
+      ;
+      if (x instanceof INTERFACE && y instanceof INTERFACE) {
+        return true;
+      }
+      ;
+      if (x instanceof UNION && y instanceof UNION) {
+        return true;
+      }
+      ;
+      if (x instanceof ENUM && y instanceof ENUM) {
+        return true;
+      }
+      ;
+      if (x instanceof ENUM_VALUE && y instanceof ENUM_VALUE) {
+        return true;
+      }
+      ;
+      if (x instanceof INPUT_OBJECT && y instanceof INPUT_OBJECT) {
+        return true;
+      }
+      ;
+      if (x instanceof INPUT_FIELD_DEFINITION && y instanceof INPUT_FIELD_DEFINITION) {
+        return true;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq6 = /* @__PURE__ */ eq(typeSystemDirectiveLocationEq);
+var typeSystemDirectiveLocationOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof SCHEMA && y instanceof SCHEMA) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof SCHEMA) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof SCHEMA) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof SCALAR && y instanceof SCALAR) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof SCALAR) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof SCALAR) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof OBJECT && y instanceof OBJECT) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof OBJECT) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof OBJECT) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof FIELD_DEFINITION && y instanceof FIELD_DEFINITION) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof FIELD_DEFINITION) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof FIELD_DEFINITION) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof ARGUMENT_DEFINITION && y instanceof ARGUMENT_DEFINITION) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof ARGUMENT_DEFINITION) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof ARGUMENT_DEFINITION) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof INTERFACE && y instanceof INTERFACE) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof INTERFACE) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof INTERFACE) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof UNION && y instanceof UNION) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof UNION) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof UNION) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof ENUM && y instanceof ENUM) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof ENUM) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof ENUM) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof ENUM_VALUE && y instanceof ENUM_VALUE) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof ENUM_VALUE) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof ENUM_VALUE) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof INPUT_OBJECT && y instanceof INPUT_OBJECT) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof INPUT_OBJECT) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof INPUT_OBJECT) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof INPUT_FIELD_DEFINITION && y instanceof INPUT_FIELD_DEFINITION) {
+        return EQ.value;
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return typeSystemDirectiveLocationEq;
+  }
+};
+var compare6 = /* @__PURE__ */ compare(typeSystemDirectiveLocationOrd);
+var stringValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq7 = /* @__PURE__ */ eq(stringValueEq);
+var stringValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare4(x)(y);
+    };
+  },
+  Eq0: function() {
+    return stringValueEq;
+  }
+};
+var compare7 = /* @__PURE__ */ compare(stringValueOrd);
 var operationTypeEq = {
   eq: function(x) {
     return function(y) {
@@ -8534,6 +9201,2728 @@ var operationTypeEq = {
       ;
       return false;
     };
+  }
+};
+var eq8 = /* @__PURE__ */ eq(operationTypeEq);
+var operationTypeOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof Query && y instanceof Query) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof Query) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Query) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Mutation && y instanceof Mutation) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof Mutation) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Mutation) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Subscription && y instanceof Subscription) {
+        return EQ.value;
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return operationTypeEq;
+  }
+};
+var compare8 = /* @__PURE__ */ compare(operationTypeOrd);
+var nullValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return true;
+    };
+  }
+};
+var eq9 = /* @__PURE__ */ eq(nullValueEq);
+var nullValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return EQ.value;
+    };
+  },
+  Eq0: function() {
+    return nullValueEq;
+  }
+};
+var compare9 = /* @__PURE__ */ compare(nullValueOrd);
+var namedTypeEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq10 = /* @__PURE__ */ eq(namedTypeEq);
+var eq11 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(namedTypeEq));
+var namedTypeOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare4(x)(y);
+    };
+  },
+  Eq0: function() {
+    return namedTypeEq;
+  }
+};
+var compare10 = /* @__PURE__ */ compare(namedTypeOrd);
+var compare11 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(namedTypeOrd));
+var operationTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq10(x.namedType)(y.namedType) && eq8(x.operationType)(y.operationType);
+    };
+  }
+};
+var eq122 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(operationTypeDefinitionEq));
+var operationTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare10(x.namedType)(y.namedType);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare8(x.operationType)(y.operationType);
+    };
+  },
+  Eq0: function() {
+    return operationTypeDefinitionEq;
+  }
+};
+var compare122 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(operationTypeDefinitionOrd));
+var rootOperationTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq10(x.namedType)(y.namedType) && eq8(x.operationType)(y.operationType);
+    };
+  }
+};
+var eq13 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(rootOperationTypeDefinitionEq));
+var rootOperationTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare10(x.namedType)(y.namedType);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare8(x.operationType)(y.operationType);
+    };
+  },
+  Eq0: function() {
+    return rootOperationTypeDefinitionEq;
+  }
+};
+var compare132 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(rootOperationTypeDefinitionOrd));
+var typeConditionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq10(x)(y);
+    };
+  }
+};
+var eq14 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(typeConditionEq));
+var eq15 = /* @__PURE__ */ eq(typeConditionEq);
+var typeConditionOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare10(x)(y);
+    };
+  },
+  Eq0: function() {
+    return typeConditionEq;
+  }
+};
+var compare14 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(typeConditionOrd));
+var compare15 = /* @__PURE__ */ compare(typeConditionOrd);
+var unionMemberTypesEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq11(x)(y);
+    };
+  }
+};
+var eq16 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(unionMemberTypesEq));
+var eq17 = /* @__PURE__ */ eq(unionMemberTypesEq);
+var unionMemberTypesOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare11(x)(y);
+    };
+  },
+  Eq0: function() {
+    return unionMemberTypesEq;
+  }
+};
+var compare16 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(unionMemberTypesOrd));
+var compare17 = /* @__PURE__ */ compare(unionMemberTypesOrd);
+var typeEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof Type_NamedType && y instanceof Type_NamedType) {
+        return eq10(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Type_ListType && y instanceof Type_ListType) {
+        return eq(listTypeEq)(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Type_NonNullType && y instanceof Type_NonNullType) {
+        return eq(nonNullTypeEq)(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var nonNullTypeEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof NonNullType_NamedType && y instanceof NonNullType_NamedType) {
+        return eq10(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof NonNullType_ListType && y instanceof NonNullType_ListType) {
+        return eq(listTypeEq)(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var listTypeEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq(typeEq)(x)(y);
+    };
+  }
+};
+var eq18 = /* @__PURE__ */ eq(typeEq);
+var typeOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof Type_NamedType && y instanceof Type_NamedType) {
+        return compare10(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Type_NamedType) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Type_NamedType) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Type_ListType && y instanceof Type_ListType) {
+        return compare(listTypeOrd)(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Type_ListType) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Type_ListType) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Type_NonNullType && y instanceof Type_NonNullType) {
+        return compare(nonNullTypeOrd)(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return typeEq;
+  }
+};
+var nonNullTypeOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof NonNullType_NamedType && y instanceof NonNullType_NamedType) {
+        return compare10(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof NonNullType_NamedType) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof NonNullType_NamedType) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof NonNullType_ListType && y instanceof NonNullType_ListType) {
+        return compare(listTypeOrd)(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return nonNullTypeEq;
+  }
+};
+var listTypeOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare(typeOrd)(x)(y);
+    };
+  },
+  Eq0: function() {
+    return listTypeEq;
+  }
+};
+var compare18 = /* @__PURE__ */ compare(typeOrd);
+var intValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq19 = /* @__PURE__ */ eq(intValueEq);
+var intValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare13(x)(y);
+    };
+  },
+  Eq0: function() {
+    return intValueEq;
+  }
+};
+var compare19 = /* @__PURE__ */ compare(intValueOrd);
+var implementsInterfacesEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq11(x)(y);
+    };
+  }
+};
+var eq20 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(implementsInterfacesEq));
+var eq21 = /* @__PURE__ */ eq(implementsInterfacesEq);
+var implementsInterfacesOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare11(x)(y);
+    };
+  },
+  Eq0: function() {
+    return implementsInterfacesEq;
+  }
+};
+var compare20 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(implementsInterfacesOrd));
+var compare21 = /* @__PURE__ */ compare(implementsInterfacesOrd);
+var floatValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq22 = /* @__PURE__ */ eq(floatValueEq);
+var floatValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare22(x)(y);
+    };
+  },
+  Eq0: function() {
+    return floatValueEq;
+  }
+};
+var compare222 = /* @__PURE__ */ compare(floatValueOrd);
+var executableDirectiveLocationEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof QUERY && y instanceof QUERY) {
+        return true;
+      }
+      ;
+      if (x instanceof MUTATION && y instanceof MUTATION) {
+        return true;
+      }
+      ;
+      if (x instanceof SUBSCRIPTION && y instanceof SUBSCRIPTION) {
+        return true;
+      }
+      ;
+      if (x instanceof FIELD && y instanceof FIELD) {
+        return true;
+      }
+      ;
+      if (x instanceof FRAGMENT_DEFINITION && y instanceof FRAGMENT_DEFINITION) {
+        return true;
+      }
+      ;
+      if (x instanceof FRAGMENT_SPREAD && y instanceof FRAGMENT_SPREAD) {
+        return true;
+      }
+      ;
+      if (x instanceof INLINE_FRAGMENT && y instanceof INLINE_FRAGMENT) {
+        return true;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq23 = /* @__PURE__ */ eq(executableDirectiveLocationEq);
+var executableDirectiveLocationOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof QUERY && y instanceof QUERY) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof QUERY) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof QUERY) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof MUTATION && y instanceof MUTATION) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof MUTATION) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof MUTATION) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof SUBSCRIPTION && y instanceof SUBSCRIPTION) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof SUBSCRIPTION) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof SUBSCRIPTION) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof FIELD && y instanceof FIELD) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof FIELD) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof FIELD) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof FRAGMENT_DEFINITION && y instanceof FRAGMENT_DEFINITION) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof FRAGMENT_DEFINITION) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof FRAGMENT_DEFINITION) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof FRAGMENT_SPREAD && y instanceof FRAGMENT_SPREAD) {
+        return EQ.value;
+      }
+      ;
+      if (x instanceof FRAGMENT_SPREAD) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof FRAGMENT_SPREAD) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof INLINE_FRAGMENT && y instanceof INLINE_FRAGMENT) {
+        return EQ.value;
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return executableDirectiveLocationEq;
+  }
+};
+var compare23 = /* @__PURE__ */ compare(executableDirectiveLocationOrd);
+var enumValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq24 = /* @__PURE__ */ eq(enumValueEq);
+var enumValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare4(x)(y);
+    };
+  },
+  Eq0: function() {
+    return enumValueEq;
+  }
+};
+var compare24 = /* @__PURE__ */ compare(enumValueOrd);
+var directiveLocationEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof DirectiveLocation_ExecutableDirectiveLocation && y instanceof DirectiveLocation_ExecutableDirectiveLocation) {
+        return eq23(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof DirectiveLocation_TypeSystemDirectiveLocation && y instanceof DirectiveLocation_TypeSystemDirectiveLocation) {
+        return eq6(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq25 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(directiveLocationEq));
+var directiveLocationOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof DirectiveLocation_ExecutableDirectiveLocation && y instanceof DirectiveLocation_ExecutableDirectiveLocation) {
+        return compare23(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof DirectiveLocation_ExecutableDirectiveLocation) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof DirectiveLocation_ExecutableDirectiveLocation) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof DirectiveLocation_TypeSystemDirectiveLocation && y instanceof DirectiveLocation_TypeSystemDirectiveLocation) {
+        return compare6(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return directiveLocationEq;
+  }
+};
+var compare25 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(directiveLocationOrd));
+var directiveLocationsEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq25(x)(y);
+    };
+  }
+};
+var eq26 = /* @__PURE__ */ eq(directiveLocationsEq);
+var directiveLocationsOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare25(x)(y);
+    };
+  },
+  Eq0: function() {
+    return directiveLocationsEq;
+  }
+};
+var compare26 = /* @__PURE__ */ compare(directiveLocationsOrd);
+var booleanValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return x === y;
+    };
+  }
+};
+var eq27 = /* @__PURE__ */ eq(booleanValueEq);
+var booleanValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare32(x)(y);
+    };
+  },
+  Eq0: function() {
+    return booleanValueEq;
+  }
+};
+var compare27 = /* @__PURE__ */ compare(booleanValueOrd);
+var valueEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof Value_Variable && y instanceof Value_Variable) {
+        return eq5(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_IntValue && y instanceof Value_IntValue) {
+        return eq19(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_FloatValue && y instanceof Value_FloatValue) {
+        return eq22(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_StringValue && y instanceof Value_StringValue) {
+        return eq7(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_BooleanValue && y instanceof Value_BooleanValue) {
+        return eq27(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_NullValue && y instanceof Value_NullValue) {
+        return eq9(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_EnumValue && y instanceof Value_EnumValue) {
+        return eq24(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_ListValue && y instanceof Value_ListValue) {
+        return eq(listValueEq)(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_ObjectValue && y instanceof Value_ObjectValue) {
+        return eq(objectValueEq)(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var objectValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq(eqList(argumentEq))(x)(y);
+    };
+  }
+};
+var listValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq(eqList(valueEq))(x)(y);
+    };
+  }
+};
+var argumentEq = {
+  eq: function(x) {
+    return function(y) {
+      return x.name === y.name && eq(valueEq)(x.value)(y.value);
+    };
+  }
+};
+var eq28 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(argumentEq));
+var eq29 = /* @__PURE__ */ eq(valueEq);
+var argumentsEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq28(x)(y);
+    };
+  }
+};
+var eq30 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(argumentsEq));
+var directiveEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq30(x["arguments"])(y["arguments"]) && x.name === y.name;
+    };
+  }
+};
+var eq31 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(directiveEq));
+var directivesEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq31(x)(y);
+    };
+  }
+};
+var eq32 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(directivesEq));
+var eq33 = /* @__PURE__ */ eq(directivesEq);
+var enumValueDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && eq24(x.enumValue)(y.enumValue);
+    };
+  }
+};
+var eq34 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(enumValueDefinitionEq));
+var enumValuesDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq34(x)(y);
+    };
+  }
+};
+var eq35 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(enumValuesDefinitionEq));
+var eq36 = /* @__PURE__ */ eq(enumValuesDefinitionEq);
+var enumTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && eq35(x.enumValuesDefinition)(y.enumValuesDefinition) && x.name === y.name;
+    };
+  }
+};
+var eq37 = /* @__PURE__ */ eq(enumTypeDefinitionEq);
+var enumTypeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof EnumTypeExtension_With_EnumValuesDefinition && y instanceof EnumTypeExtension_With_EnumValuesDefinition) {
+        return eq32(x.value0.directives)(y.value0.directives) && eq36(x.value0.enumValuesDefinition)(y.value0.enumValuesDefinition) && x.value0.name === y.value0.name;
+      }
+      ;
+      if (x instanceof EnumTypeExtension_With_Directives && y instanceof EnumTypeExtension_With_Directives) {
+        return eq33(x.value0.directives)(y.value0.directives) && x.value0.name === y.value0.name;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq38 = /* @__PURE__ */ eq(enumTypeExtensionEq);
+var fragmentSpreadEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq32(x.directives)(y.directives) && x.fragmentName === y.fragmentName;
+    };
+  }
+};
+var eq39 = /* @__PURE__ */ eq(fragmentSpreadEq);
+var scalarTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && x.name === y.name;
+    };
+  }
+};
+var eq40 = /* @__PURE__ */ eq(scalarTypeDefinitionEq);
+var scalarTypeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq33(x.directives)(y.directives) && x.name === y.name;
+    };
+  }
+};
+var eq41 = /* @__PURE__ */ eq(scalarTypeExtensionEq);
+var schemaDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq32(x.directives)(y.directives) && eq13(x.rootOperationTypeDefinition)(y.rootOperationTypeDefinition);
+    };
+  }
+};
+var eq42 = /* @__PURE__ */ eq(schemaDefinitionEq);
+var schemaExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof SchemaExtension_With_OperationTypeDefinition && y instanceof SchemaExtension_With_OperationTypeDefinition) {
+        return eq32(x.value0.directives)(y.value0.directives) && eq122(x.value0.operationTypesDefinition)(y.value0.operationTypesDefinition);
+      }
+      ;
+      if (x instanceof SchemaExtension_With_Directives && y instanceof SchemaExtension_With_Directives) {
+        return eq33(x.value0.directives)(y.value0.directives);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq43 = /* @__PURE__ */ eq(schemaExtensionEq);
+var unionTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && x.name === y.name && eq16(x.unionMemberTypes)(y.unionMemberTypes);
+    };
+  }
+};
+var eq44 = /* @__PURE__ */ eq(unionTypeDefinitionEq);
+var unionTypeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof UnionTypeExtension_With_UnionMemberTypes && y instanceof UnionTypeExtension_With_UnionMemberTypes) {
+        return eq32(x.value0.directives)(y.value0.directives) && x.value0.name === y.value0.name && eq17(x.value0.unionMemberTypes)(y.value0.unionMemberTypes);
+      }
+      ;
+      if (x instanceof UnionTypeExtension_With_Directives && y instanceof UnionTypeExtension_With_Directives) {
+        return eq33(x.value0.directives)(y.value0.directives) && x.value0.name === y.value0.name;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq45 = /* @__PURE__ */ eq(unionTypeExtensionEq);
+var selectionSetEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq(eqList(selectionEq))(x)(y);
+    };
+  }
+};
+var selectionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof Selection_Field && y instanceof Selection_Field) {
+        return eq(fieldEq)(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Selection_FragmentSpread && y instanceof Selection_FragmentSpread) {
+        return eq39(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Selection_InlineFragment && y instanceof Selection_InlineFragment) {
+        return eq(inlineFragmentEq)(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var inlineFragmentEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq32(x.directives)(y.directives) && eq(selectionSetEq)(x.selectionSet)(y.selectionSet) && eq14(x.typeCondition)(y.typeCondition);
+    };
+  }
+};
+var fieldEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.alias)(y.alias) && eq30(x["arguments"])(y["arguments"]) && eq32(x.directives)(y.directives) && x.name === y.name && eq(eqMaybe(selectionSetEq))(x.selectionSet)(y.selectionSet);
+    };
+  }
+};
+var eq46 = /* @__PURE__ */ eq(selectionSetEq);
+var fragmentDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq32(x.directives)(y.directives) && x.fragmentName === y.fragmentName && eq46(x.selectionSet)(y.selectionSet) && eq15(x.typeCondition)(y.typeCondition);
+    };
+  }
+};
+var eq47 = /* @__PURE__ */ eq(fragmentDefinitionEq);
+var defaultValueEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq29(x)(y);
+    };
+  }
+};
+var eq48 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(defaultValueEq));
+var inputValueDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq48(x.defaultValue)(y.defaultValue) && eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && x.name === y.name && eq18(x.type)(y.type);
+    };
+  }
+};
+var eq49 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(inputValueDefinitionEq));
+var argumentsDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq49(x)(y);
+    };
+  }
+};
+var eq50 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(argumentsDefinitionEq));
+var directiveDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq50(x.argumentsDefinition)(y.argumentsDefinition) && eq4(x.description)(y.description) && eq26(x.directiveLocations)(y.directiveLocations) && x.name === y.name;
+    };
+  }
+};
+var eq51 = /* @__PURE__ */ eq(directiveDefinitionEq);
+var fieldDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq50(x.argumentsDefinition)(y.argumentsDefinition) && eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && x.name === y.name && eq18(x.type)(y.type);
+    };
+  }
+};
+var eq52 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(fieldDefinitionEq));
+var fieldsDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq52(x)(y);
+    };
+  }
+};
+var eq53 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(fieldsDefinitionEq));
+var eq54 = /* @__PURE__ */ eq(fieldsDefinitionEq);
+var interfaceTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && eq53(x.fieldsDefinition)(y.fieldsDefinition) && x.name === y.name;
+    };
+  }
+};
+var eq55 = /* @__PURE__ */ eq(interfaceTypeDefinitionEq);
+var interfaceTypeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof InterfaceTypeExtension_With_FieldsDefinition && y instanceof InterfaceTypeExtension_With_FieldsDefinition) {
+        return eq32(x.value0.directives)(y.value0.directives) && eq54(x.value0.fieldsDefinition)(y.value0.fieldsDefinition) && x.value0.name === y.value0.name;
+      }
+      ;
+      if (x instanceof InterfaceTypeExtension_With_Directives && y instanceof InterfaceTypeExtension_With_Directives) {
+        return eq33(x.value0.directives)(y.value0.directives) && x.value0.name === y.value0.name;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq56 = /* @__PURE__ */ eq(interfaceTypeExtensionEq);
+var objectTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && eq53(x.fieldsDefinition)(y.fieldsDefinition) && eq20(x.implementsInterfaces)(y.implementsInterfaces) && x.name === y.name;
+    };
+  }
+};
+var eq57 = /* @__PURE__ */ eq(objectTypeDefinitionEq);
+var objectTypeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof ObjectTypeExtension_With_FieldsDefinition && y instanceof ObjectTypeExtension_With_FieldsDefinition) {
+        return eq32(x.value0.directives)(y.value0.directives) && eq54(x.value0.fieldsDefinition)(y.value0.fieldsDefinition) && eq20(x.value0.implementsInterfaces)(y.value0.implementsInterfaces) && x.value0.name === y.value0.name;
+      }
+      ;
+      if (x instanceof ObjectTypeExtension_With_Directives && y instanceof ObjectTypeExtension_With_Directives) {
+        return eq33(x.value0.directives)(y.value0.directives) && eq20(x.value0.implementsInterfaces)(y.value0.implementsInterfaces) && x.value0.name === y.value0.name;
+      }
+      ;
+      if (x instanceof ObjectTypeExtension_With_ImplementsInterfaces && y instanceof ObjectTypeExtension_With_ImplementsInterfaces) {
+        return eq21(x.value0.implementsInterfaces)(y.value0.implementsInterfaces) && x.value0.name === y.value0.name;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq58 = /* @__PURE__ */ eq(objectTypeExtensionEq);
+var inputFieldsDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq49(x)(y);
+    };
+  }
+};
+var eq59 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(inputFieldsDefinitionEq));
+var eq60 = /* @__PURE__ */ eq(inputFieldsDefinitionEq);
+var inputObjectTypeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq4(x.description)(y.description) && eq32(x.directives)(y.directives) && eq59(x.inputFieldsDefinition)(y.inputFieldsDefinition) && x.name === y.name;
+    };
+  }
+};
+var eq61 = /* @__PURE__ */ eq(inputObjectTypeDefinitionEq);
+var typeDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof TypeDefinition_ScalarTypeDefinition && y instanceof TypeDefinition_ScalarTypeDefinition) {
+        return eq40(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_ObjectTypeDefinition && y instanceof TypeDefinition_ObjectTypeDefinition) {
+        return eq57(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_InterfaceTypeDefinition && y instanceof TypeDefinition_InterfaceTypeDefinition) {
+        return eq55(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_UnionTypeDefinition && y instanceof TypeDefinition_UnionTypeDefinition) {
+        return eq44(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_EnumTypeDefinition && y instanceof TypeDefinition_EnumTypeDefinition) {
+        return eq37(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_InputObjectTypeDefinition && y instanceof TypeDefinition_InputObjectTypeDefinition) {
+        return eq61(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq62 = /* @__PURE__ */ eq(typeDefinitionEq);
+var typeSystemDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof TypeSystemDefinition_SchemaDefinition && y instanceof TypeSystemDefinition_SchemaDefinition) {
+        return eq42(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeSystemDefinition_TypeDefinition && y instanceof TypeSystemDefinition_TypeDefinition) {
+        return eq62(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeSystemDefinition_DirectiveDefinition && y instanceof TypeSystemDefinition_DirectiveDefinition) {
+        return eq51(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq63 = /* @__PURE__ */ eq(typeSystemDefinitionEq);
+var inputObjectTypeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof InputObjectTypeExtension_With_InputFieldsDefinition && y instanceof InputObjectTypeExtension_With_InputFieldsDefinition) {
+        return eq32(x.value0.directives)(y.value0.directives) && eq60(x.value0.inputFieldsDefinition)(y.value0.inputFieldsDefinition) && x.value0.name === y.value0.name;
+      }
+      ;
+      if (x instanceof InputObjectTypeExtension_With_Directives && y instanceof InputObjectTypeExtension_With_Directives) {
+        return eq33(x.value0.directives)(y.value0.directives) && x.value0.name === y.value0.name;
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq64 = /* @__PURE__ */ eq(inputObjectTypeExtensionEq);
+var typeExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof TypeExtension_ScalarTypeExtension && y instanceof TypeExtension_ScalarTypeExtension) {
+        return eq41(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_ObjectTypeExtension && y instanceof TypeExtension_ObjectTypeExtension) {
+        return eq58(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_InterfaceTypeExtension && y instanceof TypeExtension_InterfaceTypeExtension) {
+        return eq56(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_UnionTypeExtension && y instanceof TypeExtension_UnionTypeExtension) {
+        return eq45(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_EnumTypeExtension && y instanceof TypeExtension_EnumTypeExtension) {
+        return eq38(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_InputObjectTypeExtension && y instanceof TypeExtension_InputObjectTypeExtension) {
+        return eq64(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq65 = /* @__PURE__ */ eq(typeExtensionEq);
+var typeSystemExtensionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof TypeSystemExtension_SchemaExtension && y instanceof TypeSystemExtension_SchemaExtension) {
+        return eq43(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeSystemExtension_TypeExtension && y instanceof TypeSystemExtension_TypeExtension) {
+        return eq65(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq66 = /* @__PURE__ */ eq(typeSystemExtensionEq);
+var variableDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq48(x.defaultValue)(y.defaultValue) && eq18(x.type)(y.type) && eq5(x.variable)(y.variable);
+    };
+  }
+};
+var eq67 = /* @__PURE__ */ eq(/* @__PURE__ */ eqList(variableDefinitionEq));
+var variableDefinitionsEq = {
+  eq: function(x) {
+    return function(y) {
+      return eq67(x)(y);
+    };
+  }
+};
+var eq68 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(variableDefinitionsEq));
+var operationDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof OperationDefinition_SelectionSet && y instanceof OperationDefinition_SelectionSet) {
+        return eq46(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof OperationDefinition_OperationType && y instanceof OperationDefinition_OperationType) {
+        return eq32(x.value0.directives)(y.value0.directives) && eq4(x.value0.name)(y.value0.name) && eq8(x.value0.operationType)(y.value0.operationType) && eq46(x.value0.selectionSet)(y.value0.selectionSet) && eq68(x.value0.variableDefinitions)(y.value0.variableDefinitions);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq69 = /* @__PURE__ */ eq(operationDefinitionEq);
+var executableDefinitionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof ExecutableDefinition_OperationDefinition && y instanceof ExecutableDefinition_OperationDefinition) {
+        return eq69(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof ExecutableDefinition_FragmentDefinition && y instanceof ExecutableDefinition_FragmentDefinition) {
+        return eq47(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var eq70 = /* @__PURE__ */ eq(executableDefinitionEq);
+var definitionEq = {
+  eq: function(x) {
+    return function(y) {
+      if (x instanceof Definition_ExecutableDefinition && y instanceof Definition_ExecutableDefinition) {
+        return eq70(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Definition_TypeSystemDefinition && y instanceof Definition_TypeSystemDefinition) {
+        return eq63(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Definition_TypeSystemExtension && y instanceof Definition_TypeSystemExtension) {
+        return eq66(x.value0)(y.value0);
+      }
+      ;
+      return false;
+    };
+  }
+};
+var valueOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof Value_Variable && y instanceof Value_Variable) {
+        return compare5(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_Variable) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_Variable) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_IntValue && y instanceof Value_IntValue) {
+        return compare19(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_IntValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_IntValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_FloatValue && y instanceof Value_FloatValue) {
+        return compare222(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_FloatValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_FloatValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_StringValue && y instanceof Value_StringValue) {
+        return compare7(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_StringValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_StringValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_BooleanValue && y instanceof Value_BooleanValue) {
+        return compare27(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_BooleanValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_BooleanValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_NullValue && y instanceof Value_NullValue) {
+        return compare9(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_NullValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_NullValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_EnumValue && y instanceof Value_EnumValue) {
+        return compare24(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_EnumValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_EnumValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_ListValue && y instanceof Value_ListValue) {
+        return compare(listValueOrd)(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Value_ListValue) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Value_ListValue) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Value_ObjectValue && y instanceof Value_ObjectValue) {
+        return compare(objectValueOrd)(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return valueEq;
+  }
+};
+var objectValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare(ordList(argumentOrd))(x)(y);
+    };
+  },
+  Eq0: function() {
+    return objectValueEq;
+  }
+};
+var listValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare(ordList(valueOrd))(x)(y);
+    };
+  },
+  Eq0: function() {
+    return listValueEq;
+  }
+};
+var argumentOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare4(x.name)(y.name);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare(valueOrd)(x.value)(y.value);
+    };
+  },
+  Eq0: function() {
+    return argumentEq;
+  }
+};
+var compare28 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(argumentOrd));
+var compare29 = /* @__PURE__ */ compare(valueOrd);
+var argumentsOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare28(x)(y);
+    };
+  },
+  Eq0: function() {
+    return argumentsEq;
+  }
+};
+var compare30 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(argumentsOrd));
+var directiveOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare30(x["arguments"])(y["arguments"]);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return directiveEq;
+  }
+};
+var compare31 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(directiveOrd));
+var directivesOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare31(x)(y);
+    };
+  },
+  Eq0: function() {
+    return directivesEq;
+  }
+};
+var compare322 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(directivesOrd));
+var compare33 = /* @__PURE__ */ compare(directivesOrd);
+var enumValueDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare24(x.enumValue)(y.enumValue);
+    };
+  },
+  Eq0: function() {
+    return enumValueDefinitionEq;
+  }
+};
+var compare34 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(enumValueDefinitionOrd));
+var enumValuesDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare34(x)(y);
+    };
+  },
+  Eq0: function() {
+    return enumValuesDefinitionEq;
+  }
+};
+var compare35 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(enumValuesDefinitionOrd));
+var compare36 = /* @__PURE__ */ compare(enumValuesDefinitionOrd);
+var enumTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare35(x.enumValuesDefinition)(y.enumValuesDefinition);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return enumTypeDefinitionEq;
+  }
+};
+var compare37 = /* @__PURE__ */ compare(enumTypeDefinitionOrd);
+var enumTypeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof EnumTypeExtension_With_EnumValuesDefinition && y instanceof EnumTypeExtension_With_EnumValuesDefinition) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare36(x.value0.enumValuesDefinition)(y.value0.enumValuesDefinition);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      if (x instanceof EnumTypeExtension_With_EnumValuesDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof EnumTypeExtension_With_EnumValuesDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof EnumTypeExtension_With_Directives && y instanceof EnumTypeExtension_With_Directives) {
+        var v = compare33(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return enumTypeExtensionEq;
+  }
+};
+var compare38 = /* @__PURE__ */ compare(enumTypeExtensionOrd);
+var fragmentSpreadOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare322(x.directives)(y.directives);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.fragmentName)(y.fragmentName);
+    };
+  },
+  Eq0: function() {
+    return fragmentSpreadEq;
+  }
+};
+var compare39 = /* @__PURE__ */ compare(fragmentSpreadOrd);
+var scalarTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return scalarTypeDefinitionEq;
+  }
+};
+var compare40 = /* @__PURE__ */ compare(scalarTypeDefinitionOrd);
+var scalarTypeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare33(x.directives)(y.directives);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return scalarTypeExtensionEq;
+  }
+};
+var compare41 = /* @__PURE__ */ compare(scalarTypeExtensionOrd);
+var schemaDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare322(x.directives)(y.directives);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare132(x.rootOperationTypeDefinition)(y.rootOperationTypeDefinition);
+    };
+  },
+  Eq0: function() {
+    return schemaDefinitionEq;
+  }
+};
+var compare422 = /* @__PURE__ */ compare(schemaDefinitionOrd);
+var schemaExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof SchemaExtension_With_OperationTypeDefinition && y instanceof SchemaExtension_With_OperationTypeDefinition) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare122(x.value0.operationTypesDefinition)(y.value0.operationTypesDefinition);
+      }
+      ;
+      if (x instanceof SchemaExtension_With_OperationTypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof SchemaExtension_With_OperationTypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof SchemaExtension_With_Directives && y instanceof SchemaExtension_With_Directives) {
+        return compare33(x.value0.directives)(y.value0.directives);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return schemaExtensionEq;
+  }
+};
+var compare43 = /* @__PURE__ */ compare(schemaExtensionOrd);
+var unionTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare4(x.name)(y.name);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare16(x.unionMemberTypes)(y.unionMemberTypes);
+    };
+  },
+  Eq0: function() {
+    return unionTypeDefinitionEq;
+  }
+};
+var compare44 = /* @__PURE__ */ compare(unionTypeDefinitionOrd);
+var unionTypeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof UnionTypeExtension_With_UnionMemberTypes && y instanceof UnionTypeExtension_With_UnionMemberTypes) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare4(x.value0.name)(y.value0.name);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare17(x.value0.unionMemberTypes)(y.value0.unionMemberTypes);
+      }
+      ;
+      if (x instanceof UnionTypeExtension_With_UnionMemberTypes) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof UnionTypeExtension_With_UnionMemberTypes) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof UnionTypeExtension_With_Directives && y instanceof UnionTypeExtension_With_Directives) {
+        var v = compare33(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return unionTypeExtensionEq;
+  }
+};
+var compare45 = /* @__PURE__ */ compare(unionTypeExtensionOrd);
+var selectionSetOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare(ordList(selectionOrd))(x)(y);
+    };
+  },
+  Eq0: function() {
+    return selectionSetEq;
+  }
+};
+var selectionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof Selection_Field && y instanceof Selection_Field) {
+        return compare(fieldOrd)(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Selection_Field) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Selection_Field) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Selection_FragmentSpread && y instanceof Selection_FragmentSpread) {
+        return compare39(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Selection_FragmentSpread) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Selection_FragmentSpread) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Selection_InlineFragment && y instanceof Selection_InlineFragment) {
+        return compare(inlineFragmentOrd)(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return selectionEq;
+  }
+};
+var inlineFragmentOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare322(x.directives)(y.directives);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare(selectionSetOrd)(x.selectionSet)(y.selectionSet);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare14(x.typeCondition)(y.typeCondition);
+    };
+  },
+  Eq0: function() {
+    return inlineFragmentEq;
+  }
+};
+var fieldOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.alias)(y.alias);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare30(x["arguments"])(y["arguments"]);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare322(x.directives)(y.directives);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v3 = compare4(x.name)(y.name);
+      if (v3 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v3 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare(ordMaybe(selectionSetOrd))(x.selectionSet)(y.selectionSet);
+    };
+  },
+  Eq0: function() {
+    return fieldEq;
+  }
+};
+var compare46 = /* @__PURE__ */ compare(selectionSetOrd);
+var fragmentDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare322(x.directives)(y.directives);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare4(x.fragmentName)(y.fragmentName);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare46(x.selectionSet)(y.selectionSet);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare15(x.typeCondition)(y.typeCondition);
+    };
+  },
+  Eq0: function() {
+    return fragmentDefinitionEq;
+  }
+};
+var compare47 = /* @__PURE__ */ compare(fragmentDefinitionOrd);
+var defaultValueOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare29(x)(y);
+    };
+  },
+  Eq0: function() {
+    return defaultValueEq;
+  }
+};
+var compare48 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(defaultValueOrd));
+var inputValueDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare48(x.defaultValue)(y.defaultValue);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare42(x.description)(y.description);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare322(x.directives)(y.directives);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v3 = compare4(x.name)(y.name);
+      if (v3 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v3 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare18(x.type)(y.type);
+    };
+  },
+  Eq0: function() {
+    return inputValueDefinitionEq;
+  }
+};
+var compare49 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(inputValueDefinitionOrd));
+var argumentsDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare49(x)(y);
+    };
+  },
+  Eq0: function() {
+    return argumentsDefinitionEq;
+  }
+};
+var compare50 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(argumentsDefinitionOrd));
+var directiveDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare50(x.argumentsDefinition)(y.argumentsDefinition);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare42(x.description)(y.description);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare26(x.directiveLocations)(y.directiveLocations);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return directiveDefinitionEq;
+  }
+};
+var compare51 = /* @__PURE__ */ compare(directiveDefinitionOrd);
+var fieldDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare50(x.argumentsDefinition)(y.argumentsDefinition);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare42(x.description)(y.description);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare322(x.directives)(y.directives);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v3 = compare4(x.name)(y.name);
+      if (v3 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v3 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare18(x.type)(y.type);
+    };
+  },
+  Eq0: function() {
+    return fieldDefinitionEq;
+  }
+};
+var compare52 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(fieldDefinitionOrd));
+var fieldsDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare52(x)(y);
+    };
+  },
+  Eq0: function() {
+    return fieldsDefinitionEq;
+  }
+};
+var compare53 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(fieldsDefinitionOrd));
+var compare54 = /* @__PURE__ */ compare(fieldsDefinitionOrd);
+var interfaceTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare53(x.fieldsDefinition)(y.fieldsDefinition);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return interfaceTypeDefinitionEq;
+  }
+};
+var compare55 = /* @__PURE__ */ compare(interfaceTypeDefinitionOrd);
+var interfaceTypeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof InterfaceTypeExtension_With_FieldsDefinition && y instanceof InterfaceTypeExtension_With_FieldsDefinition) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare54(x.value0.fieldsDefinition)(y.value0.fieldsDefinition);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      if (x instanceof InterfaceTypeExtension_With_FieldsDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof InterfaceTypeExtension_With_FieldsDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof InterfaceTypeExtension_With_Directives && y instanceof InterfaceTypeExtension_With_Directives) {
+        var v = compare33(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return interfaceTypeExtensionEq;
+  }
+};
+var compare56 = /* @__PURE__ */ compare(interfaceTypeExtensionOrd);
+var objectTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare53(x.fieldsDefinition)(y.fieldsDefinition);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v3 = compare20(x.implementsInterfaces)(y.implementsInterfaces);
+      if (v3 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v3 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return objectTypeDefinitionEq;
+  }
+};
+var compare57 = /* @__PURE__ */ compare(objectTypeDefinitionOrd);
+var objectTypeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof ObjectTypeExtension_With_FieldsDefinition && y instanceof ObjectTypeExtension_With_FieldsDefinition) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare54(x.value0.fieldsDefinition)(y.value0.fieldsDefinition);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v2 = compare20(x.value0.implementsInterfaces)(y.value0.implementsInterfaces);
+        if (v2 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v2 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      if (x instanceof ObjectTypeExtension_With_FieldsDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof ObjectTypeExtension_With_FieldsDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof ObjectTypeExtension_With_Directives && y instanceof ObjectTypeExtension_With_Directives) {
+        var v = compare33(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare20(x.value0.implementsInterfaces)(y.value0.implementsInterfaces);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      if (x instanceof ObjectTypeExtension_With_Directives) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof ObjectTypeExtension_With_Directives) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof ObjectTypeExtension_With_ImplementsInterfaces && y instanceof ObjectTypeExtension_With_ImplementsInterfaces) {
+        var v = compare21(x.value0.implementsInterfaces)(y.value0.implementsInterfaces);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return objectTypeExtensionEq;
+  }
+};
+var compare58 = /* @__PURE__ */ compare(objectTypeExtensionOrd);
+var inputFieldsDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare49(x)(y);
+    };
+  },
+  Eq0: function() {
+    return inputFieldsDefinitionEq;
+  }
+};
+var compare59 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(inputFieldsDefinitionOrd));
+var compare60 = /* @__PURE__ */ compare(inputFieldsDefinitionOrd);
+var inputObjectTypeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare42(x.description)(y.description);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare322(x.directives)(y.directives);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v2 = compare59(x.inputFieldsDefinition)(y.inputFieldsDefinition);
+      if (v2 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v2 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare4(x.name)(y.name);
+    };
+  },
+  Eq0: function() {
+    return inputObjectTypeDefinitionEq;
+  }
+};
+var compare61 = /* @__PURE__ */ compare(inputObjectTypeDefinitionOrd);
+var typeDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof TypeDefinition_ScalarTypeDefinition && y instanceof TypeDefinition_ScalarTypeDefinition) {
+        return compare40(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_ScalarTypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeDefinition_ScalarTypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeDefinition_ObjectTypeDefinition && y instanceof TypeDefinition_ObjectTypeDefinition) {
+        return compare57(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_ObjectTypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeDefinition_ObjectTypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeDefinition_InterfaceTypeDefinition && y instanceof TypeDefinition_InterfaceTypeDefinition) {
+        return compare55(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_InterfaceTypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeDefinition_InterfaceTypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeDefinition_UnionTypeDefinition && y instanceof TypeDefinition_UnionTypeDefinition) {
+        return compare44(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_UnionTypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeDefinition_UnionTypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeDefinition_EnumTypeDefinition && y instanceof TypeDefinition_EnumTypeDefinition) {
+        return compare37(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeDefinition_EnumTypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeDefinition_EnumTypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeDefinition_InputObjectTypeDefinition && y instanceof TypeDefinition_InputObjectTypeDefinition) {
+        return compare61(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return typeDefinitionEq;
+  }
+};
+var compare62 = /* @__PURE__ */ compare(typeDefinitionOrd);
+var typeSystemDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof TypeSystemDefinition_SchemaDefinition && y instanceof TypeSystemDefinition_SchemaDefinition) {
+        return compare422(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeSystemDefinition_SchemaDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeSystemDefinition_SchemaDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeSystemDefinition_TypeDefinition && y instanceof TypeSystemDefinition_TypeDefinition) {
+        return compare62(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeSystemDefinition_TypeDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeSystemDefinition_TypeDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeSystemDefinition_DirectiveDefinition && y instanceof TypeSystemDefinition_DirectiveDefinition) {
+        return compare51(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return typeSystemDefinitionEq;
+  }
+};
+var compare63 = /* @__PURE__ */ compare(typeSystemDefinitionOrd);
+var inputObjectTypeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof InputObjectTypeExtension_With_InputFieldsDefinition && y instanceof InputObjectTypeExtension_With_InputFieldsDefinition) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare60(x.value0.inputFieldsDefinition)(y.value0.inputFieldsDefinition);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      if (x instanceof InputObjectTypeExtension_With_InputFieldsDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof InputObjectTypeExtension_With_InputFieldsDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof InputObjectTypeExtension_With_Directives && y instanceof InputObjectTypeExtension_With_Directives) {
+        var v = compare33(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare4(x.value0.name)(y.value0.name);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return inputObjectTypeExtensionEq;
+  }
+};
+var compare64 = /* @__PURE__ */ compare(inputObjectTypeExtensionOrd);
+var typeExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof TypeExtension_ScalarTypeExtension && y instanceof TypeExtension_ScalarTypeExtension) {
+        return compare41(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_ScalarTypeExtension) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeExtension_ScalarTypeExtension) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeExtension_ObjectTypeExtension && y instanceof TypeExtension_ObjectTypeExtension) {
+        return compare58(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_ObjectTypeExtension) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeExtension_ObjectTypeExtension) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeExtension_InterfaceTypeExtension && y instanceof TypeExtension_InterfaceTypeExtension) {
+        return compare56(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_InterfaceTypeExtension) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeExtension_InterfaceTypeExtension) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeExtension_UnionTypeExtension && y instanceof TypeExtension_UnionTypeExtension) {
+        return compare45(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_UnionTypeExtension) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeExtension_UnionTypeExtension) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeExtension_EnumTypeExtension && y instanceof TypeExtension_EnumTypeExtension) {
+        return compare38(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeExtension_EnumTypeExtension) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeExtension_EnumTypeExtension) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeExtension_InputObjectTypeExtension && y instanceof TypeExtension_InputObjectTypeExtension) {
+        return compare64(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return typeExtensionEq;
+  }
+};
+var compare65 = /* @__PURE__ */ compare(typeExtensionOrd);
+var typeSystemExtensionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof TypeSystemExtension_SchemaExtension && y instanceof TypeSystemExtension_SchemaExtension) {
+        return compare43(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof TypeSystemExtension_SchemaExtension) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof TypeSystemExtension_SchemaExtension) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof TypeSystemExtension_TypeExtension && y instanceof TypeSystemExtension_TypeExtension) {
+        return compare65(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return typeSystemExtensionEq;
+  }
+};
+var compare66 = /* @__PURE__ */ compare(typeSystemExtensionOrd);
+var variableDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      var v = compare48(x.defaultValue)(y.defaultValue);
+      if (v instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v instanceof GT) {
+        return GT.value;
+      }
+      ;
+      var v1 = compare18(x.type)(y.type);
+      if (v1 instanceof LT) {
+        return LT.value;
+      }
+      ;
+      if (v1 instanceof GT) {
+        return GT.value;
+      }
+      ;
+      return compare5(x.variable)(y.variable);
+    };
+  },
+  Eq0: function() {
+    return variableDefinitionEq;
+  }
+};
+var compare67 = /* @__PURE__ */ compare(/* @__PURE__ */ ordList(variableDefinitionOrd));
+var variableDefinitionsOrd = {
+  compare: function(x) {
+    return function(y) {
+      return compare67(x)(y);
+    };
+  },
+  Eq0: function() {
+    return variableDefinitionsEq;
+  }
+};
+var compare68 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(variableDefinitionsOrd));
+var operationDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof OperationDefinition_SelectionSet && y instanceof OperationDefinition_SelectionSet) {
+        return compare46(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof OperationDefinition_SelectionSet) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof OperationDefinition_SelectionSet) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof OperationDefinition_OperationType && y instanceof OperationDefinition_OperationType) {
+        var v = compare322(x.value0.directives)(y.value0.directives);
+        if (v instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v1 = compare42(x.value0.name)(y.value0.name);
+        if (v1 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v1 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v2 = compare8(x.value0.operationType)(y.value0.operationType);
+        if (v2 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v2 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        var v3 = compare46(x.value0.selectionSet)(y.value0.selectionSet);
+        if (v3 instanceof LT) {
+          return LT.value;
+        }
+        ;
+        if (v3 instanceof GT) {
+          return GT.value;
+        }
+        ;
+        return compare68(x.value0.variableDefinitions)(y.value0.variableDefinitions);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return operationDefinitionEq;
+  }
+};
+var compare69 = /* @__PURE__ */ compare(operationDefinitionOrd);
+var executableDefinitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof ExecutableDefinition_OperationDefinition && y instanceof ExecutableDefinition_OperationDefinition) {
+        return compare69(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof ExecutableDefinition_OperationDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof ExecutableDefinition_OperationDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof ExecutableDefinition_FragmentDefinition && y instanceof ExecutableDefinition_FragmentDefinition) {
+        return compare47(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return executableDefinitionEq;
+  }
+};
+var compare70 = /* @__PURE__ */ compare(executableDefinitionOrd);
+var definitionOrd = {
+  compare: function(x) {
+    return function(y) {
+      if (x instanceof Definition_ExecutableDefinition && y instanceof Definition_ExecutableDefinition) {
+        return compare70(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Definition_ExecutableDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Definition_ExecutableDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Definition_TypeSystemDefinition && y instanceof Definition_TypeSystemDefinition) {
+        return compare63(x.value0)(y.value0);
+      }
+      ;
+      if (x instanceof Definition_TypeSystemDefinition) {
+        return LT.value;
+      }
+      ;
+      if (y instanceof Definition_TypeSystemDefinition) {
+        return GT.value;
+      }
+      ;
+      if (x instanceof Definition_TypeSystemExtension && y instanceof Definition_TypeSystemExtension) {
+        return compare66(x.value0)(y.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Data.GraphQL.AST (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
+    };
+  },
+  Eq0: function() {
+    return definitionEq;
   }
 };
 var _TypeSystemDefinition_TypeDefinition = /* @__PURE__ */ function() {
@@ -16224,7 +19613,7 @@ var convchars = [{
 var bsearch = function(a) {
   return function(array) {
     return function(size3) {
-      return function(compare11) {
+      return function(compare78) {
         var go = function($copy_i) {
           return function($copy_k) {
             var $tco_var_i = $copy_i;
@@ -16239,7 +19628,7 @@ var bsearch = function(a) {
               if (otherwise) {
                 var j = floor2(toNumber(i + k | 0) / 2);
                 var b = unsafeIndex2(array)(j);
-                var v = compare11(a)(b);
+                var v = compare78(a)(b);
                 if (v instanceof EQ) {
                   $tco_done = true;
                   return new Just(b);
@@ -29949,7 +33338,7 @@ var uGencat = function($$char2) {
 };
 
 // output/Data.CodePoint.Unicode.Internal.Casing/index.js
-var compare4 = /* @__PURE__ */ compare(ordInt);
+var compare71 = /* @__PURE__ */ compare(ordInt);
 var zeroRec = function(code) {
   return {
     code,
@@ -41114,7 +44503,7 @@ var rules = [{
 }];
 var recCmp = function(v) {
   return function(v1) {
-    return compare4(v.code)(v1.code);
+    return compare71(v.code)(v1.code);
   };
 };
 var findRule = function(code) {
@@ -41159,7 +44548,7 @@ var upper = function(code) {
 
 // output/Data.CodePoint.Unicode/index.js
 var fromEnum3 = /* @__PURE__ */ fromEnum(boundedEnumCodePoint);
-var compare5 = /* @__PURE__ */ compare(ordInt);
+var compare72 = /* @__PURE__ */ compare(ordInt);
 var UppercaseLetter = /* @__PURE__ */ function() {
   function UppercaseLetter2() {
   }
@@ -41762,7 +45151,7 @@ var eqGeneralCategory = {
 var ordGeneralCategory = {
   compare: function(catA) {
     return function(catB) {
-      return compare5(generalCatToInt(catA))(generalCatToInt(catB));
+      return compare72(generalCatToInt(catA))(generalCatToInt(catB));
     };
   },
   Eq0: function() {
@@ -41926,14 +45315,12 @@ var regexUnicodeWords = /* @__PURE__ */ function() {
   var rsDingbat = "[\\u2700-\\u27bf]";
   var rsBreakRange = "\\xac\\xb1\\xd7\\xf7\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\xbf\\u2000-\\u206f \\t\\x0b\\f\\xa0\\ufeff\\n\\r\\u2028\\u2029\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000";
   var rsBreak = "[" + (rsBreakRange + "]");
-  var rsAstralRange = "\\ud800-\\udfff";
-  var rsMisc = "[^" + (rsAstralRange + (rsBreakRange + "\\d\\u2700-\\u27bfa-z\\xdf-\\xf6\\xf8-\\xffA-Z\\xc0-\\xd6\\xd8-\\xde]"));
+  var rsMisc = "[^" + ("\\ud800-\\udfff" + (rsBreakRange + "\\d\\u2700-\\u27bfa-z\\xdf-\\xf6\\xf8-\\xffA-Z\\xc0-\\xd6\\xd8-\\xde]"));
   var rsMiscLower = "(?:" + (rsLower + ("|" + (rsMisc + ")")));
   var rsMiscUpper = "(?:" + (rsUpper + ("|" + (rsMisc + ")")));
-  var rsNonAstral = "[^" + (rsAstralRange + "]");
-  var rsApos = "['\\u2019]";
-  var rsOptContrLower = "(?:" + (rsApos + "(?:d|ll|m|re|s|t|ve))?");
-  var rsOptContrUpper = "(?:" + (rsApos + "(?:D|LL|M|RE|S|T|VE))?");
+  var rsNonAstral = "[^\\ud800-\\udfff]";
+  var rsOptContrLower = "(?:['\\u2019](?:d|ll|m|re|s|t|ve))?";
+  var rsOptContrUpper = "(?:['\\u2019](?:D|LL|M|RE|S|T|VE))?";
   var rsComboRange = "\\u0300-\\u036f\\ufe20-\\ufe2f\\u20d0-\\u20ff\\u1ab0-\\u1aff\\u1dc0-\\u1dff";
   var rsCombo = "[" + (rsComboRange + "]");
   var rsModifier = "(?:" + (rsCombo + "|\\ud83c[\\udffb-\\udfff])");
@@ -44015,8 +47402,8 @@ var modify3 = function(f) {
     }
     ;
     return {
-      buffer: f(v.buffer),
-      queue: v.queue
+      queue: v.queue,
+      buffer: f(v.buffer)
     };
   };
 };
@@ -44249,19 +47636,19 @@ var storeOptions = function(prevIndent) {
         ribbonRatio: localOptions.ribbonRatio
       };
       return {
+        buffer: state2.buffer,
+        annotations: state2.annotations,
+        flexGroup: state2.flexGroup,
+        indentSpaces: localOptions.indentSpaces,
+        options: newOptions,
         position: {
           line: state2.position.line,
           column: state2.position.column,
           indent: state2.position.indent,
-          nextIndent: localOptions.indent,
           pageWidth: newOptions.pageWidth,
-          ribbonWidth: calcRibbonWidth(newOptions)(prevIndent)
-        },
-        buffer: state2.buffer,
-        annotations: state2.annotations,
-        indentSpaces: localOptions.indentSpaces,
-        flexGroup: state2.flexGroup,
-        options: newOptions
+          ribbonWidth: calcRibbonWidth(newOptions)(prevIndent),
+          nextIndent: localOptions.indent
+        }
       };
     };
   };
@@ -44270,9 +47657,9 @@ var print = function(v) {
   return function(opts) {
     var initOptions = {
       pageWidth: opts.pageWidth,
-      ribbonRatio: max1(0)(min3(1)(opts.ribbonRatio)),
       indentUnit: opts.indentUnit,
-      indentWidth: opts.indentWidth
+      indentWidth: opts.indentWidth,
+      ribbonRatio: max1(0)(min3(1)(opts.ribbonRatio))
     };
     var initState = {
       position: {
@@ -44312,19 +47699,19 @@ var print = function(v) {
                 if (state2.position.column === 0 && state2.position.indent > 0) {
                   $tco_var_stack = stack;
                   $copy_state = {
-                    position: {
-                      line: state2.position.line,
-                      column: state2.position.indent,
-                      indent: state2.position.indent,
-                      nextIndent: state2.position.nextIndent,
-                      pageWidth: state2.position.pageWidth,
-                      ribbonWidth: state2.position.ribbonWidth
-                    },
-                    buffer: modify3(v.writeIndent(state2.position.indent)(state2.indentSpaces))(state2.buffer),
                     annotations: state2.annotations,
                     indentSpaces: state2.indentSpaces,
                     flexGroup: state2.flexGroup,
-                    options: state2.options
+                    options: state2.options,
+                    position: {
+                      line: state2.position.line,
+                      indent: state2.position.indent,
+                      nextIndent: state2.position.nextIndent,
+                      pageWidth: state2.position.pageWidth,
+                      ribbonWidth: state2.position.ribbonWidth,
+                      column: state2.position.indent
+                    },
+                    buffer: modify3(v.writeIndent(state2.position.indent)(state2.indentSpaces))(state2.buffer)
                   };
                   return;
                 }
@@ -44332,19 +47719,19 @@ var print = function(v) {
                 if ((state2.position.column + stack.value0.value0.value0 | 0) <= (state2.position.indent + state2.position.ribbonWidth | 0)) {
                   $tco_var_stack = stack.value1;
                   $copy_state = {
-                    position: {
-                      line: state2.position.line,
-                      column: state2.position.column + stack.value0.value0.value0 | 0,
-                      indent: state2.position.indent,
-                      nextIndent: state2.position.nextIndent,
-                      pageWidth: state2.position.pageWidth,
-                      ribbonWidth: state2.position.ribbonWidth
-                    },
-                    buffer: modify3(v.writeText(stack.value0.value0.value0)(stack.value0.value0.value1))(state2.buffer),
                     annotations: state2.annotations,
                     indentSpaces: state2.indentSpaces,
                     flexGroup: state2.flexGroup,
-                    options: state2.options
+                    options: state2.options,
+                    position: {
+                      line: state2.position.line,
+                      indent: state2.position.indent,
+                      nextIndent: state2.position.nextIndent,
+                      pageWidth: state2.position.pageWidth,
+                      ribbonWidth: state2.position.ribbonWidth,
+                      column: state2.position.column + stack.value0.value0.value0 | 0
+                    },
+                    buffer: modify3(v.writeText(stack.value0.value0.value0)(stack.value0.value0.value1))(state2.buffer)
                   };
                   return;
                 }
@@ -44358,19 +47745,19 @@ var print = function(v) {
                   ;
                   $tco_var_stack = stack.value1;
                   $copy_state = {
+                    annotations: state2.annotations,
+                    indentSpaces: state2.indentSpaces,
+                    options: state2.options,
                     position: {
                       line: state2.position.line,
-                      column: state2.position.column + stack.value0.value0.value0 | 0,
                       indent: state2.position.indent,
                       nextIndent: state2.position.nextIndent,
                       pageWidth: state2.position.pageWidth,
-                      ribbonWidth: state2.position.ribbonWidth
+                      ribbonWidth: state2.position.ribbonWidth,
+                      column: state2.position.column + stack.value0.value0.value0 | 0
                     },
-                    buffer: modify3(v.writeText(stack.value0.value0.value0)(stack.value0.value0.value1))(state2.buffer),
-                    annotations: state2.annotations,
-                    indentSpaces: state2.indentSpaces,
                     flexGroup: NoFlexGroup.value,
-                    options: state2.options
+                    buffer: modify3(v.writeText(stack.value0.value0.value0)(stack.value0.value0.value1))(state2.buffer)
                   };
                   return;
                 }
@@ -44386,19 +47773,19 @@ var print = function(v) {
                 ;
                 $tco_var_stack = stack.value1;
                 $copy_state = {
+                  annotations: state2.annotations,
+                  indentSpaces: state2.indentSpaces,
+                  options: state2.options,
                   position: {
+                    nextIndent: state2.position.nextIndent,
+                    pageWidth: state2.position.pageWidth,
                     line: state2.position.line + 1 | 0,
                     column: 0,
                     indent: state2.position.nextIndent,
-                    nextIndent: state2.position.nextIndent,
-                    pageWidth: state2.position.pageWidth,
                     ribbonWidth: calcRibbonWidth(state2.options)(state2.position.nextIndent)
                   },
                   buffer: modify3(v.writeBreak)(state2.buffer),
-                  annotations: state2.annotations,
-                  indentSpaces: state2.indentSpaces,
-                  flexGroup: NoFlexGroup.value,
-                  options: state2.options
+                  flexGroup: NoFlexGroup.value
                 };
                 return;
               }
@@ -44407,19 +47794,19 @@ var print = function(v) {
                 if (state2.position.column === 0) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value0), new Cons(new Dedent(state2.indentSpaces, state2.position.nextIndent), stack.value1));
                   $copy_state = {
+                    buffer: state2.buffer,
+                    annotations: state2.annotations,
+                    flexGroup: state2.flexGroup,
+                    options: state2.options,
                     position: {
                       line: state2.position.line,
                       column: state2.position.column,
+                      pageWidth: state2.position.pageWidth,
                       indent: state2.position.nextIndent + opts.indentWidth | 0,
                       nextIndent: state2.position.nextIndent + opts.indentWidth | 0,
-                      pageWidth: state2.position.pageWidth,
                       ribbonWidth: calcRibbonWidth(state2.options)(state2.position.nextIndent + opts.indentWidth | 0)
                     },
-                    buffer: state2.buffer,
-                    annotations: state2.annotations,
-                    indentSpaces: state2.indentSpaces + opts.indentUnit,
-                    flexGroup: state2.flexGroup,
-                    options: state2.options
+                    indentSpaces: state2.indentSpaces + opts.indentUnit
                   };
                   return;
                 }
@@ -44427,19 +47814,19 @@ var print = function(v) {
                 if (otherwise) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value0), new Cons(new Dedent(state2.indentSpaces, state2.position.nextIndent), stack.value1));
                   $copy_state = {
+                    buffer: state2.buffer,
+                    annotations: state2.annotations,
+                    flexGroup: state2.flexGroup,
+                    options: state2.options,
                     position: {
                       line: state2.position.line,
                       column: state2.position.column,
                       indent: state2.position.indent,
-                      nextIndent: state2.position.nextIndent + opts.indentWidth | 0,
                       pageWidth: state2.position.pageWidth,
-                      ribbonWidth: state2.position.ribbonWidth
+                      ribbonWidth: state2.position.ribbonWidth,
+                      nextIndent: state2.position.nextIndent + opts.indentWidth | 0
                     },
-                    buffer: state2.buffer,
-                    annotations: state2.annotations,
-                    indentSpaces: state2.indentSpaces + opts.indentUnit,
-                    flexGroup: state2.flexGroup,
-                    options: state2.options
+                    indentSpaces: state2.indentSpaces + opts.indentUnit
                   };
                   return;
                 }
@@ -44450,19 +47837,19 @@ var print = function(v) {
                 if (state2.position.column === 0) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value1), new Cons(new Dedent(state2.indentSpaces, state2.position.nextIndent), stack.value1));
                   $copy_state = {
+                    buffer: state2.buffer,
+                    annotations: state2.annotations,
+                    flexGroup: state2.flexGroup,
+                    options: state2.options,
                     position: {
                       line: state2.position.line,
                       column: state2.position.column,
+                      pageWidth: state2.position.pageWidth,
                       indent: state2.position.nextIndent + stack.value0.value0.value0 | 0,
                       nextIndent: state2.position.nextIndent + stack.value0.value0.value0 | 0,
-                      pageWidth: state2.position.pageWidth,
                       ribbonWidth: calcRibbonWidth(state2.options)(state2.position.nextIndent + stack.value0.value0.value0 | 0)
                     },
-                    buffer: state2.buffer,
-                    annotations: state2.annotations,
-                    indentSpaces: state2.indentSpaces + power2(" ")(stack.value0.value0.value0),
-                    flexGroup: state2.flexGroup,
-                    options: state2.options
+                    indentSpaces: state2.indentSpaces + power2(" ")(stack.value0.value0.value0)
                   };
                   return;
                 }
@@ -44470,19 +47857,19 @@ var print = function(v) {
                 if (otherwise) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value1), new Cons(new Dedent(state2.indentSpaces, state2.position.nextIndent), stack.value1));
                   $copy_state = {
+                    buffer: state2.buffer,
+                    annotations: state2.annotations,
+                    flexGroup: state2.flexGroup,
+                    options: state2.options,
                     position: {
                       line: state2.position.line,
                       column: state2.position.column,
                       indent: state2.position.indent,
-                      nextIndent: state2.position.nextIndent + stack.value0.value0.value0 | 0,
                       pageWidth: state2.position.pageWidth,
-                      ribbonWidth: state2.position.ribbonWidth
+                      ribbonWidth: state2.position.ribbonWidth,
+                      nextIndent: state2.position.nextIndent + stack.value0.value0.value0 | 0
                     },
-                    buffer: state2.buffer,
-                    annotations: state2.annotations,
-                    indentSpaces: state2.indentSpaces + power2(" ")(stack.value0.value0.value0),
-                    flexGroup: state2.flexGroup,
-                    options: state2.options
+                    indentSpaces: state2.indentSpaces + power2(" ")(stack.value0.value0.value0)
                   };
                   return;
                 }
@@ -44497,8 +47884,8 @@ var print = function(v) {
                     buffer: state2.buffer,
                     annotations: state2.annotations,
                     indentSpaces: state2.indentSpaces,
-                    flexGroup: FlexGroupPending.value,
-                    options: state2.options
+                    options: state2.options,
+                    flexGroup: FlexGroupPending.value
                   };
                   return;
                 }
@@ -44507,11 +47894,11 @@ var print = function(v) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value0), new Cons(new Doc(stack.value0.value0.value1), stack.value1));
                   $copy_state = {
                     position: state2.position,
-                    buffer: branch(state2.buffer),
                     annotations: state2.annotations,
                     indentSpaces: state2.indentSpaces,
+                    options: state2.options,
                     flexGroup: new FlexGroupReset(storeState(stack)(state2)),
-                    options: state2.options
+                    buffer: branch(state2.buffer)
                   };
                   return;
                 }
@@ -44532,11 +47919,11 @@ var print = function(v) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value0), stack.value1);
                   $copy_state = {
                     position: state2.position,
-                    buffer: branch(state2.buffer),
                     annotations: state2.annotations,
                     indentSpaces: state2.indentSpaces,
+                    options: state2.options,
                     flexGroup: new FlexGroupReset(storeState(new Cons(new Doc(stack.value0.value0.value1), stack.value1))(state2)),
-                    options: state2.options
+                    buffer: branch(state2.buffer)
                   };
                   return;
                 }
@@ -44550,11 +47937,11 @@ var print = function(v) {
                 if (state2.position.column === 0 && state2.position.nextIndent > 0) {
                   $tco_var_stack = new Cons(new Doc(stack.value0.value0.value0({
                     line: state2.position.line,
-                    column: state2.position.nextIndent,
                     indent: state2.position.indent,
                     nextIndent: state2.position.nextIndent,
                     pageWidth: state2.position.pageWidth,
-                    ribbonWidth: state2.position.ribbonWidth
+                    ribbonWidth: state2.position.ribbonWidth,
+                    column: state2.position.nextIndent
                   })), stack.value1);
                   $copy_state = state2;
                   return;
@@ -44572,11 +47959,11 @@ var print = function(v) {
                 $tco_var_stack = new Cons(new Doc(stack.value0.value0.value1), new Cons(new LeaveAnnotation(stack.value0.value0.value0, state2.annotations), stack.value1));
                 $copy_state = {
                   position: state2.position,
-                  buffer: modify3(v.enterAnnotation(stack.value0.value0.value0)(state2.annotations))(state2.buffer),
-                  annotations: new Cons(stack.value0.value0.value0, state2.annotations),
                   indentSpaces: state2.indentSpaces,
                   flexGroup: state2.flexGroup,
-                  options: state2.options
+                  options: state2.options,
+                  annotations: new Cons(stack.value0.value0.value0, state2.annotations),
+                  buffer: modify3(v.enterAnnotation(stack.value0.value0.value0)(state2.annotations))(state2.buffer)
                 };
                 return;
               }
@@ -44610,11 +47997,11 @@ var print = function(v) {
                 $tco_var_stack = new Cons(new Doc(stack.value0.value1), stack.value1);
                 $copy_state = {
                   position: state2.position,
-                  buffer: commit(state2.buffer),
                   annotations: state2.annotations,
                   indentSpaces: state2.indentSpaces,
                   flexGroup: state2.flexGroup,
-                  options: state2.options
+                  options: state2.options,
+                  buffer: commit(state2.buffer)
                 };
                 return;
               }
@@ -44622,11 +48009,11 @@ var print = function(v) {
               $tco_var_stack = new Cons(new Doc(stack.value0.value0), stack.value1);
               $copy_state = {
                 position: state2.position,
-                buffer: commit(state2.buffer),
                 annotations: state2.annotations,
                 indentSpaces: state2.indentSpaces,
+                options: state2.options,
                 flexGroup: NoFlexGroup.value,
-                options: state2.options
+                buffer: commit(state2.buffer)
               };
               return;
             }
@@ -44634,19 +48021,19 @@ var print = function(v) {
             if (stack.value0 instanceof Dedent) {
               $tco_var_stack = stack.value1;
               $copy_state = {
+                buffer: state2.buffer,
+                annotations: state2.annotations,
+                flexGroup: state2.flexGroup,
+                options: state2.options,
                 position: {
                   line: state2.position.line,
                   column: state2.position.column,
                   indent: state2.position.indent,
-                  nextIndent: stack.value0.value1,
                   pageWidth: state2.position.pageWidth,
-                  ribbonWidth: state2.position.ribbonWidth
+                  ribbonWidth: state2.position.ribbonWidth,
+                  nextIndent: stack.value0.value1
                 },
-                buffer: state2.buffer,
-                annotations: state2.annotations,
-                indentSpaces: stack.value0.value0,
-                flexGroup: state2.flexGroup,
-                options: state2.options
+                indentSpaces: stack.value0.value0
               };
               return;
             }
@@ -44655,11 +48042,11 @@ var print = function(v) {
               $tco_var_stack = stack.value1;
               $copy_state = {
                 position: state2.position,
-                buffer: modify3(v.leaveAnnotation(stack.value0.value0)(stack.value0.value1))(state2.buffer),
-                annotations: stack.value0.value1,
                 indentSpaces: state2.indentSpaces,
                 flexGroup: state2.flexGroup,
-                options: state2.options
+                options: state2.options,
+                annotations: stack.value0.value1,
+                buffer: modify3(v.leaveAnnotation(stack.value0.value0)(stack.value0.value1))(state2.buffer)
               };
               return;
             }
@@ -44727,9 +48114,9 @@ var splitLines = /* @__PURE__ */ split2(/* @__PURE__ */ unsafeRegex("\\r?\\n")(g
 var overLabel = function(k) {
   return function(v) {
     return {
-      label: k(v.label),
       separator: v.separator,
-      value: v.value
+      value: v.value,
+      label: k(v.label)
     };
   };
 };
@@ -44740,7 +48127,7 @@ var nameOf = function(v) {
 // output/Tidy.Doc/index.js
 var mempty4 = /* @__PURE__ */ mempty(monoidDoc);
 var sort3 = /* @__PURE__ */ sort2(ordInt);
-var eq4 = /* @__PURE__ */ eq(eqCodePoint);
+var eq71 = /* @__PURE__ */ eq(eqCodePoint);
 var voidLeft2 = /* @__PURE__ */ voidLeft(functorMaybe);
 var guard3 = /* @__PURE__ */ guard2(alternativeMaybe);
 var power3 = /* @__PURE__ */ power(monoidString);
@@ -44776,16 +48163,16 @@ var sourceBreak = function(n) {
   return function(v) {
     return {
       doc: v.doc,
+      multiline: v.multiline,
+      trailing: v.trailing,
       isEmpty: false,
       leading: {
         doc: v.leading.doc,
         left: v.leading.left,
-        lines: v.leading.lines + n | 0,
         multiline: v.leading.multiline,
-        right: v.leading.right
-      },
-      multiline: v.multiline,
-      trailing: v.trailing
+        right: v.leading.right,
+        lines: v.leading.lines + n | 0
+      }
     };
   };
 };
@@ -44798,21 +48185,21 @@ var mapDocs = function(k) {
     ;
     if (otherwise) {
       return {
-        doc: k(v.doc),
         isEmpty: v.isEmpty,
+        multiline: v.multiline,
+        doc: k(v.doc),
         leading: {
-          doc: k(v.leading.doc),
           left: v.leading.left,
           lines: v.leading.lines,
           multiline: v.leading.multiline,
-          right: v.leading.right
+          right: v.leading.right,
+          doc: k(v.leading.doc)
         },
-        multiline: v.multiline,
         trailing: {
-          doc: k(v.trailing.doc),
           left: v.trailing.left,
           multiline: v.trailing.multiline,
-          right: v.trailing.right
+          right: v.trailing.right,
+          doc: k(v.trailing.doc)
         }
       };
     }
@@ -44823,11 +48210,11 @@ var mapDocs = function(k) {
 var locally2 = function(k) {
   return function(v) {
     return {
-      doc: locally(k)(v.doc),
       isEmpty: v.isEmpty,
       leading: v.leading,
       multiline: v.multiline,
-      trailing: v.trailing
+      trailing: v.trailing,
+      doc: locally(k)(v.doc)
     };
   };
 };
@@ -44843,7 +48230,7 @@ var formatBlockComment = function($187) {
     ;
     if (v instanceof Just) {
       var prefixSpaces = head2(sort3(mapMaybe2(function(str) {
-        var spaces = length2(takeWhile3(eq4(codePointFromChar(" ")))(str));
+        var spaces = length2(takeWhile3(eq71(codePointFromChar(" ")))(str));
         return voidLeft2(guard3(spaces < length2(str)))(spaces);
       })(v.value0.tail)));
       if (prefixSpaces instanceof Nothing) {
@@ -44868,12 +48255,12 @@ var formatBlockComment = function($187) {
             var $112 = newIndent < prev.indent;
             if ($112) {
               return {
-                indent: newIndent,
-                indentSpaces: spaces,
                 indentUnit: prev.indentUnit,
                 indentWidth: prev.indentWidth,
                 pageWidth: prev.pageWidth,
-                ribbonRatio: prev.ribbonRatio
+                ribbonRatio: prev.ribbonRatio,
+                indentSpaces: spaces,
+                indent: newIndent
               };
             }
             ;
@@ -44898,15 +48285,15 @@ var forceMinSourceBreaks = function(n) {
       return {
         doc: v.doc,
         isEmpty: v.isEmpty,
+        multiline: v.multiline,
+        trailing: v.trailing,
         leading: {
           doc: v.leading.doc,
           left: v.leading.left,
-          lines: max4(v.leading.lines)(n),
           multiline: v.leading.multiline,
-          right: v.leading.right
-        },
-        multiline: v.multiline,
-        trailing: v.trailing
+          right: v.leading.right,
+          lines: max4(v.leading.lines)(n)
+        }
       };
     }
     ;
@@ -44933,11 +48320,11 @@ var flexGroup2 = function(v) {
   ;
   if (otherwise) {
     return {
-      doc: flexGroup(v.doc),
       isEmpty: v.isEmpty,
       leading: v.leading,
       multiline: v.multiline,
-      trailing: v.trailing
+      trailing: v.trailing,
+      doc: flexGroup(v.doc)
     };
   }
   ;
@@ -44948,15 +48335,15 @@ var flattenMax = function(n) {
     return {
       doc: v.doc,
       isEmpty: v.isEmpty,
+      multiline: v.multiline,
+      trailing: v.trailing,
       leading: {
         doc: v.leading.doc,
         left: v.leading.left,
-        lines: min4(v.leading.lines)(n),
         multiline: v.leading.multiline,
-        right: v.leading.right
-      },
-      multiline: v.multiline,
-      trailing: v.trailing
+        right: v.leading.right,
+        lines: min4(v.leading.lines)(n)
+      }
     };
   };
 };
@@ -44980,7 +48367,7 @@ var eqForceBreak = {
     };
   }
 };
-var eq22 = /* @__PURE__ */ eq(eqForceBreak);
+var eq210 = /* @__PURE__ */ eq(eqForceBreak);
 var ordForceBreak = {
   compare: function(x) {
     return function(y) {
@@ -45090,18 +48477,18 @@ var flexDoubleBreak = function(v) {
       var $139 = v1.leading.lines >= 2 || v.multiline;
       if ($139) {
         return {
-          doc: append3(docLeft)(append3($$break)(append3($$break)(docRight))),
           isEmpty: v.isEmpty,
           leading: v.leading,
+          doc: append3(docLeft)(append3($$break)(append3($$break)(docRight))),
           multiline: true,
           trailing: v1.trailing
         };
       }
       ;
       return {
-        doc: append3(flexSelect(docLeft)(mempty4)($$break))(append3($$break)(docRight)),
         isEmpty: v.isEmpty,
         leading: v.leading,
+        doc: append3(flexSelect(docLeft)(mempty4)($$break))(append3($$break)(docRight)),
         multiline: true,
         trailing: v1.trailing
       };
@@ -45127,9 +48514,9 @@ var joinDoc = function(spaceFn) {
         var $145 = v1.leading.lines > 0;
         if ($145) {
           return {
-            doc: append3(docLeft)(append3(breaks(ForceBreak.value)(v1.leading.lines))(docRight)),
             isEmpty: v.isEmpty,
             leading: v.leading,
+            doc: append3(docLeft)(append3(breaks(ForceBreak.value)(v1.leading.lines))(docRight)),
             multiline: true,
             trailing: v1.trailing
           };
@@ -45137,9 +48524,9 @@ var joinDoc = function(spaceFn) {
         ;
         var v2 = spaceFn(max12(v.trailing.right)(v1.leading.left))(v1.leading.multiline || v1.multiline)(docRight);
         return {
-          doc: append3(docLeft)(v2.value1),
           isEmpty: v.isEmpty,
           leading: v.leading,
+          doc: append3(docLeft)(v2.value1),
           multiline: v.trailing.multiline || (v.multiline || v2.value0),
           trailing: v1.trailing
         };
@@ -45251,18 +48638,18 @@ var semigroupLeadingComment = {
       if (isEmpty2(v.doc)) {
         return {
           doc: v1.doc,
-          left: max12(v.left)(v1.left),
-          lines: v.lines + v1.lines | 0,
           multiline: v1.multiline,
-          right: v1.right
+          right: v1.right,
+          left: max12(v.left)(v1.left),
+          lines: v.lines + v1.lines | 0
         };
       }
       ;
       if (isEmpty2(v1.doc)) {
         return {
-          doc: append3(v.doc)(breaks(ForceNone.value)(v1.lines)),
           left: v.left,
           lines: v.lines,
+          doc: append3(v.doc)(breaks(ForceNone.value)(v1.lines)),
           multiline: v.multiline || v1.lines > 0,
           right: function() {
             var $164 = v1.lines > 0;
@@ -45277,21 +48664,21 @@ var semigroupLeadingComment = {
       ;
       if (otherwise) {
         var br = max12(v.right)(v1.left);
-        var $165 = v1.lines > 0 || eq22(br)(ForceBreak.value);
+        var $165 = v1.lines > 0 || eq210(br)(ForceBreak.value);
         if ($165) {
           return {
-            doc: append3(v.doc)(append3(breaks(ForceBreak.value)(v1.lines))(v1.doc)),
             left: v.left,
             lines: v.lines,
+            doc: append3(v.doc)(append3(breaks(ForceBreak.value)(v1.lines))(v1.doc)),
             multiline: true,
             right: v1.right
           };
         }
         ;
         return {
-          doc: append3(v.doc)(breakDoc(br)(v1.doc)),
           left: v.left,
           lines: v.lines,
+          doc: append3(v.doc)(breakDoc(br)(v1.doc)),
           multiline: v.multiline || v1.multiline,
           right: v1.right
         };
@@ -45314,10 +48701,10 @@ var leadingBlockComment = function(str) {
     };
     return {
       doc: v.doc,
-      isEmpty: false,
-      leading: append13(comm)(v.leading),
       multiline: v.multiline,
-      trailing: v.trailing
+      trailing: v.trailing,
+      leading: append13(comm)(v.leading),
+      isEmpty: false
     };
   };
 };
@@ -45332,10 +48719,10 @@ var leadingLineComment = function(str) {
     };
     return {
       doc: v.doc,
-      isEmpty: false,
-      leading: append13(comm)(v.leading),
       multiline: v.multiline,
-      trailing: v.trailing
+      trailing: v.trailing,
+      leading: append13(comm)(v.leading),
+      isEmpty: false
     };
   };
 };
@@ -45360,9 +48747,9 @@ var semigroupTrailingComment = {
       if (isEmpty2(v.doc)) {
         return {
           doc: v1.doc,
-          left: max12(v.left)(v1.left),
           multiline: v1.multiline,
-          right: v1.right
+          right: v1.right,
+          left: max12(v.left)(v1.left)
         };
       }
       ;
@@ -45377,8 +48764,8 @@ var semigroupTrailingComment = {
       ;
       if (otherwise) {
         return {
-          doc: append3(v.doc)(breakDoc(max12(v.right)(v1.left))(v1.doc)),
           left: v.left,
+          doc: append3(v.doc)(breakDoc(max12(v.right)(v1.left))(v1.doc)),
           multiline: v.multiline || v1.multiline,
           right: v1.right
         };
@@ -45400,10 +48787,10 @@ var trailingBlockComment = function(str) {
     };
     return {
       doc: v.doc,
-      isEmpty: false,
       leading: v.leading,
       multiline: v.multiline,
-      trailing: append22(comm)(v.trailing)
+      trailing: append22(comm)(v.trailing),
+      isEmpty: false
     };
   };
 };
@@ -45417,10 +48804,10 @@ var trailingLineComment = function(str) {
     };
     return {
       doc: v.doc,
-      isEmpty: false,
       leading: v.leading,
       multiline: v.multiline,
-      trailing: append22(comm)(v.trailing)
+      trailing: append22(comm)(v.trailing),
+      isEmpty: false
     };
   };
 };
@@ -45501,15 +48888,15 @@ var anchor = function(v) {
     return {
       doc: v.doc,
       isEmpty: v.isEmpty,
+      trailing: v.trailing,
       leading: {
         doc: v.leading.doc,
         left: v.leading.left,
-        lines: 0,
         multiline: v.leading.multiline,
-        right: v.leading.right
+        right: v.leading.right,
+        lines: 0
       },
-      multiline: true,
-      trailing: v.trailing
+      multiline: true
     };
   }
   ;
@@ -45523,7 +48910,7 @@ var align2 = function($189) {
 // output/Tidy.Hang/index.js
 var pure5 = /* @__PURE__ */ pure(applicativeNonEmptyArray);
 var append14 = /* @__PURE__ */ append(semigroupDoc);
-var eq5 = /* @__PURE__ */ eq(eqForceBreak);
+var eq72 = /* @__PURE__ */ eq(eqForceBreak);
 var mempty5 = /* @__PURE__ */ mempty(monoidDoc);
 var notEq4 = /* @__PURE__ */ notEq(eqForceBreak);
 var max5 = /* @__PURE__ */ max(ordForceBreak);
@@ -45670,11 +49057,11 @@ var forceBreaks = function(n) {
 };
 var breaks2 = function(fl) {
   return function(n) {
-    if (eq5(fl)(ForceBreak.value) || n > 0) {
+    if (eq72(fl)(ForceBreak.value) || n > 0) {
       return forceBreaks(n);
     }
     ;
-    if (eq5(fl)(ForceSpace.value)) {
+    if (eq72(fl)(ForceSpace.value)) {
       return space;
     }
     ;
@@ -45739,7 +49126,7 @@ var toFormatDoc = /* @__PURE__ */ function() {
     return function(v1) {
       return function(v2) {
         var $$break3 = function() {
-          if (eq5(v.leading.left)(ForceBreak.value) || v.leading.lines > 0) {
+          if (eq72(v.leading.left)(ForceBreak.value) || v.leading.lines > 0) {
             return $$break;
           }
           ;
@@ -45800,7 +49187,7 @@ var toFormatDoc = /* @__PURE__ */ function() {
     }
     ;
     if (otherwise) {
-      var $105 = eq5(v.leading.left)(ForceBreak.value) || v.leading.lines > 0;
+      var $105 = eq72(v.leading.left)(ForceBreak.value) || v.leading.lines > 0;
       if ($105) {
         return v;
       }
@@ -45811,11 +49198,11 @@ var toFormatDoc = /* @__PURE__ */ function() {
       }
       ;
       return {
-        doc: append14(spaceBreak)(append14(v.leading.doc)(breakDoc(v.leading.right)(v.doc))),
         isEmpty: v.isEmpty,
-        leading: mempty12,
         multiline: v.multiline,
-        trailing: v.trailing
+        trailing: v.trailing,
+        doc: append14(spaceBreak)(append14(v.leading.doc)(breakDoc(v.leading.right)(v.doc))),
+        leading: mempty12
       };
     }
     ;
@@ -45998,7 +49385,7 @@ var toFormatDoc = /* @__PURE__ */ function() {
 }();
 
 // output/Tidy.Precedence/index.js
-var compare6 = /* @__PURE__ */ compare(ordInt);
+var compare73 = /* @__PURE__ */ compare(ordInt);
 var append4 = /* @__PURE__ */ append(semigroupNonEmptyArray);
 var ordMaybe2 = /* @__PURE__ */ ordMaybe(ordModuleName);
 var alter2 = /* @__PURE__ */ alter(ordMaybe2);
@@ -46159,7 +49546,7 @@ var push2 = function($copy_stk) {
         }
         ;
         if (stk instanceof OpPrec) {
-          var v = compare6(chs.value0.value0)(stk.value1);
+          var v = compare73(chs.value0.value0)(stk.value1);
           if (v instanceof EQ) {
             $tco_done = true;
             return new OpPrec(stk.value0, stk.value1, append4(stk.value2)(chs.value0.value1));
@@ -46190,7 +49577,7 @@ var push2 = function($copy_stk) {
         }
         ;
         if (stk instanceof OpPrec) {
-          var v = compare6(chs.value0.value0)(stk.value1);
+          var v = compare73(chs.value0.value0)(stk.value1);
           if (v instanceof EQ) {
             $tco_var_stk = new OpPrec(stk.value0, stk.value1, append4(stk.value2)(chs.value0.value1));
             $copy_chs = chs.value1;
@@ -46559,21 +49946,21 @@ var joinWithMap22 = /* @__PURE__ */ joinWithMap(foldableNonEmptyArray);
 var identity16 = /* @__PURE__ */ identity(categoryFn);
 var foldl13 = /* @__PURE__ */ foldl(foldableNonEmptyArray);
 var guard4 = /* @__PURE__ */ guard(monoidFormatDoc);
-var eq12 = /* @__PURE__ */ eq(eqUnicodeOption);
-var eq23 = /* @__PURE__ */ eq(eqProper);
-var eq32 = /* @__PURE__ */ eq(eqOperator);
-var eq52 = /* @__PURE__ */ eq(/* @__PURE__ */ eqArray(eqProper));
-var eq6 = /* @__PURE__ */ eq(eqIdent);
-var eq7 = /* @__PURE__ */ eq(eqModuleName);
-var eq9 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(eqModuleName));
-var compare7 = /* @__PURE__ */ compare(ordProper);
-var compare12 = /* @__PURE__ */ compare(ordOperator);
-var compare22 = /* @__PURE__ */ compare(ordBoolean);
-var compare32 = /* @__PURE__ */ compare(/* @__PURE__ */ ordArray(ordProper));
-var compare42 = /* @__PURE__ */ compare(ordIdent);
-var compare52 = /* @__PURE__ */ compare(ordModuleName);
-var compare62 = /* @__PURE__ */ compare(ordInt);
-var compare72 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(ordModuleName));
+var eq110 = /* @__PURE__ */ eq(eqUnicodeOption);
+var eq211 = /* @__PURE__ */ eq(eqProper);
+var eq310 = /* @__PURE__ */ eq(eqOperator);
+var eq510 = /* @__PURE__ */ eq(/* @__PURE__ */ eqArray(eqProper));
+var eq610 = /* @__PURE__ */ eq(eqIdent);
+var eq73 = /* @__PURE__ */ eq(eqModuleName);
+var eq92 = /* @__PURE__ */ eq(/* @__PURE__ */ eqMaybe(eqModuleName));
+var compare74 = /* @__PURE__ */ compare(ordProper);
+var compare110 = /* @__PURE__ */ compare(ordOperator);
+var compare210 = /* @__PURE__ */ compare(ordBoolean);
+var compare310 = /* @__PURE__ */ compare(/* @__PURE__ */ ordArray(ordProper));
+var compare410 = /* @__PURE__ */ compare(ordIdent);
+var compare510 = /* @__PURE__ */ compare(ordModuleName);
+var compare610 = /* @__PURE__ */ compare(ordInt);
+var compare75 = /* @__PURE__ */ compare(/* @__PURE__ */ ordMaybe(ordModuleName));
 var un2 = /* @__PURE__ */ un();
 var bindFlipped5 = /* @__PURE__ */ bindFlipped(bindFn);
 var foldMap33 = /* @__PURE__ */ foldMap14(monoidFormatDoc);
@@ -47012,12 +50399,12 @@ var formatRawString = /* @__PURE__ */ function() {
     ;
     return fromDoc(lines3([text(v.head), locally(function(v1) {
       return {
-        indent: 0,
-        indentSpaces: "",
         indentUnit: v1.indentUnit,
         indentWidth: v1.indentWidth,
         pageWidth: v1.pageWidth,
-        ribbonRatio: v1.ribbonRatio
+        ribbonRatio: v1.ribbonRatio,
+        indent: 0,
+        indentSpaces: ""
       };
     })(intercalate6($$break)(map17(text)(v.tail)))]));
   });
@@ -47698,21 +51085,21 @@ var formatDataCtor = function(conf) {
 var formatConstraints = function(conf) {
   return function(v) {
     var unicodeArr = function() {
-      if (v.value1.value instanceof TokOperator && (v.value1.value.value0 instanceof Nothing && (v.value1.value.value1 === "<=" && eq12(conf.unicode)(UnicodeAlways.value)))) {
+      if (v.value1.value instanceof TokOperator && (v.value1.value.value0 instanceof Nothing && (v.value1.value.value1 === "<=" && eq110(conf.unicode)(UnicodeAlways.value)))) {
         return {
-          value: new TokOperator(Nothing.value, "\u21D0"),
           leadingComments: v.value1.leadingComments,
           range: v.value1.range,
-          trailingComments: v.value1.trailingComments
+          trailingComments: v.value1.trailingComments,
+          value: new TokOperator(Nothing.value, "\u21D0")
         };
       }
       ;
-      if (v.value1.value instanceof TokOperator && (v.value1.value.value0 instanceof Nothing && (v.value1.value.value1 === "\u21D0" && eq12(conf.unicode)(UnicodeNever.value)))) {
+      if (v.value1.value instanceof TokOperator && (v.value1.value.value0 instanceof Nothing && (v.value1.value.value1 === "\u21D0" && eq110(conf.unicode)(UnicodeNever.value)))) {
         return {
-          value: new TokOperator(Nothing.value, "<="),
           leadingComments: v.value1.leadingComments,
           range: v.value1.range,
-          trailingComments: v.value1.trailingComments
+          trailingComments: v.value1.trailingComments,
+          value: new TokOperator(Nothing.value, "<=")
         };
       }
       ;
@@ -47827,23 +51214,23 @@ var eqImportComparison = {
   eq: function(x) {
     return function(y) {
       if (x instanceof ImportClassCmp && y instanceof ImportClassCmp) {
-        return eq23(x.value0)(y.value0);
+        return eq211(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportTypeOpCmp && y instanceof ImportTypeOpCmp) {
-        return eq32(x.value0)(y.value0);
+        return eq310(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportTypeCmp && y instanceof ImportTypeCmp) {
-        return eq23(x.value0)(y.value0) && x.value1 === y.value1 && eq52(x.value2)(y.value2);
+        return eq211(x.value0)(y.value0) && x.value1 === y.value1 && eq510(x.value2)(y.value2);
       }
       ;
       if (x instanceof ImportValueCmp && y instanceof ImportValueCmp) {
-        return eq6(x.value0)(y.value0);
+        return eq610(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportOpCmp && y instanceof ImportOpCmp) {
-        return eq32(x.value0)(y.value0);
+        return eq310(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportErrorCmp && y instanceof ImportErrorCmp) {
@@ -47854,11 +51241,11 @@ var eqImportComparison = {
     };
   }
 };
-var eq10 = /* @__PURE__ */ eq(/* @__PURE__ */ eqArray(eqImportComparison));
+var eq102 = /* @__PURE__ */ eq(/* @__PURE__ */ eqArray(eqImportComparison));
 var eqImportModuleComparison = {
   eq: function(x) {
     return function(y) {
-      return eq7(x.value0)(y.value0) && x.value1 === y.value1 && eq10(x.value2)(y.value2) && eq9(x.value3)(y.value3);
+      return eq73(x.value0)(y.value0) && x.value1 === y.value1 && eq102(x.value2)(y.value2) && eq92(x.value3)(y.value3);
     };
   }
 };
@@ -47866,7 +51253,7 @@ var ordImportComparison = {
   compare: function(x) {
     return function(y) {
       if (x instanceof ImportClassCmp && y instanceof ImportClassCmp) {
-        return compare7(x.value0)(y.value0);
+        return compare74(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportClassCmp) {
@@ -47878,7 +51265,7 @@ var ordImportComparison = {
       }
       ;
       if (x instanceof ImportTypeOpCmp && y instanceof ImportTypeOpCmp) {
-        return compare12(x.value0)(y.value0);
+        return compare110(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportTypeOpCmp) {
@@ -47890,7 +51277,7 @@ var ordImportComparison = {
       }
       ;
       if (x instanceof ImportTypeCmp && y instanceof ImportTypeCmp) {
-        var v = compare7(x.value0)(y.value0);
+        var v = compare74(x.value0)(y.value0);
         if (v instanceof LT) {
           return LT.value;
         }
@@ -47899,7 +51286,7 @@ var ordImportComparison = {
           return GT.value;
         }
         ;
-        var v1 = compare22(x.value1)(y.value1);
+        var v1 = compare210(x.value1)(y.value1);
         if (v1 instanceof LT) {
           return LT.value;
         }
@@ -47908,7 +51295,7 @@ var ordImportComparison = {
           return GT.value;
         }
         ;
-        return compare32(x.value2)(y.value2);
+        return compare310(x.value2)(y.value2);
       }
       ;
       if (x instanceof ImportTypeCmp) {
@@ -47920,7 +51307,7 @@ var ordImportComparison = {
       }
       ;
       if (x instanceof ImportValueCmp && y instanceof ImportValueCmp) {
-        return compare42(x.value0)(y.value0);
+        return compare410(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportValueCmp) {
@@ -47932,7 +51319,7 @@ var ordImportComparison = {
       }
       ;
       if (x instanceof ImportOpCmp && y instanceof ImportOpCmp) {
-        return compare12(x.value0)(y.value0);
+        return compare110(x.value0)(y.value0);
       }
       ;
       if (x instanceof ImportOpCmp) {
@@ -47954,12 +51341,12 @@ var ordImportComparison = {
     return eqImportComparison;
   }
 };
-var compare8 = /* @__PURE__ */ compare(/* @__PURE__ */ ordArray(ordImportComparison));
+var compare82 = /* @__PURE__ */ compare(/* @__PURE__ */ ordArray(ordImportComparison));
 var sortWith3 = /* @__PURE__ */ sortWith2(ordImportComparison);
 var ordImportModuleComparison = {
   compare: function(x) {
     return function(y) {
-      var v = compare52(x.value0)(y.value0);
+      var v = compare510(x.value0)(y.value0);
       if (v instanceof LT) {
         return LT.value;
       }
@@ -47968,7 +51355,7 @@ var ordImportModuleComparison = {
         return GT.value;
       }
       ;
-      var v1 = compare62(x.value1)(y.value1);
+      var v1 = compare610(x.value1)(y.value1);
       if (v1 instanceof LT) {
         return LT.value;
       }
@@ -47977,7 +51364,7 @@ var ordImportModuleComparison = {
         return GT.value;
       }
       ;
-      var v2 = compare8(x.value2)(y.value2);
+      var v2 = compare82(x.value2)(y.value2);
       if (v2 instanceof LT) {
         return LT.value;
       }
@@ -47986,7 +51373,7 @@ var ordImportModuleComparison = {
         return GT.value;
       }
       ;
-      return compare72(x.value3)(y.value3);
+      return compare75(x.value3)(y.value3);
     };
   },
   Eq0: function() {
@@ -48244,9 +51631,9 @@ var formatLetBinding = function(conf) {
   return function(v) {
     if (v instanceof LetBindingSignature) {
       return formatSignature(conf)({
-        label: formatName(conf)(v.value0.label),
         separator: v.value0.separator,
-        value: v.value0.value
+        value: v.value0.value,
+        label: formatName(conf)(v.value0.label)
       });
     }
     ;
@@ -48711,7 +52098,7 @@ var formatTopLevelGroups = /* @__PURE__ */ function() {
   var topDeclGroupSeparator = function(v) {
     return function(v1) {
       if (v instanceof DeclGroupValue && v1 instanceof DeclGroupValue) {
-        var $968 = eq6(v.value0)(v1.value0);
+        var $968 = eq610(v.value0)(v1.value0);
         if ($968) {
           return DeclGroupSame.value;
         }
@@ -48720,7 +52107,7 @@ var formatTopLevelGroups = /* @__PURE__ */ function() {
       }
       ;
       if (v instanceof DeclGroupValueSignature && v1 instanceof DeclGroupValue) {
-        var $971 = eq6(v.value0)(v1.value0);
+        var $971 = eq610(v.value0)(v1.value0);
         if ($971) {
           return DeclGroupSame.value;
         }
@@ -48737,7 +52124,7 @@ var formatTopLevelGroups = /* @__PURE__ */ function() {
       }
       ;
       if (v instanceof DeclGroupTypeSignature && v1 instanceof DeclGroupType) {
-        var $977 = eq23(v.value0)(v1.value0);
+        var $977 = eq211(v.value0)(v1.value0);
         if ($977) {
           return DeclGroupSame.value;
         }
@@ -48746,7 +52133,7 @@ var formatTopLevelGroups = /* @__PURE__ */ function() {
       }
       ;
       if (v instanceof DeclGroupTypeSignature && v1 instanceof DeclGroupClass) {
-        var $980 = eq23(v.value0)(v1.value0);
+        var $980 = eq211(v.value0)(v1.value0);
         if ($980) {
           return DeclGroupSame.value;
         }
@@ -48892,8 +52279,8 @@ var formatModule = function(conf) {
             return new Tuple(new ImportModuleCmp(modName, order, v2.value0, qualName), {
               keyword: v12.keyword,
               module: v12.module,
-              names: new Just(new Tuple(v12.names.value0.value0, v2.value1)),
-              qualified: v12.qualified
+              qualified: v12.qualified,
+              names: new Just(new Tuple(v12.names.value0.value0, v2.value1))
             });
           }
           ;
@@ -49299,7 +52686,7 @@ var eqLayoutDelim = {
     };
   }
 };
-var eq13 = /* @__PURE__ */ eq(eqLayoutDelim);
+var eq111 = /* @__PURE__ */ eq(eqLayoutDelim);
 var insertLayout = function(v) {
   return function(nextPos) {
     return function(stack) {
@@ -49432,7 +52819,7 @@ var insertLayout = function(v) {
           }
           ;
           return popStack(function(v32) {
-            return eq13(v32)(LytProperty.value);
+            return eq111(v32)(LytProperty.value);
           })(v2);
         }
         ;
@@ -49443,7 +52830,7 @@ var insertLayout = function(v) {
           }
           ;
           return popStack(function(v32) {
-            return eq13(v32)(LytProperty.value);
+            return eq111(v32)(LytProperty.value);
           })(v2);
         }
         ;
@@ -49492,7 +52879,7 @@ var insertLayout = function(v) {
           }
           ;
           return popStack(function(v32) {
-            return eq13(v32)(LytProperty.value);
+            return eq111(v32)(LytProperty.value);
           })(insertDefault(v1));
         }
         ;
@@ -49530,7 +52917,7 @@ var insertLayout = function(v) {
           }
           ;
           return popStack(function(v32) {
-            return eq13(v32)(LytProperty.value);
+            return eq111(v32)(LytProperty.value);
           })(insertDefault(v2));
         }
         ;
@@ -49545,7 +52932,7 @@ var insertLayout = function(v) {
           }
           ;
           return popStack(function(v32) {
-            return eq13(v32)(LytProperty.value);
+            return eq111(v32)(LytProperty.value);
           })(insertDefault(v1));
         }
         ;
@@ -49561,7 +52948,7 @@ var insertLayout = function(v) {
           }
           ;
           return popStack(function(v4) {
-            return eq13(v4)(LytProperty.value);
+            return eq111(v4)(LytProperty.value);
           })(insertToken(v)(insertSep(v3)));
         }
         ;
@@ -49693,33 +53080,33 @@ var insertLayout = function(v) {
         ;
         if (v.value instanceof TokRightParen) {
           return insertToken(v)(popStack(function(v22) {
-            return eq13(v22)(LytParen.value);
+            return eq111(v22)(LytParen.value);
           })(collapse(indentedP)(v1)));
         }
         ;
         if (v.value instanceof TokRightBrace) {
           return insertToken(v)(popStack(function(v22) {
-            return eq13(v22)(LytBrace.value);
+            return eq111(v22)(LytBrace.value);
           })(popStack(function(v22) {
-            return eq13(v22)(LytProperty.value);
+            return eq111(v22)(LytProperty.value);
           })(collapse(indentedP)(v1))));
         }
         ;
         if (v.value instanceof TokRightSquare) {
           return insertToken(v)(popStack(function(v22) {
-            return eq13(v22)(LytSquare.value);
+            return eq111(v22)(LytSquare.value);
           })(collapse(indentedP)(v1)));
         }
         ;
         if (v.value instanceof TokString) {
           return popStack(function(v22) {
-            return eq13(v22)(LytProperty.value);
+            return eq111(v22)(LytProperty.value);
           })(insertDefault(v1));
         }
         ;
         if (v.value instanceof TokLowerName && v.value.value0 instanceof Nothing) {
           return popStack(function(v22) {
-            return eq13(v22)(LytProperty.value);
+            return eq111(v22)(LytProperty.value);
           })(insertDefault(v1));
         }
         ;
@@ -51136,7 +54523,7 @@ var eqSymbolName = eqString;
 // output/Tidy.Codegen.String/index.js
 var fromEnum4 = /* @__PURE__ */ fromEnum(boundedEnumCodePoint);
 var power4 = /* @__PURE__ */ power(monoidString);
-var eq8 = /* @__PURE__ */ eq(eqCodePoint);
+var eq74 = /* @__PURE__ */ eq(eqCodePoint);
 var escapeSourceString = /* @__PURE__ */ function() {
   var toHex = function(cp) {
     var hex = toStringAs(hexadecimal)(fromEnum4(cp));
@@ -51150,23 +54537,23 @@ var escapeSourceString = /* @__PURE__ */ function() {
     };
   }();
   var $$escape = function(cp) {
-    if (eq8(cp)(codePointFromChar("\n"))) {
+    if (eq74(cp)(codePointFromChar("\n"))) {
       return "\\n";
     }
     ;
-    if (eq8(cp)(codePointFromChar("\r"))) {
+    if (eq74(cp)(codePointFromChar("\r"))) {
       return "\\r";
     }
     ;
-    if (eq8(cp)(codePointFromChar("	"))) {
+    if (eq74(cp)(codePointFromChar("	"))) {
       return "\\t";
     }
     ;
-    if (eq8(cp)(codePointFromChar("\\"))) {
+    if (eq74(cp)(codePointFromChar("\\"))) {
       return "\\\\";
     }
     ;
-    if (eq8(cp)(codePointFromChar('"'))) {
+    if (eq74(cp)(codePointFromChar('"'))) {
       return '\\"';
     }
     ;
@@ -51258,8 +54645,8 @@ var overTrailingCommentsModul = {
     return function(v) {
       return {
         decls: v.decls,
-        trailingComments: k(v.trailingComments),
-        end: v.end
+        end: v.end,
+        trailingComments: k(v.trailingComments)
       };
     };
   }
@@ -51408,10 +54795,10 @@ var overLeadingCommentsImport = {
   overLeadingComments: function(k) {
     return function(v) {
       return {
-        keyword: overLeadingComments1(k)(v.keyword),
         module: v.module,
         names: v.names,
-        qualified: v.qualified
+        qualified: v.qualified,
+        keyword: overLeadingComments1(k)(v.keyword)
       };
     };
   }
@@ -51420,14 +54807,14 @@ var overLeadingCommentsInstan = {
   overLeadingComments: function(k) {
     return function(v) {
       return {
+        body: v.body,
         head: {
-          keyword: overLeadingComments1(k)(v.head.keyword),
           name: v.head.name,
           constraints: v.head.constraints,
           className: v.head.className,
-          types: v.head.types
-        },
-        body: v.body
+          types: v.head.types,
+          keyword: overLeadingComments1(k)(v.head.keyword)
+        }
       };
     };
   }
@@ -51438,9 +54825,9 @@ var overLeadingCommentsLabele = function(dictOverLeadingComments) {
     overLeadingComments: function(k) {
       return function(v) {
         return {
-          label: overLeadingComments8(k)(v.label),
           separator: v.separator,
-          value: v.value
+          value: v.value,
+          label: overLeadingComments8(k)(v.label)
         };
       };
     }
@@ -51450,8 +54837,8 @@ var overLeadingCommentsName = {
   overLeadingComments: function(k) {
     return function(v) {
       return {
-        token: overLeadingComments1(k)(v.token),
-        name: v.name
+        name: v.name,
+        token: overLeadingComments1(k)(v.token)
       };
     };
   }
@@ -51462,9 +54849,9 @@ var overLeadingCommentsQualif = {
   overLeadingComments: function(k) {
     return function(v) {
       return {
-        token: overLeadingComments1(k)(v.token),
         module: v.module,
-        name: v.name
+        name: v.name,
+        token: overLeadingComments1(k)(v.token)
       };
     };
   }
@@ -51491,35 +54878,35 @@ var overLeadingCommentsDeclar = function(dictOverLeadingComments) {
       return function(v) {
         if (v instanceof DeclData) {
           return new DeclData({
-            keyword: overLeadingComments1(k)(v.value0.keyword),
             name: v.value0.name,
-            vars: v.value0.vars
+            vars: v.value0.vars,
+            keyword: overLeadingComments1(k)(v.value0.keyword)
           }, v.value1);
         }
         ;
         if (v instanceof DeclType) {
           return new DeclType({
-            keyword: overLeadingComments1(k)(v.value0.keyword),
             name: v.value0.name,
-            vars: v.value0.vars
+            vars: v.value0.vars,
+            keyword: overLeadingComments1(k)(v.value0.keyword)
           }, v.value1, v.value2);
         }
         ;
         if (v instanceof DeclNewtype) {
           return new DeclNewtype({
-            keyword: overLeadingComments1(k)(v.value0.keyword),
             name: v.value0.name,
-            vars: v.value0.vars
+            vars: v.value0.vars,
+            keyword: overLeadingComments1(k)(v.value0.keyword)
           }, v.value1, v.value2, v.value3);
         }
         ;
         if (v instanceof DeclClass) {
           return new DeclClass({
-            keyword: overLeadingComments1(k)(v.value0.keyword),
             "super": v["value0"]["super"],
             name: v.value0.name,
             vars: v.value0.vars,
-            fundeps: v.value0.fundeps
+            fundeps: v.value0.fundeps,
+            keyword: overLeadingComments1(k)(v.value0.keyword)
           }, v.value1);
         }
         ;
@@ -51541,17 +54928,17 @@ var overLeadingCommentsDeclar = function(dictOverLeadingComments) {
         ;
         if (v instanceof DeclValue) {
           return new DeclValue({
-            name: overLeadingComments4(k)(v.value0.name),
             binders: v.value0.binders,
-            guarded: v.value0.guarded
+            guarded: v.value0.guarded,
+            name: overLeadingComments4(k)(v.value0.name)
           });
         }
         ;
         if (v instanceof DeclFixity) {
           return new DeclFixity({
-            keyword: lmap4(overLeadingComments1(k))(v.value0.keyword),
             prec: v.value0.prec,
-            operator: v.value0.operator
+            operator: v.value0.operator,
+            keyword: lmap4(overLeadingComments1(k))(v.value0.keyword)
           });
         }
         ;
@@ -51576,9 +54963,9 @@ var overLeadingCommentsWrappe = {
   overLeadingComments: function(k) {
     return function(v) {
       return {
-        open: overLeadingComments1(k)(v.open),
         value: v.value,
-        close: v.close
+        close: v.close,
+        open: overLeadingComments1(k)(v.open)
       };
     };
   }
@@ -52105,7 +55492,7 @@ var typeString = function(str) {
   return new TypeString(toSourceToken(new TokString(unwrap4(escapeSourceString(str)), str)), str);
 };
 var typeParens2 = /* @__PURE__ */ function() {
-  var wrap5 = function() {
+  var wrap4 = function() {
     var $271 = toWrapped(tokLeftParen)(tokRightParen);
     return function($272) {
       return TypeParens.create($271($272));
@@ -52116,7 +55503,7 @@ var typeParens2 = /* @__PURE__ */ function() {
       return v;
     }
     ;
-    return wrap5(v);
+    return wrap4(v);
   };
 }();
 var typeOp = function(ty) {
@@ -52272,17 +55659,14 @@ var lineBreaks = /* @__PURE__ */ function() {
 }();
 var printModuleWithOptions = function(options) {
   return function(mod4) {
-    var formatOptions = function() {
-      var ref = defaultFormatOptions(formatErrorVoid);
-      return {
-        importWrap: options.importWrap,
-        operators: force(options.operators),
-        typeArrowPlacement: options.typeArrowPlacement,
-        unicode: options.unicode,
-        formatError: ref.formatError,
-        importSort: ref.importSort
-      };
-    }();
+    var formatOptions = {
+      formatError: defaultFormatOptions(formatErrorVoid).formatError,
+      importSort: defaultFormatOptions(formatErrorVoid).importSort,
+      importWrap: options.importWrap,
+      operators: force(options.operators),
+      typeArrowPlacement: options.typeArrowPlacement,
+      unicode: options.unicode
+    };
     var dodoOptions = {
       indentUnit: options.indentUnit,
       indentWidth: options.indentWidth,
@@ -52307,7 +55691,7 @@ var leading = function(dictOverLeadingComments) {
   };
 };
 var instHead = function(dictToQualifiedName) {
-  var toQualifiedName4 = toQualifiedName(dictToQualifiedName);
+  var toQualifiedName3 = toQualifiedName(dictToQualifiedName);
   return function(name2) {
     return function(constraints) {
       return function(className) {
@@ -52321,7 +55705,7 @@ var instHead = function(dictToQualifiedName) {
                 return $307(toOneOrDelimited($308));
               };
             }())(fromArray(constraints)),
-            className: toQualifiedName4(className),
+            className: toQualifiedName3(className),
             types: map24(precType3)(types)
           };
         };
@@ -52588,10 +55972,10 @@ var declDerive = function(dictToQualifiedName) {
   };
 };
 var binaryOp = function(dictToQualifiedName) {
-  var toQualifiedName4 = toQualifiedName(dictToQualifiedName);
+  var toQualifiedName3 = toQualifiedName(dictToQualifiedName);
   return function(a) {
     return function(b) {
-      return new Tuple(toQualifiedName4(a), b);
+      return new Tuple(toQualifiedName3(a), b);
     };
   };
 };
@@ -54177,13 +57561,13 @@ var buildFromScratch = /* @__PURE__ */ flip(build)({});
 
 // output/Tidy.Codegen.Monad/index.js
 var identity18 = /* @__PURE__ */ identity(categoryBuilder);
-var eq14 = /* @__PURE__ */ eq(eqProper);
-var eq24 = /* @__PURE__ */ eq(eqSymbolName);
-var eq33 = /* @__PURE__ */ eq(eqIdent);
-var compare9 = /* @__PURE__ */ compare(ordBoolean);
-var compare13 = /* @__PURE__ */ compare(ordProper);
-var compare23 = /* @__PURE__ */ compare(ordSymbolName);
-var compare33 = /* @__PURE__ */ compare(ordIdent);
+var eq112 = /* @__PURE__ */ eq(eqProper);
+var eq212 = /* @__PURE__ */ eq(eqSymbolName);
+var eq311 = /* @__PURE__ */ eq(eqIdent);
+var compare76 = /* @__PURE__ */ compare(ordBoolean);
+var compare111 = /* @__PURE__ */ compare(ordProper);
+var compare211 = /* @__PURE__ */ compare(ordSymbolName);
+var compare311 = /* @__PURE__ */ compare(ordIdent);
 var compose1 = /* @__PURE__ */ compose(semigroupoidBuilder);
 var insert8 = /* @__PURE__ */ insert7()();
 var insert1 = /* @__PURE__ */ insert4(ordModuleName);
@@ -54371,23 +57755,23 @@ var eqCodegenImport = {
   eq: function(x) {
     return function(y) {
       if (x instanceof CodegenImportType && y instanceof CodegenImportType) {
-        return x.value0 === y.value0 && eq14(x.value1)(y.value1);
+        return x.value0 === y.value0 && eq112(x.value1)(y.value1);
       }
       ;
       if (x instanceof CodegenImportTypeOp && y instanceof CodegenImportTypeOp) {
-        return eq24(x.value0)(y.value0);
+        return eq212(x.value0)(y.value0);
       }
       ;
       if (x instanceof CodegenImportClass && y instanceof CodegenImportClass) {
-        return eq14(x.value0)(y.value0);
+        return eq112(x.value0)(y.value0);
       }
       ;
       if (x instanceof CodegenImportValue && y instanceof CodegenImportValue) {
-        return eq33(x.value0)(y.value0);
+        return eq311(x.value0)(y.value0);
       }
       ;
       if (x instanceof CodegenImportOp && y instanceof CodegenImportOp) {
-        return eq24(x.value0)(y.value0);
+        return eq212(x.value0)(y.value0);
       }
       ;
       return false;
@@ -54398,7 +57782,7 @@ var ordCodegenImport = {
   compare: function(x) {
     return function(y) {
       if (x instanceof CodegenImportType && y instanceof CodegenImportType) {
-        var v = compare9(x.value0)(y.value0);
+        var v = compare76(x.value0)(y.value0);
         if (v instanceof LT) {
           return LT.value;
         }
@@ -54407,7 +57791,7 @@ var ordCodegenImport = {
           return GT.value;
         }
         ;
-        return compare13(x.value1)(y.value1);
+        return compare111(x.value1)(y.value1);
       }
       ;
       if (x instanceof CodegenImportType) {
@@ -54419,7 +57803,7 @@ var ordCodegenImport = {
       }
       ;
       if (x instanceof CodegenImportTypeOp && y instanceof CodegenImportTypeOp) {
-        return compare23(x.value0)(y.value0);
+        return compare211(x.value0)(y.value0);
       }
       ;
       if (x instanceof CodegenImportTypeOp) {
@@ -54431,7 +57815,7 @@ var ordCodegenImport = {
       }
       ;
       if (x instanceof CodegenImportClass && y instanceof CodegenImportClass) {
-        return compare13(x.value0)(y.value0);
+        return compare111(x.value0)(y.value0);
       }
       ;
       if (x instanceof CodegenImportClass) {
@@ -54443,7 +57827,7 @@ var ordCodegenImport = {
       }
       ;
       if (x instanceof CodegenImportValue && y instanceof CodegenImportValue) {
-        return compare33(x.value0)(y.value0);
+        return compare311(x.value0)(y.value0);
       }
       ;
       if (x instanceof CodegenImportValue) {
@@ -54455,7 +57839,7 @@ var ordCodegenImport = {
       }
       ;
       if (x instanceof CodegenImportOp && y instanceof CodegenImportOp) {
-        return compare23(x.value0)(y.value0);
+        return compare211(x.value0)(y.value0);
       }
       ;
       throw new Error("Failed pattern match at Tidy.Codegen.Monad (line 0, column 0 - line 0, column 0): " + [x.constructor.name, y.constructor.name]);
@@ -54524,10 +57908,10 @@ var toImportFromRecordRecord = function() {
     var toImportFromRecord1 = toImportFromRecord(dictToImportFromRecord);
     return {
       toImportFrom: function(dictApplicative) {
-        var map212 = map(dictApplicative.Apply0().Functor0());
+        var map211 = map(dictApplicative.Apply0().Functor0());
         var toImportFromRecord2 = toImportFromRecord1(dictApplicative);
         return function(k) {
-          var $531 = map212(buildFromScratch);
+          var $531 = map211(buildFromScratch);
           var $532 = toImportFromRecord2(k)($$Proxy.value);
           return function($533) {
             return $531($532($533));
@@ -54554,13 +57938,13 @@ var toImportFromRecordConsRec = function(dictToImportFrom) {
               toImportFromRecord: function(dictApplicative) {
                 var Apply0 = dictApplicative.Apply0();
                 var apply6 = apply2(Apply0);
-                var map212 = map(Apply0.Functor0());
+                var map211 = map(Apply0.Functor0());
                 var toImportFrom2 = toImportFrom1(dictApplicative);
                 var toImportFromRecord2 = toImportFromRecord1(dictApplicative);
                 return function(k) {
                   return function(v) {
                     return function(r) {
-                      return apply6(map212(function(imp) {
+                      return apply6(map211(function(imp) {
                         return function(builder) {
                           return compose1(insert42($$Proxy.value)(imp))(builder);
                         };
@@ -54666,11 +58050,6 @@ var importFrom = function(dictMonad) {
     };
   };
 };
-var importClass2 = function(dictToToken) {
-  return withQualifiedName(dictToToken)(function($542) {
-    return ImportName.create(CodegenImportClass.create($542));
-  });
-};
 var codegenImportToCST = function(v) {
   if (v instanceof CodegenImportType) {
     if (v.value0) {
@@ -54761,11 +58140,11 @@ var moduleFromCodegenState = function(dictToName) {
   };
 };
 var runCodegenTModule = function(dictFunctor) {
-  var map212 = map(dictFunctor);
+  var map211 = map(dictFunctor);
   return function(dictToName) {
     var moduleFromCodegenState1 = moduleFromCodegenState(dictToName);
     return function(name2) {
-      var $563 = map212(map113(moduleFromCodegenState1(name2)));
+      var $563 = map211(map113(moduleFromCodegenState1(name2)));
       return function($564) {
         return $563(runCodegenT($564));
       };
@@ -54785,132 +58164,54 @@ var codegenModule = function(dictToName) {
 };
 
 // output/GraphQL.Client.CodeGen.SchemaCst/index.js
-var toQualifiedName3 = /* @__PURE__ */ toQualifiedName(toQualifiedNameProperProp);
-var wrap4 = /* @__PURE__ */ wrap();
-var lookup5 = /* @__PURE__ */ lookup(ordString);
 var show3 = /* @__PURE__ */ show(showString);
+var lookup5 = /* @__PURE__ */ lookup(ordString);
+var toModuleNameString2 = /* @__PURE__ */ toModuleNameString();
+var importType4 = /* @__PURE__ */ importType3(/* @__PURE__ */ toTokenStringQualifiedPro());
 var any3 = /* @__PURE__ */ any(foldableList)(heytingAlgebraBoolean);
 var unwrap8 = /* @__PURE__ */ unwrap();
-var eq15 = /* @__PURE__ */ eq(operationTypeEq);
+var eq113 = /* @__PURE__ */ eq(operationTypeEq);
+var fromFoldable9 = /* @__PURE__ */ fromFoldable2(ordString)(foldableArray);
 var not4 = /* @__PURE__ */ not(/* @__PURE__ */ heytingAlgebraFunction(heytingAlgebraBoolean));
-var toModuleNameString2 = /* @__PURE__ */ toModuleNameString();
 var identity19 = /* @__PURE__ */ identity(categoryFn);
 var codegenModule2 = /* @__PURE__ */ codegenModule(/* @__PURE__ */ toNameStringModuleName());
 var bind8 = /* @__PURE__ */ bind(/* @__PURE__ */ bindCodegenT(freeMonad));
 var importFrom2 = /* @__PURE__ */ importFrom(freeMonad)(toModuleNameString2);
 var importFrom1 = /* @__PURE__ */ importFrom2(toImportFromImportNameQua);
-var toTokenStringQualifiedPro2 = /* @__PURE__ */ toTokenStringQualifiedPro();
-var importType4 = /* @__PURE__ */ importType3(toTokenStringQualifiedPro2);
-var importClass3 = /* @__PURE__ */ importClass2(toTokenStringQualifiedPro2);
 var importFrom22 = /* @__PURE__ */ importFrom2(/* @__PURE__ */ toImportFromRecordRecord()(/* @__PURE__ */ toImportFromRecordConsRec(toImportFromImportNameQua)(toImportFromRecordNilReco)({
   reflectSymbol: function() {
     return "notNull";
   }
 })()()()));
-var fromFoldable9 = /* @__PURE__ */ fromFoldable2(ordString)(foldableArray);
 var mapFlipped4 = /* @__PURE__ */ mapFlipped(functorArray);
+var filterableMap2 = /* @__PURE__ */ filterableMap(ordString);
 var applicativeCodegenT2 = /* @__PURE__ */ applicativeCodegenT(freeMonad);
 var $$for2 = /* @__PURE__ */ $$for(applicativeCodegenT2)(traversableMap);
 var traverse3 = /* @__PURE__ */ traverse(traversableMap)(applicativeCodegenT2);
 var typeCtor4 = /* @__PURE__ */ typeCtor(toQualifiedNameQualifiedN);
-var toQualifiedNameString4 = /* @__PURE__ */ toQualifiedNameString()(fromTokenQualifiedProper);
-var typeCtor12 = /* @__PURE__ */ typeCtor(toQualifiedNameString4);
+var typeCtor12 = /* @__PURE__ */ typeCtor(/* @__PURE__ */ toQualifiedNameString()(fromTokenQualifiedProper));
 var leading4 = /* @__PURE__ */ leading(overLeadingCommentsQualif);
 var toNameStringProper3 = /* @__PURE__ */ toNameStringProper();
 var declType3 = /* @__PURE__ */ declType(toNameStringProper3);
 var typeRow2 = /* @__PURE__ */ typeRow(toNameStringLabel);
 var map30 = /* @__PURE__ */ map(functorArray);
 var fromFoldable12 = /* @__PURE__ */ fromFoldable3(foldableList);
-var alt4 = /* @__PURE__ */ alt(altMaybe);
-var map114 = /* @__PURE__ */ map(functorMaybe);
-var notElem3 = /* @__PURE__ */ notElem2(eqString);
 var pure15 = /* @__PURE__ */ pure(applicativeMaybe);
 var none2 = /* @__PURE__ */ none(unfoldableMaybe);
-var typeRecord3 = /* @__PURE__ */ typeRecord(toNameStringLabel);
 var bind13 = /* @__PURE__ */ bind(bindMaybe);
+var typeRecord3 = /* @__PURE__ */ typeRecord(toNameStringLabel);
+var elem3 = /* @__PURE__ */ elem2(eqString);
+var map114 = /* @__PURE__ */ map(functorMaybe);
+var sort5 = /* @__PURE__ */ sort(inputValueDefinitionOrd);
 var declNewtype2 = /* @__PURE__ */ declNewtype(toNameStringProper3)(toNameStringProper3);
-var declDerive2 = /* @__PURE__ */ declDerive(toQualifiedNameString4);
-var declDerive1 = /* @__PURE__ */ declDerive(toQualifiedNameQualifiedN);
+var declDerive2 = /* @__PURE__ */ declDerive(toQualifiedNameQualifiedN);
+var sort1 = /* @__PURE__ */ sort(fieldDefinitionOrd);
 var fromFoldable22 = /* @__PURE__ */ fromFoldable(foldableMaybe);
 var mempty9 = /* @__PURE__ */ mempty(monoidList);
 var bind22 = /* @__PURE__ */ bind(bindList);
+var sort22 = /* @__PURE__ */ sort(definitionOrd);
 var tell2 = /* @__PURE__ */ tell(/* @__PURE__ */ monadTellArrayDeclaration(freeMonad));
 var append18 = /* @__PURE__ */ append(semigroupArray);
-var typeName2 = function(gqlToPursTypes) {
-  return function(id2) {
-    return function(str) {
-      var qualifiy2 = function($258) {
-        return toQualifiedName3(wrap4($258));
-      };
-      return fromMaybe$prime(function(v) {
-        var v1 = pascalCase(str);
-        if (v1 === "Id") {
-          return id2;
-        }
-        ;
-        return qualifiy2(function() {
-          if (v1 === "Float") {
-            return "Number";
-          }
-          ;
-          if (v1 === "Numeric") {
-            return "Number";
-          }
-          ;
-          if (v1 === "Bigint") {
-            return "Number";
-          }
-          ;
-          if (v1 === "Smallint") {
-            return "Int";
-          }
-          ;
-          if (v1 === "Integer") {
-            return "Int";
-          }
-          ;
-          if (v1 === "Int") {
-            return "Int";
-          }
-          ;
-          if (v1 === "Int2") {
-            return "Int";
-          }
-          ;
-          if (v1 === "Int4") {
-            return "Int";
-          }
-          ;
-          if (v1 === "Int8") {
-            return "Int";
-          }
-          ;
-          if (v1 === "Text") {
-            return "String";
-          }
-          ;
-          if (v1 === "Citext") {
-            return "String";
-          }
-          ;
-          if (v1 === "Jsonb") {
-            return "Json";
-          }
-          ;
-          if (v1 === "Timestamp") {
-            return "DateTime";
-          }
-          ;
-          if (v1 === "Timestamptz") {
-            return "DateTime";
-          }
-          ;
-          return v1;
-        }());
-      })(lookup5(str)(gqlToPursTypes));
-    };
-  };
-};
 var safeFieldname = function(s) {
   var isSafe = maybe(false)(function(c) {
     return c === "_" || isLower(codePointFromChar(c));
@@ -54921,13 +58222,46 @@ var safeFieldname = function(s) {
   ;
   return show3(s);
 };
-var namedTypeToPurs2 = function(gqlToPursTypes) {
-  return function(id2) {
-    return function(v) {
-      return typeName2(gqlToPursTypes)(id2)(v);
+var qualify = /* @__PURE__ */ function() {
+  var $302 = toQualifiedName(toQualifiedNameProperProp);
+  var $303 = wrap();
+  return function($304) {
+    return $302($303($304));
+  };
+}();
+var typeName2 = function(gqlToPursTypes) {
+  return function(defaultTypes) {
+    return function(str) {
+      var v = lookup5(str)(gqlToPursTypes);
+      if (v instanceof Just) {
+        return v.value0;
+      }
+      ;
+      var v1 = lookup5(toLower(str))(defaultTypes);
+      if (v1 instanceof Just) {
+        return v1.value0;
+      }
+      ;
+      return qualify(pascalCase(str));
     };
   };
 };
+var namedTypeToPurs2 = function(gqlToPursTypes) {
+  return function(defaultTypes) {
+    return function(v) {
+      return typeName2(gqlToPursTypes)(defaultTypes)(v);
+    };
+  };
+};
+var importQualified = function(dictMonad) {
+  var importFrom3 = importFrom(dictMonad)(toModuleNameString2)(toImportFromImportNameQua);
+  return function(moduleName) {
+    return function(typeName$prime) {
+      return importFrom3(moduleName)(importType4(moduleName + ("." + typeName$prime)));
+    };
+  };
+};
+var importQualified1 = /* @__PURE__ */ importQualified(freeMonad);
 var hasRootOp = function(dictFoldable) {
   var any1 = any(dictFoldable)(heytingAlgebraBoolean);
   return function(defs) {
@@ -54935,11 +58269,11 @@ var hasRootOp = function(dictFoldable) {
       return any1(function(v) {
         if (v instanceof Definition_TypeSystemDefinition && v.value0 instanceof TypeSystemDefinition_SchemaDefinition) {
           return any3(function() {
-            var $259 = eq15(op);
-            return function($260) {
-              return $259(function(v1) {
+            var $305 = eq113(op);
+            return function($306) {
+              return $305(function(v1) {
                 return v1.operationType;
-              }(unwrap8($260)));
+              }(unwrap8($306)));
             };
           }())(v.value0.value0.rootOperationTypeDefinition);
         }
@@ -54950,16 +58284,83 @@ var hasRootOp = function(dictFoldable) {
   };
 };
 var hasRootOp1 = /* @__PURE__ */ hasRootOp(foldableList);
-var genImport = function(dictMonad) {
-  var importFrom3 = importFrom(dictMonad);
-  return function(dictToModuleName) {
-    var importFrom4 = importFrom3(dictToModuleName)(toImportFromImportNameQua);
-    return function(dictToToken) {
-      var importType12 = importType3(dictToToken);
-      return function(t) {
-        return importFrom4(t.moduleName)(importType12(t.typeName));
+var getTypeName = function($copy_v) {
+  var $tco_done = false;
+  var $tco_result;
+  function $tco_loop(v) {
+    if (v instanceof Type_NamedType) {
+      $tco_done = true;
+      return v.value0;
+    }
+    ;
+    if (v instanceof Type_ListType) {
+      $copy_v = v.value0;
+      return;
+    }
+    ;
+    if (v instanceof Type_NonNullType) {
+      $tco_done = true;
+      return getNonNullTypeName(v.value0);
+    }
+    ;
+    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 469, column 15 - line 472, column 51): " + [v.constructor.name]);
+  }
+  ;
+  while (!$tco_done) {
+    $tco_result = $tco_loop($copy_v);
+  }
+  ;
+  return $tco_result;
+};
+var getNonNullTypeName = function(v) {
+  if (v instanceof NonNullType_NamedType) {
+    return v.value0;
+  }
+  ;
+  if (v instanceof NonNullType_ListType) {
+    return getTypeName(v.value0);
+  }
+  ;
+  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 475, column 22 - line 477, column 61): " + [v.constructor.name]);
+};
+var getDefaultTypeNames = function(v) {
+  return fromFoldable9([new Tuple("id", v.id), new Tuple("json", v.json), new Tuple("jsonb", v.json), new Tuple("timestamp", v.dateTime), new Tuple("timestamptz", v.dateTime), new Tuple("float", qualify("Number")), new Tuple("numeric", qualify("Number")), new Tuple("bigint", qualify("Number")), new Tuple("number", qualify("Number")), new Tuple("smallint", qualify("Int")), new Tuple("integer", qualify("Int")), new Tuple("int", qualify("Int")), new Tuple("int2", qualify("Int")), new Tuple("int4", qualify("Int")), new Tuple("int8", qualify("Int")), new Tuple("text", qualify("String")), new Tuple("citext", qualify("String")), new Tuple("string", qualify("String")), new Tuple("boolean", qualify("Boolean")), new Tuple("bool", qualify("Boolean"))]);
+};
+var genImportUnqualified = function(dictMonad) {
+  var importFrom3 = importFrom(dictMonad)(toModuleNameString2)(toImportFromImportNameQua);
+  return function(t) {
+    return importFrom3(t.moduleName)(importType4(t.typeName));
+  };
+};
+var genImportsUnqualified = function(dictFilterable) {
+  var filter5 = filter4(dictFilterable);
+  return function(dictTraversable) {
+    var traverse13 = traverse(dictTraversable);
+    return function(dictMonad) {
+      var traverse22 = traverse13(applicativeCodegenT(dictMonad));
+      var genImportUnqualified1 = genImportUnqualified(dictMonad);
+      return function() {
+        var $307 = traverse22(genImportUnqualified1);
+        var $308 = filter5(function() {
+          var $310 = not4($$null2);
+          return function($311) {
+            return $310(function(v) {
+              return v.moduleName;
+            }($311));
+          };
+        }());
+        return function($309) {
+          return $307($308($309));
+        };
       };
     };
+  };
+};
+var genImportsUnqualified1 = /* @__PURE__ */ genImportsUnqualified(filterableMap2)(traversableMap)(freeMonad)();
+var genImport = function(dictMonad) {
+  var importFrom3 = importFrom(dictMonad)(toModuleNameString2)(toImportFromImportNameQua);
+  return function(t) {
+    return importFrom3(t.moduleName)(importType4(t.moduleName + ("." + t.typeName)));
   };
 };
 var genImports = function(dictFilterable) {
@@ -54968,32 +58369,30 @@ var genImports = function(dictFilterable) {
     var traverse13 = traverse(dictTraversable);
     return function(dictMonad) {
       var traverse22 = traverse13(applicativeCodegenT(dictMonad));
-      var genImport1 = genImport(dictMonad)(toModuleNameString2);
+      var genImport1 = genImport(dictMonad);
       return function() {
-        return function(dictToToken) {
-          var $261 = traverse22(genImport1(dictToToken));
-          var $262 = filter5(function() {
-            var $264 = not4($$null2);
-            return function($265) {
-              return $264(function(v) {
-                return v.moduleName;
-              }($265));
-            };
-          }());
-          return function($263) {
-            return $261($262($263));
+        var $312 = traverse22(genImport1);
+        var $313 = filter5(function() {
+          var $315 = not4($$null2);
+          return function($316) {
+            return $315(function(v) {
+              return v.moduleName;
+            }($316));
           };
+        }());
+        return function($314) {
+          return $312($313($314));
         };
       };
     };
   };
 };
-var genImports1 = /* @__PURE__ */ genImports(/* @__PURE__ */ filterableMap(ordString))(traversableMap)(freeMonad)()(toTokenStringQualifiedPro2);
+var genImports1 = /* @__PURE__ */ genImports(filterableMap2)(traversableMap)(freeMonad)();
 var comment2 = function(dictOverLeadingComments) {
   return maybe(identity19)(function() {
-    var $266 = leading(dictOverLeadingComments);
-    return function($267) {
-      return $266(docComments($267));
+    var $317 = leading(dictOverLeadingComments);
+    return function($318) {
+      return $317(docComments($318));
     };
   }());
 };
@@ -55005,25 +58404,25 @@ var gqlToPursSchema = function(v) {
       return function(v1) {
         return function(enums) {
           return codegenModule2(mName)(bind8(importFrom1(directivesMName)(importType4("Directives")))(function(directives) {
-            return bind8(importFrom1("Data.Void")(importType4("Void")))(function(voidT) {
-              return bind8(importFrom1("Type.Proxy")(importType4("Proxy")))(function(proxyT) {
-                return bind8(importFrom1("Data.Maybe")(importType4("Maybe")))(function(maybe_) {
-                  return bind8(importFrom1("Data.Newtype")(importClass3("Newtype")))(function(newType) {
+            return bind8(importQualified1("Data.Void")("Void"))(function(voidT) {
+              return bind8(importQualified1("Type.Proxy")("Proxy"))(function(proxyT) {
+                return bind8(importQualified1("Data.Maybe")("Maybe"))(function(maybe_) {
+                  return bind8(importQualified1("Data.Newtype")("Newtype"))(function(newType) {
                     return bind8(importFrom22("GraphQL.Client.Args")({
                       notNull: importType4("NotNull")
                     }))(function(argsM) {
-                      return bind8(importFrom1("GraphQL.Client.Union")(importType4("GqlUnion")))(function(gqlUnion) {
+                      return bind8(importQualified1("GraphQL.Client.Union")("GqlUnion"))(function(gqlUnion) {
                         return bind8(importFrom1("GraphQL.Client.AsGql")(importType4("AsGql")))(function(asGql) {
                           return bind8(function() {
                             if (v.idImport instanceof Nothing) {
-                              return importFrom1("GraphQL.Client.ID")(importType4("ID"));
+                              return importQualified1("GraphQL.Client.ID")("ID");
                             }
                             ;
                             if (v.idImport instanceof Just) {
-                              return importFrom1(v.idImport.value0.moduleName)(importType4(v.idImport.value0.typeName));
+                              return importFrom1(v.idImport.value0.moduleName)(importType4("GraphQL.Client.ID." + v.idImport.value0.typeName));
                             }
                             ;
-                            throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 52, column 11 - line 54, column 88): " + [v.idImport.constructor.name]);
+                            throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 56, column 11 - line 58, column 114): " + [v.idImport.constructor.name]);
                           }())(function(id2) {
                             var enumsMap = fromFoldable9(mapFlipped4(enums)(function(e) {
                               var name2 = pascalCase(e.name);
@@ -55032,361 +58431,413 @@ var gqlToPursSchema = function(v) {
                                 typeName: name2
                               });
                             }));
-                            return bind8(genImports1(enumsMap))(function(v2) {
+                            return bind8(genImportsUnqualified1(enumsMap))(function(v2) {
                               return bind8(genImports1(v.gqlToPursTypes))(function(gqlToPursTypesMs) {
                                 return bind8($$for2(v.fieldTypeOverrides)(genImports1))(function(fieldTypeOverridesMs) {
                                   return bind8($$for2(v.argTypeOverrides)(traverse3(genImports1)))(function(argTypeOverridesMs) {
-                                    return bind8(importFrom1("Data.Argonaut.Core")(importType4("Json")))(function(json) {
-                                      var wrapNotNull2 = function(s) {
-                                        return typeApp(typeCtor4(argsM.notNull))([s]);
-                                      };
-                                      var wrapMaybe = function(s) {
-                                        return typeApp(typeCtor4(maybe_))([s]);
-                                      };
-                                      var wrapArray = function(s) {
-                                        return typeApp(typeCtor12("Array"))([s]);
-                                      };
-                                      var unknownJson = function(tName) {
-                                        return leading4(lineComments("Unknown scalar type. Add " + (tName + " to gqlToPursTypes in codegen options to override this behaviour")))(json);
-                                      };
-                                      var unionMemberTypeToPurs = function(ty) {
-                                        return new Tuple(ty, typeCtor12(ty));
-                                      };
-                                      var unionTypeDefinitionToPurs = function(v3) {
-                                        if (v3.directives instanceof Nothing && v3.unionMemberTypes instanceof Just) {
-                                          return new Just(comment1(v3.description)(declType3(v3.name)([])(typeApp(typeCtor4(gqlUnion))([typeRow2(map30(function($268) {
-                                            return unionMemberTypeToPurs(unwrap8($268));
-                                          })(fromFoldable12(v3.unionMemberTypes.value0)))(Nothing.value)]))));
-                                        }
-                                        ;
-                                        return Nothing.value;
-                                      };
-                                      var scalarTypeDefinitionToPurs = function(v3) {
-                                        var tName = pascalCase(v3.name);
-                                        var scalarType = fromMaybe$prime(function(v4) {
-                                          return unknownJson(tName);
-                                        })(alt4(lookup5(tName)(gqlToPursTypesMs))(alt4(map114(qualifiedTypeToName)(lookup5(tName)(v.gqlToPursTypes)))(lookup5(tName)(v2))));
-                                        var builtInTypes = ["Int", "Number", "String", "Boolean", "ID"];
-                                        var $164 = notElem3(tName)(builtInTypes);
-                                        if ($164) {
-                                          return pure15(comment1(v3.description)(declType3(tName)([])(typeCtor4(scalarType))));
-                                        }
-                                        ;
-                                        return none2;
-                                      };
-                                      var rootOperationTypeDefinitionToPurs = function(v3) {
-                                        var opStr = function() {
-                                          if (v3.operationType instanceof Query) {
-                                            return "Query";
-                                          }
-                                          ;
-                                          if (v3.operationType instanceof Mutation) {
-                                            return "Mutation";
-                                          }
-                                          ;
-                                          if (v3.operationType instanceof Subscription) {
-                                            return "Subscription";
-                                          }
-                                          ;
-                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 110, column 17 - line 113, column 45): " + [v3.operationType.constructor.name]);
-                                        }();
-                                        var actualType = pascalCase(unwrap8(v3.namedType));
-                                        var $169 = opStr !== actualType;
-                                        if ($169) {
-                                          return pure15(declType3(opStr)([])(typeCtor12(actualType)));
-                                        }
-                                        ;
-                                        return none2;
-                                      };
-                                      var schemaDefinitionToPurs = function(v3) {
-                                        return mapMaybe(rootOperationTypeDefinitionToPurs)(v3.rootOperationTypeDefinition);
-                                      };
-                                      var hasSubscription = hasRootOp1(v1)(Subscription.value);
-                                      var hasMutation = hasRootOp1(v1)(Mutation.value);
-                                      var schema = declType3("Schema")([])(typeRecord3([new Tuple("directives", typeApp(typeCtor4(proxyT))([typeCtor4(directives)])), new Tuple("query", typeCtor12("Query")), new Tuple("mutation", function() {
-                                        if (hasMutation) {
-                                          return typeCtor12("Mutation");
-                                        }
-                                        ;
-                                        return typeCtor4(voidT);
-                                      }()), new Tuple("subscription", function() {
-                                        if (hasSubscription) {
-                                          return typeCtor12("Subscription");
-                                        }
-                                        ;
-                                        return typeCtor4(voidT);
-                                      }())])(Nothing.value));
-                                      var getPursTypeName = namedTypeToPurs2(gqlToPursTypesMs)(id2);
-                                      var annotateGqlType = function(gqlT) {
-                                        return function(pursT) {
-                                          return typeApp(typeCtor4(asGql))([typeString(unwrap8(gqlT)), pursT]);
+                                    return bind8(importFrom1("Data.DateTime")(importType4("DateTime")))(function(dateTime) {
+                                      return bind8(importQualified1("Data.Argonaut.Core")("Json"))(function(json) {
+                                        var wrapNotNull2 = function(s) {
+                                          return typeApp(typeCtor4(argsM.notNull))([s]);
                                         };
-                                      };
-                                      var namedTypeToPursNullable = function(t) {
-                                        return wrapMaybe(annotateGqlType(t)(typeCtor4(getPursTypeName(t))));
-                                      };
-                                      var pursTypeCtr = function(gqlT) {
-                                        return annotateGqlType(gqlT)(typeCtor4(getPursTypeName(gqlT)));
-                                      };
-                                      var argTypeToPurs2 = function(objectName) {
-                                        return function(fieldName) {
-                                          return function(argName) {
-                                            return function(tipe) {
-                                              if (tipe instanceof Type_NamedType) {
-                                                var v3 = bind13(bind13(lookup5(objectName)(argTypeOverridesMs))(lookup5(fieldName)))(lookup5(argName));
-                                                if (v3 instanceof Nothing) {
-                                                  return pursTypeCtr(tipe.value0);
+                                        var wrapMaybe = function(s) {
+                                          return typeApp(typeCtor4(maybe_))([s]);
+                                        };
+                                        var wrapArray = function(s) {
+                                          return typeApp(typeCtor12("Array"))([s]);
+                                        };
+                                        var unknownJson = function(tName) {
+                                          return leading4(lineComments("Unknown scalar type. Add " + (tName + " to gqlToPursTypes in codegen options to override this behaviour")))(json);
+                                        };
+                                        var unionMemberTypeToPurs = function(ty) {
+                                          return new Tuple(ty, typeCtor12(ty));
+                                        };
+                                        var unionTypeDefinitionToPurs = function(v3) {
+                                          if (v3.directives instanceof Nothing && v3.unionMemberTypes instanceof Just) {
+                                            return new Just(comment1(v3.description)(declType3(v3.name)([])(typeApp(typeCtor4(gqlUnion))([typeRow2(map30(function($319) {
+                                              return unionMemberTypeToPurs(unwrap8($319));
+                                            })(fromFoldable12(v3.unionMemberTypes.value0)))(Nothing.value)]))));
+                                          }
+                                          ;
+                                          return Nothing.value;
+                                        };
+                                        var rootOperationTypeDefinitionToPurs = function(v3) {
+                                          var opStr = function() {
+                                            if (v3.operationType instanceof Query) {
+                                              return "Query";
+                                            }
+                                            ;
+                                            if (v3.operationType instanceof Mutation) {
+                                              return "Mutation";
+                                            }
+                                            ;
+                                            if (v3.operationType instanceof Subscription) {
+                                              return "Subscription";
+                                            }
+                                            ;
+                                            throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 123, column 17 - line 126, column 45): " + [v3.operationType.constructor.name]);
+                                          }();
+                                          var actualType = pascalCase(unwrap8(v3.namedType));
+                                          var $199 = opStr !== actualType;
+                                          if ($199) {
+                                            return pure15(declType3(opStr)([])(typeCtor12(actualType)));
+                                          }
+                                          ;
+                                          return none2;
+                                        };
+                                        var schemaDefinitionToPurs = function(v3) {
+                                          return mapMaybe(rootOperationTypeDefinitionToPurs)(v3.rootOperationTypeDefinition);
+                                        };
+                                        var lookupOverride = function(objectName) {
+                                          return function(fieldName) {
+                                            return bind13(lookup5(objectName)(fieldTypeOverridesMs))(lookup5(fieldName));
+                                          };
+                                        };
+                                        var imports = {
+                                          json,
+                                          id: id2,
+                                          dateTime
+                                        };
+                                        var hasSubscription = hasRootOp1(v1)(Subscription.value);
+                                        var hasMutation = hasRootOp1(v1)(Mutation.value);
+                                        var schema = declType3("Schema")([])(typeRecord3([new Tuple("directives", typeApp(typeCtor4(proxyT))([typeCtor4(directives)])), new Tuple("query", typeCtor12("Query")), new Tuple("mutation", function() {
+                                          if (hasMutation) {
+                                            return typeCtor12("Mutation");
+                                          }
+                                          ;
+                                          return typeCtor4(voidT);
+                                        }()), new Tuple("subscription", function() {
+                                          if (hasSubscription) {
+                                            return typeCtor12("Subscription");
+                                          }
+                                          ;
+                                          return typeCtor4(voidT);
+                                        }())])(Nothing.value));
+                                        var defaultTypes = getDefaultTypeNames(imports);
+                                        var getPursTypeName = namedTypeToPurs2(gqlToPursTypesMs)(defaultTypes);
+                                        var builtin = ["String", "Boolean", "Int", "Float"];
+                                        var descriptionAndNameToPurs = function(description) {
+                                          return function(name2) {
+                                            var tName = pascalCase(name2);
+                                            var scalarType = function() {
+                                              var $206 = elem3(tName)(builtin);
+                                              if ($206) {
+                                                return Nothing.value;
+                                              }
+                                              ;
+                                              var v3 = lookup5(name2)(gqlToPursTypesMs);
+                                              if (v3 instanceof Just) {
+                                                return new Just(v3.value0);
+                                              }
+                                              ;
+                                              var v4 = lookup5(name2)(v.gqlToPursTypes);
+                                              if (v4 instanceof Just) {
+                                                return new Just(qualifiedTypeToName(v4.value0));
+                                              }
+                                              ;
+                                              var v5 = lookup5(name2)(v2);
+                                              if (v5 instanceof Just) {
+                                                return new Just(v5.value0);
+                                              }
+                                              ;
+                                              var v6 = lookup5(toLower(name2))(defaultTypes);
+                                              if (v6 instanceof Just) {
+                                                return new Just(v6.value0);
+                                              }
+                                              ;
+                                              return new Just(unknownJson(name2));
+                                            }();
+                                            return map114(function() {
+                                              var $320 = comment22(description);
+                                              return function($321) {
+                                                return $320(typeCtor4($321));
+                                              };
+                                            }())(scalarType);
+                                          };
+                                        };
+                                        var scalarTypeDefinitionToPurs = function(v3) {
+                                          var tName = pascalCase(v3.name);
+                                          return map114(declType3(tName)([]))(descriptionAndNameToPurs(v3.description)(v3.name));
+                                        };
+                                        var annotateGqlType = function(gqlT) {
+                                          return function(pursT) {
+                                            return typeApp(typeCtor4(asGql))([typeString(unwrap8(gqlT)), pursT]);
+                                          };
+                                        };
+                                        var namedTypeToPursNullable = function(t) {
+                                          return wrapMaybe(annotateGqlType(t)(typeCtor4(getPursTypeName(t))));
+                                        };
+                                        var pursTypeCtr = function(gqlT) {
+                                          return annotateGqlType(gqlT)(typeCtor4(getPursTypeName(gqlT)));
+                                        };
+                                        var argTypeToPurs2 = function(objectName) {
+                                          return function(fieldName) {
+                                            return function(argName) {
+                                              return function(tipe) {
+                                                if (tipe instanceof Type_NamedType) {
+                                                  var v3 = bind13(bind13(lookup5(objectName)(argTypeOverridesMs))(lookup5(fieldName)))(lookup5(argName));
+                                                  if (v3 instanceof Nothing) {
+                                                    return pursTypeCtr(tipe.value0);
+                                                  }
+                                                  ;
+                                                  if (v3 instanceof Just) {
+                                                    return annotateGqlType(tipe.value0)(typeCtor4(v3.value0));
+                                                  }
+                                                  ;
+                                                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 315, column 43 - line 317, column 63): " + [v3.constructor.name]);
                                                 }
                                                 ;
-                                                if (v3 instanceof Just) {
-                                                  return annotateGqlType(tipe.value0)(typeCtor4(v3.value0));
+                                                if (tipe instanceof Type_ListType) {
+                                                  return argListTypeToPurs2(objectName)(fieldName)(argName)(tipe.value0);
                                                 }
                                                 ;
-                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 282, column 43 - line 284, column 63): " + [v3.constructor.name]);
-                                              }
-                                              ;
-                                              if (tipe instanceof Type_ListType) {
-                                                return argListTypeToPurs2(objectName)(fieldName)(argName)(tipe.value0);
-                                              }
-                                              ;
-                                              if (tipe instanceof Type_NonNullType) {
-                                                return wrapNotNull2(argNotNullTypeToPurs2(objectName)(fieldName)(argName)(tipe.value0));
-                                              }
-                                              ;
-                                              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 281, column 57 - line 286, column 122): " + [tipe.constructor.name]);
+                                                if (tipe instanceof Type_NonNullType) {
+                                                  return wrapNotNull2(argNotNullTypeToPurs2(objectName)(fieldName)(argName)(tipe.value0));
+                                                }
+                                                ;
+                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 314, column 57 - line 319, column 122): " + [tipe.constructor.name]);
+                                              };
                                             };
                                           };
                                         };
-                                      };
-                                      var argNotNullTypeToPurs2 = function(objectName) {
-                                        return function(fieldName) {
-                                          return function(argName) {
+                                        var argNotNullTypeToPurs2 = function(objectName) {
+                                          return function(fieldName) {
+                                            return function(argName) {
+                                              return function(v3) {
+                                                if (v3 instanceof NonNullType_NamedType) {
+                                                  var v4 = bind13(bind13(lookup5(objectName)(argTypeOverridesMs))(lookup5(fieldName)))(lookup5(argName));
+                                                  if (v4 instanceof Nothing) {
+                                                    return pursTypeCtr(v3.value0);
+                                                  }
+                                                  ;
+                                                  if (v4 instanceof Just) {
+                                                    return annotateGqlType(v3.value0)(typeCtor4(v4.value0));
+                                                  }
+                                                  ;
+                                                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 323, column 40 - line 325, column 55): " + [v4.constructor.name]);
+                                                }
+                                                ;
+                                                if (v3 instanceof NonNullType_ListType) {
+                                                  return argListTypeToPurs2(objectName)(fieldName)(argName)(v3.value0);
+                                                }
+                                                ;
+                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 322, column 59 - line 326, column 87): " + [v3.constructor.name]);
+                                              };
+                                            };
+                                          };
+                                        };
+                                        var argListTypeToPurs2 = function(objectName) {
+                                          return function(fieldName) {
+                                            return function(argName) {
+                                              return function(v3) {
+                                                return wrapArray(argTypeToPurs2(objectName)(fieldName)(argName)(v3));
+                                              };
+                                            };
+                                          };
+                                        };
+                                        var inputValueDefinitionToPurs2 = function(objectName) {
+                                          return function(fieldName) {
                                             return function(v3) {
-                                              if (v3 instanceof NonNullType_NamedType) {
-                                                var v4 = bind13(bind13(lookup5(objectName)(argTypeOverridesMs))(lookup5(fieldName)))(lookup5(argName));
+                                              return new Tuple(safeFieldname(v3.name), comment22(v3.description)(function() {
+                                                var v4 = lookupOverride(objectName)(v3.name);
                                                 if (v4 instanceof Nothing) {
-                                                  return pursTypeCtr(v3.value0);
+                                                  return argTypeToPurs2(objectName)(fieldName)(v3.name)(v3.type);
                                                 }
                                                 ;
                                                 if (v4 instanceof Just) {
-                                                  return annotateGqlType(v3.value0)(typeCtor4(v4.value0));
+                                                  if (v3.type instanceof Type_NonNullType) {
+                                                    return wrapNotNull2(annotateGqlType(getNonNullTypeName(v3.type.value0))(typeCtor4(v4.value0)));
+                                                  }
+                                                  ;
+                                                  if (v3.type instanceof Type_ListType) {
+                                                    return wrapArray(annotateGqlType(getTypeName(v3.type.value0))(typeCtor4(v4.value0)));
+                                                  }
+                                                  ;
+                                                  if (v3.type instanceof Type_NamedType) {
+                                                    return annotateGqlType(v3.type.value0)(typeCtor4(v4.value0));
+                                                  }
+                                                  ;
+                                                  throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 228, column 23 - line 231, column 69): " + [v3.type.constructor.name]);
                                                 }
                                                 ;
-                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 290, column 40 - line 292, column 55): " + [v4.constructor.name]);
-                                              }
-                                              ;
-                                              if (v3 instanceof NonNullType_ListType) {
-                                                return argListTypeToPurs2(objectName)(fieldName)(argName)(v3.value0);
-                                              }
-                                              ;
-                                              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 289, column 59 - line 293, column 87): " + [v3.constructor.name]);
+                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 226, column 9 - line 231, column 69): " + [v4.constructor.name]);
+                                              }()));
                                             };
                                           };
                                         };
-                                      };
-                                      var argListTypeToPurs2 = function(objectName) {
-                                        return function(fieldName) {
-                                          return function(argName) {
+                                        var argumentsDefinitionToPurs = function(objectName) {
+                                          return function(fieldName) {
                                             return function(v3) {
-                                              return wrapArray(argTypeToPurs2(objectName)(fieldName)(argName)(v3));
+                                              return typeRecord3(map30(inputValueDefinitionToPurs2(objectName)(fieldName))(fromFoldable12(sort5(v3))))(Nothing.value);
                                             };
                                           };
                                         };
-                                      };
-                                      var inputValueDefinitionToPurs2 = function(objectName) {
-                                        return function(fieldName) {
+                                        var inputValueToFieldsDefinitionToPurs = function(objectName) {
+                                          return function(fieldName) {
+                                            return function(definitions) {
+                                              return typeRecord3(map30(inputValueDefinitionToPurs2(objectName)(fieldName))(fromFoldable12(sort5(definitions))))(Nothing.value);
+                                            };
+                                          };
+                                        };
+                                        var inputObjectTypeDefinitionToPurs = function(fieldName) {
                                           return function(v3) {
-                                            return new Tuple(safeFieldname(v3.name), comment22(v3.description)(function() {
-                                              var v4 = bind13(lookup5(objectName)(fieldTypeOverridesMs))(lookup5(v3.name));
+                                            var tName = pascalCase(v3.name);
+                                            var record = maybe(typeRecordEmpty)(function() {
+                                              var $322 = inputValueToFieldsDefinitionToPurs(v3.name)(fieldName);
+                                              return function($323) {
+                                                return $322(unwrap8($323));
+                                              };
+                                            }())(v3.inputFieldsDefinition);
+                                            return new Cons(comment1(v3.description)(declNewtype2(tName)([])(tName)(record)), new Cons(declDerive2(Nothing.value)([])(newType)([typeCtor12(tName), typeWildcard]), Nil.value));
+                                          };
+                                        };
+                                        var typeToPurs = function(v3) {
+                                          if (v3 instanceof Type_NamedType) {
+                                            return annotateGqlType(v3.value0)(namedTypeToPursNullable(v3.value0));
+                                          }
+                                          ;
+                                          if (v3 instanceof Type_ListType) {
+                                            return listTypeToPursNullable(v3.value0);
+                                          }
+                                          ;
+                                          if (v3 instanceof Type_NonNullType) {
+                                            return notNullTypeToPurs(v3.value0);
+                                          }
+                                          ;
+                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 288, column 20 - line 291, column 76): " + [v3.constructor.name]);
+                                        };
+                                        var notNullTypeToPurs = function(v3) {
+                                          if (v3 instanceof NonNullType_NamedType) {
+                                            return pursTypeCtr(v3.value0);
+                                          }
+                                          ;
+                                          if (v3 instanceof NonNullType_ListType) {
+                                            return listTypeToPurs(v3.value0);
+                                          }
+                                          ;
+                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 306, column 27 - line 308, column 55): " + [v3.constructor.name]);
+                                        };
+                                        var listTypeToPursNullable = function(t) {
+                                          return wrapMaybe(listTypeToPurs(t));
+                                        };
+                                        var listTypeToPurs = function(v3) {
+                                          return wrapArray(typeToPurs(v3));
+                                        };
+                                        var fieldDefinitionToPurs = function(objectName) {
+                                          return function(v3) {
+                                            var pursType = comment22(v3.description)(function() {
+                                              var v4 = lookupOverride(objectName)(v3.name);
                                               if (v4 instanceof Nothing) {
-                                                return argTypeToPurs2(objectName)(fieldName)(v3.name)(v3.type);
+                                                return typeToPurs(v3.type);
                                               }
                                               ;
                                               if (v4 instanceof Just) {
                                                 if (v3.type instanceof Type_NonNullType) {
-                                                  return wrapNotNull2(typeCtor4(v4.value0));
+                                                  return annotateGqlType(getNonNullTypeName(v3.type.value0))(typeCtor4(v4.value0));
                                                 }
                                                 ;
                                                 if (v3.type instanceof Type_ListType) {
-                                                  return wrapArray(typeCtor4(v4.value0));
+                                                  return wrapArray(annotateGqlType(getTypeName(v3.type.value0))(typeCtor4(v4.value0)));
                                                 }
                                                 ;
-                                                return typeCtor4(v4.value0);
+                                                if (v3.type instanceof Type_NamedType) {
+                                                  return wrapMaybe(annotateGqlType(v3.type.value0)(typeCtor4(v4.value0)));
+                                                }
+                                                ;
+                                                throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 202, column 23 - line 205, column 81): " + [v3.type.constructor.name]);
                                               }
                                               ;
-                                              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 200, column 9 - line 205, column 30): " + [v4.constructor.name]);
-                                            }()));
+                                              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 200, column 40 - line 205, column 81): " + [v4.constructor.name]);
+                                            }());
+                                            return new Tuple(safeFieldname(v3.name), function() {
+                                              if (v3.argumentsDefinition instanceof Nothing) {
+                                                return pursType;
+                                              }
+                                              ;
+                                              if (v3.argumentsDefinition instanceof Just) {
+                                                return typeArrow([argumentsDefinitionToPurs(objectName)(v3.name)(v3.argumentsDefinition.value0)])(pursType);
+                                              }
+                                              ;
+                                              throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 193, column 40 - line 197, column 33): " + [v3.argumentsDefinition.constructor.name]);
+                                            }());
                                           };
                                         };
-                                      };
-                                      var argumentsDefinitionToPurs = function(objectName) {
-                                        return function(fieldName) {
+                                        var fieldsDefinitionToPurs = function(objectName) {
                                           return function(v3) {
-                                            return typeRecord3(map30(inputValueDefinitionToPurs2(objectName)(fieldName))(fromFoldable12(v3)))(Nothing.value);
+                                            return typeRecord3(map30(fieldDefinitionToPurs(objectName))(fromFoldable12(sort1(v3))))(Nothing.value);
                                           };
                                         };
-                                      };
-                                      var inputValueToFieldsDefinitionToPurs = function(objectName) {
-                                        return function(fieldName) {
-                                          return function(definitions) {
-                                            return typeRecord3(map30(inputValueDefinitionToPurs2(objectName)(fieldName))(fromFoldable12(definitions)))(Nothing.value);
-                                          };
-                                        };
-                                      };
-                                      var inputObjectTypeDefinitionToPurs = function(fieldName) {
-                                        return function(v3) {
+                                        var objectTypeDefinitionToPurs = function(v3) {
                                           var tName = pascalCase(v3.name);
-                                          var record = maybe(typeRecordEmpty)(function() {
-                                            var $269 = inputValueToFieldsDefinitionToPurs(tName)(fieldName);
-                                            return function($270) {
-                                              return $269(unwrap8($270));
-                                            };
-                                          }())(v3.inputFieldsDefinition);
-                                          return new Cons(comment1(v3.description)(declNewtype2(tName)([])(tName)(record)), new Cons(declDerive2(Nothing.value)([])(tName)([typeCtor12(tName), typeWildcard]), Nil.value));
+                                          var record = maybe(typeRecordEmpty)(fieldsDefinitionToPurs(v3.name))(v3.fieldsDefinition);
+                                          if (v.useNewtypesForRecords) {
+                                            return new Cons(comment1(v3.description)(declNewtype2(tName)([])(tName)(record)), new Cons(declDerive2(Nothing.value)([])(newType)([typeCtor12(tName), typeWildcard]), Nil.value));
+                                          }
+                                          ;
+                                          return new Cons(comment1(v3.description)(declType3(tName)([])(record)), Nil.value);
                                         };
-                                      };
-                                      var typeToPurs = function(v3) {
-                                        if (v3 instanceof Type_NamedType) {
-                                          return namedTypeToPursNullable(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof Type_ListType) {
-                                          return listTypeToPursNullable(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof Type_NonNullType) {
-                                          return notNullTypeToPurs(v3.value0);
-                                        }
-                                        ;
-                                        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 255, column 20 - line 258, column 76): " + [v3.constructor.name]);
-                                      };
-                                      var notNullTypeToPurs = function(v3) {
-                                        if (v3 instanceof NonNullType_NamedType) {
-                                          return pursTypeCtr(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof NonNullType_ListType) {
-                                          return listTypeToPurs(v3.value0);
-                                        }
-                                        ;
-                                        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 273, column 27 - line 275, column 55): " + [v3.constructor.name]);
-                                      };
-                                      var listTypeToPursNullable = function(t) {
-                                        return wrapMaybe(listTypeToPurs(t));
-                                      };
-                                      var listTypeToPurs = function(v3) {
-                                        return wrapArray(typeToPurs(v3));
-                                      };
-                                      var fieldDefinitionToPurs = function(objectName) {
-                                        return function(v3) {
-                                          var pursType = comment22(v3.description)(function() {
-                                            var v4 = bind13(lookup5(objectName)(fieldTypeOverridesMs))(lookup5(v3.name));
-                                            if (v4 instanceof Nothing) {
-                                              return typeToPurs(v3.type);
-                                            }
-                                            ;
-                                            if (v4 instanceof Just) {
-                                              if (v3.type instanceof Type_NonNullType) {
-                                                return typeCtor4(v4.value0);
-                                              }
-                                              ;
-                                              if (v3.type instanceof Type_ListType) {
-                                                return wrapArray(typeCtor4(v4.value0));
-                                              }
-                                              ;
-                                              return wrapMaybe(typeCtor4(v4.value0));
-                                            }
-                                            ;
-                                            throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 179, column 40 - line 184, column 42): " + [v4.constructor.name]);
-                                          }());
-                                          return new Tuple(safeFieldname(v3.name), function() {
-                                            if (v3.argumentsDefinition instanceof Nothing) {
-                                              return pursType;
-                                            }
-                                            ;
-                                            if (v3.argumentsDefinition instanceof Just) {
-                                              return typeArrow([argumentsDefinitionToPurs(objectName)(v3.name)(v3.argumentsDefinition.value0)])(pursType);
-                                            }
-                                            ;
-                                            throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 172, column 40 - line 176, column 33): " + [v3.argumentsDefinition.constructor.name]);
-                                          }());
+                                        var typeDefinitionToPurs = function(v3) {
+                                          if (v3 instanceof TypeDefinition_ScalarTypeDefinition) {
+                                            return fromFoldable22(scalarTypeDefinitionToPurs(v3.value0));
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeDefinition_ObjectTypeDefinition) {
+                                            return objectTypeDefinitionToPurs(v3.value0);
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeDefinition_InterfaceTypeDefinition) {
+                                            return mempty9;
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeDefinition_UnionTypeDefinition) {
+                                            return fromFoldable22(unionTypeDefinitionToPurs(v3.value0));
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeDefinition_EnumTypeDefinition) {
+                                            return mempty9;
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeDefinition_InputObjectTypeDefinition) {
+                                            return inputObjectTypeDefinitionToPurs(function(v4) {
+                                              return v4.name;
+                                            }(unwrap8(v3.value0)))(v3.value0);
+                                          }
+                                          ;
+                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 105, column 30 - line 112, column 114): " + [v3.constructor.name]);
                                         };
-                                      };
-                                      var fieldsDefinitionToPurs = function(objectName) {
-                                        return function(v3) {
-                                          return typeRecord3(map30(fieldDefinitionToPurs(objectName))(fromFoldable12(v3)))(Nothing.value);
+                                        var typeSystemDefinitionToPurs = function(v3) {
+                                          if (v3 instanceof TypeSystemDefinition_SchemaDefinition) {
+                                            return schemaDefinitionToPurs(v3.value0);
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeSystemDefinition_TypeDefinition) {
+                                            return typeDefinitionToPurs(v3.value0);
+                                          }
+                                          ;
+                                          if (v3 instanceof TypeSystemDefinition_DirectiveDefinition) {
+                                            return mempty9;
+                                          }
+                                          ;
+                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 96, column 36 - line 99, column 84): " + [v3.constructor.name]);
                                         };
-                                      };
-                                      var objectTypeDefinitionToPurs = function(v3) {
-                                        var tName = pascalCase(v3.name);
-                                        var record = maybe(typeRecordEmpty)(fieldsDefinitionToPurs(v3.name))(v3.fieldsDefinition);
-                                        if (v.useNewtypesForRecords) {
-                                          return new Cons(comment1(v3.description)(declNewtype2(tName)([])(tName)(record)), new Cons(declDerive1(Nothing.value)([])(newType)([typeCtor12(tName), typeWildcard]), Nil.value));
-                                        }
-                                        ;
-                                        return new Cons(comment1(v3.description)(declType3(tName)([])(record)), Nil.value);
-                                      };
-                                      var typeDefinitionToPurs = function(v3) {
-                                        if (v3 instanceof TypeDefinition_ScalarTypeDefinition) {
-                                          return fromFoldable22(scalarTypeDefinitionToPurs(v3.value0));
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeDefinition_ObjectTypeDefinition) {
-                                          return objectTypeDefinitionToPurs(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeDefinition_InterfaceTypeDefinition) {
-                                          return mempty9;
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeDefinition_UnionTypeDefinition) {
-                                          return fromFoldable22(unionTypeDefinitionToPurs(v3.value0));
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeDefinition_EnumTypeDefinition) {
-                                          return mempty9;
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeDefinition_InputObjectTypeDefinition) {
-                                          return inputObjectTypeDefinitionToPurs(function(v4) {
-                                            return v4.name;
-                                          }(unwrap8(v3.value0)))(v3.value0);
-                                        }
-                                        ;
-                                        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 92, column 30 - line 99, column 114): " + [v3.constructor.name]);
-                                      };
-                                      var typeSystemDefinitionToPurs = function(v3) {
-                                        if (v3 instanceof TypeSystemDefinition_SchemaDefinition) {
-                                          return schemaDefinitionToPurs(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeSystemDefinition_TypeDefinition) {
-                                          return typeDefinitionToPurs(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof TypeSystemDefinition_DirectiveDefinition) {
-                                          return mempty9;
-                                        }
-                                        ;
-                                        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 83, column 36 - line 86, column 84): " + [v3.constructor.name]);
-                                      };
-                                      var definitionToPurs = function(v3) {
-                                        if (v3 instanceof Definition_ExecutableDefinition) {
-                                          return mempty9;
-                                        }
-                                        ;
-                                        if (v3 instanceof Definition_TypeSystemDefinition) {
-                                          return typeSystemDefinitionToPurs(v3.value0);
-                                        }
-                                        ;
-                                        if (v3 instanceof Definition_TypeSystemExtension) {
-                                          return mempty9;
-                                        }
-                                        ;
-                                        throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 77, column 26 - line 80, column 55): " + [v3.constructor.name]);
-                                      };
-                                      var declarations = fromFoldable12(bind22(v1)(definitionToPurs));
-                                      return tell2(append18([schema])(declarations));
+                                        var definitionToPurs = function(v3) {
+                                          if (v3 instanceof Definition_ExecutableDefinition) {
+                                            return mempty9;
+                                          }
+                                          ;
+                                          if (v3 instanceof Definition_TypeSystemDefinition) {
+                                            return typeSystemDefinitionToPurs(v3.value0);
+                                          }
+                                          ;
+                                          if (v3 instanceof Definition_TypeSystemExtension) {
+                                            return mempty9;
+                                          }
+                                          ;
+                                          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.SchemaCst (line 90, column 26 - line 93, column 55): " + [v3.constructor.name]);
+                                        };
+                                        var declarations = fromFoldable12(bind22(sort22(v1))(definitionToPurs));
+                                        return tell2(append18([schema])(declarations));
+                                      });
                                     });
                                   });
                                 });
@@ -55491,10 +58942,10 @@ var template = function(modulePrefix) {
       };
       return intercalate7("\n    ")(zipWith2(makeFromEnum)(v.values)(ints));
     }();
-    return "module " + (modulePrefix + ("Schema." + (v.schemaName + (".Enum." + (v.name + (" where\n\nimport Prelude\n\nimport Data.Argonaut.Decode (class DecodeJson, JsonDecodeError(..), decodeJson)\nimport Data.Argonaut.Encode (class EncodeJson, encodeJson)\nimport Data.Bounded (class Bounded)\nimport Data.Enum (class Enum, class BoundedEnum, Cardinality(..))\nimport Data.Either (Either(..))\nimport Data.Function (on)\nimport Data.Maybe (Maybe(..))\nimport GraphQL.Client.Args (class ArgGql)\nimport GraphQL.Client.ToGqlString (class GqlArgString)\nimport GraphQL.Hasura.Decode (class DecodeHasura)\nimport GraphQL.Hasura.Encode (class EncodeHasura)\n" + (intercalate7("\n")(v.imports) + ("\n\n" + (docComment2(v.description) + ("data " + (v.name + (" \n  = " + (enumCtrs + ("\n" + (v.customCode({
+    return "module " + (modulePrefix + ("Schema." + (v.schemaName + (".Enum." + (v.name + (" where\n\nimport Prelude\n\nimport Data.Argonaut.Decode (class DecodeJson, JsonDecodeError(..), decodeJson)\nimport Data.Argonaut.Encode (class EncodeJson, encodeJson)\nimport Data.Bounded (class Bounded)\nimport Data.Enum (class Enum, class BoundedEnum, Cardinality(..))\nimport Data.Either (Either(..))\nimport Data.Function (on)\nimport Data.Maybe (Maybe(..))\nimport GraphQL.Client.ToGqlString (class GqlArgString)\nimport GraphQL.Hasura.Decode (class DecodeHasura)\nimport GraphQL.Hasura.Encode (class EncodeHasura)\n" + (intercalate7("\n")(v.imports) + ("\n\n" + (docComment2(v.description) + ("data " + (v.name + (" \n  = " + (enumCtrs + ("\n" + (v.customCode({
       name: v.name,
       values: valuesAndTransforms
-    }) + ("\n\ninstance eq" + (v.name + (" :: Eq " + (v.name + (" where \n  eq = eq `on` show\n\ninstance ord" + (v.name + (" :: Ord " + (v.name + (" where\n  compare = compare `on` show\n\ninstance argToGql" + (v.name + (" :: ArgGql " + (v.name + (" " + (v.name + ("\n\ninstance gqlArgString" + (v.name + (" :: GqlArgString " + (v.name + (" where\n  toGqlArgStringImpl = show\n\ninstance decodeJson" + (v.name + (" :: DecodeJson " + (v.name + (" where\n  decodeJson = decodeJson >=> case _ of \n" + (decodeMember + ('\n    s -> Left $ TypeMismatch $ "Not a ' + (v.name + (': " <> s\n\ninstance encodeJson' + (v.name + (" :: EncodeJson " + (v.name + (" where \n  encodeJson = show >>> encodeJson\n\ninstance decdoeHasura" + (v.name + (" :: DecodeHasura " + (v.name + (" where \n  decodeHasura = decodeJson\n\ninstance encodeHasura" + (v.name + (" :: EncodeHasura " + (v.name + (" where \n  encodeHasura = encodeJson\n\ninstance show" + (v.name + (" :: Show " + (v.name + (" where\n  show a = case a of \n" + (showMember + ("\n\ninstance enum" + (v.name + (" :: Enum " + (v.name + (" where\n  succ a = case a of \n    " + (succMembers + ("\n  pred a = case a of \n    " + (predMembers + ("\n\ninstance bounded" + (v.name + (" :: Bounded " + (v.name + (" where\n  top = " + (enumValueName(v1.head) + ("\n  bottom = " + (enumValueName(v2.last) + ("\n\ninstance boundedEnum" + (v.name + (" :: BoundedEnum " + (v.name + (" where\n  cardinality = Cardinality " + (show4(length3(v.values)) + ("\n  toEnum a = case a of\n    " + (toEnumMembers + ("\n  fromEnum a = case a of\n    " + (fromEnumMembers + "\n\n")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+    }) + ("\n\ninstance eq" + (v.name + (" :: Eq " + (v.name + (" where \n  eq = eq `on` show\n\ninstance ord" + (v.name + (" :: Ord " + (v.name + (" where\n  compare = compare `on` show\n\ninstance gqlArgString" + (v.name + (" :: GqlArgString " + (v.name + (" where\n  toGqlArgStringImpl = show\n\ninstance decodeJson" + (v.name + (" :: DecodeJson " + (v.name + (" where\n  decodeJson = decodeJson >=> case _ of \n" + (decodeMember + ('\n    s -> Left $ TypeMismatch $ "Not a ' + (v.name + (': " <> s\n\ninstance encodeJson' + (v.name + (" :: EncodeJson " + (v.name + (" where \n  encodeJson = show >>> encodeJson\n\ninstance decdoeHasura" + (v.name + (" :: DecodeHasura " + (v.name + (" where \n  decodeHasura = decodeJson\n\ninstance encodeHasura" + (v.name + (" :: EncodeHasura " + (v.name + (" where \n  encodeHasura = encodeJson\n\ninstance show" + (v.name + (" :: Show " + (v.name + (" where\n  show a = case a of \n" + (showMember + ("\n\ninstance enum" + (v.name + (" :: Enum " + (v.name + (" where\n  succ a = case a of \n    " + (succMembers + ("\n  pred a = case a of \n    " + (predMembers + ("\n\ninstance bounded" + (v.name + (" :: Bounded " + (v.name + (" where\n  top = " + (enumValueName(v1.head) + ("\n  bottom = " + (enumValueName(v2.last) + ("\n\ninstance boundedEnum" + (v.name + (" :: BoundedEnum " + (v.name + (" where\n  cardinality = Cardinality " + (show4(length3(v.values)) + ("\n  toEnum a = case a of\n    " + (toEnumMembers + ("\n  fromEnum a = case a of\n    " + (fromEnumMembers + "\n\n")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
   };
 };
 
@@ -55845,18 +59296,14 @@ var discard2 = /* @__PURE__ */ discard(discardUnit)(bindAff);
 var gEncodeJsonCons2 = /* @__PURE__ */ gEncodeJsonCons(encodeJsonJString);
 var gEncodeJsonCons1 = /* @__PURE__ */ gEncodeJsonCons(/* @__PURE__ */ encodeJsonArray(encodeJsonJString))(gEncodeJsonNil);
 var encodeJson2 = /* @__PURE__ */ encodeJson(/* @__PURE__ */ encodeRecord(/* @__PURE__ */ gEncodeJsonCons2(/* @__PURE__ */ gEncodeJsonCons(/* @__PURE__ */ encodeJsonArray(/* @__PURE__ */ encodeRecord(/* @__PURE__ */ gEncodeJsonCons(/* @__PURE__ */ encodeJsonMaybe(encodeJsonJString))(/* @__PURE__ */ gEncodeJsonCons2(/* @__PURE__ */ gEncodeJsonCons1(valuesIsSymbol)())(nameIsSymbol3)())(descriptionIsSymbol2)())()))(/* @__PURE__ */ gEncodeJsonCons2(/* @__PURE__ */ gEncodeJsonCons2(/* @__PURE__ */ gEncodeJsonCons1(symbolsIsSymbol)())(moduleNameIsSymbol)())(mainSchemaCodeIsSymbol)())(enumsIsSymbol)())(directivesIsSymbol)())());
-var unions2 = /* @__PURE__ */ unions(ordString)(foldableMap);
-var mapWithIndex4 = /* @__PURE__ */ mapWithIndex(functorWithIndexMap);
-var fromFoldable13 = /* @__PURE__ */ fromFoldable2(ordString)(foldableArray);
-var map34 = /* @__PURE__ */ map(functorMap);
 var mapFlipped22 = /* @__PURE__ */ mapFlipped(functorArray);
-var compare10 = /* @__PURE__ */ compare(ordString);
+var compare77 = /* @__PURE__ */ compare(ordString);
 var bind23 = /* @__PURE__ */ bind(bindArray);
 var symbolsToCode2 = /* @__PURE__ */ symbolsToCode(foldableArray);
 var traverse4 = /* @__PURE__ */ traverse(traversableArray)(applicativeAff);
-var map115 = /* @__PURE__ */ map(functorAff);
+var map34 = /* @__PURE__ */ map(functorAff);
 var sequence2 = /* @__PURE__ */ sequence(traversableArray)(applicativeEither);
-var map210 = /* @__PURE__ */ map(functorEither);
+var map115 = /* @__PURE__ */ map(functorEither);
 var gqlToPursMainSchemaCode = function(opts) {
   return function(directiveModuleName) {
     return function(moduleName) {
@@ -55899,9 +59346,9 @@ var getDocumentEnums = /* @__PURE__ */ function() {
     ;
     return Nothing.value;
   };
-  var $163 = mapMaybe(definitionToEnum);
-  return function($164) {
-    return fromFoldable10($163(unwrap9($164)));
+  var $155 = mapMaybe(definitionToEnum);
+  return function($156) {
+    return fromFoldable10($155(unwrap9($156)));
   };
 }();
 var defaultIdImport = {
@@ -55940,8 +59387,8 @@ var schemaFromGqlToPursWithCache = function(opts) {
       ;
       if (v1 instanceof Just) {
         return bind9(v1.value0.get(stringSchema))(function(jsonMay) {
-          var v2 = bind14(jsonMay)(function($165) {
-            return hush(decodeJson2($165));
+          var v2 = bind14(jsonMay)(function($157) {
+            return hush(decodeJson2($157));
           });
           if (v2 instanceof Nothing) {
             return bind9(go(Nothing.value))(function(eVal) {
@@ -55968,40 +59415,16 @@ var schemaFromGqlToPursWithCache = function(opts) {
             return pure16(new Right(v2.value0));
           }
           ;
-          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 106, column 5 - line 113, column 35): " + [v2.constructor.name]);
+          throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 92, column 5 - line 99, column 35): " + [v2.constructor.name]);
         });
       }
       ;
-      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 102, column 3 - line 102, column 70): " + [v1.constructor.name]);
+      throw new Error("Failed pattern match at GraphQL.Client.CodeGen.Schema (line 88, column 3 - line 88, column 70): " + [v1.constructor.name]);
     };
     return go(opts.cache);
   };
 };
-var schemasFromGqlToPurs = function(opts_) {
-  var fieldTypeOverrides = unions2(mapWithIndex4(function(gqlObjectName) {
-    return function(obj) {
-      return fromFoldable13([new Tuple(gqlObjectName, obj), new Tuple(gqlObjectName + "InsertInput", obj), new Tuple(gqlObjectName + "MinFields", obj), new Tuple(gqlObjectName + "MaxFields", obj), new Tuple(gqlObjectName + "SetInput", obj), new Tuple(gqlObjectName + "BoolExp", map34(function(o) {
-        return {
-          typeName: o.typeName + "ComparisonExp",
-          moduleName: o.moduleName
-        };
-      })(obj))]);
-    };
-  })(opts_.fieldTypeOverrides));
-  var opts = {
-    fieldTypeOverrides,
-    argTypeOverrides: opts_.argTypeOverrides,
-    cache: opts_.cache,
-    customEnumCode: opts_.customEnumCode,
-    dir: opts_.dir,
-    enumImports: opts_.enumImports,
-    enumValueNameTransform: opts_.enumValueNameTransform,
-    gqlToPursTypes: opts_.gqlToPursTypes,
-    idImport: opts_.idImport,
-    modulePath: opts_.modulePath,
-    nullableOverrides: opts_.nullableOverrides,
-    useNewtypesForRecords: opts_.useNewtypesForRecords
-  };
+var schemasFromGqlToPurs = function(opts) {
   var modulePrefix = foldMap10(function(v) {
     return v + ".";
   })(opts.modulePath);
@@ -56013,7 +59436,7 @@ var schemasFromGqlToPurs = function(opts_) {
           path: opts.dir + ("/Schema/" + (pg.moduleName + ".purs"))
         };
       }),
-      enums: nubBy2(on(compare10)(function(v) {
+      enums: nubBy2(on(compare77)(function(v) {
         return v.path;
       }))(bind23(pursGqls)(function(pg) {
         return mapFlipped22(pg.enums)(function(v) {
@@ -56047,11 +59470,11 @@ var schemasFromGqlToPurs = function(opts_) {
       })
     };
   };
-  var $166 = map115(map210(collectSchemas));
-  var $167 = map115(sequence2);
-  var $168 = traverse4(schemaFromGqlToPursWithCache(opts));
-  return function($169) {
-    return $166($167($168($169)));
+  var $158 = map34(map115(collectSchemas));
+  var $159 = map34(sequence2);
+  var $160 = traverse4(schemaFromGqlToPursWithCache(opts));
+  return function($161) {
+    return $158($159($160($161)));
   };
 };
 
@@ -56143,7 +59566,7 @@ var toEither1 = function(dictHasRuntimeType) {
 var fromFoldableWithIndex2 = /* @__PURE__ */ fromFoldableWithIndex(ordString)(foldableWithIndexObject);
 var map35 = /* @__PURE__ */ map(functorObject);
 var map116 = /* @__PURE__ */ map(functorMap);
-var map211 = /* @__PURE__ */ map(functorMaybe);
+var map210 = /* @__PURE__ */ map(functorMaybe);
 var mapFlipped7 = /* @__PURE__ */ mapFlipped(functorMaybe);
 var map36 = /* @__PURE__ */ map(functorFn);
 var map42 = /* @__PURE__ */ map(functorAff);
@@ -56222,7 +59645,7 @@ var schemasFromGqlToPursJs = /* @__PURE__ */ function() {
       useNewtypesForRecords: fromNullable(true)(optsJs.useNewtypesForRecords),
       enumImports: fromNullable([])(optsJs.enumImports),
       customEnumCode: fromNullable($$const(""))(optsJs.customEnumCode),
-      idImport: map211(fromQualifiedTypeJs)(toMaybe(optsJs.idImport)),
+      idImport: map210(fromQualifiedTypeJs)(toMaybe(optsJs.idImport)),
       enumValueNameTransform: toMaybe(optsJs.enumValueNameTransform),
       cache: mapFlipped7(toMaybe(optsJs.cache))(function(v) {
         return {

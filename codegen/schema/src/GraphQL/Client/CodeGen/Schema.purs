@@ -24,6 +24,7 @@ import Data.Newtype (unwrap)
 import Data.String.Extra (pascalCase)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
+import Debug (spy, traceTime)
 import Effect.Aff (Aff)
 import GraphQL.Client.CodeGen.Directive (getDocumentDirectivesPurs)
 import GraphQL.Client.CodeGen.DocumentFromIntrospection (documentFromIntrospection, toParserError)
@@ -36,24 +37,9 @@ import Parsing (ParseError)
 import Tidy.Codegen (printModule)
 
 schemasFromGqlToPurs :: InputOptions -> Array GqlInput -> Aff (Either ParseError FilesToWrite)
-schemasFromGqlToPurs opts_ = traverse (schemaFromGqlToPursWithCache opts) >>> map sequence >>> map (map collectSchemas)
+schemasFromGqlToPurs opts = traverse (schemaFromGqlToPursWithCache opts) >>> map sequence >>> map (map collectSchemas)
   where
   modulePrefix = foldMap (_ <> ".") opts.modulePath
-
-  opts = opts_ { fieldTypeOverrides = fieldTypeOverrides }
-
-  fieldTypeOverrides =
-    Map.unions
-      $ opts_.fieldTypeOverrides
-          # mapWithIndex \gqlObjectName obj ->
-              Map.fromFoldable
-                [ Tuple gqlObjectName obj
-                , Tuple (gqlObjectName <> "InsertInput") obj
-                , Tuple (gqlObjectName <> "MinFields") obj
-                , Tuple (gqlObjectName <> "MaxFields") obj
-                , Tuple (gqlObjectName <> "SetInput") obj
-                , Tuple (gqlObjectName <> "BoolExp") $ map (\o -> o { typeName = o.typeName <> "ComparisonExp" }) obj
-                ]
 
   collectSchemas :: Array PursGql -> FilesToWrite
   collectSchemas pursGqls =

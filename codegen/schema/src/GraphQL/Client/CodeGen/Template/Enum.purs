@@ -39,7 +39,6 @@ import Data.Enum (class Enum, class BoundedEnum, Cardinality(..))
 import Data.Either (Either(..))
 import Data.Function (on)
 import Data.Maybe (Maybe(..))
-import GraphQL.Client.Args (class ArgGql)
 import GraphQL.Client.ToGqlString (class GqlArgString)
 import GraphQL.Hasura.Decode (class DecodeHasura)
 import GraphQL.Hasura.Encode (class EncodeHasura)
@@ -78,15 +77,6 @@ instance ord"""
     <>
       """ where
   compare = compare `on` show
-
-instance argToGql"""
-    <> name
-    <> """ :: ArgGql """
-    <> name
-    <> """ """
-    <> name
-    <>
-      """
 
 instance gqlArgString"""
     <> name

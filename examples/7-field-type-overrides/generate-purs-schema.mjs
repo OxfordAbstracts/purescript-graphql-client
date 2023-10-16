@@ -8,8 +8,9 @@ export default () =>
     modulePath: ["Generated", "Gql", "Admin"],
     useNewtypesForRecords: false,
     url: "http://localhost:4000/graphql",
-    gqlToPursTypes: {
-      GqlTypeThatIsAString: { typeName: "String", moduleName: "" },
-      GqlTypeThatIsAnInt: { typeName: "Int", moduleName: "" },
+    fieldTypeOverrides: {
+      Widget: {
+        special_string: { moduleName: "DataTypes", typeName: "MyNewtype" },
+      },
     },
   });

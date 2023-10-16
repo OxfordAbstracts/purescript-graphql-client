@@ -30,16 +30,6 @@ Argument for generateSchema
   { moduleName :: String 
   , typeName :: String 
   }
--- | External scalar types. The object key is the name of the scalar type in the graphQL schema.
--- | When the scalar type is encountered it will be set at the type in the provided module
--- | Useful for handling custom scalar types such as `Date`
-, externalTypes :: 
-    Nullable
-        ( Object
-            { moduleName :: String
-            , typeName :: String
-            }
-        )
 -- | Override exsting types.
 -- | The outer object key is the name of the purescript type. 
 -- | The inner object key is the field name / purescript label
