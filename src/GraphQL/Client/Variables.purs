@@ -213,13 +213,20 @@ instance queryVarsAsGqlVar ::
   ) =>
   GetGqlQueryVars (AsGql gqlName a) (Var name q) { | result }
 
-else instance queryVarsGqlType :: GetGqlQueryVars a q vars => GetGqlQueryVars (AsGql gql a) q vars
+else instance queryVarsAsGqlOther ::
+  ( GetGqlQueryVars a q vars
+  ) =>
+  GetGqlQueryVars (AsGql gqlName a) q vars
+
+else instance queryVarsWithVars :: GetGqlQueryVars a q vars => GetGqlQueryVars a (WithVars q v) vars
 
 else instance queryVarsVar ::
   ( GqlType a gqlName
   , Row.Cons name (Proxy gqlName) () result
   ) =>
   GetGqlQueryVars a (Var name q) { | result }
+
+else instance queryVarsUnit :: GetGqlQueryVars a Unit {}
 
 else instance queryVarsApplyDirective :: GetGqlQueryVars a q vars => GetGqlQueryVars a (ApplyDirective name args q) vars
 
@@ -268,6 +275,7 @@ else instance
   GetGqlQueryVars { | schema } { | query } vars
 else instance queryVarsNewtype ::
   ( GetGqlQueryVars { | schema } ({ | query }) vars
+  , Newtype newtypeSchema { | schema }
   ) =>
   GetGqlQueryVars newtypeSchema { | query } vars
 

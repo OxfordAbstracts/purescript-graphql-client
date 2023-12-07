@@ -8,8 +8,7 @@ import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (OrArg(..), (++), (=>>))
 import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.Variable (Var(..))
-import GraphQL.Client.Variables (PropGetGqlVars, getQueryVars, getVarsTypeNames, propGetGqlVars, withVars)
-import Heterogeneous.Folding (class HFoldlWithIndex)
+import GraphQL.Client.Variables (class GetGqlQueryVars, getQueryVars, getVarsTypeNames, withVars)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
 import Type.Proxy (Proxy(..))
@@ -147,10 +146,11 @@ testSchemaProxy = Proxy
 
 getGqlQueryVars
   :: forall query vars
-   . HFoldlWithIndex (PropGetGqlVars TestSchema) (Proxy {}) { | query } (Proxy vars)
-  => { | query }
+   . GetGqlQueryVars TestSchema query vars
+  --  HFoldlWithIndex (PropGetGqlVars TestSchema) (Proxy {})query (Proxy vars)
+  => query
   -> Proxy vars
-getGqlQueryVars _ = propGetGqlVars testSchemaProxy (Proxy :: _ { | query })
+getGqlQueryVars _ = Proxy
 
 testGqlVarsEmpty :: Proxy {}
 testGqlVarsEmpty = getGqlQueryVars {}
@@ -213,7 +213,29 @@ testGqlVarsBasic =
     , orders:
         { name: Var :: Var "nameVar" String } =>>
           { user_id: Var :: Var "myOtherVar" Int }
-    }
+    } `withVars`
+      { myVar: 1
+      , nameVar: "name"
+      , myOtherVar: 2
+      }
+
+testGqlVarsCreatedAt
+  :: Proxy
+       { myVar :: Proxy "customId"
+       , created_at_eq :: Proxy "Int"
+       , created_at_lt :: Proxy "Int"
+       }
+testGqlVarsCreatedAt =
+  getGqlQueryVars $
+    { users:
+        { where: { created_at: { eq: Var :: Var "created_at_eq" Int, lt: Var :: Var "created_at_lt" Int } }
+        }
+          =>> { id: Var :: Var "myVar" Int }
+    } `withVars`
+      { myVar: 1
+      , created_at_eq: 2
+      , created_at_lt: 3
+      }
 
 testBasic
   :: Proxy
@@ -332,3 +354,4 @@ testSpreadAlias =
 
 alias = Proxy :: Proxy "alias"
 
+-- GetGqlQueryVars type level tests
