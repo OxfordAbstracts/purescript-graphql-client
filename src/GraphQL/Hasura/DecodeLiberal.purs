@@ -22,8 +22,7 @@ import StringParser (Parser)
 import StringParser as P
 import Type.Proxy (Proxy(..))
 
-type DecodeLiberalOptions
-  = { strict :: Boolean }
+type DecodeLiberalOptions = { strict :: Boolean }
 
 -- | Decode json, with silent errors when possible
 class DecodeHasuraLiberal a where

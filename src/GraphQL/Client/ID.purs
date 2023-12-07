@@ -13,10 +13,10 @@ import GraphQL.Hasura.Encode (class EncodeHasura)
 newtype ID = ID String
 
 derive instance eqID :: Eq ID
-derive instance ordID :: Ord ID 
+derive instance ordID :: Ord ID
 derive instance newtypeID :: Newtype ID _
 derive instance genericID :: Generic ID _
-derive newtype instance showID :: Show ID 
+derive newtype instance showID :: Show ID
 derive newtype instance gqlArgStringID :: GqlArgString ID
 derive newtype instance decodeHasuraID :: DecodeHasura ID
 derive newtype instance encodeHasuraID :: EncodeHasura ID

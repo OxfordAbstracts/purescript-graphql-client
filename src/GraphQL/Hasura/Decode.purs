@@ -31,8 +31,7 @@ import StringParser.CodeUnits (anyDigit, char, eof)
 import StringParser.Combinators (many1, optionMaybe)
 import Type.Proxy (Proxy(..))
 
-type Err a
-  = Either JsonDecodeError a
+type Err a = Either JsonDecodeError a
 
 class DecodeHasura a where
   decodeHasura :: Json -> Either JsonDecodeError a
@@ -70,11 +69,11 @@ instance decodeHasuraTime :: DecodeHasura Time where
 runJsonParser :: forall a. Parser a -> Json -> Either JsonDecodeError a
 runJsonParser p = decodeJson >=> runParser p >>> lmap (show >>> TypeMismatch)
 
-instance decodeRecord
-  :: ( DecodeHasuraFields row list
-     , RL.RowToList row list
-     )
-  => DecodeHasura (Record row) where
+instance decodeRecord ::
+  ( DecodeHasuraFields row list
+  , RL.RowToList row list
+  ) =>
+  DecodeHasura (Record row) where
   decodeHasura json =
     case toObject json of
       Just object -> decodeHasuraFields object (Proxy :: Proxy list)
@@ -86,43 +85,42 @@ class DecodeHasuraFields (row :: Row Type) (list :: RL.RowList Type) | list -> r
 instance decodeHasuraFieldsNil :: DecodeHasuraFields () RL.Nil where
   decodeHasuraFields _ _ = Right {}
 
-instance decodeHasuraFieldsCons
-  :: ( DecodeHasuraField value
-     , DecodeHasuraFields rowTail tail
-     , IsSymbol field
-     , Row.Cons field value rowTail row
-     , Row.Lacks field rowTail
-     )
-  => DecodeHasuraFields row (RL.Cons field value tail) where
-    decodeHasuraFields object _ = do
-      let
-        _field = Proxy :: Proxy field
-        fieldName = reflectSymbol _field
-        fieldValue = Object.lookup fieldName object
+instance decodeHasuraFieldsCons ::
+  ( DecodeHasuraField value
+  , DecodeHasuraFields rowTail tail
+  , IsSymbol field
+  , Row.Cons field value rowTail row
+  , Row.Lacks field rowTail
+  ) =>
+  DecodeHasuraFields row (RL.Cons field value tail) where
+  decodeHasuraFields object _ = do
+    let
+      _field = Proxy :: Proxy field
+      fieldName = reflectSymbol _field
+      fieldValue = Object.lookup fieldName object
 
-      case decodeHasuraField fieldValue of
-        Just fieldVal -> do
-          val <- lmap (AtKey fieldName) fieldVal
-          rest <- decodeHasuraFields object (Proxy :: Proxy tail)
-          Right $ Record.insert _field val rest
+    case decodeHasuraField fieldValue of
+      Just fieldVal -> do
+        val <- lmap (AtKey fieldName) fieldVal
+        rest <- decodeHasuraFields object (Proxy :: Proxy tail)
+        Right $ Record.insert _field val rest
 
-        Nothing ->
-          Left $ AtKey fieldName MissingValue
+      Nothing ->
+        Left $ AtKey fieldName MissingValue
 
 class DecodeHasuraField a where
   decodeHasuraField :: Maybe Json -> Maybe (Either JsonDecodeError a)
 
-instance decodeFieldMaybe
-  :: DecodeHasura a
-  => DecodeHasuraField (Maybe a) where
+instance decodeFieldMaybe ::
+  DecodeHasura a =>
+  DecodeHasuraField (Maybe a) where
   decodeHasuraField Nothing = Just $ Right Nothing
   decodeHasuraField (Just j) = Just $ decodeHasura j
 
-else instance decodeFieldId
-  :: DecodeHasura a
-  => DecodeHasuraField a where
+else instance decodeFieldId ::
+  DecodeHasura a =>
+  DecodeHasuraField a where
   decodeHasuraField j = decodeHasura <$> j
-
 
 isoDateTime :: Parser DateTime
 isoDateTime = do
@@ -134,7 +132,7 @@ isoDateTime = do
     resWoTz = DateTime date time
   pure $ fromMaybe resWoTz $ tzMay
     >>= \tz ->
-        adjust tz resWoTz
+      adjust tz resWoTz
 
 isoDate :: Parser Date
 isoDate = do
@@ -184,8 +182,8 @@ digitsToInt :: forall f. Foldable f => f Char -> Parser Int
 digitsToInt =
   foldl (\s c -> s <> singleton c) ""
     >>> \str -> case Int.fromString str of
-        Nothing -> fail $ "Failed to parse Int from: " <> str
-        Just i -> pure i
+      Nothing -> fail $ "Failed to parse Int from: " <> str
+      Just i -> pure i
 
 maybeFail :: forall a. String -> Maybe a -> Parser a
 maybeFail str = maybe (P.fail str) pure

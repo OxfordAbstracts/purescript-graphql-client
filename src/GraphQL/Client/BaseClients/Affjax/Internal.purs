@@ -2,7 +2,6 @@ module GraphQL.Client.BaseClients.Affjax.Internal where
 
 import Prelude
 
-
 import Affjax (Error, Request, URL, defaultRequest, printError)
 import Affjax.RequestBody as RequestBody
 import Affjax.RequestHeader (RequestHeader(..))
@@ -20,15 +19,15 @@ throwLeft = case _ of
   Left err -> throwError $ error $ printError err
   Right { body } -> pure body
 
-makeAffjaxGqlRequest :: 
-  String -> URL -> Array RequestHeader -> String -> String -> Json -> Request Json
+makeAffjaxGqlRequest
+  :: String -> URL -> Array RequestHeader -> String -> String -> Json -> Request Json
 makeAffjaxGqlRequest opStr url headers queryName q vars =
-    defaultRequest
-      { withCredentials = true
-      , url = url
-      , method = Left Method.POST
-      , responseFormat = ResponseFormat.json
-      , content =
+  defaultRequest
+    { withCredentials = true
+    , url = url
+    , method = Left Method.POST
+    , responseFormat = ResponseFormat.json
+    , content =
         Just
           $ RequestBody.Json
           $ encodeJson
@@ -36,5 +35,5 @@ makeAffjaxGqlRequest opStr url headers queryName q vars =
               , variables: vars
               , operationName: queryName
               }
-      , headers = headers <> [ ContentType applicationJSON ]
-      }
+    , headers = headers <> [ ContentType applicationJSON ]
+    }

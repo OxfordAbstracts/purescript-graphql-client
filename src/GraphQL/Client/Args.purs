@@ -81,7 +81,7 @@ else instance argToGqlArray :: ArgGqlAt at param arg => ArgGqlAt at (Array param
 else instance argToGqlArrayOne :: ArgGqlAt at param arg => ArgGqlAt at (Array param) arg
 else instance argToGqlRecord :: RecordArg p a u => ArgGqlAt at { | p } { | a }
 else instance allowedArgMismatchSame :: ArgGqlAt at p (AllowedMismatch p a)
-else instance allowedArgMismatchNested ::  ArgGqlAt at p a => ArgGqlAt at p (AllowedMismatch schema a)
+else instance allowedArgMismatchNested :: ArgGqlAt at p a => ArgGqlAt at p (AllowedMismatch schema a)
 else instance argGqlIdentity :: ArgGqlAt at a a
 else instance argToGqlNewtypeRecord :: (Newtype n { | p }, RecordArg p a u) => ArgGqlAt at n { | a }
 else instance argMismatch ::

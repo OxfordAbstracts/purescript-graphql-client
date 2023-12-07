@@ -5,7 +5,6 @@ import Data.Either (Either)
 import Data.Maybe (Maybe)
 import Foreign.Object (Object)
 
-
 type GqlError =
   { message :: String
   , locations :: ErrorLocations

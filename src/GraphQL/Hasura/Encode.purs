@@ -70,8 +70,7 @@ instance encodeHasuraRecord :: HMap EncodeHasuraProp { | r } jsonRecord => Encod
 unsafeToJson :: forall a. a -> Json
 unsafeToJson = unsafeCoerce
 
-data EncodeHasuraProp
-  = EncodeHasuraProp
+data EncodeHasuraProp = EncodeHasuraProp
 
 instance addOneAndShow ::
   EncodeHasura a =>

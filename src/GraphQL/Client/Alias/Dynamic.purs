@@ -27,13 +27,11 @@ import GraphQL.Hasura.Encode (class EncodeHasura, encodeHasura)
 -- |   _3: update_users(where: {id : 3}, _set: { value: 20 }) { affected_rows }
 -- | }
 -- | ```
-data Spread alias args fields
-  = Spread alias (Array args) fields
+data Spread alias args fields = Spread alias (Array args) fields
 
 -- | The return type of a query made with a dynamic alias spread
 -- | This type has encodes/decodes as an object with "_n" as a key
-newtype SpreadRes a
-  = SpreadRes (Array a)
+newtype SpreadRes a = SpreadRes (Array a)
 
 derive instance genericSpreadRes :: Generic (SpreadRes a) _
 

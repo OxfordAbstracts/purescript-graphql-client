@@ -10,8 +10,7 @@ import Effect.Aff (Aff)
 import GraphQL.Client.BaseClients.Affjax.Internal (makeAffjaxGqlRequest, throwLeft)
 import GraphQL.Client.Types (class QueryClient)
 
-data AffjaxWebClient
-  = AffjaxWebClient URL (Array RequestHeader)
+data AffjaxWebClient = AffjaxWebClient URL (Array RequestHeader)
 
 instance queryClient :: QueryClient AffjaxWebClient Unit Unit where
   clientQuery _ (AffjaxWebClient url headers) name q vars = throwLeft =<< queryPostForeign "query" url headers name q vars
@@ -19,7 +18,7 @@ instance queryClient :: QueryClient AffjaxWebClient Unit Unit where
   defQueryOpts = const unit
   defMutationOpts = const unit
 
-queryPostForeign ::
-  String -> URL -> Array RequestHeader -> String -> String -> Json -> Aff (Either Error (Response Json))
+queryPostForeign
+  :: String -> URL -> Array RequestHeader -> String -> String -> Json -> Aff (Either Error (Response Json))
 queryPostForeign opStr url headers queryName q vars =
   request (makeAffjaxGqlRequest opStr url headers queryName q vars)

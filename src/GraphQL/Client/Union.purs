@@ -80,9 +80,19 @@ decodeJsonUnionWith decode =
         Just ty' -> map UnionReturned $
           decode ty' (fromObject obj) (Proxy :: Proxy rl)
 
-decodeUnionWith :: forall r rl l ty r' rd. IsSymbol l => Cons l ty r r' => Cons l ty () rd => Union r rd r' =>
-  (String -> Json -> Proxy rl -> Either JsonDecodeError (Variant r)) -> (Json -> Either JsonDecodeError ty) -> String -> Json -> Proxy (RL.Cons l ty rl) -> Either JsonDecodeError (Variant r')
-decodeUnionWith decodeUnion' decodeJson' ty json _ = 
+decodeUnionWith
+  :: forall r rl l ty r' rd
+   . IsSymbol l
+  => Cons l ty r r'
+  => Cons l ty () rd
+  => Union r rd r'
+  => (String -> Json -> Proxy rl -> Either JsonDecodeError (Variant r))
+  -> (Json -> Either JsonDecodeError ty)
+  -> String
+  -> Json
+  -> Proxy (RL.Cons l ty rl)
+  -> Either JsonDecodeError (Variant r')
+decodeUnionWith decodeUnion' decodeJson' ty json _ =
   if reflectSymbol l == ty then map (inj l) $ decodeJson' json
   else map expand (decodeUnion' ty json (Proxy :: Proxy rl) :: Either JsonDecodeError (Variant r))
   where
@@ -90,7 +100,7 @@ decodeUnionWith decodeUnion' decodeJson' ty json _ =
   l = Proxy
 
 failedAtTypename :: forall x y a. String -> x -> y -> Either JsonDecodeError a
-failedAtTypename ty _ _ =  Left $ AtKey __typename $ UnexpectedValue $ fromString ty
+failedAtTypename ty _ _ = Left $ AtKey __typename $ UnexpectedValue $ fromString ty
 
 __typename :: String
 __typename = "__typename"
