@@ -1,4 +1,26 @@
-module GraphQL.Client.Variables where
+module GraphQL.Client.Variables
+  ( CombineVarsProp
+  , GetVarRec(..)
+  , GqlQueryVars
+  , GqlQueryVarsN(..)
+  , PropGetGqlVars
+  , WithVars(..)
+  , class GetGqlQueryVars
+  , class GetGqlQueryVarsRecord
+  , class GetVar
+  , class GqlArrayAndMaybeType
+  , class VarsTypeChecked
+  , combineVars
+  , getQuery
+  , getQueryVars
+  , getVar
+  , gqlArrayAndMaybeType
+  , getVarsJson
+  , getVarsTypeNames
+  , propGetGqlVars
+  , withVars
+  , withVarsEncode
+  ) where
 
 import Prelude
 
@@ -6,8 +28,10 @@ import Control.Apply (lift2)
 import Data.Argonaut.Core (Json, jsonEmptyObject)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.List (List(..), intercalate)
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype, unwrap)
+import Data.String as String
+import Data.String.CodeUnits (charAt)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import GraphQL.Client.Alias (Alias)
 import GraphQL.Client.Alias.Dynamic (Spread)
@@ -360,8 +384,18 @@ else instance GqlArrayAndMaybeType a => GqlArrayAndMaybeType (Array a) where
   gqlArrayAndMaybeType _ str = "[" <> gqlArrayAndMaybeType (Proxy :: _ a) str <> "]!"
 
 else instance GqlArrayAndMaybeType a => GqlArrayAndMaybeType (Maybe a) where
-  gqlArrayAndMaybeType _ str = str
+  gqlArrayAndMaybeType _ str = removeSuffix '!' str
 
 else instance GqlArrayAndMaybeType a where
-  gqlArrayAndMaybeType _ str = str <> "!"
+  gqlArrayAndMaybeType _ str = if endsWith '!' str then str else str <> "!"
+
+endsWith :: Char -> String -> Boolean
+endsWith c str =
+  let
+    len = String.length str
+  in
+    charAt (len - 1) str == Just c
+
+removeSuffix :: Char -> String -> String
+removeSuffix c str = if endsWith c str then String.take (String.length str - 1) str else str
 
