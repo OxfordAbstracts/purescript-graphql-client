@@ -11,7 +11,7 @@ data ErrorPolicy
 
 derive instance eqErrorPolicy :: Eq ErrorPolicy
 
-instance encodeJsonErrorPolicy :: EncodeJson ErrorPolicy where 
+instance encodeJsonErrorPolicy :: EncodeJson ErrorPolicy where
   encodeJson = errorPolicyToForeign >>> encodeJson
 
 errorPolicyToForeign :: ErrorPolicy -> String

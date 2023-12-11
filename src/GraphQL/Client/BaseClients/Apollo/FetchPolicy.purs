@@ -4,7 +4,6 @@ import Prelude
 
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 
-
 data FetchPolicy
   = CacheFirst
   | CacheOnly
@@ -15,7 +14,7 @@ data FetchPolicy
 
 derive instance eqFetchPolicy :: Eq FetchPolicy
 
-instance encodeJsonFetchPolicy :: EncodeJson FetchPolicy where 
+instance encodeJsonFetchPolicy :: EncodeJson FetchPolicy where
   encodeJson = fetchPolicyToForeign >>> encodeJson
 
 fetchPolicyToForeign :: FetchPolicy -> String

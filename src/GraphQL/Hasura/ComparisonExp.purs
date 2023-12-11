@@ -1,6 +1,6 @@
 module GraphQL.Hasura.ComparisonExp where
 
-type ComparisonExp t = 
+type ComparisonExp t =
   { _eq :: t
   , _gt :: t
   , _gte :: t

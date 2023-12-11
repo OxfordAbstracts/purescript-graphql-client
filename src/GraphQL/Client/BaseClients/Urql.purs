@@ -23,16 +23,16 @@ import Foreign.Object (Object)
 import Foreign.Object as Object
 import GraphQL.Client.Types (class QueryClient, class SubscriptionClient, Client(..))
 
-type UrqlClientOptions
-  = { url :: URL
-    , headers :: Array RequestHeader
-    }
+type UrqlClientOptions =
+  { url :: URL
+  , headers :: Array RequestHeader
+  }
 
-type UrqlSubClientOptions
-  = { url :: URL
-    , websocketUrl :: URL
-    , headers :: Array RequestHeader
-    }
+type UrqlSubClientOptions =
+  { url :: URL
+  , websocketUrl :: URL
+  , headers :: Array RequestHeader
+  }
 
 -- | A client to make graphQL queries and mutations. 
 -- | From the @urql/core npm module
@@ -45,30 +45,32 @@ foreign import data UrqlClient :: Type
 -- | See https://github.com/enisdenjo/graphql-ws details
 foreign import data UrqlSubClient :: Type
 
-createClient ::
-  forall schema.
-  UrqlClientOptions -> Effect (Client UrqlClient schema)
+createClient
+  :: forall schema
+   . UrqlClientOptions
+  -> Effect (Client UrqlClient schema)
 createClient = clientOptsToForeign >>> createClientImpl >>> map Client
 
-createGlobalClientUnsafe ::
-  forall schema.
-  UrqlClientOptions -> Effect (Client UrqlClient schema)
+createGlobalClientUnsafe
+  :: forall schema
+   . UrqlClientOptions
+  -> Effect (Client UrqlClient schema)
 createGlobalClientUnsafe = clientOptsToForeign >>> createGlobalClientUnsafeImpl >>> map Client
 
-createSubscriptionClient ::
-  forall schema.
-  UrqlSubClientOptions ->
-  Effect (Client UrqlSubClient schema)
+createSubscriptionClient
+  :: forall schema
+   . UrqlSubClientOptions
+  -> Effect (Client UrqlSubClient schema)
 createSubscriptionClient = clientOptsToForeign >>> createSubscriptionClientImpl >>> map Client
 
-clientOptsToForeign ::
-  forall r.
-  { headers :: Array RequestHeader
-  | r
-  } ->
-  { headers :: Object String
-  | r
-  }
+clientOptsToForeign
+  :: forall r
+   . { headers :: Array RequestHeader
+     | r
+     }
+  -> { headers :: Object String
+     | r
+     }
 clientOptsToForeign opts =
   opts
     { headers = Object.fromFoldable $ map toTup opts.headers
@@ -76,16 +78,16 @@ clientOptsToForeign opts =
   where
   toTup header = Tuple (name header) (value header)
 
-type UrqlClientOptionsForeign
-  = { url :: URL
-    , headers :: Object String
-    }
+type UrqlClientOptionsForeign =
+  { url :: URL
+  , headers :: Object String
+  }
 
-type UrqlSubUrqlClientOptionsForeign
-  = { url :: URL
-    , websocketUrl :: URL
-    , headers :: Object String
-    }
+type UrqlSubUrqlClientOptionsForeign =
+  { url :: URL
+  , websocketUrl :: URL
+  , headers :: Object String
+  }
 
 foreign import createClientImpl :: UrqlClientOptionsForeign -> Effect UrqlClient
 
@@ -105,10 +107,15 @@ instance queryClientSubscription :: QueryClient UrqlSubClient Unit Unit where
   defQueryOpts = const unit
   defMutationOpts = const unit
 
-queryForeign ::
-  forall client o.
-  QueryClient client o o =>
-  Boolean -> client -> String -> String -> Json -> Aff Json
+queryForeign
+  :: forall client o
+   . QueryClient client o o
+  => Boolean
+  -> client
+  -> String
+  -> String
+  -> Json
+  -> Aff Json
 queryForeign isMutation client name q_ vars = fromEffectFnAff $ fn (unsafeToForeign client) q vars
   where
   fn = if isMutation then mutationImpl else queryImpl
@@ -124,9 +131,10 @@ foreign import mutationImpl :: Foreign -> String -> Json -> EffectFnAff Json
 instance subcriptionClient :: SubscriptionClient UrqlSubClient Unit where
   clientSubscription _ = subscriptionImpl
   defSubOpts _ = unit
-foreign import subscriptionImpl ::
-  UrqlSubClient ->
-  String ->
-  Json ->
-  (Json -> Effect Unit) ->
-  Effect (Effect Unit)
+
+foreign import subscriptionImpl
+  :: UrqlSubClient
+  -> String
+  -> Json
+  -> (Json -> Effect Unit)
+  -> Effect (Effect Unit)

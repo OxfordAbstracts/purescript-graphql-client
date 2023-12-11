@@ -7,8 +7,7 @@ module GraphQL.Client.ErrorBoundary
   , putErrorsInPaths
   , putErrorsInPathsImpl
   , toEither
-  )
-  where
+  ) where
 
 import Prelude
 
