@@ -162,11 +162,11 @@ instance bounded"""
     <>
       """ where
   top = """
-    <> enumValueName headValue
+    <> enumValueName lastValue
     <>
       """
   bottom = """
-    <> enumValueName lastValue
+    <> enumValueName headValue
     <>
       """
 
