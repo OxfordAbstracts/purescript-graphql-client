@@ -4,7 +4,7 @@ import Prelude
 
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
-import GraphQL.Client.Args (IgnoreArg(..), (++), (+++), (=>>))
+import GraphQL.Client.Args (IgnoreArg(..), OrArg(..), (++), (+++), (=>>))
 import GraphQL.Client.Directive (applyDir)
 import GraphQL.Client.ToGqlString (gqlArgStringRecordTopLevel, toGqlQueryString, toGqlQueryStringFormatted)
 import GraphQL.Client.Variable (Var(..))
@@ -79,7 +79,6 @@ spec =
   b
 }"""
 
-
       it "converts aliases"
         $ toGqlQueryStringFormatted { a_alias: (Proxy :: _ "a") : { nested_alias: (Proxy :: _ "nested") }, b: unit }
             `shouldEqual`
@@ -90,10 +89,12 @@ spec =
   b
 }"""
       it "converts aliases and nested args"
-        $ toGqlQueryStringFormatted
+        $
+          toGqlQueryStringFormatted
             { a_alias:
                 (Proxy :: _ "a")
-                  : { arg: "abc"
+                  :
+                    { arg: "abc"
                     , where: { id: { eq: 10 } }
                     }
                   =>> { nested_alias: (Proxy :: _ "nested") }
@@ -107,10 +108,12 @@ spec =
   b
 }"""
       it "converts aliases and nested args (unformatted)"
-        $ toGqlQueryString
+        $
+          toGqlQueryString
             { a_alias:
                 (Proxy :: _ "a")
-                  : { arg: "abc"
+                  :
+                    { arg: "abc"
                     , where: { id: { eq: 10 } }
                     }
                   =>> { nested_alias: (Proxy :: _ "nested") }
@@ -119,12 +122,13 @@ spec =
             `shouldEqual`
               """ { a_alias: a(arg: "abc", where: {id: {eq: 10}}) { nested_alias: nested} b}"""
       it "converts array args"
-        $ toGqlQueryStringFormatted
+        $
+          toGqlQueryStringFormatted
             { a:
                 { a: [ 1, 2, 3 ]
                 , b: 1 ++ 2 ++ 3 ++ 4
-                , c: ["a", "b"] +++ [1, 2]
-                , d: ([] :: Array Int) +++ ["a", "b"] +++ [1, 2] +++ ([] :: Array Int) +++ [ "c", "d"] +++ ([] :: Array Int)
+                , c: [ "a", "b" ] +++ [ 1, 2 ]
+                , d: ([] :: Array Int) +++ [ "a", "b" ] +++ [ 1, 2 ] +++ ([] :: Array Int) +++ [ "c", "d" ] +++ ([] :: Array Int)
                 }
                   =>> { nested: unit }
             , b: unit
@@ -137,7 +141,8 @@ spec =
   b
 }"""
       it "ignores Ignore args"
-        $ toGqlQueryStringFormatted
+        $
+          toGqlQueryStringFormatted
             { a:
                 { i: IgnoreArg
                 , a: [ 1, 2, 3 ]
@@ -155,8 +160,63 @@ spec =
   }
   b
 }"""
+      it "ignores OrArg Ignore args"
+        $
+          toGqlQueryStringFormatted
+            { a:
+                { i: (ArgL IgnoreArg :: OrArg IgnoreArg String)
+                , a: [ 1, 2, 3 ]
+                , b: (ArgR IgnoreArg :: OrArg Int IgnoreArg)
+                , c: "X"
+                , d: (ArgL IgnoreArg :: OrArg IgnoreArg Int)
+                }
+                  =>> { nested: unit }
+            , b: unit
+            }
+            `shouldEqual`
+              """ {
+  a(a: [1, 2, 3], c: "X") {
+    nested
+  }
+  b
+}"""
+      it "ignores nested Ignore args"
+        $
+          toGqlQueryStringFormatted
+            { a:
+                { parent:
+                    { i: IgnoreArg
+                    , a: [ 1, 2, 3 ]
+                    , b: IgnoreArg
+                    , c: "X"
+                    , d: IgnoreArg
+                    }
+                }
+                  =>> { nested: unit }
+            }
+            `shouldEqual`
+              " {\n  a(parent: {a: [1, 2, 3], c: \"X\"}) {\n    nested\n  }\n}"
+      it "ignores Ignore args with AndArgs"
+        $
+          toGqlQueryStringFormatted
+            { a:
+                { arg:
+                    [ { i: IgnoreArg
+                      }
+                    ]
+                      +++ [ { a: 1 } ]
+                }
+                  =>> { nested: unit }
+            }
+            `shouldEqual`
+              """ {
+  a(arg: [{}, {a: 1}]) {
+    nested
+  }
+}"""
       it "handles variables"
-        $ toGqlQueryStringFormatted
+        $
+          toGqlQueryStringFormatted
             { a: { arg: Var :: _ "var1" _ } =>> { nested: unit }
             }
             `shouldEqual`
@@ -166,9 +226,9 @@ spec =
   }
 }"""
       it "handles dynamic aliases"
-        $ toGqlQueryStringFormatted
-             (Spread (Proxy :: _ "b") [ { arg: 10}, { arg: 20}, { arg: 30}] { field: unit })
-
+        $
+          toGqlQueryStringFormatted
+            (Spread (Proxy :: _ "b") [ { arg: 10 }, { arg: 20 }, { arg: 30 } ] { field: unit })
             `shouldEqual`
               """ {
   _0: b(arg: 10) {
@@ -185,9 +245,8 @@ spec =
         let
           cached = applyDir (Proxy :: _ "cached")
         in
-         toGqlQueryStringFormatted
-             (cached {ttl: 10} { a: unit } )
-
+          toGqlQueryStringFormatted
+            (cached { ttl: 10 } { a: unit })
             `shouldEqual`
               """@cached(ttl: 10) {
   a
@@ -196,9 +255,8 @@ spec =
         let
           cached = applyDir (Proxy :: _ "cached")
         in
-         toGqlQueryStringFormatted
-             (cached {} { a: unit } )
-
+          toGqlQueryStringFormatted
+            (cached {} { a: unit })
             `shouldEqual`
               """@cached {
   a

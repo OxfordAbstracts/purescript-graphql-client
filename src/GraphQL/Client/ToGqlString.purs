@@ -33,8 +33,6 @@ module GraphQL.Client.ToGqlString
 
 import Prelude
 
-import Data.Argonaut.Decode (class DecodeJson)
-import Data.Argonaut.Encode (class EncodeJson)
 import Data.Array (fold, foldMap, intercalate, length, mapWithIndex)
 import Data.Array as Array
 import Data.Date (Date)
@@ -49,7 +47,7 @@ import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), isJust, maybe)
 import Data.Monoid (guard, power)
-import Data.Newtype (class Newtype, unwrap)
+import Data.Newtype (unwrap)
 import Data.String (codePointFromChar, fromCodePointArray, joinWith, toCodePointArray)
 import Data.String.CodeUnits as String
 import Data.String.Regex (split)
@@ -70,8 +68,6 @@ import GraphQL.Client.NullArray (NullArray)
 import GraphQL.Client.Union (GqlUnion(..))
 import GraphQL.Client.Variable (Var)
 import GraphQL.Client.Variables (WithVars, getQuery)
-import GraphQL.Hasura.Decode (class DecodeHasura)
-import GraphQL.Hasura.Encode (class EncodeHasura)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
 import Type.Proxy (Proxy(..))
 import Unsafe.Coerce (unsafeCoerce)
@@ -426,9 +422,6 @@ instance propToGqlArg ::
           `List.Cons`
             kvs
 
--- pre <> reflectSymbol prop <> ": " <> toGqlArgStringImpl a
--- where
--- pre = if str == "" then "" else str <> ", "
 gqlArgStringRecord
   :: forall r
    . HFoldlWithIndex PropToGqlArg KeyVals { | r } KeyVals
