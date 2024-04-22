@@ -13,6 +13,9 @@ import Unsafe.Coerce (unsafeCoerce)
 class EncodeHasura a where
   encodeHasura :: a -> Json
 
+instance encodeHasuraUnit :: EncodeHasura Unit where
+  encodeHasura = encodeJson
+
 instance encodeHasuraBoolean :: EncodeHasura Boolean where
   encodeHasura = encodeJson
 

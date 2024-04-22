@@ -36,6 +36,9 @@ type Err a = Either JsonDecodeError a
 class DecodeHasura a where
   decodeHasura :: Json -> Either JsonDecodeError a
 
+instance decodeHasuraUnit :: DecodeHasura Unit where
+  decodeHasura = decodeJson
+  
 instance decodeHasuraBoolean :: DecodeHasura Boolean where
   decodeHasura = decodeJson
 
