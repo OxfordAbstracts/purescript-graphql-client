@@ -18,10 +18,10 @@ main :: Effect Unit
 main = do
   client :: Client _ Schema <-
     createSubscriptionClient
-      { url: "http://localhost:4000/graphql"
+      { url: "http://localhost:4892/graphql"
       , authToken: Nothing
       , headers: []
-      , websocketUrl: "ws://localhost:4000/graphql"
+      , websocketUrl: "ws://localhost:4892/graphql"
       }
   let
     event = subscription client "get_props" { postAdded: { author: unit, comment: unit } }

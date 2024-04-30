@@ -57,7 +57,7 @@ queryGql name_ q = do
   client <-
     liftEffect
       $ createClient
-          { url: "http://localhost:4000/graphql"
+          { url: "http://localhost:4892/graphql"
           , headers: []
           }
   queryFullRes decodeJson identity (client :: Client UrqlClient { directives :: Proxy Nil', query :: Schema | _ }) name_ q

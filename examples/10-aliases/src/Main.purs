@@ -39,7 +39,7 @@ queryGql ::
   GqlQuery Nil' OpQuery Schema query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
-queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Schema)
+queryGql = query_ "http://localhost:4892/graphql" (Proxy :: Proxy Schema)
 
 -- Schema
 type Schema

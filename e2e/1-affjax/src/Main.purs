@@ -47,7 +47,7 @@ client
        , mutation :: Void
        , subscription :: Void
        }
-client = (Client $ AffjaxNodeClient "http://localhost:4000/graphql" [])
+client = (Client $ AffjaxNodeClient "http://localhost:4892/graphql" [])
 
 -- Schema
 type Schema =

@@ -20,7 +20,7 @@ main :: Effect Unit
 main = do
   client :: Client _ Schema <-
     createClient
-      { url: "http://localhost:4000/graphql"
+      { url: "http://localhost:4892/graphql"
       , authToken: Nothing
       , headers: []
       }
@@ -59,4 +59,3 @@ main = do
 
     -- Will also log [ GREEN ]
     logShow $ map _.colour updatedWidgetsWithoutCache
-
