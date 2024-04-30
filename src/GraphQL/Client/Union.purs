@@ -18,11 +18,13 @@ import Type.Proxy (Proxy(..))
 
 newtype GqlUnion r = GqlUnion (Record r)
 
-derive instance newtypeGqlUnion :: Newtype (GqlUnion r) _
+derive newtype instance Eq (Record r) => Eq (GqlUnion r)
+derive newtype instance Ord (Record r) => Ord (GqlUnion r)
+derive instance Newtype (GqlUnion r) _
 
 newtype UnionReturned r = UnionReturned (Variant r)
 
-derive instance newtypeGqlUnionReturned :: Newtype (UnionReturned r) _
+derive instance Newtype (UnionReturned r) _
 
 instance (RL.RowToList r rl, DecodeUnion rl r) => DecodeJson (UnionReturned r) where
   decodeJson = decodeJsonUnionWith (decodeUnion :: _ -> _ -> Proxy rl -> _)
@@ -104,4 +106,3 @@ failedAtTypename ty _ _ = Left $ AtKey __typename $ UnexpectedValue $ fromString
 
 __typename :: String
 __typename = "__typename"
-
