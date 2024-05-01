@@ -63,6 +63,7 @@ import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (AndArgs(AndArgs), Args(..), IgnoreArg, OrArg(..))
 import GraphQL.Client.Args.AllowedMismatch (AllowedMismatch)
+import GraphQL.Client.ArrayOf (ArrayOf(..))
 import GraphQL.Client.Directive (ApplyDirective(..))
 import GraphQL.Client.ErrorBoundary (ErrorBoundary(..))
 import GraphQL.Client.NullArray (NullArray)
@@ -113,6 +114,8 @@ else instance gqlQueryStringIdentity :: GqlQueryString a => GqlQueryString (Iden
   toGqlQueryStringImpl opts (Identity a) = toGqlQueryStringImpl opts a
 else instance gqlQueryStringErrorBoundary :: GqlQueryString a => GqlQueryString (ErrorBoundary a) where
   toGqlQueryStringImpl opts (ErrorBoundary a) = toGqlQueryStringImpl opts a
+else instance gqlQueryStringArrayOf :: GqlQueryString a => GqlQueryString (ArrayOf a) where
+  toGqlQueryStringImpl opts (ArrayOf a) = toGqlQueryStringImpl opts a
 else instance gqlQueryStringSymbol :: IsSymbol s => GqlQueryString (Proxy s) where
   toGqlQueryStringImpl _ _ = ": " <> reflectSymbol (Proxy :: Proxy s)
 else instance gqlQueryStringVar :: IsSymbol s => GqlQueryString (Var s a) where

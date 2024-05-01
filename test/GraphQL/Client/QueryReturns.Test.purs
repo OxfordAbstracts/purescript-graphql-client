@@ -8,6 +8,7 @@ import Data.Newtype (class Newtype)
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..), SpreadRes)
 import GraphQL.Client.Args (IgnoreArg(..), NotNull, OrArg(..), (++), (+++), (=>>))
+import GraphQL.Client.ArrayOf (arrayOf)
 import GraphQL.Client.Directive (applyDir)
 import GraphQL.Client.NullArray (NullArray(..))
 import GraphQL.Client.QueryReturns (class QueryReturns, queryReturns)
@@ -338,13 +339,64 @@ testIdentity
        }
 testIdentity =
   queryReturns testSchemaProxy
-    $ 
-        { users:
-            { is_in_rec:
-                [ { int: 0 } ] +++ ((ArgR [ ignoreOrStr true, ignoreOrStr false ]) :: OrArg IgnoreArg _)
-            }
-              =>> { id: Identity id }
-        }        
+    { users:
+        { is_in_rec:
+            [ { int: 0 } ] +++ ((ArgR [ ignoreOrStr true, ignoreOrStr false ]) :: OrArg IgnoreArg _)
+        }
+          =>> { id: Identity id }
+    }
+
+testArrayOf
+  :: Proxy
+       { users ::
+           Array
+             { id :: Int
+             }
+       }
+testArrayOf =
+  queryReturns testSchemaProxy
+    { users:
+        { is_in_rec:
+            [ { int: 0 } ] +++ ((ArgR [ ignoreOrStr true, ignoreOrStr false ]) :: OrArg IgnoreArg _)
+        }
+          =>> { id: arrayOf id }
+    }
+
+testArrayOfIdentities
+  :: Proxy
+       { users ::
+           Array
+             ( Identity
+                 { id :: Int
+                 }
+             )
+       }
+testArrayOfIdentities =
+  queryReturns testSchemaProxy
+    { users:
+        { is_in_rec:
+            [ { int: 0 } ] +++ ((ArgR [ ignoreOrStr true, ignoreOrStr false ]) :: OrArg IgnoreArg _)
+        }
+          =>> arrayOf (Identity { id })
+    }
+
+testIdentityOfArray
+  :: Proxy
+       { users ::
+           Identity
+             ( Array
+                 { id :: Int
+                 }
+             )
+       }
+testIdentityOfArray =
+  queryReturns testSchemaProxy
+    { users:
+        { is_in_rec:
+            [ { int: 0 } ] +++ ((ArgR [ ignoreOrStr true, ignoreOrStr false ]) :: OrArg IgnoreArg _)
+        }
+          =>> Identity { id }
+    }
 
 ignoreOrStr
   :: Boolean

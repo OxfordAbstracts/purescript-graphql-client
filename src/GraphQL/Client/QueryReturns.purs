@@ -15,6 +15,7 @@ import Data.Symbol (class IsSymbol)
 import GraphQL.Client.Alias (Alias(..))
 import GraphQL.Client.Alias.Dynamic (Spread, SpreadRes)
 import GraphQL.Client.Args (class SatisifyNotNullParam, ArgPropToGql, Args(..))
+import GraphQL.Client.ArrayOf (ArrayOf(..))
 import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.Directive (ApplyDirective)
 import GraphQL.Client.ErrorBoundary (BoundaryResult, ErrorBoundary)
@@ -73,6 +74,8 @@ else instance queryReturnsSpreadNewtype ::
   ) =>
   QueryReturnsAt at newtypeSchema (Spread (Proxy alias) args q) (SpreadRes returns) where
   queryReturnsAtImpl at _ _ = undefined
+else instance queryReturnsArrayOf :: QueryReturnsAt at a q t => QueryReturnsAt at (Array a) (ArrayOf q) (Array t) where  
+  queryReturnsAtImpl at _ (ArrayOf q) = pure $ queryReturnsAtImpl at (undefined :: a) q
 else instance queryReturnsArray :: QueryReturnsAt at a q t => QueryReturnsAt at (Array a) q (Array t) where
   queryReturnsAtImpl at _ q = pure $ queryReturnsAtImpl at (undefined :: a) q
 else instance queryReturnsMaybe :: QueryReturnsAt at a q t => QueryReturnsAt at (Maybe a) q (Maybe t) where
