@@ -41,6 +41,7 @@ import Data.DateTime as DT
 import Data.Enum (class BoundedEnum, fromEnum)
 import Data.FoldableWithIndex (foldlWithIndex)
 import Data.Function (on)
+import Data.Identity (Identity(..))
 import Data.List (List)
 import Data.List as List
 import Data.Map (Map)
@@ -108,6 +109,8 @@ else instance gqlQueryStringApplyDirective ::
       <> reflectSymbol (Proxy :: Proxy name)
       <> gqlArgStringRecordTopLevel args
       <> toGqlQueryStringImpl opts q
+else instance gqlQueryStringIdentity :: GqlQueryString a => GqlQueryString (Identity a) where
+  toGqlQueryStringImpl opts (Identity a) = toGqlQueryStringImpl opts a
 else instance gqlQueryStringErrorBoundary :: GqlQueryString a => GqlQueryString (ErrorBoundary a) where
   toGqlQueryStringImpl opts (ErrorBoundary a) = toGqlQueryStringImpl opts a
 else instance gqlQueryStringSymbol :: IsSymbol s => GqlQueryString (Proxy s) where
@@ -484,4 +487,3 @@ else instance isIgnoreArgOrArg :: (IsIgnoreArg l, IsIgnoreArg r) => IsIgnoreArg 
     ArgR r -> isIgnoreArg r
 else instance isIgnoreArgOther :: IsIgnoreArg a where
   isIgnoreArg _ = false
-

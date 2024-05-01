@@ -2,6 +2,7 @@ module GraphQL.Client.QueryReturns.Test where
 
 import Prelude
 
+import Data.Identity (Identity(..))
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import GraphQL.Client.Alias ((:))
@@ -327,6 +328,23 @@ testDirective =
             }
               =>> { id }
         }
+
+testIdentity
+  :: Proxy
+       { users ::
+           Array
+             { id :: Identity Int
+             }
+       }
+testIdentity =
+  queryReturns testSchemaProxy
+    $ 
+        { users:
+            { is_in_rec:
+                [ { int: 0 } ] +++ ((ArgR [ ignoreOrStr true, ignoreOrStr false ]) :: OrArg IgnoreArg _)
+            }
+              =>> { id: Identity id }
+        }        
 
 ignoreOrStr
   :: Boolean

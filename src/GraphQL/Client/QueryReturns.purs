@@ -8,6 +8,7 @@ module GraphQL.Client.QueryReturns
 
 import Prelude
 
+import Data.Identity (Identity(..))
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype, unwrap)
 import Data.Symbol (class IsSymbol)
@@ -55,6 +56,8 @@ else instance queryReturnsGqlType :: QueryReturnsAt at a q t => QueryReturnsAt a
   queryReturnsAtImpl at _ q = queryReturnsAtImpl at (undefined :: a) q
 else instance queryReturnsApplyDirective :: QueryReturnsAt at a q t => QueryReturnsAt at a (ApplyDirective name args q) t where
   queryReturnsAtImpl at a _ = queryReturnsAtImpl at a (undefined :: q)
+else instance queryReturnsIdentity :: QueryReturnsAt at a q t => QueryReturnsAt at a (Identity q) (Identity t) where
+  queryReturnsAtImpl at a _ = Identity $ queryReturnsAtImpl at a (undefined :: q)  
 else instance queryReturnErrorBoundary :: QueryReturnsAt at a q t => QueryReturnsAt at a (ErrorBoundary q) (BoundaryResult Unit t) where
   queryReturnsAtImpl at a _ = ErrorBoundary.Result $ queryReturnsAtImpl at a (undefined :: q)
 else instance queryReturnsSpread ::
@@ -75,9 +78,9 @@ else instance queryReturnsArray :: QueryReturnsAt at a q t => QueryReturnsAt at 
 else instance queryReturnsMaybe :: QueryReturnsAt at a q t => QueryReturnsAt at (Maybe a) q (Maybe t) where
   queryReturnsAtImpl at _ q = pure $ queryReturnsAtImpl at (undefined :: a) q
 else instance queryReturnsUnion ::
-  HMapWithIndex (PropToSchemaType schema) (Record query) (Record returns) =>
+  HMapWithIndex (PropToSchemaType schema) { | query} { | returns } =>
   QueryReturnsAt at (GqlUnion schema) (GqlUnion query) (UnionReturned returns) where
-  queryReturnsAtImpl at _ _ = undefined
+  queryReturnsAtImpl _ _ _ = undefined
 else instance queryReturnsParamsArgs ::
   ( QueryReturnsAt at t q result
   , HMapWithIndex (ArgPropToGql params) { | args } s
