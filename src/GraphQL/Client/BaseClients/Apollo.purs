@@ -64,12 +64,14 @@ foreign import data ApolloSubClient :: Type
 type QueryOpts =
   { fetchPolicy :: Maybe FetchPolicy
   , errorPolicy :: ErrorPolicy
+  , preprocessQuery :: String -> String
   }
 
 defQueryOpts :: QueryOpts
 defQueryOpts =
   { fetchPolicy: Nothing
   , errorPolicy: All
+  , preprocessQuery: identity
   }
 
 type MutationOpts =
@@ -77,6 +79,7 @@ type MutationOpts =
   , refetchQueries :: Array String
   , update :: Maybe (Effect Unit)
   , optimisticResponse :: Maybe Json
+  , preprocessQuery :: String -> String
   }
 
 defMutationOpts :: MutationOpts
@@ -85,6 +88,7 @@ defMutationOpts =
   , refetchQueries: []
   , update: Nothing
   , optimisticResponse: Nothing
+  , preprocessQuery: identity
   }
 
 createClient
@@ -137,11 +141,11 @@ instance queryClient ::
   clientQuery opts client name q_ vars =
     fromEffectFnAff $ queryImpl (queryOptsToJson opts) client q vars
     where
-    q = "query " <> name <> " " <> q_
+    q = "query " <> name <> " " <> opts.preprocessQuery q_
   clientMutation opts client name q_ vars =
     fromEffectFnAff $ mutationImpl (mutationOptsToJson opts) client q vars
     where
-    q = "mutation " <> name <> " " <> q_
+    q = "mutation " <> name <> " " <> opts.preprocessQuery q_
   defQueryOpts = const defQueryOpts
   defMutationOpts = const defMutationOpts
 
@@ -150,17 +154,18 @@ instance queryClientSubscription ::
     ApolloSubClient
     { fetchPolicy :: Maybe FetchPolicy
     , errorPolicy :: ErrorPolicy
+    , preprocessQuery :: String -> String
     }
     MutationOpts
   where
   clientQuery opts client name q_ vars =
     fromEffectFnAff $ queryImpl (queryOptsToJson opts) client q vars
     where
-    q = "query " <> name <> " " <> q_
+    q = "query " <> name <> " " <> opts.preprocessQuery q_
   clientMutation opts client name q_ vars =
     fromEffectFnAff $ mutationImpl (mutationOptsToJson opts) client q vars
     where
-    q = "mutation " <> name <> " " <> q_
+    q = "mutation " <> name <> " " <> opts.preprocessQuery q_
 
   defQueryOpts = const defQueryOpts
   defMutationOpts = const defMutationOpts
@@ -170,13 +175,14 @@ instance subClientSubscription ::
     ApolloSubClient
     QueryOpts
   where
-  clientSubscription opts = subscriptionImpl (queryOptsToJson opts)
+  clientSubscription opts c q = subscriptionImpl (queryOptsToJson opts) c (opts.preprocessQuery q)
   defSubOpts = const defQueryOpts
 
 queryOptsToJson :: QueryOpts -> QueryJsonOpts
 queryOptsToJson opts =
   { errorPolicy: encodeJson opts.errorPolicy
   , fetchPolicy: encodeJson opts.fetchPolicy
+  , preprocessQuery: opts.preprocessQuery
   }
 
 mutationOptsToJson :: MutationOpts -> MutationJsonOpts
@@ -195,7 +201,7 @@ instance isApolloSubClient :: IsApollo ApolloSubClient
 
 -- Update the query results in the cache, using default encoding and decoding
 updateCacheJson
-  :: forall s directives m q qSchema c res sr
+  :: forall directives q qSchema c res sr
    . IsApollo c
   => GqlQuery directives OpQuery qSchema q res
   => EncodeJson res
@@ -208,7 +214,7 @@ updateCacheJson = updateCache encodeJson decodeJson
 
 -- Update the query results in the cache
 updateCache
-  :: forall c directives qSchema q m s res sr
+  :: forall c directives qSchema q res sr
    . IsApollo c
   => GqlQuery directives OpQuery qSchema q res
   => (res -> Json)
@@ -225,7 +231,7 @@ updateCache encoder decoder client query f = do
 
 -- | read a query result from the cache
 readQuery
-  :: forall c directives qSchema q m s res sr
+  :: forall c directives qSchema q res sr
    . IsApollo c
   => GqlQuery directives OpQuery qSchema q res
   => (Json -> Either JsonDecodeError res)
@@ -241,7 +247,7 @@ readQuery decoder client query = do
 
 -- | write a query result to the cache
 writeQuery
-  :: forall c directives qSchema q m s res sr
+  :: forall c directives qSchema q res sr
    . IsApollo c
   => GqlQuery directives OpQuery qSchema q res
   => (res -> Json)
@@ -268,6 +274,7 @@ instance subClientWatchQuery ::
   clientWatchQuery opts = watchQueryImpl
     { errorPolicy: encodeJson opts.errorPolicy
     , fetchPolicy: encodeJson opts.fetchPolicy
+    , preprocessQuery: opts.preprocessQuery
     }
   defWatchOpts = const defQueryOpts
 
@@ -278,6 +285,7 @@ foreign import createSubscriptionClientImpl :: ApolloSubApolloClientOptionsForei
 type QueryJsonOpts =
   { errorPolicy :: Json
   , fetchPolicy :: Json
+  , preprocessQuery :: String -> String
   }
 
 type MutationJsonOpts =
@@ -285,6 +293,7 @@ type MutationJsonOpts =
   , refetchQueries :: Array String
   , optimisticResponse :: Json
   , update :: Nullable (Effect Unit)
+  , preprocessQuery :: String -> String
   }
 
 foreign import queryImpl
