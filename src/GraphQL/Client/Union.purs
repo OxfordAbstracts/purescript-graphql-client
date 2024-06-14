@@ -24,6 +24,8 @@ derive instance Newtype (GqlUnion r) _
 
 newtype UnionReturned r = UnionReturned (Variant r)
 
+derive newtype instance Eq (Variant r) => Eq (UnionReturned r)
+derive newtype instance Ord (Variant r) => Ord (UnionReturned r)
 derive instance Newtype (UnionReturned r) _
 
 instance (RL.RowToList r rl, DecodeUnion rl r) => DecodeJson (UnionReturned r) where
