@@ -4,7 +4,7 @@ const widgets = [
   { id: 2, name: 'two', colour: 'GREEN' }
 ]
 
-module.exports = (onListening) => { 
+module.exports = (onListening) => {
   const express = require('express')
   const { graphqlHTTP } = require('express-graphql')
   const { buildSchema } = require('graphql')
@@ -28,7 +28,7 @@ module.exports = (onListening) => {
       yellow
     }
 
-    type Mutation { 
+    type Mutation {
       set_widget_colour(id: Int!, colour: Colour!): Int!
     }
 
@@ -58,5 +58,5 @@ module.exports = (onListening) => {
     graphiql: true
   }))
 
-  app.listen(4000, onListening)
+  app.listen(4892, onListening)
 }

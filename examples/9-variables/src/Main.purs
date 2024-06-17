@@ -54,4 +54,4 @@ queryGql
   => String
   -> query
   -> Aff returns
-queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Query)
+queryGql = query_ "http://localhost:4892/graphql" (Proxy :: Proxy Query)

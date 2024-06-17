@@ -44,7 +44,7 @@ queryGql ::
   GqlQuery Nil' OpQuery Schema query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
-queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Schema) 
+queryGql = query_ "http://localhost:4892/graphql" (Proxy :: Proxy Schema) 
 
 -- Schema
 type Schema
@@ -129,7 +129,7 @@ const { generateSchema } = require('purescript-graphql-client')
 generateSchema({
   dir: './src/generated', // Where you want the generated code to go
   modulePath: ['Generated', 'Gql'], // The name of the generated module
-  url: 'http://localhost:4000/graphql' // Your graphql enppdint
+  url: 'http://localhost:4892/graphql' // Your graphql enppdint
 })
 ```
 
@@ -148,7 +148,7 @@ generateSchemas({
   modulePath: ['Generated', 'Gql']
 }, [
   {
-    url: 'http://localhost:4000/graphql',
+    url: 'http://localhost:4892/graphql',
     moduleName: 'MySchema' // The name of the module for this single schema
   }
 ])
@@ -187,7 +187,7 @@ import Type.Data.List (Nil')
 ...
 
     client  :: Client _ Nil' Query Mutation Void <- createClient
-      { url: "http://localhost:4000/graphql"
+      { url: "http://localhost:4892/graphql"
       , authToken: Nothing
       , headers: []
       }
@@ -217,10 +217,10 @@ import Type.Data.List (Nil')
 
   client :: Client _ Nil' Query Mutation Subscription <-
     createSubscriptionClient
-      { url: "http://localhost:4000/graphql"
+      { url: "http://localhost:4892/graphql"
       , authToken: Nothing
       , headers: []
-      , websocketUrl: "ws://localhost:4000/subscriptions"
+      , websocketUrl: "ws://localhost:4892/subscriptions"
       }
   let
     event = subscription client "get_props" 
@@ -478,5 +478,3 @@ Although the names and scope of the 2 packages are very similar they are not con
 - This package uses record syntax to make queries whereas purescript-graphqlclient uses applicative/ado syntax
 - This package allows use of Apollo if you wish (or other lower level graphQL clients)
 - This package supports subscriptions, watch queries and client caching
-
-

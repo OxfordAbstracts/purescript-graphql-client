@@ -7,7 +7,7 @@ export default () =>
     dir: "./src/generated",
     modulePath: ["Generated", "Gql", "Admin"],
     useNewtypesForRecords: false,
-    url: "http://localhost:4000/graphql",
+    url: "http://localhost:4892/graphql",
     gqlToPursTypes: {
       GqlTypeThatIsAString: { typeName: "String", moduleName: "" },
       GqlTypeThatIsAnInt: { typeName: "Int", moduleName: "" },

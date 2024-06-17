@@ -32,7 +32,7 @@ module.exports = (onListening) => {
           height: 1.8,
           id: 1,
         };
-      }else { 
+      }else {
         return {
           __typename: "Droid",
           name: "R2D2",
@@ -54,5 +54,5 @@ module.exports = (onListening) => {
     })
   );
 
-  app.listen(4000, onListening);
+  app.listen(4892, onListening);
 };

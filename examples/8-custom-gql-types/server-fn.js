@@ -9,8 +9,8 @@ module.exports = (onListening) => {
         prop: GqlTypeThatIsAString
         widgets(id: ID): [Widget!]!
     }
-    
-    type Widget { 
+
+    type Widget {
         id: ID
         int: GqlTypeThatIsAnInt
         name: GqlTypeThatIsAString!
@@ -42,5 +42,5 @@ module.exports = (onListening) => {
     graphiql: true
   }))
 
-  app.listen(4000, onListening)
+  app.listen(4892, onListening)
 }

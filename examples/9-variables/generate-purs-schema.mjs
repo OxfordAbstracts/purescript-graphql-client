@@ -9,7 +9,7 @@ export default () =>
     useNewtypesForRecords: false
   }, [
     {
-      url: 'http://localhost:4000/graphql',
+      url: 'http://localhost:4892/graphql',
       moduleName: 'Admin'
     }
   ])

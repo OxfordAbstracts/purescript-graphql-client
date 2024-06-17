@@ -22,7 +22,7 @@ main =
     { widgets } <-
       queryGql "WidgetColoursWithId1"
         { widgets: { colour: RED } =>> { colour } }
-        
+
     -- Will log [ RED ] as there is one red widget
     logShow $ map _.colour widgets
 
@@ -32,4 +32,4 @@ queryGql ::
   GqlQuery Nil' OpQuery Query query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
-queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Query)
+queryGql = query_ "http://localhost:4892/graphql" (Proxy :: Proxy Query)

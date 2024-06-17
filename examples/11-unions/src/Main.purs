@@ -9,8 +9,8 @@ import Effect.Aff (Aff, launchAff_)
 import Effect.Class.Console (logShow)
 import Generated.Gql.Schema.Admin (Query)
 import GraphQL.Client.Args ((=>>))
-import GraphQL.Client.Query (query_)
 import GraphQL.Client.Operation (OpQuery)
+import GraphQL.Client.Query (query_)
 import GraphQL.Client.Types (class GqlQuery)
 import GraphQL.Client.Union (GqlUnion(..))
 import Type.Data.List (Nil')
@@ -39,4 +39,4 @@ queryGql
   => String
   -> query
   -> Aff returns
-queryGql = query_ "http://localhost:4000/graphql" (Proxy :: Proxy Query)
+queryGql = query_ "http://localhost:4892/graphql" (Proxy :: Proxy Query)

@@ -5,6 +5,7 @@ import Prelude
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (IgnoreArg(..), OrArg(..), (++), (+++), (=>>))
+import GraphQL.Client.ArrayOf (arrayOf)
 import GraphQL.Client.Directive (applyDir)
 import GraphQL.Client.ToGqlString (gqlArgStringRecordTopLevel, toGqlQueryString, toGqlQueryStringFormatted)
 import GraphQL.Client.Variable (Var(..))
@@ -260,4 +261,14 @@ spec =
             `shouldEqual`
               """@cached {
   a
+}"""
+      it "ignores arrayOf" $
+        toGqlQueryStringFormatted
+          { foo: { bar: arrayOf unit }
+          }
+          `shouldEqual`
+            """ {
+  foo {
+    bar
+  }
 }"""

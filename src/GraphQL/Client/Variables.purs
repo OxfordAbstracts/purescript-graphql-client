@@ -27,6 +27,7 @@ import Prelude
 import Control.Apply (lift2)
 import Data.Argonaut.Core (Json, jsonEmptyObject)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
+import Data.Identity (Identity)
 import Data.List (List(..), intercalate)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype, unwrap)
@@ -142,6 +143,12 @@ else instance getVarOrArg ::
       varR = getVar (Proxy :: _ r)
     in
       lift2 Record.merge varL varR
+-- else instance getVarUnion ::
+--   ( HFoldl GetVarRec (Proxy {}) { | query } (Proxy { | var })
+--   ) =>
+--   GetVar (GqlUnion query) { | var } where
+--   getVar _ = Proxy -- q >>= \query -> hfoldl GetVarRec (Proxy :: _ {}) (query :: { | query })
+
 else instance getVarRecord ::
   ( HFoldl GetVarRec (Proxy {}) { | query } (Proxy { | var })
   ) =>
@@ -217,6 +224,24 @@ else instance varsTypeCheckedApplyDirective ::
 else instance varsTypeCheckedWithoutVars ::
   GetVar { | query } {} =>
   VarsTypeChecked schema { | query } where
+  getVarsJson _ _ = jsonEmptyObject
+  getVarsTypeNames _ _ = ""
+
+else instance varsTypeCheckedIdentity ::
+  GetVar query {} =>
+  VarsTypeChecked schema (Identity query)  where
+  getVarsJson _ _ = jsonEmptyObject
+  getVarsTypeNames _ _ = ""
+
+else instance varsTypeCheckedErrorBoundary ::
+  GetVar query {} =>
+  VarsTypeChecked schema (ErrorBoundary query) where
+  getVarsJson _ _ = jsonEmptyObject
+  getVarsTypeNames _ _ = ""  
+
+else instance varsTypeCheckedUnion ::
+  GetVar { | query } {} =>
+  VarsTypeChecked schema (GqlUnion query)  where
   getVarsJson _ _ = jsonEmptyObject
   getVarsTypeNames _ _ = ""
 
@@ -398,4 +423,3 @@ endsWith c str =
 
 removeSuffix :: Char -> String -> String
 removeSuffix c str = if endsWith c str then String.take (String.length str - 1) str else str
-

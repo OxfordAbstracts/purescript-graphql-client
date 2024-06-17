@@ -9,8 +9,8 @@ module.exports = (onListening) => {
         prop: String
         widgets(id: ID): [Widget!]!
     }
-    
-    type Widget { 
+
+    type Widget {
         id: ID
         int: Int
         name: String!
@@ -39,5 +39,5 @@ module.exports = (onListening) => {
     graphiql: true
   }))
 
-  app.listen(4000, onListening)
+  app.listen(4892, onListening)
 }

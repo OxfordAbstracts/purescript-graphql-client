@@ -8,8 +8,8 @@ module.exports = (onListening) => {
     type Query {
         widgets(id: ID): [Widget!]!
     }
-    
-    type Widget { 
+
+    type Widget {
         id: ID
         special_string: String!
     }
@@ -33,5 +33,5 @@ module.exports = (onListening) => {
     graphiql: true
   }))
 
-  app.listen(4000, onListening)
+  app.listen(4892, onListening)
 }

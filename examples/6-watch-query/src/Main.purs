@@ -19,10 +19,10 @@ main :: Effect Unit
 main = do
   client :: Client _ Schema <-
     createSubscriptionClient
-      { url: "http://localhost:4000/graphql"
+      { url: "http://localhost:4892/graphql"
       , authToken: Nothing
       , headers: []
-      , websocketUrl: "ws://localhost:4000/subscriptions"
+      , websocketUrl: "ws://localhost:4892/subscriptions"
       }
   let
     myQuery = { posts: { author: unit, comment: unit } }
@@ -33,9 +33,9 @@ main = do
       log "Event recieved"
       logShow e
 
-  let 
-    addComment author comment = 
-      let 
+  let
+    addComment author comment =
+      let
         update = updateCacheJson client myQuery \{ posts } ->
            {posts: posts <> [{author, comment}]}
       in
@@ -47,4 +47,3 @@ main = do
   launchAff_ do
     delay $ Milliseconds 25.0
     addComment "joe bloggs" "good"
-

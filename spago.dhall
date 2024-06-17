@@ -29,6 +29,7 @@ You can edit this file as you like.
   , "halogen-subscriptions"
   , "heterogeneous"
   , "http-methods"
+  , "identity"
   , "integers"
   , "lists"
   , "maybe"

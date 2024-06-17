@@ -28,7 +28,7 @@ module.exports = async (onListening) => {
     comment: String!
   }
 `)
-  const PORT = 4000
+  const PORT = 4892
   const app = express()
 
   app.use('/graphql', bodyParser.json())
@@ -75,7 +75,7 @@ module.exports = async (onListening) => {
     plugins: [
       // Proper shutdown for the HTTP server.
       ApolloServerPluginDrainHttpServer({ httpServer }),
-  
+
       // Proper shutdown for the WebSocket server.
       {
         async serverWillStart() {

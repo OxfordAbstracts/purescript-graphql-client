@@ -8,8 +8,8 @@ module.exports = (onListening) => {
         prop: String
         widgets(id: Int): [Widget!]!
     }
-    
-    type Widget { 
+
+    type Widget {
         id: Int
         name: String!
         contains_bad_type: BadType
@@ -51,5 +51,5 @@ module.exports = (onListening) => {
     })
   );
 
-  app.listen(4000, onListening);
+  app.listen(4892, onListening);
 };
