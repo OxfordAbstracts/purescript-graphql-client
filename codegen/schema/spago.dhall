@@ -53,6 +53,7 @@ You can edit this file as you like.
   , "spec-discovery"
   , "strings"
   , "strings-extra"
+  , "tidy"
   , "tidy-codegen"
   , "transformers"
   , "tuples"

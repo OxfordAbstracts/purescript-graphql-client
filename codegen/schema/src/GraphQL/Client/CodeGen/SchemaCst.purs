@@ -29,11 +29,13 @@ import Data.Unfoldable (none)
 import GraphQL.Client.CodeGen.Types (InputOptions, GqlEnum)
 import GraphQL.Client.CodeGen.UtilCst (qualifiedTypeToName)
 import Partial.Unsafe (unsafePartial)
-import PureScript.CST.Types (Module, Proper, QualifiedName)
+import PureScript.CST.Types (ImportDecl, Module(..), ModuleHeader(..), ModuleName(..), Proper, QualifiedName)
 import PureScript.CST.Types as CST
 import Tidy.Codegen (declDerive, declNewtype, declType, docComments, leading, lineComments, typeApp, typeArrow, typeCtor, typeRecord, typeRecordEmpty, typeRow, typeString, typeWildcard)
 import Tidy.Codegen.Class (class OverLeadingComments, toQualifiedName)
 import Tidy.Codegen.Monad (CodegenT, codegenModule, importFrom, importType)
+import Tidy.Util (nameOf)
+import Unsafe.Coerce (unsafeCoerce)
 
 gqlToPursSchema :: InputOptions -> String -> String -> AST.Document -> Array GqlEnum -> Module Void
 gqlToPursSchema
@@ -42,7 +44,7 @@ gqlToPursSchema
   mName
   (AST.Document defs)
   enums = do
-  unsafePartial $ codegenModule mName do
+  sortImports $ unsafePartial $ codegenModule mName do
     directives <- importFrom directivesMName (importType "Directives")
     voidT <- importQualified "Data.Void" "Void"
     proxyT <- importQualified "Type.Proxy" "Proxy"
@@ -349,6 +351,12 @@ gqlToPursSchema
         Nothing
     tell
       $ [ schema ] <> declarations
+
+sortImports :: Module Void -> Module Void
+sortImports (Module m@{ header: ModuleHeader header }) = Module m { header = ModuleHeader header { imports = Array.sortWith getModuleName header.imports } }
+  where
+  getModuleName :: ImportDecl Void -> ModuleName
+  getModuleName = unwrap >>> _.module >>> nameOf
 
 hasRootOp :: forall f. Foldable f => f AST.Definition -> AST.OperationType -> Boolean
 hasRootOp defs op = defs # any case _ of
