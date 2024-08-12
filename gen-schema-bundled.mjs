@@ -56802,26 +56802,32 @@ var documentFromIntrospection = /* @__PURE__ */ function() {
 // output/GraphQL.Client.CodeGen.GetSymbols/index.js
 var foldMap9 = /* @__PURE__ */ foldMap(foldableArray)(monoidString);
 var show2 = /* @__PURE__ */ show(showString);
+var heytingAlgebraFunction2 = /* @__PURE__ */ heytingAlgebraFunction(heytingAlgebraBoolean);
+var conj2 = /* @__PURE__ */ conj(heytingAlgebraFunction2);
+var not3 = /* @__PURE__ */ not(heytingAlgebraFunction2);
 var nub3 = /* @__PURE__ */ nub2(ordString);
 var bind6 = /* @__PURE__ */ bind(bindList);
 var monoidFn2 = /* @__PURE__ */ monoidFn(monoidList);
 var mempty8 = /* @__PURE__ */ mempty(monoidList);
 var sort4 = /* @__PURE__ */ sort(ordString);
 var nub1 = /* @__PURE__ */ nub(ordString);
-var not3 = /* @__PURE__ */ not(/* @__PURE__ */ heytingAlgebraFunction(heytingAlgebraBoolean));
 var unwrap7 = /* @__PURE__ */ unwrap();
+var lower1stChar = function(s) {
+  var head4 = take4(1)(s);
+  return head4 === toLower(head4);
+};
+var keyword = /* @__PURE__ */ flip(/* @__PURE__ */ elem2(eqString))(["data", "type", "instance", "if", "then", "else"]);
 var symbolsToCode = function(dictFoldable) {
   var fromFoldable11 = fromFoldable3(dictFoldable);
   return function(modulePrefix) {
     return function(symbols) {
       var symbolsString = foldMap9(function(s) {
-        return "\n" + (s + (" = Proxy :: Proxy" + show2(s)));
-      })(nub3(fromFoldable11(symbols)));
+        return "\n" + (s + (" = Proxy :: Proxy " + show2(s)));
+      })(filter3(conj2(lower1stChar)(not3(keyword)))(nub3(fromFoldable11(symbols))));
       return "module " + (modulePrefix + ("Symbols where\n\nimport Type.Proxy (Proxy(..))\n" + symbolsString));
     };
   };
 };
-var keyword = /* @__PURE__ */ flip(/* @__PURE__ */ elem2(eqString))(["data", "type", "instance", "if", "then", "else"]);
 var getSymbols = function(doc) {
   var inputValueDefinitionsToSymbols1 = mempty(monoidFn2);
   var argumentsDefinitionToSymbols = function(v) {
@@ -56861,7 +56867,7 @@ var getSymbols = function(doc) {
       return mempty8;
     }
     ;
-    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 52, column 29 - line 58, column 61): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 55, column 29 - line 61, column 61): " + [v.constructor.name]);
   };
   var typeSystemDefinitionToSymbols = function(v) {
     if (v instanceof TypeSystemDefinition_SchemaDefinition) {
@@ -56876,7 +56882,7 @@ var getSymbols = function(doc) {
       return mempty8;
     }
     ;
-    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 46, column 35 - line 49, column 61): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 49, column 35 - line 52, column 61): " + [v.constructor.name]);
   };
   var definitionToSymbols = function(v) {
     if (v instanceof Definition_ExecutableDefinition) {
@@ -56891,9 +56897,9 @@ var getSymbols = function(doc) {
       return mempty8;
     }
     ;
-    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 40, column 25 - line 43, column 51): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at GraphQL.Client.CodeGen.GetSymbols (line 43, column 25 - line 46, column 51): " + [v.constructor.name]);
   };
-  return sort4(nub1(filter(not3(keyword))(bind6(unwrap7(doc))(definitionToSymbols))));
+  return sort4(nub1(filter(conj2(lower1stChar)(not3(keyword)))(bind6(unwrap7(doc))(definitionToSymbols))));
 };
 
 // output/Data.CatQueue/index.js
