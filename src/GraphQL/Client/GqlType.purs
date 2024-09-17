@@ -1,5 +1,6 @@
 module GraphQL.Client.GqlType where
 
+import Data.Argonaut.Core (Json)
 import Data.Maybe (Maybe)
 import GraphQL.Client.Args (NotNull)
 import GraphQL.Client.AsGql (AsGql)
@@ -13,6 +14,7 @@ instance GqlType Boolean "Boolean"
 instance GqlType Int "Int"
 instance GqlType Number "Float"
 instance GqlType String "String"
+instance GqlType Json "Json"
 
 instance GqlType t gqlName => GqlType (Maybe t) gqlName
 instance GqlType t gqlName => GqlType (NotNull t) gqlName
