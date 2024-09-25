@@ -7,6 +7,7 @@ import Data.Bifunctor (class Bifunctor)
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import Data.Symbol (class IsSymbol)
+import Data.Variant (Variant)
 import GraphQL.Client.Args.AllowedMismatch (AllowedMismatch)
 import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.NullArray (NullArray)
@@ -70,7 +71,8 @@ class ArgGqlAt at params arg
 instance argAsGql :: ArgGqlAt at param arg => ArgGqlAt at (AsGql gqlName param) arg
 else instance argToGqlNotNull :: (IsNotNull at param arg, ArgGqlAt at param arg) => ArgGqlAt at (NotNull param) arg
 else instance argToGqlIgnore :: ArgGqlAt at param IgnoreArg
-else instance argVarJson :: ArgGqlAt at Json (Var sym Json) -- Json can only be used with a variable 
+else instance argToGqlVariant :: (Union r () params) => ArgGqlAt at (Variant params) (Variant r)
+else instance argVarJson :: ArgGqlAt at Json (Var sym Json) -- Json can only be used with a variable
 else instance argToGqlJsonNotAllowed :: TE.Fail (TE.Text "A `Json` query argument can only be used as a variable ") => ArgGqlAt at Json Json
 else instance argVar :: ArgGqlAt at param arg => ArgGqlAt at param (Var sym arg)
 else instance argToGqlArrayNull :: ArgGqlAt at (Array param) NullArray
