@@ -1,0 +1,61 @@
+package:
+  name: graphql-client
+  dependencies:
+    - aff
+    - affjax
+    - affjax-node
+    - affjax-web
+    - argonaut-codecs
+    - argonaut-core
+    - arrays
+    - bifunctors
+    - console
+    - control
+    - datetime
+    - debug
+    - effect
+    - either
+    - enums
+    - filterable
+    - foldable-traversable
+    - foreign
+    - foreign-object
+    - functions
+    - halogen-subscriptions
+    - heterogeneous
+    - http-methods
+    - identity
+    - integers
+    - lists
+    - maybe
+    - media-types
+    - newtype
+    - now
+    - nullable
+    - numbers
+    - ordered-collections
+    - partial
+    - prelude
+    - psci-support
+    - quickcheck
+    - record
+    - spec
+    - spec-discovery
+    - string-parsers
+    - strings
+    - transformers
+    - tuples
+    - typelevel-lists
+    - unfoldable
+    - unicode
+    - unsafe-coerce
+    - variant
+  test:
+    main: Test.Main
+    dependencies:
+      - console
+      - argonaut-generic
+workspace:
+  packageSet:
+    registry: 60.2.1
+  extraPackages: {}

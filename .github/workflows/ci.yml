@@ -8,11 +8,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: purescript-contrib/setup-purescript@v2.0.0
+      - uses: purescript-contrib/setup-purescript@main
         with:
-          purescript: "0.15.12"
-          psa: "0.8.2"
-          spago: "0.20.9"
+          purescript: 0.15.15
+          psa: 0.8.2
+          spago: unstable
 
       - name: Cache PureScript dependencies
         uses: actions/cache@v2
@@ -33,8 +33,8 @@ jobs:
             examples/1-simple/output
             examples/2-codegen/.spago
             examples/2-codegen/output
-            
+
       - run: spago build
-      - run: npm i 
+      - run: npm i
       - run: npm run bundle
       - run: npm t
