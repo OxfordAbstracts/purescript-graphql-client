@@ -10,9 +10,9 @@ jobs:
 
       - uses: purescript-contrib/setup-purescript@v2.0.0
         with:
-          purescript: "0.15.15"
-          psa: "0.8.2"
-          spago: unstable"
+          purescript: 0.15.15
+          psa: 0.8.2
+          spago: unstable
 
       - name: Cache PureScript dependencies
         uses: actions/cache@v2
