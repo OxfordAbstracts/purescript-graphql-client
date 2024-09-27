@@ -11,7 +11,7 @@
     "test": "spago test --no-install && npm run test-codegen && node ./run-example-tests",
     "test-codegen": "cd codegen/schema && spago test",
     "should-fail-tests": "node ./run-should-fail-tests",
-    "bundle": "cd codegen/schema && spago-legacy bundle-module -m GraphQL.Client.CodeGen.Js -t '../../gen-schema-bundled.mjs'",
+    "bundle": "cd codegen/schema && spago bundle --bundle-type module --module GraphQL.Client.CodeGen.Js --outfile '../../gen-schema-bundled.mjs'",
     "patch": "npm run bundle && gcam 'update bundle' --allow-empty && npm version patch &&  npm publish && pulp publish",
     "npm-major-verson": "npm run bundle && gcam 'update bundle' --allow-empty && npm version major && npm publish",
     "patch-old": "npm run bundle && gcam 'update bundle' --allow-empty && npm version patch && pulp version patch && npm publish && pulp publish"

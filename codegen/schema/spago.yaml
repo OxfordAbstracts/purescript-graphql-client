@@ -1,0 +1,160 @@
+package:
+  name: schema
+  dependencies:
+    - aff
+    - aff-promise
+    - argonaut-codecs
+    - argonaut-core
+    - argonaut-generic
+    - arrays
+    - bifunctors
+    - console
+    - control
+    - datetime
+    - debug
+    - effect
+    - either
+    - enums
+    - exceptions
+    - filterable
+    - foldable-traversable
+    - foreign
+    - foreign-object
+    - functions
+    - http-methods
+    - integers
+    - language-cst-parser
+    - lists
+    - literals
+    - maybe
+    - media-types
+    - newtype
+    - node-buffer
+    - node-fs
+    - now
+    - nullable
+    - numbers
+    - ordered-collections
+    - parsing
+    - partial
+    - prelude
+    - profunctor
+    - profunctor-lenses
+    - psci-support
+    - quickcheck
+    - record
+    - record-studio
+    - strings
+    - strings-extra
+    - tidy
+    - tidy-codegen
+    - transformers
+    - tuples
+    - unfoldable
+    - unicode
+    - unsafe-coerce
+    - untagged-union
+    - variant
+  test:
+    main: Test.Main
+    dependencies:
+      - spec
+      - spec-discovery
+workspace:
+  packageSet:
+    registry: 60.2.1
+  extraPackages:
+    graphql-client:
+      path: ../../graphql-client
+    tidy-codegen:
+      dependencies:
+        - aff
+        - ansi
+        - arrays
+        - avar
+        - bifunctors
+        - console
+        - control
+        - dodo-printer
+        - effect
+        - either
+        - enums
+        - exceptions
+        - filterable
+        - foldable-traversable
+        - free
+        - identity
+        - integers
+        - language-cst-parser
+        - lazy
+        - lists
+        - maybe
+        - newtype
+        - node-buffer
+        - node-child-process
+        - node-path
+        - node-process
+        - node-streams
+        - ordered-collections
+        - parallel
+        - partial
+        - posix-types
+        - prelude
+        - record
+        - safe-coerce
+        - st
+        - strings
+        - tidy
+        - transformers
+        - tuples
+        - type-equality
+        - unicode
+      repo: https://github.com/natefaubion/purescript-tidy-codegen.git
+      version: v4.0.0
+    tidy:
+      dependencies:
+        - arrays
+        - dodo-printer
+        - foldable-traversable
+        - lists
+        - maybe
+        - ordered-collections
+        - partial
+        - prelude
+        - language-cst-parser
+        - strings
+        - tuples
+      repo: https://github.com/natefaubion/purescript-tidy.git
+      version: v0.10.0
+    dodo-printer:
+      repo: https://github.com/natefaubion/purescript-dodo-printer.git
+      version: v2.2.1
+      dependencies:
+        - aff
+        - ansi
+        - arrays
+        - avar
+        - console
+        - control
+        - effect
+        - either
+        - exceptions
+        - foldable-traversable
+        - integers
+        - lists
+        - maybe
+        - minibench
+        - newtype
+        - node-buffer
+        - node-child-process
+        - node-path
+        - node-process
+        - node-streams
+        - parallel
+        - partial
+        - posix-types
+        - prelude
+        - safe-coerce
+        - strings
+        - tuples
+
