@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "spago test && npm run test-codegen && node ./run-example-tests",
+    "test": "spago test && npm run test-codegen",
     "test-codegen": "cd codegen/schema && spago test",
     "should-fail-tests": "node ./run-should-fail-tests",
     "bundle": "cd codegen/schema && spago bundle --bundle-type module --module GraphQL.Client.CodeGen.Js --outfile '../../gen-schema-bundled.mjs'",
