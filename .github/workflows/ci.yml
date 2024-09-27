@@ -12,7 +12,7 @@ jobs:
         with:
           purescript: "0.15.15"
           psa: "0.8.2"
-          spago: "0.93.39"
+          spago: unstable"
 
       - name: Cache PureScript dependencies
         uses: actions/cache@v2
