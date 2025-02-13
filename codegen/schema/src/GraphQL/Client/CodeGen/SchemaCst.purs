@@ -8,7 +8,6 @@ import Prelude
 import Control.Monad.Writer (tell)
 import Data.Array (elem)
 import Data.Array as Array
-import Data.CodePoint.Unicode (isLower)
 import Data.Filterable (class Filterable, filter)
 import Data.GraphQL.AST (NamedType)
 import Data.GraphQL.AST as AST
@@ -18,9 +17,8 @@ import Data.Map (Map, lookup)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe)
 import Data.Newtype (unwrap, wrap)
-import Data.String (codePointFromChar, toLower)
+import Data.String (toLower)
 import Data.String as String
-import Data.String.CodeUnits (charAt)
 import Data.String.Extra (pascalCase)
 import Data.Traversable (class Foldable, class Traversable, for, traverse)
 import Data.Tuple (Tuple(..))
@@ -29,13 +27,12 @@ import Data.Unfoldable (none)
 import GraphQL.Client.CodeGen.Types (InputOptions, GqlEnum)
 import GraphQL.Client.CodeGen.UtilCst (qualifiedTypeToName)
 import Partial.Unsafe (unsafePartial)
-import PureScript.CST.Types (ImportDecl, Module(..), ModuleHeader(..), ModuleName(..), Proper, QualifiedName)
+import PureScript.CST.Types (ImportDecl, Module(..), ModuleHeader(..), ModuleName, Proper, QualifiedName)
 import PureScript.CST.Types as CST
 import Tidy.Codegen (declDerive, declNewtype, declType, docComments, leading, lineComments, typeApp, typeArrow, typeCtor, typeRecord, typeRecordEmpty, typeRow, typeString, typeWildcard)
 import Tidy.Codegen.Class (class OverLeadingComments, toQualifiedName)
 import Tidy.Codegen.Monad (CodegenT, codegenModule, importFrom, importType)
 import Tidy.Util (nameOf)
-import Unsafe.Coerce (unsafeCoerce)
 
 gqlToPursSchema :: InputOptions -> String -> String -> AST.Document -> Array GqlEnum -> Module Void
 gqlToPursSchema
@@ -192,7 +189,7 @@ gqlToPursSchema
             , argumentsDefinition
             , type: tipe
             }
-        ) = Tuple (safeFieldname name) case argumentsDefinition of
+        ) = Tuple name case argumentsDefinition of
         Nothing -> pursType
         Just def ->
           [ argumentsDefinitionToPurs objectName name def
@@ -224,7 +221,7 @@ gqlToPursSchema
             , name
             , type: tipe
             }
-        ) = Tuple (safeFieldname name) $ comment description
+        ) = Tuple name $ comment description
         case lookupOverride objectName name of
           Nothing -> argTypeToPurs objectName fieldName name tipe
           Just out -> case tipe of
@@ -464,14 +461,6 @@ getDefaultTypeNames { id, json, dateTime } = Map.fromFoldable
   , "boolean" /\ qualify "Boolean"
   , "bool" /\ qualify "Boolean"
   ]
-
-safeFieldname :: String -> String
-safeFieldname s = if isSafe then s else show s
-  where
-  isSafe =
-    charAt 0 s
-      # maybe false \c ->
-          c == '_' || (isLower $ codePointFromChar c)
 
 getTypeName :: AST.Type -> AST.NamedType
 getTypeName = case _ of

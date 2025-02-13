@@ -9,6 +9,8 @@ import Data.GraphQL.AST as AST
 import Data.List (List, filter, foldMap, nub, sort, (:))
 import Data.Maybe (maybe)
 import Data.Newtype (unwrap)
+import Data.String as String
+import Data.String (toLower)
 
 symbolsToCode :: forall f. Foldable f => String -> f String -> String
 symbolsToCode modulePrefix symbols =
@@ -24,15 +26,16 @@ import Type.Proxy (Proxy(..))
     symbols
       # Array.fromFoldable
       # Array.nub
+      # Array.filter (lower1stChar && not keyword)
       # foldMap
-          ( \s -> "\n" <> s <> " = Proxy :: Proxy" <> show s
+          ( \s -> "\n" <> s <> " = Proxy :: Proxy " <> show s
           )
 
 getSymbols :: AST.Document -> List String
 getSymbols doc =
   unwrap doc
     >>= definitionToSymbols
-    # filter (not keyword)
+    # filter (lower1stChar && not keyword)
     # nub
     # sort
   where
@@ -82,3 +85,8 @@ getSymbols doc =
 
 keyword :: String -> Boolean
 keyword = flip elem [ "data", "type", "instance", "if", "then", "else" ]
+
+lower1stChar :: String -> Boolean
+lower1stChar s = head == toLower head
+  where
+  head = String.take 1 s
