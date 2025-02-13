@@ -56,6 +56,7 @@ import Data.String.Regex.Flags (global)
 import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Data.Time (Time)
+import Data.Variant (Unvariant(..), Variant, unvariant)
 import Foreign (Foreign)
 import Foreign.Object (Object)
 import Foreign.Object as Object
@@ -317,6 +318,8 @@ else instance gqlArgStringErrorBoundary :: GqlArgString a => GqlArgString (Error
   toGqlArgStringImpl (ErrorBoundary a) = toGqlArgStringImpl a
 else instance gqlArgStringAllowedMismatch :: GqlArgString a => GqlArgString (AllowedMismatch t a) where
   toGqlArgStringImpl = unwrap >>> toGqlArgStringImpl
+else instance gqlargVariant :: GqlArgString (Variant r) where
+  toGqlArgStringImpl v = unvariant v # \(Unvariant f) -> f \p _ -> reflectSymbol p
 else instance gqlArgStringVar :: IsSymbol sym => GqlArgString (Var sym a) where
   toGqlArgStringImpl _ = "$" <> reflectSymbol (Proxy :: Proxy sym)
 else instance gqlArgStringOrArg ::
