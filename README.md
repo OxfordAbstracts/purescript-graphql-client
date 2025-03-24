@@ -129,7 +129,7 @@ const { generateSchema } = require('purescript-graphql-client')
 generateSchema({
   dir: './src/generated', // Where you want the generated code to go
   modulePath: ['Generated', 'Gql'], // The name of the generated module
-  url: 'http://localhost:4892/graphql' // Your graphql enppdint
+  url: 'http://localhost:4892/graphql', // Your GraphQL endpoint
 })
 ```
 
