@@ -1,6 +1,7 @@
 module Test.Data.GraphQL.ParseFull3 where
 
 import Prelude
+
 import Data.Either (either)
 import Data.GraphQL.AST as AST
 import Data.GraphQL.Parser as GP
@@ -11,16 +12,16 @@ import Data.Lens.Record (prop)
 import Data.List (List(..), length, (:))
 import Data.Maybe (Maybe(..))
 import Data.Profunctor.Choice (class Choice)
-import Type.Proxy (Proxy(..))
 import Data.Tuple (Tuple(..), uncurry)
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 import Effect.Exception (throw)
 import Node.Encoding (Encoding(..))
 import Node.FS.Sync (readTextFile)
+import Parsing (runParser)
 import Test.Spec (SpecT, before, describe, it)
 import Test.Spec.Assertions (shouldEqual)
-import Parsing (runParser)
+import Type.Proxy (Proxy(..))
 
 parseDocument :: String -> Aff AST.Document
 parseDocument t = do
@@ -52,7 +53,7 @@ testSwapi =
           -- 52 was confirmed by a quick n' dirty parsing of the document in python
           it "should get 52 type definitions" \doc → do
             (length (toListOf lensToObjectDefinitions doc)) `shouldEqual` 52
-          it "should hvae a type Film that implements an interface called Node" \doc → do
+          it "should have a type Film that implements an interface called Node" \doc → do
             preview
               ( simple _Newtype
                   <<< peel

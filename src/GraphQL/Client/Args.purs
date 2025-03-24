@@ -160,29 +160,29 @@ instance
   ( IsSymbol sym
   , Row.Cons sym param rest params
   , ArgGqlAt sym param arg
-  , SatisifyNotNullParam param arg
+  , SatisfyNotNullParam param arg
   ) =>
   MappingWithIndex (ArgPropToGql params) (Proxy sym) arg Unit where
   mappingWithIndex (ArgPropToGql _) _ _ = unit
 
-class SatisifyNotNullParam (param :: Type) (arg :: Type) | param -> arg
+class SatisfyNotNullParam (param :: Type) (arg :: Type) | param -> arg
 
 instance satisfyNotNullParamRecord ::
-  HFoldlWithIndex (ArgsSatisifyNotNullsProps arg) Unit { | param } Unit =>
-  SatisifyNotNullParam { | param } { | arg }
-else instance satisfyNotNullParamNotNull :: SatisifyNotNullParam param arg => SatisifyNotNullParam (NotNull param) arg
-else instance satisfyNotNullParamOther :: SatisifyNotNullParam param arg
+  HFoldlWithIndex (ArgsSatisfyNotNullsProps arg) Unit { | param } Unit =>
+  SatisfyNotNullParam { | param } { | arg }
+else instance satisfyNotNullParamNotNull :: SatisfyNotNullParam param arg => SatisfyNotNullParam (NotNull param) arg
+else instance satisfyNotNullParamOther :: SatisfyNotNullParam param arg
 
-newtype ArgsSatisifyNotNullsProps args = ArgsSatisifyNotNullsProps { | args }
+newtype ArgsSatisfyNotNullsProps args = ArgsSatisfyNotNullsProps { | args }
 
-instance argsSatisifyNotNulls_ ::
+instance argsSatisfyNotNulls_ ::
   ( IsSymbol sym
-  , SatisifyNotNullParam param arg
+  , SatisfyNotNullParam param arg
   , Row.Cons sym arg rest args
   ) =>
-  FoldingWithIndex (ArgsSatisifyNotNullsProps args) (Proxy sym) Unit (NotNull param) Unit where
-  foldingWithIndex (ArgsSatisifyNotNullsProps _) _ _ _ = unit
-else instance argsSatisifyOthers_ ::
-  FoldingWithIndex (ArgsSatisifyNotNullsProps args) (Proxy sym) Unit param Unit where
-  foldingWithIndex (ArgsSatisifyNotNullsProps _) _ _ _ = unit
+  FoldingWithIndex (ArgsSatisfyNotNullsProps args) (Proxy sym) Unit (NotNull param) Unit where
+  foldingWithIndex (ArgsSatisfyNotNullsProps _) _ _ _ = unit
+else instance argsSatisfyOthers_ ::
+  FoldingWithIndex (ArgsSatisfyNotNullsProps args) (Proxy sym) Unit param Unit where
+  foldingWithIndex (ArgsSatisfyNotNullsProps _) _ _ _ = unit
 

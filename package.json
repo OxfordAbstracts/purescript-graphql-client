@@ -13,7 +13,7 @@
     "should-fail-tests": "node ./run-should-fail-tests",
     "bundle": "cd codegen/schema && spago bundle --bundle-type module --module GraphQL.Client.CodeGen.Js --outfile '../../gen-schema-bundled.mjs'",
     "patch": "npm run bundle && gcam 'update bundle' --allow-empty && npm version patch &&  npm publish && pulp publish",
-    "npm-major-verson": "npm run bundle && gcam 'update bundle' --allow-empty && npm version major && npm publish",
+    "npm-major-version": "npm run bundle && gcam 'update bundle' --allow-empty && npm version major && npm publish",
     "patch-old": "npm run bundle && gcam 'update bundle' --allow-empty && npm version patch && pulp version patch && npm publish && pulp publish"
   },
   "repository": {

@@ -10,12 +10,12 @@ import Effect (Effect)
 import Effect.Aff (Aff)
 import Foreign.Object (Object)
 import GraphQL.Client.Directive (class DirectivesTypeCheckTopLevel)
+import GraphQL.Client.GqlError (GqlError)
 import GraphQL.Client.Operation (class GqlOperation)
 import GraphQL.Client.QueryReturns (class QueryReturns)
 import GraphQL.Client.ToGqlString (class GqlQueryString)
 import GraphQL.Client.Variables (class VarsTypeChecked)
 import Halogen.Subscription (Emitter, makeEmitter)
-import GraphQL.Client.GqlError (GqlError)
 
 class GqlQuery :: forall k1 k2. k1 -> k2 -> Type -> Type -> Type -> Constraint
 class
@@ -29,7 +29,7 @@ class
   | schema query -> returns
   , schema -> directives
 
-instance queriable ::
+instance queryable ::
   ( QueryReturns schema query returns
   , GqlQueryString query
   , VarsTypeChecked schema query
@@ -43,8 +43,8 @@ newtype Client baseClient schema = Client baseClient
 
 -- | A type class for making a graphql request client.
 -- | Apollo, urql and xhr2/Affjax baseClients are provided.
--- | If you wish to use a different base client, 
--- | you can create your own client, 
+-- | If you wish to use a different base client,
+-- | you can create your own client,
 -- | make it an instance of `QueryClient`
 -- | and pass it to query
 class QueryClient baseClient queryOpts mutationOpts | baseClient -> queryOpts mutationOpts where
@@ -53,9 +53,9 @@ class QueryClient baseClient queryOpts mutationOpts | baseClient -> queryOpts mu
   defQueryOpts :: baseClient -> queryOpts
   defMutationOpts :: baseClient -> mutationOpts
 
--- | A type class for making graphql subscriptions. 
--- | If you wish to use a different underlying client, 
--- | you can create your own client, 
+-- | A type class for making graphql subscriptions.
+-- | If you wish to use a different underlying client,
+-- | you can create your own client,
 -- | make it an instance of `SubscriptionClient`
 -- | and pass it to `subscription`
 class SubscriptionClient baseClient opts | baseClient -> opts where
@@ -75,9 +75,9 @@ subscriptionEventOpts optsF client query vars = makeEmitter (clientSubscription 
 subscriptionEvent :: forall opts c. SubscriptionClient c opts => c -> String -> Json -> Emitter Json
 subscriptionEvent = subscriptionEventOpts identity
 
--- | A type class for making graphql watch queries (observable queries). 
--- | If you wish to use a different underlying client, 
--- | you can create your own client, 
+-- | A type class for making graphql watch queries (observable queries).
+-- | If you wish to use a different underlying client,
+-- | you can create your own client,
 -- | make it an instance of `WatchQueryClient`
 -- | and pass it to `watchQuery`
 class WatchQueryClient baseClient opts | baseClient -> opts where
@@ -96,8 +96,8 @@ watchQueryEventOpts optsF client query vars = makeEmitter (clientWatchQuery (opt
 watchQueryEvent :: forall opts c. WatchQueryClient c opts => c -> String -> Json -> Emitter Json
 watchQueryEvent = watchQueryEventOpts identity
 
--- Full response types 
--- Full responses 
+-- Full response types
+-- Full responses
 -- | The full graphql query response,
 -- | According to https://spec.graphql.org/June2018/#sec-Response-Format
 type GqlRes res =

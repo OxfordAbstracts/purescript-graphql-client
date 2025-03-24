@@ -82,7 +82,7 @@ subscriptionFullRes decodeFn optsF (Client client) queryNameUnsafe q = ado
   (GqlResJson json) :: GqlResJson schema subscription returns <- subscriptionJson optsF (Client client) queryNameUnsafe q
   in pure $ getFullRes decodeFn json
 
--- | Run a graphQL subcription, returning the response as json with phantom types
+-- | Run a graphQL subscription, returning the response as json with phantom types
 -- | The json will be of the format: https://spec.graphql.org/June2018/#sec-Response-Format
 subscriptionJson
   :: forall client directives schema subscription returns a subOpts
