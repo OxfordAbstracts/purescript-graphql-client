@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: purescript-contrib/setup-purescript@main
         with:
@@ -15,7 +15,7 @@ jobs:
           spago: unstable
 
       - name: Cache PureScript dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         # This cache uses the .dhall files to know when it should reinstall
         # and rebuild packages. It caches both the installed packages from
         # the `.spago` directory and compilation artifacts from the `output`
