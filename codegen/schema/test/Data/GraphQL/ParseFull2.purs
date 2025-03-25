@@ -1,20 +1,21 @@
 module Test.Data.GraphQL.ParseFull2 where
 
 import Prelude
+
 import Data.Either (either)
 import Data.GraphQL.AST as AST
 import Data.GraphQL.Parser as GP
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 import Effect.Exception (throw)
-import Test.Spec (SpecT, before, describe, it)
 import Parsing (runParser)
+import Test.Spec (SpecT, before, describe, it)
 
 parseDocument ∷ String → Aff (AST.Document)
 parseDocument t = liftEffect (either (throw <<< show) pure (runParser t GP.document))
 
 -- uses a more full featured schema
--- in this case, the publically available code sandbox schema
+-- in this case, the publicly available code sandbox schema
 query =
   """
 schema {
@@ -346,8 +347,8 @@ type User {
   name: String
   username: String!
 }
-""" ∷
-    String
+"""
+    ∷ String
 
 testCS ∷ ∀ m. Monad m ⇒ SpecT Aff Unit m Unit
 testCS =

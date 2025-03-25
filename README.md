@@ -6,11 +6,11 @@
   </img>
 </a>
 
-A typesafe graphql client for purescript. 
+A typesafe graphql client for purescript.
 
 This library will allow you to make graphql queries and type checks the query, arguments and response.
 
-It includes functions for making graphql queries and codegen tools for making sure your GraphQL schema and Purescript schema are in sync. 
+It includes functions for making graphql queries and codegen tools for making sure your GraphQL schema and Purescript schema are in sync.
 
 ## Example
 
@@ -44,7 +44,7 @@ queryGql ::
   GqlQuery Nil' OpQuery Schema query returns =>
   DecodeJson returns =>
   String -> query -> Aff returns
-queryGql = query_ "http://localhost:4892/graphql" (Proxy :: Proxy Schema) 
+queryGql = query_ "http://localhost:4892/graphql" (Proxy :: Proxy Schema)
 
 -- Schema
 type Schema
@@ -57,7 +57,7 @@ type Widget
     , id :: Int
     }
 
--- Symbols 
+-- Symbols
 prop :: Proxy "prop"
 prop = Proxy
 
@@ -89,8 +89,8 @@ name = Proxy
   - [Alternatives to this package](#alternatives-to-this-package)
     - [purescript-graphql-fundeps](#purescript-graphql-fundeps)
     - [purescript-graphqlclient](#purescript-graphqlclient)
-  
-## Getting started 
+
+## Getting started
 
 ### Installation
 
@@ -103,16 +103,16 @@ spago install graphql-client
 or install with bower
 
 ```
-bower install purescript-graphql-client 
+bower install purescript-graphql-client
 ```
 
-### Schema 
+### Schema
 
-In order to use this library you will need a Purescript representation of your GraphQL schema. 
+In order to use this library you will need a Purescript representation of your GraphQL schema.
 
-To get started you can convert your grapqhl schema into a purescript schema, using the codegen tool at https://gql-query-to-purs.herokuapp.com . If you are just testing this library out you can paste your graphql schema on the left, copy the purescript schema from the right and add it to your codebase. 
+To get started you can convert your grapqhl schema into a purescript schema, using the codegen tool at https://gql-query-to-purs.herokuapp.com . If you are just testing this library out you can paste your graphql schema on the left, copy the purescript schema from the right and add it to your codebase.
 
-If you are looking for a production solution to schema codegen read the rest of this section. If you are just trying the library out, you can skip to the next section. 
+If you are looking for a production solution to schema codegen read the rest of this section. If you are just trying the library out, you can skip to the next section.
 
 It is possible to write the schema yourself but it is easier and safer to use the library's codegen tools.
 
@@ -129,7 +129,7 @@ const { generateSchema } = require('purescript-graphql-client')
 generateSchema({
   dir: './src/generated', // Where you want the generated code to go
   modulePath: ['Generated', 'Gql'], // The name of the generated module
-  url: 'http://localhost:4892/graphql' // Your graphql enppdint
+  url: 'http://localhost:4892/graphql', // Your GraphQL endpoint
 })
 ```
 
@@ -139,7 +139,7 @@ The full options for `generateSchema` can be seen in `codegen/schema/README.md`
 
 You should run this script to build your schema as part of your build, before purescript compilation.
 
-If you wish to generate multiple schemas, use `generateSchemas` 
+If you wish to generate multiple schemas, use `generateSchemas`
 ```js
 const { generateSchemas } = require('purescript-graphql-client')
 
@@ -158,9 +158,9 @@ A full example can be seen in `examples/2-codegen`
 
 The full options for `generateSchemas` can be seen in `codegen/schema/README.md`
 
-### In the browser 
+### In the browser
 
-To use purescript-graphql-client in the browser you have a few options for a base client. 
+To use purescript-graphql-client in the browser you have a few options for a base client.
 
 - Apollo (Supports subscriptions, watch queries and caching. More external dependencies. Recommended)
 - Affjax (Queries and mutations only. No npm/external dependencies)
@@ -168,10 +168,10 @@ To use purescript-graphql-client in the browser you have a few options for a bas
 
 You can also create your own base client by making your own data type an instance of `QueryClient`. Look in `GraphQL.Client.BaseClients.Affjax.Node` for a simple example
 
-To use Affjax you can create a base client using the `AffjaxNodeClient` data constructor and 
+To use Affjax you can create a base client using the `AffjaxNodeClient` data constructor and
 pass it the url of your GraphQL endpoint and any request headers.
 
-To use Apollo you will have to install the Apollo npm module. 
+To use Apollo you will have to install the Apollo npm module.
 ```
 npm i -S @apollo/client
 ```
@@ -192,13 +192,13 @@ import Type.Data.List (Nil')
       , headers: []
       }
 
-    query client "my_query_name" 
-      { things: 
+    query client "my_query_name"
+      { things:
         { prop_a: unit
-        , prop_b: unit 
+        , prop_b: unit
         }
       }
-    
+
 ```
 Look in `examples/4-mutation` for a complete example.
 
@@ -223,18 +223,17 @@ import Type.Data.List (Nil')
       , websocketUrl: "ws://localhost:4892/subscriptions"
       }
   let
-    event = subscription client "get_props" 
-      { things: 
+    event = subscription client "get_props"
+      { things:
         { prop_a: unit
         , prop_b: unit
-        } 
+        }
       }
 
   cancel <-
     HS.subscribe event \e -> do
-      log "Event recieved"
+      log "Event received"
       logShow e
-    
 ```
 
 ### On the server
@@ -247,57 +246,57 @@ npm i -S xhr2
 
 You can see an examples of this in `examples/1-simple` and `e2e/1-affjax` .
 
-You can then write queries and mutations just as you would in the browser. 
+You can then write queries and mutations just as you would in the browser.
 
 
-## Examples 
+## Examples
 
 To view examples of what can be done with this library look at the `examples` and `e2e` directories.
 
-## API Documentation 
+## API Documentation
 
 API documentation can be found at https://pursuit.purescript.org/packages/purescript-graphql-client
 
-## Guide 
+## Guide
 
 ### Query syntax
-Once you are set up and have generated your purescript schema. You can write your queries. 
+Once you are set up and have generated your purescript schema. You can write your queries.
 
-The easiest way to do this is to go to https://gql-query-to-purs.herokuapp.com/query and paste your 
-graphql query on the left. I usually copy the GraphQL query directly from GraphiQL (GraphQL IDE). 
+The easiest way to do this is to go to https://gql-query-to-purs.herokuapp.com/query and paste your
+graphql query on the left. I usually copy the GraphQL query directly from GraphiQL (GraphQL IDE).
 
-You have to the option to make the queries with either `unit`s to mark scalar values (leaf nodes) or symbol record puns. The symbol record puns are slightly less verbose and closer to GraphQL syntax but require you import the generated Symbols module. 
+You have to the option to make the queries with either `unit`s to mark scalar values (leaf nodes) or symbol record puns. The symbol record puns are slightly less verbose and closer to GraphQL syntax but require you import the generated Symbols module.
 
-### Decoding and Encoding JSON 
+### Decoding and Encoding JSON
 
 By default, the library uses `decodeJson` from `Data.Argonaut.Decode` to decode Json responses
-and `encodeJson` from `Data.Argonaut.Encode` to encode Json. This can be overridden by using the "WithDecoder" versions of functions. 
+and `encodeJson` from `Data.Argonaut.Encode` to encode Json. This can be overridden by using the "WithDecoder" versions of functions.
 
-- `queryWithDecoder` 
+- `queryWithDecoder`
 - `mutationWithDecoder`
 - `subscriptionWithDecoder`
-- `queryOptsWithDecoder` 
+- `queryOptsWithDecoder`
 - `mutationOptsWithDecoder`
 - `subscriptionOptsWithDecoder`
-  
-With these you can set your own decoder. The library provides a decoder and encoder that works with [Hasura](https://hasura.io). eg. 
+
+With these you can set your own decoder. The library provides a decoder and encoder that works with [Hasura](https://hasura.io). eg.
 
 ```purs
 result <- queryWithDecoder decodeHasura client "query_to_hasura_service"
-  { widget: 
+  { widget:
     { prop1, prop2 }
-  } 
+  }
 ```
 
 ### Arguments
 
 Arguments can be added using the `Args` constructor or the `=>>` operator. I recommend using the [query codegen tool](https://gql-query-to-purs.herokuapp.com/query) to test this out and see how it works.
 
-As GraphQL arguments may have mixed types, the library provides tools to help handle this. 
+As GraphQL arguments may have mixed types, the library provides tools to help handle this.
 
-`ArgL` and `ArgR` allow you to have different types for different code branches in arguments. 
+`ArgL` and `ArgR` allow you to have different types for different code branches in arguments.
 
-eg. 
+eg.
 ```purs
 let condition = true
 
@@ -305,38 +304,38 @@ result <- query client "args_of_differing_types"
   { widget: (if condition then ArgL { x: 1 } else ArgR { y: "something" })
     =>>
     { prop1, prop2 }
-  } 
+  }
 ```
-`IgnoreArg` can be used to ignore both the label and value on a record. 
+`IgnoreArg` can be used to ignore both the label and value on a record.
 
-This is most commonly used with `guardArg` to ignore an argument property unless a condition is met. 
+This is most commonly used with `guardArg` to ignore an argument property unless a condition is met.
 
 eg.
 ```purs
 let condition = true
 
 result <- query client "only_set_arg_if"
-  { widget: { x: guardArg condition 1 } 
+  { widget: { x: guardArg condition 1 }
     =>>
     { prop1, prop2 }
-  } 
+  }
 ```
 
 GraphQL arrays can be written as purescript arrays if they are homogenous, but for mixed type arrays
-you can use `AndArgs`/`andArg` or the `+++`/`++` operator. 
+you can use `AndArgs`/`andArg` or the `+++`/`++` operator.
 
 eg.
 ```purs
 
 result <- query client "mixed_args_query"
-  { widget: 
+  { widget:
     { homogenous_array_prop: [1, 2, 3]
-    , mixed_array_prop: 1 ++ "hello" 
+    , mixed_array_prop: 1 ++ "hello"
     , mixed_array_prop2: [1, 2] +++ ["hello", "world"]
-    } 
+    }
     =>>
     { prop1, prop2 }
-  } 
+  }
 ```
 
 ### Aliases
@@ -351,18 +350,18 @@ import Generated.Symbols (widgets) -- Or wherever your symbols module is
 ...
 
 query client "my_alias_query"
-  { widgets: { id: 1 } =>> { name } 
-  , widgetWithId2: widgets : { id: 2 } =>> { name } 
+  { widgets: { id: 1 } =>> { name }
+  , widgetWithId2: widgets : { id: 2 } =>> { name }
   }
 ```
 
 #### Dynamically spread Aliases
 
-Sometimes it is useful to create aliased queries or mutations from a collection of size unknown at compile time. 
+Sometimes it is useful to create aliased queries or mutations from a collection of size unknown at compile time.
 
 In a dynamic language you might fold a collection of users to create a graphql query like:
 
-```gql 
+```gql
 mutation myUpdates {
   _1: update_users(where: {id : 1}, _set: { value: 10 }) { affected_rows }
   _2: update_users(where: {id : 2}, _set: { value: 15 }) { affected_rows }
@@ -370,7 +369,7 @@ mutation myUpdates {
 }
 ```
 
-To do this in this library there is there is the `Spread` constructor that creates these aliases for you and decodes the response as an array. 
+To do this in this library there is there is the `Spread` constructor that creates these aliases for you and decodes the response as an array.
 
 eg.
 ```purs
@@ -388,11 +387,11 @@ query client "update_multiple_users"
         { affected_rows }
 ```
 
-Look alias example in the examples directory for more details. 
+Look alias example in the examples directory for more details.
 
 ### Variables
 
-It is possible to define variables using the `Var` contructor 
+It is possible to define variables using the `Var` constructor
 and substitute them using the `withVars` function
 eg.
 
@@ -407,22 +406,22 @@ query client "widget_names_with_id_1"
             `withVars`
               { idVar: 1 }
 ```
-`withVars` uses `encodeJson` to turn the variables in json. If you 
+`withVars` uses `encodeJson` to turn the variables in json. If you
 wish to use a custom encoder, use `withVarsEncode`.
 
-To provide custom types as variables you will have to make them an instance of `VarTypeName`. 
-This type class specifies their graphql type. 
+To provide custom types as variables you will have to make them an instance of `VarTypeName`.
+This type class specifies their graphql type.
 
 There is a full example in the examples directory.
 
 ### Directives
 
-Only top level directives, that have a query, mutation or subscription location are currently supported. 
+Only top level directives, that have a query, mutation or subscription location are currently supported.
 
 Please look in the example/12-directives to see an example of this.
 
 
-### Full responses 
+### Full responses
 
 If you wish to get the full response, as per the [GraphQL Spec](https://spec.graphql.org/June2018/#sec-Response) use the "FullRes" versions of the query functions
 
@@ -430,7 +429,7 @@ If you wish to get the full response, as per the [GraphQL Spec](https://spec.gra
 - `mutationFullRes`
 - `subscriptionFullRes`
 
-These will include all errors and extensions in the response, even if a response of the correct type has been returned. 
+These will include all errors and extensions in the response, even if a response of the correct type has been returned.
 
 ### Full responses as Json
 
@@ -442,20 +441,20 @@ If you wish to get the full response as json use the "Json" versions of the quer
 
 These will return the raw json returned by the server inside a newtype `GqlResJson` with phanton types for the schema, query and response. These can be useful for creating your own abstractions using that require the unchanged json response.
 
-### Apollo only features 
+### Apollo only features
 
 With apollo you can make type checked cache updates. To see examples of this look at `examples/6-watch-query` and `examples/7-watch-query-optimistic`. You can also set many options for queries, mutations and subscriptions using , `queryOpts` , `mutationOpts`, `subscriptionOpts` respectively.
 To see how these options work, I recommend looking at the [Apollo core docs](https://www.apollographql.com/docs/react/api/core/ApolloClient/)
 
-The options are usually set using record updates or `identity` for default options. 
+The options are usually set using record updates or `identity` for default options.
 
 eg.
-```purs 
-        mutationOpts _ 
-            { update = Just update 
+```purs
+        mutationOpts _
+            { update = Just update
             , fetchPolicy = Just NetworkOnly
-            } 
-            client 
+            }
+            client
             "make_post"
             { addPost: { author, comment } =>> { author: unit }
             }
@@ -467,7 +466,7 @@ eg.
 
 ### [purescript-graphql-fundeps](https://github.com/meeshkan/purescript-graphql-fundeps)
 
-A much more lightweight graphql client. This package does not infer query types and does not support subscriptions or caching but allows writing in 
+A much more lightweight graphql client. This package does not infer query types and does not support subscriptions or caching but allows writing in
 graphql syntax and has much less source code. Probably preferable if your query types are not too complex and you do not need subscriptions or caching.
 
 ### [purescript-graphqlclient](https://github.com/purescript-graphqlclient/purescript-graphqlclient)

@@ -28,17 +28,17 @@ typeName gqlScalarsToPursTypes id str =
     <#> qualifiedTypeToName
     # fromMaybe' \_ -> case pascalCase str of
         "Id" -> qualifiedTypeToName id
-        "Float" -> qualifiy "Number"
-        "Numeric" -> qualifiy "Number"
-        "Bigint" -> qualifiy "Number"
-        "Smallint" -> qualifiy "Int"
-        "Integer" -> qualifiy "Int"
-        "Int" -> qualifiy "Int"
-        "Int2" -> qualifiy "Int"
-        "Int4" -> qualifiy "Int"
-        "Int8" -> qualifiy "Int"
-        "Text" -> qualifiy "String"
-        "Citext" -> qualifiy "String"
+        "Float" -> qualify "Number"
+        "Numeric" -> qualify "Number"
+        "Bigint" -> qualify "Number"
+        "Smallint" -> qualify "Int"
+        "Integer" -> qualify "Int"
+        "Int" -> qualify "Int"
+        "Int2" -> qualify "Int"
+        "Int4" -> qualify "Int"
+        "Int8" -> qualify "Int"
+        "Text" -> qualify "String"
+        "Citext" -> qualify "String"
         "Jsonb" -> qualifiedTypeToName
           { typeName: "Json"
           , moduleName: "Data.Argonaut.Core"
@@ -51,15 +51,15 @@ typeName gqlScalarsToPursTypes id str =
           { typeName: "DateTime"
           , moduleName: "Data.DateTime"
           }
-        s -> qualifiy s
+        s -> qualify s
 
-qualifiy :: String -> QualifiedName Proper
-qualifiy = toQualifiedName <<< Proper
+qualify :: String -> QualifiedName Proper
+qualify = toQualifiedName <<< Proper
 
 qualifiedTypeToName :: QualifiedType -> QualifiedName Proper
 qualifiedTypeToName { moduleName, typeName } =
   case moduleName of
-    "" -> qualifiy typeName
+    "" -> qualify typeName
     _ ->
       toQualifiedName
         $ Qualified (Just $ ModuleName moduleName)

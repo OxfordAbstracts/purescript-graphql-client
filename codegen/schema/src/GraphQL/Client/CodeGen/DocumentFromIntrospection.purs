@@ -121,7 +121,7 @@ documentFromIntrospection =
       pure $ InputObjectTypeDefinition
         { description: fullType.description
         , directives: Nothing
-        , inputFieldsDefinition: map toInputFieldsDefintion fullType.inputFields
+        , inputFieldsDefinition: map toInputFieldsDefinition fullType.inputFields
         , name
         }
 
@@ -132,7 +132,7 @@ documentFromIntrospection =
         { description: fullType.description
         , directives: Nothing
         , name
-        , enumValuesDefinition: map toEnumValuesDefintion fullType.enumValues
+        , enumValuesDefinition: map toEnumValuesDefinition fullType.enumValues
         }
 
     toScalarDefinition :: FullType -> Either String ScalarTypeDefinition
@@ -160,8 +160,8 @@ documentFromIntrospection =
     toNamedType :: TypeRef -> NamedType
     toNamedType = unwrap >>> _.name >>> fold >>> NamedType
 
-    toEnumValuesDefintion :: Array EnumValue -> EnumValuesDefinition
-    toEnumValuesDefintion = List.fromFoldable >>> map toEnumValueDefinition >>> EnumValuesDefinition
+    toEnumValuesDefinition :: Array EnumValue -> EnumValuesDefinition
+    toEnumValuesDefinition = List.fromFoldable >>> map toEnumValueDefinition >>> EnumValuesDefinition
 
     toEnumValueDefinition :: EnumValue -> EnumValueDefinition
     toEnumValueDefinition enumValue = EnumValueDefinition
@@ -170,8 +170,8 @@ documentFromIntrospection =
       , enumValue: wrap enumValue.name
       }
 
-    toInputFieldsDefintion :: Array InputValue -> InputFieldsDefinition
-    toInputFieldsDefintion = List.fromFoldable >>> map toInputValueDefinition >>> InputFieldsDefinition
+    toInputFieldsDefinition :: Array InputValue -> InputFieldsDefinition
+    toInputFieldsDefinition = List.fromFoldable >>> map toInputValueDefinition >>> InputFieldsDefinition
 
     toFieldsDefinition :: Array IField -> FieldsDefinition
     toFieldsDefinition = List.fromFoldable >>> map toFieldDefinition >>> FieldsDefinition
@@ -242,17 +242,17 @@ toParserError = case _ of
   JsonDecodeError e -> ParseError (printJsonDecodeError e) initialPos
   InvalidIntrospectionSchema e -> ParseError e initialPos
 
-noSchemaTypes :: forall r.
-  Array
-    { name :: Maybe String
-    | r
-    }
+noSchemaTypes
+  :: forall r
+   . Array
+       { name :: Maybe String
+       | r
+       }
   -> Array
        { name :: Maybe String
        | r
        }
-noSchemaTypes = filter (_.name >>> maybe true ( not startsWith "__"))
-
+noSchemaTypes = filter (_.name >>> maybe true (not startsWith "__"))
 
 startsWith :: String -> String -> Boolean
 startsWith pre str = String.take (String.length pre) str == pre

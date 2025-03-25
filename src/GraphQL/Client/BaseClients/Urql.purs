@@ -34,13 +34,13 @@ type UrqlSubClientOptions =
   , headers :: Array RequestHeader
   }
 
--- | A client to make graphQL queries and mutations. 
+-- | A client to make graphQL queries and mutations.
 -- | From the @urql/core npm module
 foreign import data UrqlClient :: Type
 
--- | A client to make graphQL queries, mutations and subscriptions. 
--- | Requires a web socket graphQL server. 
--- | From the @urql/core npm module 
+-- | A client to make graphQL queries, mutations and subscriptions.
+-- | Requires a web socket graphQL server.
+-- | From the @urql/core npm module
 -- | Requires your server to implement GraphQL over WebSocket Protocol
 -- | See https://github.com/enisdenjo/graphql-ws details
 foreign import data UrqlSubClient :: Type
@@ -128,7 +128,7 @@ foreign import queryImpl :: Foreign -> String -> Json -> EffectFnAff Json
 
 foreign import mutationImpl :: Foreign -> String -> Json -> EffectFnAff Json
 
-instance subcriptionClient :: SubscriptionClient UrqlSubClient Unit where
+instance subscriptionClient :: SubscriptionClient UrqlSubClient Unit where
   clientSubscription _ = subscriptionImpl
   defSubOpts _ = unit
 
