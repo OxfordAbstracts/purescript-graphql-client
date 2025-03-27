@@ -25,9 +25,12 @@ export async function getGqlSchema ({ moduleName, cache, url, token }) {
     )
 
     const { data: schema, errors } = await response.json()
-    
+
     if (errors) {
-      throw new Error(errors)
+      throw new Error(errors
+        .map(err => "- " + err.message)
+        .join('\n')
+      )
     }
 
     return { moduleName, cache, schema }
