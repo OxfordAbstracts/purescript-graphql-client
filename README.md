@@ -10,13 +10,13 @@ A typesafe graphql client for purescript.
 
 This library will allow you to make graphql queries and type checks the query, arguments and response.
 
-It includes functions for making graphql queries and codegen tools for making sure your GraphQL schema and Purescript schema are in sync.
+It includes functions for making graphql queries and codegen tools for making sure your GraphQL schema and PureScript schema are in sync.
 
 ## Example
 
-Here is a complete application using purescript-graphql-client, that makes a graphQL query and logs the result, without using schema codegen.
+Here is a complete application using purescript-graphql-client, that makes a GraphQL query and logs the result, without using schema codegen.
 
-```purescript
+```purs
 module Main where
 
 import Prelude
@@ -94,16 +94,10 @@ name = Proxy
 
 ### Installation
 
-Either use spago (recommended)
+Use [Spago](https://github.com/purescript/spago):
 
-```
+```sh
 spago install graphql-client
-```
-
-or install with bower
-
-```
-bower install purescript-graphql-client
 ```
 
 ### Schema
@@ -118,8 +112,8 @@ It is possible to write the schema yourself but it is easier and safer to use th
 
 There is an npm library that is a thin wrapper around this library's schema codegen. First, install this package:
 
-```
-npm i -D purescript-graphql-client
+```sh
+npm install --save-dev purescript-graphql-client
 ```
 
 Then add a script to generate your schema on build. Run this script before compiling your purescript project.
@@ -171,13 +165,14 @@ You can also create your own base client by making your own data type an instanc
 To use Affjax you can create a base client using the `AffjaxNodeClient` data constructor and
 pass it the url of your GraphQL endpoint and any request headers.
 
-To use Apollo you will have to install the Apollo npm module.
-```
-npm i -S @apollo/client
+To use Apollo you will have to install the Apollo npm module:
+
+```sh
+npm install --save @apollo/client
 ```
 
 you can then create a client using `createClient`. eg.
-```purescript
+```purs
 import MySchema (Query, Mutation)
 import GraphQL.Client.BaseClients.Apollo (createClient)
 import GraphQL.Client.Query (query)
@@ -205,7 +200,7 @@ Look in `examples/4-mutation` for a complete example.
 
 Use `createSubscriptionClient` if you want to make subscriptions. eg.
 
-```purescript
+```purs
 import Halogen.Subscription as HS
 import MySchema (Query, Subscription, Mutation)
 import GraphQL.Client.BaseClients.Apollo (createSubscriptionClient)
@@ -238,10 +233,10 @@ import Type.Data.List (Nil')
 
 ### On the server
 
-To use this library server-side, you should use the Affjax base client and install xhr2
+To use this library server-side, you should use the Affjax base client and install xhr2:
 
-```
-npm i -S xhr2
+```sh
+npm install --save xhr2
 ```
 
 You can see an examples of this in `examples/1-simple` and `e2e/1-affjax` .

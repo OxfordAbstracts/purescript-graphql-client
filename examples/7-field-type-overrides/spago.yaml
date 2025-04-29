@@ -7,7 +7,8 @@ package:
     - prelude
   test:
     main: Test.Main
-    dependencies: []
+    dependencies:
+      - argonaut-generic
 workspace:
   packageSet:
     registry: 64.6.0
