@@ -1,10 +1,9 @@
-const { readdirSync } = require('fs')
-const { promisify } = require('util')
-import execSh from 'exec-sh';
-const {promise: exec} = execSh;
+import { readdirSync } from 'fs'
+import { readFile } from 'fs/promises'
+import execSh from 'exec-sh'
+const { promise: exec } = execSh
 
-const { ok } = require('assert')
-const read = promisify(require('fs').readFile)
+import { ok } from 'assert'
 
 const getDirectories = source =>
   readdirSync(source, { withFileTypes: true })
@@ -16,13 +15,13 @@ const go = async () => {
   let toTest = packages.length
 
   for (const p of packages) {
-    const expectedError = (await read(`./should-fail-tests/${p}/expected-error.txt`)).toString()
+    const expectedError = (await readFile(`./should-fail-tests/${p}/expected-error.txt`)).toString()
 
     try {
       console.log(`testing: ${p}`)
 
       await exec(`cd "./should-fail-tests/${p}" && spago install`, true)
-      await exec(`cd "./should-fail-tests/${p}" && spago build --no-install`, true)
+      await exec(`cd "./should-fail-tests/${p}" && spago build`, true)
 
       console.error(`${p} compiled. Test failed`)
       process.exit(1)

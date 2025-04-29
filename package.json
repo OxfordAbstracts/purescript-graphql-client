@@ -3,6 +3,7 @@
   "version": "10.0.7",
   "description": "A typesafe graphql client for purescript.",
   "main": "codegen/schema/index.mjs",
+  "type": "module",
   "directories": {
     "main": "./codegen/schema/index.mjs",
     "test": "test"
@@ -32,7 +33,7 @@
     "graphql-ws": "^5.9.1",
     "isomorphic-unfetch": "^3.1.0",
     "isomorphic-ws": "^5.0.0",
-    "mkdirp": "1.0.4",
+    "mkdirp": "^1.0.4",
     "rimraf": "3.0.2"
   },
   "devDependencies": {

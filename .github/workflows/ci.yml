@@ -16,14 +16,14 @@ jobs:
 
       - name: Cache PureScript dependencies
         uses: actions/cache@v4
-        # This cache uses the .dhall files to know when it should reinstall
+        # This cache uses the .lock files to know when it should reinstall
         # and rebuild packages. It caches both the installed packages from
         # the `.spago` directory and compilation artifacts from the `output`
         # directory. When restored the compiler will rebuild any files that
         # have changed. If you do not want to cache compiled output, remove
         # the `output` path.
         with:
-          key: k1-${{ runner.os }}-spago-${{ hashFiles('**/*.dhall') }}
+          key: k1-${{ runner.os }}-spago-${{ hashFiles('**/*.lock') }}
           path: |
             .spago
             output
@@ -33,8 +33,36 @@ jobs:
             examples/1-simple/output
             examples/2-codegen/.spago
             examples/2-codegen/output
+            examples/3-enums/.spago
+            examples/3-enums/output
+            examples/4-mutation/.spago
+            examples/4-mutation/output
+            examples/5-subscription/.spago
+            examples/5-subscription/output
+            examples/6-watch-query/.spago
+            examples/6-watch-query/output
+            examples/7-field-type-overrides/.spago
+            examples/7-field-type-overrides/output
+            examples/8-custom-gql-types/.spago
+            examples/8-custom-gql-types/output
+            examples/9-variables/.spago
+            examples/9-variables/output
+            examples/10-aliases/.spago
+            examples/10-aliases/output
+            examples/11-unions/.spago
+            examples/11-unions/output
+            examples/12-directives/.spago
+            examples/12-directives/output
+            examples/13-error-boundaries/.spago
+            examples/13-error-boundaries/output
 
       - run: spago build
       - run: npm i
       - run: npm run bundle
       - run: npm t
+
+      - name: Run Example Tests
+        run: node run-example-tests.js
+
+      - name: Run Should Fail Tests
+        run: node run-should-fail-tests.js

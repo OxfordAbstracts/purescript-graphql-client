@@ -13,9 +13,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@urql/core": "^1.16.2",
     "express": "^4.17.1",
     "express-graphql": "^0.12.0",
     "graphql": "^15.4.0",
+    "graphql-ws": "^6.0.4",
+    "isomorphic-unfetch": "^4.0.2",
     "isomorphic-ws": "^5.0.0",
     "xhr2": "^0.2.0"
   },
