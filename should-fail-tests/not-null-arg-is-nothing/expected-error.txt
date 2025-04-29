@@ -1,15 +1,19 @@
-A custom type error occurred while solving type class constraints:
+Custom error:
 A `Maybe` query argument cannot be used with with required schema argument:
 Schema: Boolean
-Query: Maybe Boolean
+Query: Boolean
+At: "online"
 while solving type class constraint
-GraphQL.Client.Args.IsNotNull Boolean
+GraphQL.Client.Args.IsNotNull "online"
+Boolean
 (Maybe Boolean)
 while applying a function queryReturns
-of type QueryReturns t0 t1 t2 => Proxy @Type t0 -> t1 -> Proxy @Type t2
+of type QueryReturns @t0 @Type @t1 t2 t3 t4 => Proxy @t0 t2 -> t3 -> Proxy @t1 t4
 to argument testSchemaProxy
 while inferring the type of queryReturns testSchemaProxy
 in value declaration passing1
 where t0 is an unknown type
 t1 is an unknown type
 t2 is an unknown type
+t3 is an unknown type
+t4 is an unknown type
