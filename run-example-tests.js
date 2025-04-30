@@ -1,6 +1,7 @@
-const { readdirSync } = require('fs')
-const { promisify } = require('util')
-const exec = promisify(require('exec-sh'))
+import { readdirSync } from 'fs'
+import { promisify } from 'util'
+import execSh from 'exec-sh'
+const exec = promisify(execSh)
 
 const getDirectories = source =>
   readdirSync(source, { withFileTypes: true })

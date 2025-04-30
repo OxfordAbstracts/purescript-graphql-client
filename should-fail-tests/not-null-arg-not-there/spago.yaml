@@ -1,0 +1,16 @@
+package:
+  name: not-null-arg-not-there
+  dependencies:
+    - console
+    - effect
+    - graphql-client
+    - prelude
+  test:
+    main: Test.Main
+    dependencies: []
+workspace:
+  packageSet:
+    registry: 64.6.0
+  extraPackages:
+    graphql-client:
+      path: ../..

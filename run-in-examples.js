@@ -1,7 +1,7 @@
 // run a command in every e2e, example and should-fail-test folder.
 // Useful for installing or uninstalling packages
 
-const { readdirSync } = require('fs')
+import { readdirSync } from 'fs'
 
 const getDirectories = source =>
   readdirSync(source, { withFileTypes: true })

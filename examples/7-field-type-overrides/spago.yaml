@@ -1,0 +1,17 @@
+package:
+  name: 7-field-type-overrides
+  dependencies:
+    - console
+    - effect
+    - graphql-client
+    - prelude
+  test:
+    main: Test.Main
+    dependencies:
+      - argonaut-generic
+workspace:
+  packageSet:
+    registry: 64.6.0
+  extraPackages:
+    graphql-client:
+      path: ../..

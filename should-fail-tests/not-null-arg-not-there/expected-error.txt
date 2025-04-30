@@ -1,19 +1,23 @@
 Could not match type
-( online :: t0
-| t1
+( online :: t5
+| t6
 )
 with type
-() @Type
-while trying to match type ( online :: t0
-| t1
-)
-with type () @Type
+()
 while solving type class constraint
 Prim.Row.Cons "online"
-t0
-t1
+t5
+t6
 (() @Type)
+while applying a function queryReturns
+of type QueryReturns @t0 @Type @t1 t2 t3 t4 => Proxy @t0 t2 -> t3 -> Proxy @t1 t4
+to argument testSchemaProxy
 while inferring the type of queryReturns testSchemaProxy
 in value declaration passing1
 where t0 is an unknown type
 t1 is an unknown type
+t2 is an unknown type
+t3 is an unknown type
+t4 is an unknown type
+t5 is an unknown type
+t6 is an unknown type
