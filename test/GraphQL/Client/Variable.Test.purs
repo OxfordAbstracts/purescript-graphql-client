@@ -5,7 +5,7 @@ import Prelude
 import Data.Maybe (Maybe(..))
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
-import GraphQL.Client.Args (OrArg(..), (++), (=>>))
+import GraphQL.Client.Args (OrArg(..), (++), (=>>), (+++))
 import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.Variable (Var(..))
 import GraphQL.Client.Variables (class GetGqlQueryVars, getQueryVars, getVarsTypeNames, withVars)
@@ -284,6 +284,20 @@ testArgs
        }
 testArgs = getQueryVars ((Var :: _ "idVar" Int) =>> { name: unit })
 
+testAndArg
+  :: Proxy
+       { aVar :: Int
+       , bVar :: Number
+       }
+testAndArg =
+  getQueryVars
+    ( { a:
+          Var :: _ "aVar" Int
+      }
+        ++ { b: Var :: _ "bVar" Number }
+        =>> { name: unit }
+    )
+
 testAndArgs
   :: Proxy
        { aVar :: Int
@@ -294,7 +308,7 @@ testAndArgs =
     ( { a:
           Var :: _ "aVar" Int
       }
-        ++ { b: Var :: _ "bVar" Number }
+        +++ { b: Var :: _ "bVar" Number }
         =>> { name: unit }
     )
 

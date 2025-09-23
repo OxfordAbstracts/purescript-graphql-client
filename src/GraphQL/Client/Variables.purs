@@ -36,7 +36,7 @@ import Data.String.CodeUnits (charAt)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import GraphQL.Client.Alias (Alias)
 import GraphQL.Client.Alias.Dynamic (Spread)
-import GraphQL.Client.Args (AndArg, Args, NotNull, OrArg)
+import GraphQL.Client.Args (AndArg, AndArgs, Args, NotNull, OrArg)
 import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.Directive (ApplyDirective(..))
 import GraphQL.Client.ErrorBoundary (ErrorBoundary)
@@ -125,6 +125,15 @@ else instance getVarAndArg ::
   , Row.Nub trash var
   ) =>
   GetVar (AndArg l r) { | var } where
+  getVar _ = Proxy
+else instance getVarAndArgs ::
+  ( GetVar l { | varL }
+  , GetVar r { | varR }
+  , Row.Union varR varL trash
+  , Row.Union varL varR trash -- keep both union directions to make sure value type is the same
+  , Row.Nub trash var
+  ) =>
+  GetVar (AndArgs l r) { | var } where
   getVar _ = Proxy
 else instance getVarOrArg ::
   ( GetVar l { | varL }
@@ -229,7 +238,7 @@ else instance varsTypeCheckedWithoutVars ::
 
 else instance varsTypeCheckedIdentity ::
   GetVar query {} =>
-  VarsTypeChecked schema (Identity query)  where
+  VarsTypeChecked schema (Identity query) where
   getVarsJson _ _ = jsonEmptyObject
   getVarsTypeNames _ _ = ""
 
@@ -237,11 +246,11 @@ else instance varsTypeCheckedErrorBoundary ::
   GetVar query {} =>
   VarsTypeChecked schema (ErrorBoundary query) where
   getVarsJson _ _ = jsonEmptyObject
-  getVarsTypeNames _ _ = ""  
+  getVarsTypeNames _ _ = ""
 
 else instance varsTypeCheckedUnion ::
   GetVar { | query } {} =>
-  VarsTypeChecked schema (GqlUnion query)  where
+  VarsTypeChecked schema (GqlUnion query) where
   getVarsJson _ _ = jsonEmptyObject
   getVarsTypeNames _ _ = ""
 
