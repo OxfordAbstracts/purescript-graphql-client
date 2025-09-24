@@ -265,7 +265,27 @@ else instance varsTypeCheckedSpread ::
 class GetGqlQueryVars :: Type -> Type -> Type -> Constraint
 class GetGqlQueryVars schema query vars | schema query -> vars
 
-instance queryVarsAsGqlVar ::
+instance queryVarsOrArg ::
+  ( GetGqlQueryVars schema l { | varsL }
+  , GetGqlQueryVars schema r { | varsR }
+  , Row.Union varsL varsR trash
+  , Row.Union varsR varsL trash
+  , Row.Nub trash vars
+  )
+  -- Since this matches over _any_ schema, this must come before the pattern
+  -- match for AsGql such that the schema is preserved through l and r.
+  => GetGqlQueryVars schema (OrArg l r) { | vars }
+
+else instance queryVarsAndArgs ::
+  ( GetGqlQueryVars schema l { | varsL }
+  , GetGqlQueryVars schema r { | varsR }
+  , Row.Union varsL varsR trash
+  , Row.Union varsR varsL trash
+  , Row.Nub trash vars
+  )
+  => GetGqlQueryVars schema (AndArgs l r) { | vars }
+
+else instance queryVarsAsGqlVar ::
   ( Row.Cons name (Proxy gqlName) () result
   , IsSymbol gqlName
   ) =>

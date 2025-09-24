@@ -5,7 +5,7 @@ import Prelude
 import Data.Maybe (Maybe(..))
 import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
-import GraphQL.Client.Args (OrArg(..), (++), (=>>), (+++))
+import GraphQL.Client.Args (OrArg(..), andArg, guardArg, (++), (+++), (=>>))
 import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.Variable (Var(..))
 import GraphQL.Client.Variables (class GetGqlQueryVars, getQueryVars, getVarsTypeNames, withVars)
@@ -236,6 +236,82 @@ testGqlVarsCreatedAt =
       , created_at_eq: 2
       , created_at_lt: 3
       }
+
+testGqlVarsOrArg
+  :: Proxy
+       { created_at_eq :: Proxy "Int"
+       , created_at_lt :: Proxy "Int"
+       , myVar :: Proxy "customId"
+       }
+testGqlVarsOrArg =
+  getGqlQueryVars $
+    { users:
+        { where: { created_at: { eq: guardArg false $ Var @"created_at_eq" @Int, lt: guardArg false $ Var @"created_at_lt" @Int } }
+        }
+          =>> { id: guardArg false $ Var @"myVar" @Int }
+    }
+
+testGqlVarsAndArg
+  :: Proxy
+       { created_at_eq :: Proxy "Int"
+       , created_at_lt :: Proxy "Int"
+       , id1 :: Proxy "customId"
+       , id2 :: Proxy "customId"
+       }
+testGqlVarsAndArg =
+  getGqlQueryVars $
+    { users:
+        { where:
+            { created_at:
+                andArg
+                  { eq: Var @"created_at_eq" @Int }
+                  { lt: Var @"created_at_lt" @Int }
+            }
+        }
+          =>>
+            andArg
+              { id: Var @"id1" @Int }
+              { id: Var @"id2" @Int }
+    }
+
+testGqlVarsComplex
+  :: Proxy
+       { created_at_eq :: Proxy "Int"
+       , created_at_eq_2 :: Proxy "Int"
+       , created_at_lt :: Proxy "Int"
+       , created_at_lt_2 :: Proxy "Int"
+       , id1 :: Proxy "customId"
+       , id2 :: Proxy "customId"
+       , id3 :: Proxy "customId"
+       , id4 :: Proxy "customId"
+       }
+testGqlVarsComplex =
+  getGqlQueryVars $
+    { users:
+        { where:
+            { created_at:
+                andArg
+                  { eq:
+                      if true then ArgL $ Var @"created_at_eq" @Int
+                      else ArgR $ Var @"created_at_eq_2" @Int
+                  }
+                  { lt:
+                      if true then ArgL $ Var @"created_at_lt" @Int
+                      else ArgR $ Var @"created_at_lt_2" @Int
+                  }
+            }
+        }
+          =>>
+            andArg
+              { id:
+                  if true then ArgL $ Var @"id1" @Int
+                  else ArgR $ Var @"id2" @Int
+              }
+              { id:
+                  if true then ArgL $ Var @"id3" @Int
+                  else ArgR $ Var @"id4" @Int
+              }
+    }
 
 testBasic
   :: Proxy
