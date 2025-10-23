@@ -69,7 +69,7 @@ import GraphQL.Client.Directive (ApplyDirective(..))
 import GraphQL.Client.ErrorBoundary (ErrorBoundary(..))
 import GraphQL.Client.NullArray (NullArray)
 import GraphQL.Client.Union (GqlUnion(..))
-import GraphQL.Client.Variable (Var)
+import GraphQL.Client.Variable (AutoVar, Var)
 import GraphQL.Client.Variables (WithVars, getQuery)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex, hfoldlWithIndex)
 import Type.Proxy (Proxy(..))
@@ -321,6 +321,8 @@ else instance gqlArgStringAllowedMismatch :: GqlArgString a => GqlArgString (All
 else instance gqlargVariant :: GqlArgString (Variant r) where
   toGqlArgStringImpl v = unvariant v # \(Unvariant f) -> f \p _ -> reflectSymbol p
 else instance gqlArgStringVar :: IsSymbol sym => GqlArgString (Var sym a) where
+  toGqlArgStringImpl _ = "$" <> reflectSymbol (Proxy :: Proxy sym)
+else instance gqlArgStringAutoVar :: IsSymbol sym => GqlArgString (AutoVar sym a) where
   toGqlArgStringImpl _ = "$" <> reflectSymbol (Proxy :: Proxy sym)
 else instance gqlArgStringOrArg ::
   ( GqlArgString argL

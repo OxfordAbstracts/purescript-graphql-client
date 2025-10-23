@@ -1,5 +1,7 @@
 module GraphQL.Client.Variables
   ( CombineVarsProp
+  , ExtractAutoVarsFromArrayElem(..)
+  , ExtractAutoVarsFromRecord(..)
   , GetVarRec(..)
   , GqlQueryVars
   , GqlQueryVarsN(..)
@@ -10,7 +12,9 @@ module GraphQL.Client.Variables
   , class GetVar
   , class GqlArrayAndMaybeType
   , class VarsTypeChecked
+  , class ExtractAutoVars
   , combineVars
+  , extractAutoVars
   , getQuery
   , getQueryVars
   , getVar
@@ -20,6 +24,7 @@ module GraphQL.Client.Variables
   , propGetGqlVars
   , withVars
   , withVarsEncode
+  , withAutoVars
   ) where
 
 import Prelude
@@ -34,19 +39,20 @@ import Data.Newtype (class Newtype, unwrap)
 import Data.String as String
 import Data.String.CodeUnits (charAt)
 import Data.Symbol (class IsSymbol, reflectSymbol)
-import GraphQL.Client.Alias (Alias)
-import GraphQL.Client.Alias.Dynamic (Spread)
-import GraphQL.Client.Args (AndArg, AndArgs, Args, NotNull, OrArg)
+import GraphQL.Client.Alias (Alias(..))
+import GraphQL.Client.Alias.Dynamic (Spread(..))
+import GraphQL.Client.Args (AndArg, AndArgs(..), Args(..), NotNull, OrArg(..))
 import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.Directive (ApplyDirective(..))
-import GraphQL.Client.ErrorBoundary (ErrorBoundary)
+import GraphQL.Client.ErrorBoundary (ErrorBoundary(..))
 import GraphQL.Client.GqlType (class GqlType)
-import GraphQL.Client.Union (GqlUnion)
-import GraphQL.Client.Variable (Var)
-import Heterogeneous.Folding (class Folding, class FoldingWithIndex, class HFoldl, class HFoldlWithIndex, hfoldlWithIndex)
+import GraphQL.Client.Union (GqlUnion(..))
+import GraphQL.Client.Variable (AutoVar(..), Var)
+import Heterogeneous.Folding (class Folding, class FoldingWithIndex, class HFoldl, class HFoldlWithIndex, hfoldl, hfoldlWithIndex)
 import Prim.Row as Row
 import Record as Record
 import Type.Proxy (Proxy(..))
+import Unsafe.Coerce (unsafeCoerce)
 
 class GetVar :: Type -> Type -> Constraint
 class GetVar query var | query -> var where
@@ -56,6 +62,11 @@ instance getVarVar ::
   ( Row.Cons name a () var
   ) =>
   GetVar (Var name a) { | var } where
+  getVar _ = Proxy
+else instance getVarAutoVar ::
+  ( Row.Cons name a () var
+  ) =>
+  GetVar (AutoVar name a) { | var } where
   getVar _ = Proxy
 else instance getVarAlias ::
   ( GetVar query var
@@ -304,6 +315,12 @@ else instance queryVarsVar ::
   ) =>
   GetGqlQueryVars a (Var name q) { | result }
 
+else instance queryVarsAutoVar ::
+  ( GqlType a gqlName
+  , Row.Cons name (Proxy gqlName) () result
+  ) =>
+  GetGqlQueryVars a (AutoVar name q) { | result }
+
 else instance queryVarsUnit :: GetGqlQueryVars a Unit {}
 
 else instance queryVarsApplyDirective :: GetGqlQueryVars a q vars => GetGqlQueryVars a (ApplyDirective name args q) vars
@@ -452,3 +469,164 @@ endsWith c str =
 
 removeSuffix :: Char -> String -> String
 removeSuffix c str = if endsWith c str then String.take (String.length str - 1) str else str
+
+-- | Extract AutoVar values from a query into a record
+class ExtractAutoVars :: Type -> Row Type -> Constraint
+class ExtractAutoVars query vars | query -> vars where
+  extractAutoVars :: query -> { | vars }
+
+-- Helper for folding over record fields
+data ExtractAutoVarsFromRecord = ExtractAutoVarsFromRecord
+
+instance extractAutoVarsFromRecordInstance ::
+  ( IsSymbol sym
+  , ExtractAutoVars val subVars
+  , Row.Union acc subVars accUnion
+  , Row.Nub accUnion result
+  ) =>
+  FoldingWithIndex ExtractAutoVarsFromRecord (Proxy sym) { | acc } val { | result } where
+  foldingWithIndex _ _ acc val =
+    Record.merge acc (extractAutoVars val)
+
+-- Helper for folding over arrays
+data ExtractAutoVarsFromArrayElem = ExtractAutoVarsFromArrayElem
+
+instance extractAutoVarsFromArrayElemInstance ::
+  ( ExtractAutoVars a vars
+  , Row.Union acc vars accUnion
+  , Row.Nub accUnion result
+  ) =>
+  Folding ExtractAutoVarsFromArrayElem { | acc } a { | result } where
+  folding _ acc val =
+    Record.merge acc (extractAutoVars val)
+
+-- AutoVar - extract the value
+instance extractAutoVarsAutoVar ::
+  ( Row.Cons name a () vars
+  , IsSymbol name
+  ) =>
+  ExtractAutoVars (AutoVar name a) vars where
+  extractAutoVars (AutoVar val) = Record.insert (Proxy :: _ name) val {}
+
+-- Var - no value to extract
+else instance extractAutoVarsVar :: ExtractAutoVars (Var name a) () where
+  extractAutoVars _ = {}
+
+-- Maybe - extract if present
+else instance extractAutoVarsMaybe ::
+  ( ExtractAutoVars a vars
+  ) =>
+  ExtractAutoVars (Maybe a) vars where
+  extractAutoVars Nothing = unsafeCoerce {}
+  extractAutoVars (Just a) = extractAutoVars a
+
+-- Array - extract from elements and merge
+else instance extractAutoVarsArray ::
+  ( ExtractAutoVars a vars
+  , HFoldl ExtractAutoVarsFromArrayElem {} (Array a) { | vars }
+  ) =>
+  ExtractAutoVars (Array a) vars where
+  extractAutoVars arr = hfoldl ExtractAutoVarsFromArrayElem {} arr
+
+-- Args - extract from both arguments and body
+else instance extractAutoVarsArgs ::
+  ( HFoldlWithIndex ExtractAutoVarsFromRecord {} { | args } { | varsArgs }
+  , ExtractAutoVars body varsBody
+  , Row.Union varsArgs varsBody varsUnion
+  , Row.Nub varsUnion vars
+  ) =>
+  ExtractAutoVars (Args { | args } body) vars where
+  extractAutoVars (Args args body) =
+    let
+      argsVars = hfoldlWithIndex ExtractAutoVarsFromRecord {} args
+      bodyVars = extractAutoVars body
+    in
+      Record.merge argsVars bodyVars
+
+-- Record - extract from all fields
+else instance extractAutoVarsRecord ::
+  HFoldlWithIndex ExtractAutoVarsFromRecord {} { | r } { | vars } =>
+  ExtractAutoVars { | r } vars where
+  extractAutoVars r = hfoldlWithIndex ExtractAutoVarsFromRecord {} r
+
+-- Alias - extract from inner value
+else instance extractAutoVarsAlias ::
+  ExtractAutoVars val vars =>
+  ExtractAutoVars (Alias name val) vars where
+  extractAutoVars (Alias _ val) = extractAutoVars val
+
+-- OrArg - extract from active branch
+else instance extractAutoVarsOrArg ::
+  ( ExtractAutoVars l varsL
+  , ExtractAutoVars r varsR
+  , Row.Union varsL varsR varsUnion
+  , Row.Nub varsUnion vars
+  ) =>
+  ExtractAutoVars (OrArg l r) vars where
+  extractAutoVars (ArgL l) = unsafeCoerce $ extractAutoVars l
+  extractAutoVars (ArgR r) = unsafeCoerce $ extractAutoVars r
+
+-- AndArgs - extract from both
+else instance extractAutoVarsAndArgs ::
+  ( ExtractAutoVars l varsL
+  , ExtractAutoVars r varsR
+  , Row.Union varsL varsR varsUnion
+  , Row.Nub varsUnion vars
+  ) =>
+  ExtractAutoVars (AndArgs l r) vars where
+  extractAutoVars (AndArgs l r) =
+    let
+      lVars :: { | varsL }
+      lVars = extractAutoVars l
+
+      rVars :: { | varsR }
+      rVars = extractAutoVars r
+    in
+      unsafeCoerce $ Record.merge lVars rVars
+
+-- WithVars - skip, already has explicit vars
+else instance extractAutoVarsWithVars :: ExtractAutoVars (WithVars q v) () where
+  extractAutoVars _ = {}
+
+-- ApplyDirective - extract from wrapped query
+else instance extractAutoVarsApplyDirective ::
+  ExtractAutoVars query vars =>
+  ExtractAutoVars (ApplyDirective name args query) vars where
+  extractAutoVars (ApplyDirective _ q) = extractAutoVars q
+
+-- ErrorBoundary - extract from wrapped query
+else instance extractAutoVarsErrorBoundary ::
+  ExtractAutoVars query vars =>
+  ExtractAutoVars (ErrorBoundary query) vars where
+  extractAutoVars (ErrorBoundary q) = extractAutoVars q
+
+-- GqlUnion - extract from union fields
+else instance extractAutoVarsGqlUnion ::
+  HFoldlWithIndex ExtractAutoVarsFromRecord {} { | r } { | vars } =>
+  ExtractAutoVars (GqlUnion r) vars where
+  extractAutoVars (GqlUnion r) = hfoldlWithIndex ExtractAutoVarsFromRecord {} r
+
+-- Spread - extract from array elements and fields
+else instance extractAutoVarsSpread ::
+  ( ExtractAutoVars fields varsFields
+  , HFoldl ExtractAutoVarsFromArrayElem { | varsFields } (Array args) { | vars }
+  ) =>
+  ExtractAutoVars (Spread alias args fields) vars where
+  extractAutoVars (Spread _ _args fields) =
+    let fieldsVars = extractAutoVars fields
+    in unsafeCoerce fieldsVars  -- TODO: also extract from args array
+
+-- Default - no vars to extract
+else instance extractAutoVarsDefault :: ExtractAutoVars a () where
+  extractAutoVars _ = {}
+
+-- | Combine a query with auto-extracted variables
+withAutoVars
+  :: forall query vars
+   . ExtractAutoVars query vars
+  => EncodeJson { | vars }
+  => query
+  -> WithVars query { | vars }
+withAutoVars q =
+  let vars = extractAutoVars q
+  in withVars q vars

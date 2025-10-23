@@ -11,7 +11,7 @@ import Data.Variant (Variant)
 import GraphQL.Client.Args.AllowedMismatch (AllowedMismatch)
 import GraphQL.Client.AsGql (AsGql)
 import GraphQL.Client.NullArray (NullArray)
-import GraphQL.Client.Variable (Var)
+import GraphQL.Client.Variable (AutoVar, Var)
 import Heterogeneous.Folding (class FoldingWithIndex, class HFoldlWithIndex)
 import Heterogeneous.Mapping (class HMapWithIndex, class MappingWithIndex)
 import Prim.Row as Row
@@ -75,6 +75,7 @@ else instance argToGqlVariant :: (Row.Union r () params) => ArgGqlAt at (Variant
 else instance argVarJson :: ArgGqlAt at Json (Var sym Json) -- Json can only be used with a variable
 else instance argToGqlJsonNotAllowed :: TE.Fail (TE.Text "A `Json` query argument can only be used as a variable ") => ArgGqlAt at Json Json
 else instance argVar :: ArgGqlAt at param arg => ArgGqlAt at param (Var sym arg)
+else instance argAutoVar :: ArgGqlAt at param arg => ArgGqlAt at param (AutoVar sym arg)
 else instance argToGqlArrayNull :: ArgGqlAt at (Array param) NullArray
 else instance argToGqlArrayAnds :: (ArgGqlAt at (Array param) a1, ArgGqlAt at (Array param) a2) => ArgGqlAt at (Array param) (AndArgs a1 a2)
 else instance argToGqlOrArg :: (ArgGqlAt at param argL, ArgGqlAt at param argR) => ArgGqlAt at param (OrArg argL argR)

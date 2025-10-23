@@ -7,8 +7,8 @@ import GraphQL.Client.Alias ((:))
 import GraphQL.Client.Alias.Dynamic (Spread(..))
 import GraphQL.Client.Args (OrArg(..), andArg, guardArg, (++), (+++), (=>>))
 import GraphQL.Client.AsGql (AsGql)
-import GraphQL.Client.Variable (Var(..))
-import GraphQL.Client.Variables (class GetGqlQueryVars, getQueryVars, getVarsTypeNames, withVars)
+import GraphQL.Client.Variable (AutoVar(..), Var(..), autoVar)
+import GraphQL.Client.Variables (class ExtractAutoVars, class GetGqlQueryVars, extractAutoVars, getQueryVars, getVarsTypeNames, withAutoVars, withVars)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
 import Type.Proxy (Proxy(..))
@@ -109,6 +109,55 @@ spec =
 
         getVarsTypeNames testSchemaProxy q `shouldEqual`
           "($arrVar: [Int]!)"
+
+    describe "AutoVar" do
+      it "should extract a single AutoVar" do
+        let
+          q =
+            { users: { id: autoVar @"idVar" 1 } =>> { id: unit } }
+          vars = extractAutoVars q
+        vars.idVar `shouldEqual` 1
+
+      it "should extract multiple AutoVars" do
+        let
+          q =
+            { users: { id: autoVar @"idVar" 1 } =>> { id: unit }
+            , orders:
+                { name: autoVar @"nameVar" "test" } =>>
+                  { user_id: autoVar @"userIdVar" 2 }
+            }
+          vars = extractAutoVars q
+        vars.idVar `shouldEqual` 1
+        vars.nameVar `shouldEqual` "test"
+        vars.userIdVar `shouldEqual` 2
+
+      it "should generate proper var type names for AutoVars" do
+        let
+          q = withAutoVars
+            { users: { id: autoVar @"idVar" 1 } =>> { id: unit } }
+
+        -- AutoVar uses PureScript types, not schema AsGql names
+        getVarsTypeNames testSchemaProxy q `shouldEqual`
+          "($idVar: Int!)"
+
+      it "should work with mixed Var and AutoVar" do
+        let
+          q =
+            { users: { id: Var :: Var "myVar" Int } =>> { id: unit }
+            , orders:
+                { name: autoVar @"nameVar" "test" } =>>
+                  { user_id: unit }
+            }
+              `withVars`
+                { myVar: 1
+                , nameVar: "test"
+                }
+        -- Var uses schema AsGql names (from argument schema), AutoVar uses PureScript types
+        -- myVar is used in users argument which has type AsGql "id" Int -> gives "id!"
+        -- nameVar is AutoVar String -> gives "String!"
+        -- Variables are ordered alphabetically by name
+        getVarsTypeNames testSchemaProxy q `shouldEqual`
+          "($nameVar: String!, $myVar: id!)"
 
 type TestSchema =
   { users ::
