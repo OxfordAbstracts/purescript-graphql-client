@@ -8,13 +8,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Prettier with Reviewdog
-        uses: reviewdog/action-prettier@v1
+      - uses: EPMatt/reviewdog-action-prettier@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.github_token }}
+          # More about reviewdog reporters at
+          # https://github.com/reviewdog/reviewdog#reporters
           reporter: github-check
+          # More about reviewdog reporter level at
+          # https://github.com/reviewdog/reviewdog#reporters
           level: error
-          fail_on_error: true
 
   build:
     runs-on: ubuntu-latest
