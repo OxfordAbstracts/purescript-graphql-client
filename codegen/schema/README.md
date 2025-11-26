@@ -1,6 +1,5 @@
 Argument for generateSchema
 
-
 ```purs
  -- | URL for your graphql endpoint
 { url :: String
@@ -108,9 +107,11 @@ Argument for generateSchema
 ```
 
 2nd argument for generateSchemas
+
 ```
 Array
     -- | URL for your graphql endpoint
     { url :: String
     , moduleName :: String
     }
+```

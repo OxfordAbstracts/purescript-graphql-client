@@ -48,7 +48,7 @@ module.exports = (onListening) => {
       schema,
       rootValue: root,
       graphiql: true,
-    })
+    }),
   );
 
   app.listen(4892, onListening);
