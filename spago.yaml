@@ -16,6 +16,7 @@ package:
     - effect
     - either
     - enums
+    - fetch
     - filterable
     - foldable-traversable
     - foreign
