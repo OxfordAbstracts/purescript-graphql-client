@@ -11,11 +11,7 @@ jobs:
       - uses: EPMatt/reviewdog-action-prettier@v1
         with:
           github_token: ${{ secrets.github_token }}
-          # More about reviewdog reporters at
-          # https://github.com/reviewdog/reviewdog#reporters
-          reporter: github-check
-          # More about reviewdog reporter level at
-          # https://github.com/reviewdog/reviewdog#reporters
+          reporter: github-pr-review
           level: error
 
   build:
