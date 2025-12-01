@@ -1,5 +1,4 @@
 import fs from "node:fs/promises";
-import { rimraf } from "rimraf";
 import { writePursSchemas } from "./write-purs-schema.mjs";
 import { getGqlSchema } from "./get-gql-schema.mjs";
 
@@ -9,7 +8,7 @@ export async function generateSchemas(opts, gqlEndpoints) {
   if (!Array.isArray(gqlEndpoints)) {
     gqlEndpoints = [gqlEndpoints];
   }
-  await rimraf(opts.dir);
+  await fs.rm(opts.dir, { recursive: true });
   await mkdirp(opts.dir);
   await mkdirp(opts.dir + "/Schema");
   await mkdirp(opts.dir + "/Enum");

@@ -50,6 +50,7 @@ const createClientWithWebsockets = function (opts) {
 
   const wsLink = new GraphQLWsLink(
     createWsClient({
+      webSocketImpl: globalThis.WebSocket,
       url: opts.websocketUrl,
       timeout: 30000,
       connectionParams: {
