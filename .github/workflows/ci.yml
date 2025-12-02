@@ -60,8 +60,8 @@ jobs:
             examples/13-error-boundaries/.spago
             examples/13-error-boundaries/output
 
-      - run: spago build
       - run: npm i
+      - run: spago build
       - run: npm run bundle
       - run: npm t
 
