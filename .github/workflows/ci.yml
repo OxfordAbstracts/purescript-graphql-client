@@ -60,7 +60,7 @@ jobs:
             examples/13-error-boundaries/.spago
             examples/13-error-boundaries/output
 
-      - run: npm i
+      - run: npm i && npm rebuild
       - run: spago build
       - run: npm run bundle
       - run: npm t
