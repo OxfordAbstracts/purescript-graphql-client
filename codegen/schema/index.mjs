@@ -7,7 +7,7 @@ export async function generateSchemas(opts, gqlEndpoints) {
   if (!Array.isArray(gqlEndpoints)) {
     gqlEndpoints = [gqlEndpoints];
   }
-  await fs.rm(opts.dir, { recursive: true });
+  await fs.rm(opts.dir, { recursive: true, force: true });
   await mkdirp(opts.dir);
   await mkdirp(opts.dir + "/Schema");
   await mkdirp(opts.dir + "/Enum");
