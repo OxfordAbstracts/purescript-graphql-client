@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import { getIntrospectionQuery } from "graphql";
 
 export async function getGqlSchema({ moduleName, cache, url, token }) {

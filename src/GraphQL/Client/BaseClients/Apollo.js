@@ -1,4 +1,3 @@
-import "isomorphic-unfetch";
 import { createClient as createWsClient } from "graphql-ws";
 import {
   gql,
@@ -11,7 +10,6 @@ import {
 import { getMainDefinition } from "@apollo/client/utilities/index.js";
 import { setContext } from "@apollo/client/link/context/index.js";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions/index.js";
-import WebSocket from "isomorphic-ws";
 
 const createClientWithoutWebsockets = function (opts) {
   const authLink = setContext(function (_, { headers }) {
@@ -52,7 +50,7 @@ const createClientWithWebsockets = function (opts) {
 
   const wsLink = new GraphQLWsLink(
     createWsClient({
-      webSocketImpl: WebSocket,
+      webSocketImpl: globalThis.WebSocket,
       url: opts.websocketUrl,
       timeout: 30000,
       connectionParams: {

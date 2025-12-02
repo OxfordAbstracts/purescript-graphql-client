@@ -31,18 +31,16 @@
   "dependencies": {
     "@urql/core": "^1.16.2",
     "graphql": "^16.5.0",
-    "graphql-ws": "^5.9.1",
-    "isomorphic-unfetch": "^3.1.0",
-    "isomorphic-ws": "^5.0.0",
-    "mkdirp": "^1.0.4",
-    "rimraf": "3.0.2"
+    "graphql-ws": "^5.9.1"
   },
   "devDependencies": {
     "@apollo/client": "3.6",
-    "esbuild": "^0.14.51",
+    "esbuild": "^0.27.0",
     "exec-sh": "^0.4.0",
     "glob": "^7.2.0",
     "prettier": "3.6.2",
+    "purescript": "^0.15.15",
+    "spago": "^0.93.44",
     "wonka": "^4.0.15"
   }
 }

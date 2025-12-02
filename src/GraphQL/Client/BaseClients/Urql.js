@@ -1,4 +1,3 @@
-import "isomorphic-unfetch";
 import {
   createClient,
   defaultExchanges,
