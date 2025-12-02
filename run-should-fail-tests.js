@@ -22,8 +22,11 @@ const go = async () => {
     try {
       console.log(`testing: ${p}`);
 
-      await exec(`cd "./should-fail-tests/${p}" && spago install`, true);
-      await exec(`cd "./should-fail-tests/${p}" && spago build`, true);
+      await exec(
+        `cd "./should-fail-tests/${p}" && npm exec spago install`,
+        true,
+      );
+      await exec(`cd "./should-fail-tests/${p}" && npm exec spago build`, true);
 
       console.error(`${p} compiled. Test failed`);
       process.exit(1);
