@@ -19,7 +19,6 @@
     "graphql": "15.4.0",
     "isomorphic-ws": "^5.0.0",
     "mkdirp": "1.0.4",
-    "rimraf": "3.0.2",
     "xhr2": "0.2.0"
   },
   "devDependencies": {
