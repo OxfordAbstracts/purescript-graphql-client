@@ -23,6 +23,7 @@
     "graphql-ws": "^5.9.1"
   },
   "devDependencies": {
-    "exec-sh": "^0.4.0"
+    "exec-sh": "^0.4.0",
+    "ws": "^8.18.3"
   }
 }
