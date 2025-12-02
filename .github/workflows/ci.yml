@@ -8,10 +8,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-
       - uses: purescript-contrib/setup-purescript@main
         with:
           purescript: 0.15.15
@@ -27,7 +23,7 @@ jobs:
         # have changed. If you do not want to cache compiled output, remove
         # the `output` path.
         with:
-          key: k2-${{ runner.os }}-spago-${{ hashFiles('**/*.lock') }}
+          key: k1-${{ runner.os }}-spago-${{ hashFiles('**/*.lock') }}
           path: |
             .spago
             output
@@ -60,8 +56,12 @@ jobs:
             examples/13-error-boundaries/.spago
             examples/13-error-boundaries/output
 
-      - run: npm i && npm rebuild
       - run: spago build
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - run: npm i && npm rebuild
       - run: npm run bundle
       - run: npm t
 
