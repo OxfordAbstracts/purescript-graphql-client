@@ -64,6 +64,7 @@ jobs:
         with:
           node-version: 22
 
+      - run: npm rebuild -g
       - run: npm t
 
       - name: Run Example Tests
