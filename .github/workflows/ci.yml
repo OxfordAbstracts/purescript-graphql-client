@@ -57,12 +57,13 @@ jobs:
             examples/13-error-boundaries/output
 
       - run: spago build
+      - run: npm i
+      - run: npm run bundle
+
       - uses: actions/setup-node@v6
         with:
           node-version: 22
 
-      - run: npm i && npm rebuild
-      - run: npm run bundle
       - run: npm t
 
       - name: Run Example Tests
