@@ -1,8 +1,7 @@
-
 module.exports = (onListening) => {
-  const express = require('express')
-  const { graphqlHTTP } = require('express-graphql')
-  const { buildSchema } = require('graphql')
+  const express = require("express");
+  const { graphqlHTTP } = require("express-graphql");
+  const { buildSchema } = require("graphql");
 
   const schema = buildSchema(`
     type Query {
@@ -23,32 +22,34 @@ module.exports = (onListening) => {
       yellow
     }
 
-    `)
+    `);
 
   const root = {
     prop: () => {
-      return 'Hello world!'
+      return "Hello world!";
     },
     widgets: ({ colour, ids }) =>
       widgets
-        .filter(w => !colour || colour === w.colour)
-        .filter(w => !ids || ids.includes(w.id))
-
-  }
+        .filter((w) => !colour || colour === w.colour)
+        .filter((w) => !ids || ids.includes(w.id)),
+  };
 
   const widgets = [
-    { id: 1, name: 'one', colour: 'RED' },
-    { id: 2, name: 'two', colour: 'GREEN' },
-    { id: 3, name: 'three', colour: 'GREEN' }
-  ]
+    { id: 1, name: "one", colour: "RED" },
+    { id: 2, name: "two", colour: "GREEN" },
+    { id: 3, name: "three", colour: "GREEN" },
+  ];
 
-  const app = express()
+  const app = express();
 
-  app.use('/graphql', graphqlHTTP({
-    schema,
-    rootValue: root,
-    graphiql: true
-  }))
+  app.use(
+    "/graphql",
+    graphqlHTTP({
+      schema,
+      rootValue: root,
+      graphiql: true,
+    }),
+  );
 
-  app.listen(4892, onListening)
-}
+  app.listen(4892, onListening);
+};

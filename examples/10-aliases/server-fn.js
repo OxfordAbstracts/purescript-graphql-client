@@ -1,8 +1,7 @@
-
 module.exports = (onListening) => {
-  const express = require('express')
-  const { graphqlHTTP } = require('express-graphql')
-  const { buildSchema } = require('graphql')
+  const express = require("express");
+  const { graphqlHTTP } = require("express-graphql");
+  const { buildSchema } = require("graphql");
 
   const schema = buildSchema(`
     type Query {
@@ -14,29 +13,30 @@ module.exports = (onListening) => {
         id: Int
         name: String!
     }
-    `)
+    `);
 
   const root = {
     prop: () => {
-      return 'Hello world!'
+      return "Hello world!";
     },
-    widgets: ({ id }) =>
-      widgets.filter(w => !id || id === w.id)
-
-  }
+    widgets: ({ id }) => widgets.filter((w) => !id || id === w.id),
+  };
 
   const widgets = [
-    { id: 1, name: 'one' },
-    { id: 2, name: 'two' }
-  ]
+    { id: 1, name: "one" },
+    { id: 2, name: "two" },
+  ];
 
-  const app = express()
+  const app = express();
 
-  app.use('/graphql', graphqlHTTP({
-    schema,
-    rootValue: root,
-    graphiql: true
-  }))
+  app.use(
+    "/graphql",
+    graphqlHTTP({
+      schema,
+      rootValue: root,
+      graphiql: true,
+    }),
+  );
 
-  app.listen(4892, onListening)
-}
+  app.listen(4892, onListening);
+};
