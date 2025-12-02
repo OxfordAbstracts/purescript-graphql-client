@@ -1,0 +1,18 @@
+package:
+  name: 3-fetch
+  dependencies:
+    - console
+    - effect
+    - fetch
+    - graphql-client
+    - prelude
+  test:
+    main: Test.Main
+    dependencies:
+      - spec
+workspace:
+  packageSet:
+    registry: 64.6.0
+  extraPackages:
+    graphql-client:
+      path: ../..

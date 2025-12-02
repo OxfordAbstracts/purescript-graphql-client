@@ -1,0 +1,24 @@
+{
+  "name": "1-affjax",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "npm i && spago install && spago build && node ./test.mjs",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.4.0",
+    "xhr2": "^0.2.1"
+  },
+  "devDependencies": {
+    "msw": "^2.12.3"
+  }
+}
