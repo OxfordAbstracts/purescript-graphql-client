@@ -8,10 +8,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-
       - uses: purescript-contrib/setup-purescript@main
         with:
           purescript: 0.15.15
@@ -61,6 +57,11 @@ jobs:
             examples/13-error-boundaries/output
 
       - run: spago build
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
       - run: npm i
       - run: npm run bundle
       - run: npm t
