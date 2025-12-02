@@ -24,7 +24,7 @@ module.exports = (onListening) => {
     `);
 
   const root = {
-    character: ({id}) => {
+    character: ({ id }) => {
       if (id === 1) {
         return {
           __typename: "Human",
@@ -32,7 +32,7 @@ module.exports = (onListening) => {
           height: 1.8,
           id: 1,
         };
-      }else {
+      } else {
         return {
           __typename: "Droid",
           name: "R2D2",
@@ -51,7 +51,7 @@ module.exports = (onListening) => {
       schema,
       rootValue: root,
       graphiql: true,
-    })
+    }),
   );
 
   app.listen(4892, onListening);

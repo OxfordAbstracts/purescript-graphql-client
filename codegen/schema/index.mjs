@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import { writePursSchemas } from "./write-purs-schema.mjs";
 import { getGqlSchema } from "./get-gql-schema.mjs";
-
 const mkdirp = (path) => fs.mkdir(path, { recursive: true });
 
 export async function generateSchemas(opts, gqlEndpoints) {

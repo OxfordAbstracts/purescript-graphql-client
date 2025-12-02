@@ -1,15 +1,18 @@
 // In your code replace this line with the npm package:
 // import { generateSchemas } from 'purescript-graphql-client'
-import { generateSchemas } from '../../codegen/schema/index.mjs'
+import { generateSchemas } from "../../codegen/schema/index.mjs";
 
 export default () =>
-  generateSchemas({
-    dir: './src/generated',
-    modulePath: ['Generated', 'Gql'],
-    useNewtypesForRecords: true
-  }, [
+  generateSchemas(
     {
-      url: 'http://localhost:4892/graphql',
-      moduleName: 'Admin'
-    }
-  ])
+      dir: "./src/generated",
+      modulePath: ["Generated", "Gql"],
+      useNewtypesForRecords: true,
+    },
+    [
+      {
+        url: "http://localhost:4892/graphql",
+        moduleName: "Admin",
+      },
+    ],
+  );

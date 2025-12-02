@@ -117,14 +117,15 @@ npm install --save-dev purescript-graphql-client
 ```
 
 Then add a script to generate your schema on build. Run this script before compiling your purescript project.
+
 ```js
-const { generateSchema } = require('purescript-graphql-client')
+const { generateSchema } = require("purescript-graphql-client");
 
 generateSchema({
-  dir: './src/generated', // Where you want the generated code to go
-  modulePath: ['Generated', 'Gql'], // The name of the generated module
-  url: 'http://localhost:4892/graphql', // Your GraphQL endpoint
-})
+  dir: "./src/generated", // Where you want the generated code to go
+  modulePath: ["Generated", "Gql"], // The name of the generated module
+  url: "http://localhost:4892/graphql", // Your GraphQL endpoint
+});
 ```
 
 A full example can be seen in `examples/2-codegen`
@@ -134,18 +135,22 @@ The full options for `generateSchema` can be seen in `codegen/schema/README.md`
 You should run this script to build your schema as part of your build, before purescript compilation.
 
 If you wish to generate multiple schemas, use `generateSchemas`
-```js
-const { generateSchemas } = require('purescript-graphql-client')
 
-generateSchemas({
-  dir: './src/generated',
-  modulePath: ['Generated', 'Gql']
-}, [
+```js
+const { generateSchemas } = require("purescript-graphql-client");
+
+generateSchemas(
   {
-    url: 'http://localhost:4892/graphql',
-    moduleName: 'MySchema' // The name of the module for this single schema
-  }
-])
+    dir: "./src/generated",
+    modulePath: ["Generated", "Gql"],
+  },
+  [
+    {
+      url: "http://localhost:4892/graphql",
+      moduleName: "MySchema", // The name of the module for this single schema
+    },
+  ],
+);
 ```
 
 A full example can be seen in `examples/2-codegen`
@@ -172,6 +177,7 @@ npm install --save @apollo/client
 ```
 
 you can then create a client using `createClient`. eg.
+
 ```purs
 import MySchema (Query, Mutation)
 import GraphQL.Client.BaseClients.Apollo (createClient)
@@ -195,8 +201,8 @@ import Type.Data.List (Nil')
       }
 
 ```
-Look in `examples/4-mutation` for a complete example.
 
+Look in `examples/4-mutation` for a complete example.
 
 Use `createSubscriptionClient` if you want to make subscriptions. eg.
 
@@ -243,7 +249,6 @@ You can see an examples of this in `examples/1-simple` and `e2e/1-affjax` .
 
 You can then write queries and mutations just as you would in the browser.
 
-
 ## Examples
 
 To view examples of what can be done with this library look at the `examples` and `e2e` directories.
@@ -255,6 +260,7 @@ API documentation can be found at https://pursuit.purescript.org/packages/puresc
 ## Guide
 
 ### Query syntax
+
 Once you are set up and have generated your purescript schema. You can write your queries.
 
 The easiest way to do this is to go to https://gql-query-to-purs.herokuapp.com/query and paste your
@@ -292,6 +298,7 @@ As GraphQL arguments may have mixed types, the library provides tools to help ha
 `ArgL` and `ArgR` allow you to have different types for different code branches in arguments.
 
 eg.
+
 ```purs
 let condition = true
 
@@ -301,11 +308,13 @@ result <- query client "args_of_differing_types"
     { prop1, prop2 }
   }
 ```
+
 `IgnoreArg` can be used to ignore both the label and value on a record.
 
 This is most commonly used with `guardArg` to ignore an argument property unless a condition is met.
 
 eg.
+
 ```purs
 let condition = true
 
@@ -320,6 +329,7 @@ GraphQL arrays can be written as purescript arrays if they are homogenous, but f
 you can use `AndArgs`/`andArg` or the `+++`/`++` operator.
 
 eg.
+
 ```purs
 
 result <- query client "mixed_args_query"
@@ -358,15 +368,22 @@ In a dynamic language you might fold a collection of users to create a graphql q
 
 ```gql
 mutation myUpdates {
-  _1: update_users(where: {id : 1}, _set: { value: 10 }) { affected_rows }
-  _2: update_users(where: {id : 2}, _set: { value: 15 }) { affected_rows }
-  _3: update_users(where: {id : 3}, _set: { value: 20 }) { affected_rows }
+  _1: update_users(where: { id: 1 }, _set: { value: 10 }) {
+    affected_rows
+  }
+  _2: update_users(where: { id: 2 }, _set: { value: 15 }) {
+    affected_rows
+  }
+  _3: update_users(where: { id: 3 }, _set: { value: 20 }) {
+    affected_rows
+  }
 }
 ```
 
 To do this in this library there is there is the `Spread` constructor that creates these aliases for you and decodes the response as an array.
 
 eg.
+
 ```purs
 
 import GraphQL.Client.Alias.Dynamic (Spread(..))
@@ -401,6 +418,7 @@ query client "widget_names_with_id_1"
             `withVars`
               { idVar: 1 }
 ```
+
 `withVars` uses `encodeJson` to turn the variables in json. If you
 wish to use a custom encoder, use `withVarsEncode`.
 
@@ -414,7 +432,6 @@ There is a full example in the examples directory.
 Only top level directives, that have a query, mutation or subscription location are currently supported.
 
 Please look in the example/12-directives to see an example of this.
-
 
 ### Full responses
 
@@ -444,6 +461,7 @@ To see how these options work, I recommend looking at the [Apollo core docs](htt
 The options are usually set using record updates or `identity` for default options.
 
 eg.
+
 ```purs
         mutationOpts _
             { update = Just update
@@ -458,7 +476,6 @@ eg.
 
 ## Alternatives to this package
 
-
 ### [purescript-graphql-fundeps](https://github.com/meeshkan/purescript-graphql-fundeps)
 
 A much more lightweight graphql client. This package does not infer query types and does not support subscriptions or caching but allows writing in
@@ -469,6 +486,7 @@ graphql syntax and has much less source code. Probably preferable if your query 
 A port of [elm-graphql](https://github.com/dillonkearns/elm-graphql/).
 
 Although the names and scope of the 2 packages are very similar they are not connected and there are a few differences:
+
 - This package uses record syntax to make queries whereas purescript-graphqlclient uses applicative/ado syntax
 - This package allows use of Apollo if you wish (or other lower level graphQL clients)
 - This package supports subscriptions, watch queries and client caching

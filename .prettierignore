@@ -1,0 +1,7 @@
+gen-schema-bundled.mjs
+.spago/
+output/
+node_modules/
+.git/
+.github/
+.claude/
