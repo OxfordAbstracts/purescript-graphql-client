@@ -1,62 +1,58 @@
 package:
   name: graphql-client
+  publish:
+    version: 10.1.0
+    license: ISC
+    location:
+      githubOwner: OxfordAbstracts
+      githubRepo: purescript-graphql-client
   dependencies:
-    - aff
-    - affjax
-    - affjax-node
-    - affjax-web
-    - argonaut-codecs
-    - argonaut-core
-    - arrays
-    - bifunctors
-    - console
-    - control
-    - datetime
-    - debug
-    - effect
-    - either
-    - enums
-    - fetch
-    - filterable
-    - foldable-traversable
-    - foreign
-    - foreign-object
-    - functions
-    - halogen-subscriptions
-    - heterogeneous
-    - http-methods
-    - identity
-    - integers
-    - lists
-    - maybe
-    - media-types
-    - newtype
-    - now
-    - nullable
-    - numbers
-    - ordered-collections
-    - partial
-    - prelude
-    - psci-support
-    - quickcheck
-    - record
-    - spec
-    - spec-discovery
-    - string-parsers
-    - strings
-    - transformers
-    - tuples
-    - typelevel-lists
-    - unfoldable
-    - unicode
-    - unsafe-coerce
-    - variant
+    - aff: ">=7.0.0 <9.0.0"
+    - affjax: ">=13.0.0 <14.0.0"
+    - affjax-node: ">=1.0.0 <2.0.0"
+    - affjax-web: ">=1.0.0 <2.0.0"
+    - argonaut-codecs: ">=9.1.0 <10.0.0"
+    - argonaut-core: ">=7.0.0 <8.0.0"
+    - arrays: ">=7.3.0 <8.0.0"
+    - bifunctors: ">=6.1.0 <7.0.0"
+    - control: ">=6.0.0 <7.0.0"
+    - datetime: ">=6.1.0 <7.0.0"
+    - effect: ">=4.0.0 <5.0.0"
+    - either: ">=6.1.0 <7.0.0"
+    - enums: ">=6.0.1 <7.0.0"
+    - foldable-traversable: ">=6.0.0 <7.0.0"
+    - foreign: ">=7.0.0 <8.0.0"
+    - foreign-object: ">=4.1.0 <5.0.0"
+    - halogen-subscriptions: ">=2.0.0 <3.0.0"
+    - heterogeneous: ">=0.7.0 <0.8.0"
+    - http-methods: ">=6.0.0 <7.0.0"
+    - identity: ">=6.0.0 <7.0.0"
+    - integers: ">=6.0.0 <7.0.0"
+    - lists: ">=7.0.0 <8.0.0"
+    - maybe: ">=6.0.0 <7.0.0"
+    - media-types: ">=6.0.0 <7.0.0"
+    - newtype: ">=5.0.0 <6.0.0"
+    - nullable: ">=6.0.0 <7.0.0"
+    - ordered-collections: ">=3.2.0 <4.0.0"
+    - prelude: ">=6.0.2 <7.0.0"
+    - record: ">=4.0.0 <5.0.0"
+    - string-parsers: ">=8.0.0 <9.0.0"
+    - strings: ">=6.0.1 <7.0.0"
+    - transformers: ">=6.1.0 <7.0.0"
+    - tuples: ">=7.0.0 <8.0.0"
+    - typelevel-lists: ">=2.1.0 <3.0.0"
+    - unicode: ">=6.0.0 <7.0.0"
+    - unsafe-coerce: ">=6.0.0 <7.0.0"
+    - variant: ">=8.0.0 <9.0.0"
   test:
     main: Test.Main
     dependencies:
       - console
       - argonaut-generic
+      - quickcheck
+      - spec
+      - spec-discovery
 workspace:
   packageSet:
-    registry: 60.2.1
+    registry: 68.2.0
   extraPackages: {}
