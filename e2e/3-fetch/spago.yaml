@@ -1,8 +1,9 @@
 package:
-  name: 1-affjax
+  name: 3-fetch
   dependencies:
     - console
     - effect
+    - fetch
     - graphql-client
     - prelude
   test:
