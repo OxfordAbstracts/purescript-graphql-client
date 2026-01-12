@@ -34,16 +34,15 @@ spec =
             , orders:
                 { name: Var :: Var "nameVar" String } =>>
 
-                  { user_id: Var :: Var "myOtherVar" Int }
+                  { user_id: unit }
             }
         getVarsTypeNames testSchemaProxy
           ( q `withVars`
               { myVar: 1
               , nameVar: "name"
-              , myOtherVar: 2
               }
           ) `shouldEqual`
-          "($nameVar: Name!, $myVar: customId!, $myOtherVar: UserId!)"
+          "($nameVar: Name!, $myVar: customId!)"
 
       it "should return vars for a query with vars in arrays in arguments" do
         let

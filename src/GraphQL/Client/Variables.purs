@@ -213,6 +213,7 @@ class VarsTypeChecked schema query where
 instance varsTypeCheckedWithVars ::
   ( GetGqlQueryVars schema query { | gqlVars }
   , HFoldlWithIndex (CombineVarsProp { | gqlVars }) GqlQueryVarsN { | vars } GqlQueryVarsN
+  , GetVar query {| vars}
   ) =>
   VarsTypeChecked schema (WithVars query { | vars }) where
   getVarsJson _ (WithVars encode _ vars) = encode vars
