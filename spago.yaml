@@ -7,6 +7,7 @@ package:
       githubOwner: OxfordAbstracts
       githubRepo: purescript-graphql-client
   dependencies:
+    - fetch
     - aff: ">=7.0.0 <9.0.0"
     - affjax: ">=13.0.0 <14.0.0"
     - affjax-node: ">=1.0.0 <2.0.0"
@@ -47,6 +48,7 @@ package:
   test:
     main: Test.Main
     dependencies:
+      - aff-promise
       - console
       - argonaut-generic
       - quickcheck

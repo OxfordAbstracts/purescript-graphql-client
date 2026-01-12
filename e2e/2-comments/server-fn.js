@@ -1,3 +1,4 @@
+// TODO: all these e2e tests can just be 1 i think? but should e2e also include codegen
 module.exports = (onListening) => {
   const express = require("express");
   const { graphqlHTTP } = require("express-graphql");
