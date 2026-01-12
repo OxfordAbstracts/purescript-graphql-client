@@ -102,13 +102,7 @@ spago install graphql-client
 
 ### Schema
 
-In order to use this library you will need a Purescript representation of your GraphQL schema.
-
-To get started you can convert your grapqhl schema into a purescript schema, using the codegen tool at https://gql-query-to-purs.herokuapp.com . If you are just testing this library out you can paste your graphql schema on the left, copy the purescript schema from the right and add it to your codebase.
-
-If you are looking for a production solution to schema codegen read the rest of this section. If you are just trying the library out, you can skip to the next section.
-
-It is possible to write the schema yourself but it is easier and safer to use the library's codegen tools.
+In order to use this library you will need a Purescript representation of your GraphQL schema - this library provides codegen tools to achieve this.
 
 There is an npm library that is a thin wrapper around this library's schema codegen. First, install this package:
 
@@ -263,9 +257,6 @@ API documentation can be found at https://pursuit.purescript.org/packages/puresc
 
 Once you are set up and have generated your purescript schema. You can write your queries.
 
-The easiest way to do this is to go to https://gql-query-to-purs.herokuapp.com/query and paste your
-graphql query on the left. I usually copy the GraphQL query directly from GraphiQL (GraphQL IDE).
-
 You have to the option to make the queries with either `unit`s to mark scalar values (leaf nodes) or symbol record puns. The symbol record puns are slightly less verbose and closer to GraphQL syntax but require you import the generated Symbols module.
 
 ### Decoding and Encoding JSON
@@ -291,7 +282,7 @@ result <- queryWithDecoder decodeHasura client "query_to_hasura_service"
 
 ### Arguments
 
-Arguments can be added using the `Args` constructor or the `=>>` operator. I recommend using the [query codegen tool](https://gql-query-to-purs.herokuapp.com/query) to test this out and see how it works.
+Arguments can be added using the `Args` constructor or the `=>>` operator.
 
 As GraphQL arguments may have mixed types, the library provides tools to help handle this.
 
