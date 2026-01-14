@@ -1,0 +1,39 @@
+[ERROR 1/1 TypesDoNotUnify] src/Main.purs:44:8
+
+  44  test = getVarsTypeNames testSchemaProxy query
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  Could not match type
+    Boolean
+  with type
+    String
+  while matching label online
+  while trying to match type
+                               ( online :: Boolean
+                               ...
+                               )
+    with type
+                ( online :: String
+                ...
+                )
+  while solving type class constraint
+    Heterogeneous.Folding.FoldlRecord (ConstFolding GetVarRec)
+                                      t0
+                                      (Nil @Type)
+                                      ( users :: Args
+                                                   { online :: Var "online" Boolean
+                                                   }
+                                                   { id :: Unit
+                                                   }
+                                      )
+                                      (Proxy @Type
+                                         { online :: String
+                                         }
+                                      )
+  while inferring the type of getVarsTypeNames testSchemaProxy
+  in value declaration test
+  where t0 is an unknown type
+
+           Src   Lib   All
+Warnings     0     0     0
+Errors       1     0     1
