@@ -11,7 +11,10 @@ export const cause = (err) => {
   const c = err.cause;
   if (!c) return "";
   if (c instanceof AggregateError) {
-    return [c.message, ...Array.from(c.errors, (e, i) => `[${i}] ${formatError(e)}`)].join("\n");
+    return [
+      c.message,
+      ...Array.from(c.errors, (e, i) => `[${i}] ${formatError(e)}`),
+    ].join("\n");
   }
   return formatError(c);
 };
