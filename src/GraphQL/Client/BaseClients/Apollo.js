@@ -65,7 +65,7 @@ const createClientWithWebsockets = function (opts) {
           : {},
       },
       on: {
-        closed: (event) => {
+        closed: (/** @type {CloseEvent} */ event) => {
           const code = /** @type {number | undefined} */ (event?.code);
           const reason = /** @type {string | undefined} */ (event?.reason);
           const wasClean = /** @type {boolean | undefined} */ (event?.wasClean);
