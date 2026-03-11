@@ -66,13 +66,16 @@ const createClientWithWebsockets = function (opts) {
       },
       on: {
         closed: (event) => {
-          if (expectedCloseCodes.has(event.code)) {
+          const code = /** @type {number | undefined} */ (event?.code);
+          const reason = /** @type {string | undefined} */ (event?.reason);
+          const wasClean = /** @type {boolean | undefined} */ (event?.wasClean);
+          if (expectedCloseCodes.has(code)) {
             return;
           }
           console.warn("[graphql-ws] Socket closed unexpectedly", {
-            code: event.code,
-            reason: event.reason,
-            wasClean: event.wasClean,
+            code,
+            reason,
+            wasClean,
             url: opts.websocketUrl,
           });
         },
