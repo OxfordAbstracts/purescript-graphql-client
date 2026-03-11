@@ -48,15 +48,40 @@ const createClientWithWebsockets = function (opts) {
     },
   });
 
+  // Close codes that indicate expected/benign disconnects
+  // 1000: Normal closure, 1001: Going away (tab close, navigation, mobile backgrounding)
+  const expectedCloseCodes = new Set([1000, 1001]);
+
   const wsLink = new GraphQLWsLink(
     createWsClient({
       webSocketImpl: globalThis.WebSocket,
       url: opts.websocketUrl,
       timeout: 30000,
+      retryAttempts: Infinity,
+      shouldRetry: () => true,
       connectionParams: {
         headers: opts.authToken
           ? { Authorization: `Bearer ${opts.authToken}` }
           : {},
+      },
+      on: {
+        closed: (event) => {
+          if (expectedCloseCodes.has(event.code)) {
+            return;
+          }
+          console.warn("[graphql-ws] Socket closed unexpectedly", {
+            code: event.code,
+            reason: event.reason,
+            wasClean: event.wasClean,
+            url: opts.websocketUrl,
+          });
+        },
+        error: (error) => {
+          console.error("[graphql-ws] WebSocket error", {
+            error,
+            url: opts.websocketUrl,
+          });
+        },
       },
     }),
   );
