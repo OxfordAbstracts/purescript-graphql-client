@@ -43,6 +43,9 @@ import GraphQL.Client.Types (class GqlQuery, class QueryClient, Client(..), GqlR
 import GraphQL.Client.Variables (class VarsTypeChecked, getVarsJson, getVarsTypeNames)
 import Type.Proxy (Proxy(..))
 
+foreign import isConnectionError :: Error -> Boolean
+foreign import isNoConnectionError :: Error -> Boolean
+
 -- | Run a graphQL query with a custom decoder and custom options
 queryOptsWithDecoder
   :: forall client directives schema query returns queryOpts mutationOpts sr
@@ -199,8 +202,12 @@ runQuery
   -> Aff returns
 runQuery decodeFn opts client _ queryNameUnsafe q =
   addErrorInfo (Proxy @schema) queryName q do
-    json <- clientQuery opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
-      (getVarsJson (Proxy :: _ schema) q)
+    let doQuery = clientQuery opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
+          (getVarsJson (Proxy :: _ schema) q)
+    json <- doQuery `catchError` \err ->
+      -- Retry once on connection-level errors (ETIMEDOUT, ECONNREFUSED, etc.)
+      if isConnectionError err then doQuery
+      else throwError err
     decodeJsonData decodeFn json
   where
   queryName = safeQueryName queryNameUnsafe
@@ -218,8 +225,12 @@ runMutation
   -> Aff returns
 runMutation decodeFn opts client _ queryNameUnsafe q =
   addErrorInfo (Proxy @schema) queryName q do
-    json <- clientMutation opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
-      (getVarsJson (Proxy :: _ schema) q)
+    let doMutation = clientMutation opts client queryName (getVarsTypeNames (Proxy :: _ schema) q <> toGqlQueryString q)
+          (getVarsJson (Proxy :: _ schema) q)
+    json <- doMutation `catchError` \err ->
+      -- Only retry on ECONNREFUSED/ENETUNREACH where the request never reached the server
+      if isNoConnectionError err then doMutation
+      else throwError err
     decodeJsonData decodeFn json
   where
   queryName = safeQueryName queryNameUnsafe
