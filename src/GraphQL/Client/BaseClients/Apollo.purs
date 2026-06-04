@@ -1,13 +1,17 @@
 -- | Creates GraphQL Apollo clients
 module GraphQL.Client.BaseClients.Apollo
   ( ApolloClientOptions
+  , ApolloClientOptions'
   , ApolloSubClientOptions
+  , ApolloSubClientOptions'
   , ApolloClient
   , ApolloSubClient
   , MutationOpts
   , QueryOpts
   , createClient
+  , createClient'
   , createSubscriptionClient
+  , createSubscriptionClient'
   , class IsApollo
   , updateCacheJson
   , updateCache
@@ -45,11 +49,35 @@ type ApolloClientOptions =
   , headers :: Array RequestHeader
   }
 
+-- | As `ApolloClientOptions`, plus `operationTypeHeader`: when set, HTTP
+-- | requests include the GraphQL operation type ("query" or "mutation") as
+-- | the value of the header with this name, so eg. a load balancer can route
+-- | queries to a read replica.
+type ApolloClientOptions' =
+  { url :: URL
+  , authToken :: Maybe String
+  , headers :: Array RequestHeader
+  , operationTypeHeader :: Maybe String
+  }
+
 type ApolloSubClientOptions =
   { url :: URL
   , websocketUrl :: URL
   , authToken :: Maybe String
   , headers :: Array RequestHeader
+  }
+
+-- | As `ApolloSubClientOptions`, plus `operationTypeHeader`: when set, HTTP
+-- | requests include the GraphQL operation type ("query" or "mutation") as
+-- | the value of the header with this name, so eg. a load balancer can route
+-- | queries to a read replica. Subscriptions go over the websocket and are
+-- | unaffected (custom headers are not supported in websockets).
+type ApolloSubClientOptions' =
+  { url :: URL
+  , websocketUrl :: URL
+  , authToken :: Maybe String
+  , headers :: Array RequestHeader
+  , operationTypeHeader :: Maybe String
   }
 
 -- | Apollo client to make graphQL queries and mutations.
@@ -91,34 +119,52 @@ createClient
   :: forall schema
    . ApolloClientOptions
   -> Effect (Client ApolloClient schema)
-createClient = clientOptsToForeign >>> createClientImpl >>> map Client
+createClient { url, authToken, headers } =
+  createClient' { url, authToken, headers, operationTypeHeader: Nothing }
+
+createClient'
+  :: forall schema
+   . ApolloClientOptions'
+  -> Effect (Client ApolloClient schema)
+createClient' = clientOptsToForeign >>> createClientImpl >>> map Client
 
 createSubscriptionClient
   :: forall schema
    . ApolloSubClientOptions
   -> Effect (Client ApolloSubClient schema)
-createSubscriptionClient = clientOptsToForeign >>> createSubscriptionClientImpl >>> map Client
+createSubscriptionClient { url, websocketUrl, authToken, headers } =
+  createSubscriptionClient' { url, websocketUrl, authToken, headers, operationTypeHeader: Nothing }
+
+createSubscriptionClient'
+  :: forall schema
+   . ApolloSubClientOptions'
+  -> Effect (Client ApolloSubClient schema)
+createSubscriptionClient' = clientOptsToForeign >>> createSubscriptionClientImpl >>> map Client
 
 clientOptsToForeign
   :: forall r
    . { authToken :: Maybe String
      , headers :: Array RequestHeader
+     , operationTypeHeader :: Maybe String
      | r
      }
   -> { authToken :: Nullable String
      , headers :: Object String
+     , operationTypeHeader :: Nullable String
      | r
      }
 clientOptsToForeign opts =
   opts
     { authToken = toNullable opts.authToken
     , headers = Object.fromFoldable $ opts.headers <#> \h -> Tuple (name h) (value h)
+    , operationTypeHeader = toNullable opts.operationTypeHeader
     }
 
 type ApolloClientOptionsForeign =
   { url :: URL
   , authToken :: Nullable String
   , headers :: Object String
+  , operationTypeHeader :: Nullable String
   }
 
 type ApolloSubApolloClientOptionsForeign =
@@ -126,6 +172,7 @@ type ApolloSubApolloClientOptionsForeign =
   , websocketUrl :: URL
   , authToken :: Nullable String
   , headers :: Object String
+  , operationTypeHeader :: Nullable String
   }
 
 instance queryClient ::

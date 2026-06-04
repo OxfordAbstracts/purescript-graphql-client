@@ -43,6 +43,8 @@ import GraphQL.Client.Types (class GqlQuery, class QueryClient, Client(..), GqlR
 import GraphQL.Client.Variables (class VarsTypeChecked, getVarsJson, getVarsTypeNames)
 import Type.Proxy (Proxy(..))
 
+foreign import cause :: Error -> String
+
 -- | Run a graphQL query with a custom decoder and custom options
 queryOptsWithDecoder
   :: forall client directives schema query returns queryOpts mutationOpts sr
@@ -261,6 +263,8 @@ addErrorInfo schema queryName q =
           <> show queryName
           <> ".\nerror: "
           <> message err
+          <> ".\ncause: "
+          <> cause err
           <> ".\nquery: "
           <> queryName
           <> " "

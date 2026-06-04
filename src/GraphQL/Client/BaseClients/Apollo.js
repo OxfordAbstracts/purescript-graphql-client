@@ -2,7 +2,6 @@ import { createClient as createWsClient } from "graphql-ws";
 import {
   gql,
   split,
-  HttpLink,
   createHttpLink,
   InMemoryCache,
   ApolloClient,
@@ -10,6 +9,37 @@ import {
 import { getMainDefinition } from "@apollo/client/utilities/index.js";
 import { setContext } from "@apollo/client/link/context/index.js";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions/index.js";
+
+// Build the HTTP link. When opts.operationTypeHeader is set, requests are
+// split by operation type and the type ("query" or "mutation") is sent as
+// the value of that header, so eg. a load balancer can route queries to a
+// read replica.
+const mkHttpLink = function (opts) {
+  if (!opts.operationTypeHeader) {
+    return createHttpLink({
+      uri: opts.url,
+    });
+  }
+
+  const linkForOperationType = function (operationType) {
+    return createHttpLink({
+      uri: opts.url,
+      headers: { [opts.operationTypeHeader]: operationType },
+    });
+  };
+
+  return split(
+    function ({ query }) {
+      const definition = getMainDefinition(query);
+      return (
+        definition.kind === "OperationDefinition" &&
+        definition.operation === "query"
+      );
+    },
+    linkForOperationType("query"),
+    linkForOperationType("mutation"),
+  );
+};
 
 const createClientWithoutWebsockets = function (opts) {
   const authLink = setContext(function (_, { headers }) {
@@ -25,9 +55,7 @@ const createClientWithoutWebsockets = function (opts) {
     };
   });
 
-  const httpLink = createHttpLink({
-    uri: opts.url,
-  });
+  const httpLink = mkHttpLink(opts);
 
   return new ApolloClient({
     link: authLink.concat(httpLink),
@@ -40,13 +68,7 @@ const createClientWithoutWebsockets = function (opts) {
 };
 
 const createClientWithWebsockets = function (opts) {
-  const httpLink = new HttpLink({
-    uri: opts.url,
-    options: {
-      authToken: opts.authToken,
-      reconnect: true,
-    },
-  });
+  const httpLink = mkHttpLink(opts);
 
   const wsLink = new GraphQLWsLink(
     createWsClient({
