@@ -213,7 +213,7 @@ class VarsTypeChecked schema query where
 instance varsTypeCheckedWithVars ::
   ( GetGqlQueryVars schema query { | gqlVars }
   , HFoldlWithIndex (CombineVarsProp { | gqlVars }) GqlQueryVarsN { | vars } GqlQueryVarsN
-  , GetVar query {| vars}
+  , GetVar query { | vars }
   ) =>
   VarsTypeChecked schema (WithVars query { | vars }) where
   getVarsJson _ (WithVars encode _ vars) = encode vars
@@ -275,7 +275,8 @@ instance queryVarsOrArg ::
   )
   -- Since this matches over _any_ schema, this must come before the pattern
   -- match for AsGql such that the schema is preserved through l and r.
-  => GetGqlQueryVars schema (OrArg l r) { | vars }
+  =>
+  GetGqlQueryVars schema (OrArg l r) { | vars }
 
 else instance queryVarsAndArgs ::
   ( GetGqlQueryVars schema l { | varsL }
@@ -283,8 +284,8 @@ else instance queryVarsAndArgs ::
   , Row.Union varsL varsR trash
   , Row.Union varsR varsL trash
   , Row.Nub trash vars
-  )
-  => GetGqlQueryVars schema (AndArgs l r) { | vars }
+  ) =>
+  GetGqlQueryVars schema (AndArgs l r) { | vars }
 
 else instance queryVarsAsGqlVar ::
   ( Row.Cons name (Proxy gqlName) () result
